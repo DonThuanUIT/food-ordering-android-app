@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5"
-    tools:context=".LoginActivity">
+    tools:context=".ui.auth.LoginActivity">
 
     <!-- Khối nền xanh phía trên -->
     <View
@@ -125,7 +125,7 @@
                     android:layout_gravity="end|center_vertical"
                     android:layout_marginEnd="16dp"
                     android:src="@android:drawable/ic_menu_view"
-                    android:tint="#A0A6B2"/>
+                    app:tint="#A0A6B2"/>
             </FrameLayout>
 
             <!-- Remember / Forgot -->
