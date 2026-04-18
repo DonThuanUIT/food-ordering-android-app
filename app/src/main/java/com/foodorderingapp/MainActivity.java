@@ -10,7 +10,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.foodorderingapp.ui.auth.RegisterActivity;
+import com.foodorderingapp.ui.auth.LoginActivity;
 
 public class MainActivity extends AppCompatActivity {
     Button btnOpenRegister;
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btnOpenRegister = findViewById(R.id.btnOpenRegister);
         btnOpenRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         });
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
