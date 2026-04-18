@@ -101,7 +101,7 @@
                     android:layout_marginTop="8dp"/>
 
                 <EditText
-                    android:id="@+id/edtName"
+                    android:id="@+id/edtFullName"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="8dp"
@@ -114,26 +114,26 @@
                     android:textColorHint="#B8BDC9"
                     android:backgroundTint="@null"/>
 
-                <!-- EMAIL -->
+                <!-- Phone -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="EMAIL"
+                    android:text="PHONE"
                     android:textColor="#666666"
                     android:textStyle="bold"
                     android:textSize="12sp"
                     android:layout_marginTop="18dp"/>
 
                 <EditText
-                    android:id="@+id/edtEmail"
+                    android:id="@+id/edtPhone"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/bg_edittext"
-                    android:hint="example@gmail.com"
+                    android:hint="0123456789"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-                    android:inputType="textEmailAddress"
+                    android:inputType="phone"
                     android:textColor="#222222"
                     android:textColorHint="#B8BDC9"
                     android:backgroundTint="@null"/>
@@ -193,7 +193,7 @@
                     android:background="@drawable/bg_edittext">
 
                     <EditText
-                        android:id="@+id/edtRePassword"
+                        android:id="@+id/edtConfirmPassword"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:hint="••••••••••••"
@@ -261,19 +261,19 @@
                         android:textStyle="bold" />
                 </RadioGroup>
 
-                <!-- SIGN UP BUTTON -->
+                <!-- REGISTER BUTTON -->
                 <Button
-                    android:id="@+id/btnSignUp"
+                    android:id="@+id/btnRegister"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="8dp"
+                    android:background="@drawable/bg_button_orange"
                     android:text="ĐĂNG KÝ"
                     android:textAllCaps="true"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
-                    android:background="@drawable/bg_button_orange"
-                    app:backgroundTint="@null"/>
+                    app:backgroundTint="@null" />
 
             </LinearLayout>
         </ScrollView>

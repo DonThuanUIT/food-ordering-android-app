@@ -67,26 +67,26 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- EMAIL -->
+            <!-- PHONE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EMAIL"
+                android:text="PHONE"
                 android:textColor="#666666"
                 android:textStyle="bold"
                 android:textSize="12sp"
                 android:layout_marginTop="8dp"/>
 
             <EditText
-                android:id="@+id/edtEmail"
+                android:id="@+id/edtPhone"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_edittext"
-                android:hint="example@gmail.com"
+                android:hint="0123456789"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:inputType="textEmailAddress"
+                android:inputType="phone"
                 android:textColor="#222222"
                 android:textColorHint="#B8BDC9"/>
 
