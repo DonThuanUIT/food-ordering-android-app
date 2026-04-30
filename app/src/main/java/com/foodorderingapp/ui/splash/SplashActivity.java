@@ -1,8 +1,11 @@
 package com.foodorderingapp.ui.splash;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -27,25 +30,23 @@ public class SplashActivity extends AppCompatActivity {
 
         imgLogo = findViewById(R.id.imgLogo);
 
-        // Đảm bảo View đã sẵn sàng rồi mới chạy Animation
-        imgLogo.post(new Runnable() {
-            @Override
-            public void run() {
-                Animation animation = AnimationUtils.loadAnimation(SplashActivity.this, R.anim.slide_in_left);
-                imgLogo.startAnimation(animation);
-            }
+        imgLogo.post(() -> {
+            Animation animation = AnimationUtils.loadAnimation(SplashActivity.this, R.anim.slide_in_left);
+            imgLogo.startAnimation(animation);
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
-                startActivity(intent);
-                // Tạo hiệu ứng chuyển cảnh mượt mà giữa các Activity
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+            startActivity(intent);
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out);
+            } else {
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                finish();
             }
-        }, 2500); // Tăng thời gian delay một chút để xem rõ animation
+            
+            finish();
+        }, 2500);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splash), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
