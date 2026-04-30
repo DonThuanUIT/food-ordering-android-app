@@ -12,11 +12,12 @@
     <View
         android:id="@+id/topBackground"
         android:layout_width="0dp"
-        android:layout_height="280dp"
+        android:layout_height="220dp"
         android:background="@drawable/bg_top_dark"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Nút back -->
     <ImageButton
@@ -40,27 +41,14 @@
         android:layout_height="wrap_content"
         android:text="Đăng Ký Tài Khoản"
         android:textColor="#FFFFFF"
-        android:textSize="30sp"
+        android:textSize="28sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-medium"
         app:layout_constraintTop_toTopOf="@id/topBackground"
         app:layout_constraintBottom_toBottomOf="@id/topBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="-30dp"/>
-
-    <!-- Subtitle -->
-    <TextView
-        android:id="@+id/txtSubTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hãy đăng ký để bắt đầu"
-        android:textColor="#D6D6E0"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/txtTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="-20dp"/>
 
     <!-- Card trắng -->
     <androidx.cardview.widget.CardView
@@ -69,7 +57,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="-30dp"
+        android:layout_marginTop="-20dp"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="28dp"
         app:cardElevation="8dp"
@@ -90,15 +78,61 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- NAME -->
+                <!-- ROLE SELECTION FIRST -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TÊN ĐĂNG NHẬP"
+                    android:text="CHỌN VAI TRÒ"
+                    android:textColor="#666666"
+                    android:textStyle="bold"
+                    android:textSize="12sp"/>
+
+                <RadioGroup
+                    android:id="@+id/rgRole"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_edittext"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <RadioButton
+                        android:id="@+id/rbStudent"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_radio_selector"
+                        android:button="@null"
+                        android:checked="true"
+                        android:gravity="center"
+                        android:text="Sinh viên"
+                        android:textColor="#333333"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <RadioButton
+                        android:id="@+id/rbOwner"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_radio_selector"
+                        android:button="@null"
+                        android:gravity="center"
+                        android:text="Chủ quán"
+                        android:textColor="#333333"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </RadioGroup>
+
+                <!-- COMMON FIELDS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HỌ VÀ TÊN"
                     android:textColor="#666666"
                     android:textStyle="bold"
                     android:textSize="12sp"
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="18dp"/>
 
                 <EditText
                     android:id="@+id/edtFullName"
@@ -106,19 +140,39 @@
                     android:layout_height="52dp"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/bg_edittext"
-                    android:hint="John doe"
+                    android:hint="Nguyễn Văn A"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:inputType="textPersonName"
                     android:textColor="#222222"
-                    android:textColorHint="#B8BDC9"
-                    android:backgroundTint="@null"/>
+                    android:textColorHint="#B8BDC9"/>
 
-                <!-- Phone -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PHONE"
+                    android:text="EMAIL"
+                    android:textColor="#666666"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_marginTop="18dp"/>
+
+                <EditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_edittext"
+                    android:hint="example@gmail.com"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:inputType="textEmailAddress"
+                    android:textColor="#222222"
+                    android:textColorHint="#B8BDC9"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SỐ ĐIỆN THOẠI"
                     android:textColor="#666666"
                     android:textStyle="bold"
                     android:textSize="12sp"
@@ -135,8 +189,156 @@
                     android:paddingEnd="16dp"
                     android:inputType="phone"
                     android:textColor="#222222"
-                    android:textColorHint="#B8BDC9"
-                    android:backgroundTint="@null"/>
+                    android:textColorHint="#B8BDC9"/>
+
+                <!-- STUDENT SPECIFIC -->
+                <LinearLayout
+                    android:id="@+id/layoutStudentFields"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MÃ TÒA NHÀ (BUILDING ID)"
+                        android:textColor="#666666"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_marginTop="18dp"/>
+
+                    <EditText
+                        android:id="@+id/edtBuildingId"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_edittext"
+                        android:hint="Nhập UUID tòa nhà"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:inputType="text"
+                        android:textColor="#222222"
+                        android:textColorHint="#B8BDC9"/>
+                </LinearLayout>
+
+                <!-- VENDOR SPECIFIC -->
+                <LinearLayout
+                    android:id="@+id/layoutVendorFields"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TÊN CỬA HÀNG"
+                        android:textColor="#666666"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_marginTop="18dp"/>
+
+                    <EditText
+                        android:id="@+id/edtShopName"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_edittext"
+                        android:hint="Bếp nhà B"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:inputType="text"
+                        android:textColor="#222222"
+                        android:textColorHint="#B8BDC9"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MÔ TẢ"
+                        android:textColor="#666666"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_marginTop="18dp"/>
+
+                    <EditText
+                        android:id="@+id/edtDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_edittext"
+                        android:hint="Cơm trưa sinh viên"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:inputType="text"
+                        android:textColor="#222222"
+                        android:textColorHint="#B8BDC9"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="18dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="GIỜ MỞ CỬA"
+                                android:textColor="#666666"
+                                android:textStyle="bold"
+                                android:textSize="12sp"/>
+
+                            <EditText
+                                android:id="@+id/edtOpenTime"
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:layout_marginTop="8dp"
+                                android:background="@drawable/bg_edittext"
+                                android:hint="08:00:00"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:inputType="time"
+                                android:textColor="#222222"
+                                android:textColorHint="#B8BDC9"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="GIỜ ĐÓNG CỬA"
+                                android:textColor="#666666"
+                                android:textStyle="bold"
+                                android:textSize="12sp"/>
+
+                            <EditText
+                                android:id="@+id/edtCloseTime"
+                                android:layout_width="match_parent"
+                                android:layout_height="52dp"
+                                android:layout_marginTop="8dp"
+                                android:background="@drawable/bg_edittext"
+                                android:hint="20:00:00"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:inputType="time"
+                                android:textColor="#222222"
+                                android:textColorHint="#B8BDC9"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
 
                 <!-- PASSWORD -->
                 <TextView
@@ -176,7 +378,6 @@
                         app:tint="#A0A6B2"/>
                 </FrameLayout>
 
-                <!-- RE-TYPE PASSWORD -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -205,7 +406,7 @@
                         android:textColorHint="#B8BDC9"/>
 
                     <ImageView
-                        android:id="@+id/imgEyeRePassword"
+                        android:id="@+id/imgEyeConfirmPassword"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="end|center_vertical"
@@ -214,60 +415,13 @@
                         app:tint="#A0A6B2"/>
                 </FrameLayout>
 
-                <!-- ROLE -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CHỌN VAI TRÒ"
-                    android:textColor="#666666"
-                    android:textStyle="bold"
-                    android:textSize="12sp"
-                    android:layout_marginTop="18dp"/>
-
-                <RadioGroup
-                    android:id="@+id/rgRole"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_edittext"
-                    android:orientation="horizontal"
-                    android:padding="4dp">
-
-                    <RadioButton
-                        android:id="@+id/rbStudent"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_radio_selector"
-                        android:button="@null"
-                        android:checked="true"
-                        android:gravity="center"
-                        android:text="Sinh viên"
-                        android:textColor="#333333"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <RadioButton
-                        android:id="@+id/rbOwner"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_radio_selector"
-                        android:button="@null"
-                        android:gravity="center"
-                        android:text="Chủ quán"
-                        android:textColor="#333333"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-                </RadioGroup>
-
                 <!-- REGISTER BUTTON -->
                 <Button
                     android:id="@+id/btnRegister"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="24dp"
                     android:background="@drawable/bg_button_orange"
                     android:text="ĐĂNG KÝ"
                     android:textAllCaps="true"

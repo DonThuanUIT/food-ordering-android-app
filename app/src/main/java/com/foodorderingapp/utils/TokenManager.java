@@ -9,16 +9,42 @@ public class TokenManager {
     private static final String KEY_ACCESS_TOKEN = "access_token";
     private static final String KEY_REFRESH_TOKEN = "refresh_token";
 
+    private static TokenManager instance;
     private final SharedPreferences sharedPreferences;
 
-    public TokenManager(Context context) {
+    private TokenManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static synchronized void init(Context context) {
+        if (instance == null) {
+            instance = new TokenManager(context.getApplicationContext());
+        }
+    }
+
+    public static synchronized TokenManager getInstance() {
+        if (instance == null) {
+            throw new RuntimeException("TokenManager must be initialized with context before use.");
+        }
+        return instance;
     }
 
     public void saveTokens(String accessToken, String refreshToken) {
         sharedPreferences.edit()
                 .putString(KEY_ACCESS_TOKEN, accessToken)
                 .putString(KEY_REFRESH_TOKEN, refreshToken)
+                .apply();
+    }
+
+    public void saveAccessToken(String token) {
+        sharedPreferences.edit()
+                .putString(KEY_ACCESS_TOKEN, token)
+                .apply();
+    }
+
+    public void saveRefreshToken(String token) {
+        sharedPreferences.edit()
+                .putString(KEY_REFRESH_TOKEN, token)
                 .apply();
     }
 
