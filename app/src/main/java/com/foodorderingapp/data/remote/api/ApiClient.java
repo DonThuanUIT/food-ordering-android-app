@@ -1,6 +1,6 @@
 package com.foodorderingapp.data.remote.api;
 
-import com.foodorderingapp.utils.AppConstants;
+import com.foodorderingapp.utils.constants.AppConstants;
 import com.foodorderingapp.utils.TokenManager;
 
 import java.util.concurrent.TimeUnit;

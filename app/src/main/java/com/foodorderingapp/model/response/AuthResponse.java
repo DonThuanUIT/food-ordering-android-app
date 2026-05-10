@@ -6,6 +6,8 @@ public class AuthResponse {
     private String accessToken;
     private String refreshToken;
 
+    private String role;
+
     public String getMessage() {
         return message;
     }
@@ -20,5 +22,9 @@ public class AuthResponse {
 
     public String getRefreshToken() {
         return refreshToken;
+    }
+
+    public String getRole() {
+        return role;
     }
 }

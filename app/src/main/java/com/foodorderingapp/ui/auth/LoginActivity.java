@@ -91,8 +91,12 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel.getLoginResponse().observe(this, response -> {
             if (response != null) {
                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                // Chuyển sang màn hình chính
+
+                String userRole = response.getRole();
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.putExtra("USER_ROLE", userRole);
+
                 startActivity(intent);
                 finish();
             }

@@ -1,4 +1,4 @@
-package com.foodorderingapp.utils;
+package com.foodorderingapp.utils.constants;
 
 public class AppConstants {
     // Nếu dùng Emulator: http://10.0.2.2:8080/api/
