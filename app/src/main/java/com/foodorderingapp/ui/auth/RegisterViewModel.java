@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.foodorderingapp.data.remote.api.ApiClient;
-import com.foodorderingapp.model.request.RegisterRequest;
+import com.foodorderingapp.model.request.StudentRegisterRequest;
+import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.response.ApiError;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.google.gson.Gson;
@@ -20,121 +21,67 @@ public class RegisterViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isSuccess = new MutableLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
-    private final MutableLiveData<String> fullNameError = new MutableLiveData<>();
-    private final MutableLiveData<String> phoneError = new MutableLiveData<>();
-    private final MutableLiveData<String> passwordError = new MutableLiveData<>();
-    private final MutableLiveData<String> confirmPasswordError = new MutableLiveData<>();
 
-    public LiveData<Boolean> getIsLoading() {
-        return isLoading;
-    }
+    public LiveData<Boolean> getIsLoading() { return isLoading; }
+    public LiveData<Boolean> getIsSuccess() { return isSuccess; }
+    public LiveData<String> getMessage() { return message; }
 
-    public LiveData<Boolean> getIsSuccess() {
-        return isSuccess;
-    }
-
-    public LiveData<String> getMessage() {
-        return message;
-    }
-
-    public LiveData<String> getFullNameError() {
-        return fullNameError;
-    }
-
-    public LiveData<String> getPhoneError() {
-        return phoneError;
-    }
-
-    public LiveData<String> getPasswordError() {
-        return passwordError;
-    }
-
-    public LiveData<String> getConfirmPasswordError() {
-        return confirmPasswordError;
-    }
-
-    public void register(String fullName, String phone, String password, String confirmPassword) {
-        clearErrors();
-        isSuccess.setValue(false);
-        boolean isValid = true;
-
-        if (fullName == null || fullName.trim().isEmpty()) {
-            fullNameError.setValue("Họ và tên không được để trống");
-            isValid = false;
-        }
-        if (phone == null || phone.trim().isEmpty()) {
-            phoneError.setValue("Số điện thoại không được để trống");
-            isValid = false;
-        } else if (phone.trim().length() < 10) {
-                phoneError.setValue("Số điện thoại không hợp lệ");
-                isValid = false;
-        }
-
-        if (password == null || password.trim().isEmpty()) {
-            passwordError.setValue("Mật khẩu không được để trống");
-            isValid = false;
-        }  else if (password.trim().length() < 6) {
-            passwordError.setValue("Mật khẩu phải từ 6 ký tự");
-            isValid = false;
-        }
-
-        if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            confirmPasswordError.setValue("Xác nhận mật khẩu không được để trống");
-            isValid = false;
-        }
-
-        if(password != null && confirmPassword != null
-            && !password.trim().isEmpty()
-            && !confirmPassword.trim().isEmpty()
-            && !password.trim().equals(confirmPassword.trim())) {
-            confirmPasswordError.setValue("Mật khẩu không khớp");
-            isValid = false;
-            }
-
-        if (!isValid) {
-            return;
-        }
+    public void register(String fullName, String phone, String email, String password,
+                         boolean isStudent, String buildingId, String shopName) {
 
         isLoading.setValue(true);
+        isSuccess.setValue(null); // Reset để Observer luôn nhận được sự kiện mới
 
-        RegisterRequest request = new RegisterRequest(phone.trim(), password.trim(), fullName.trim());
+        Call<AuthResponse> call;
+        if (isStudent) {
+            StudentRegisterRequest request = new StudentRegisterRequest(
+                    phone.trim(), password.trim(), fullName.trim(), email.trim(), buildingId
+            );
+            call = ApiClient.getAuthApiService().registerStudent(request);
+        } else {
+            VendorRegisterRequest request = new VendorRegisterRequest(
+                    phone.trim(), password.trim(), fullName.trim(), email.trim(),
+                    shopName.trim(), "", "", ""
+            );
+            call = ApiClient.getAuthApiService().registerVendor(request);
+        }
 
-        ApiClient.getAuthApiService().register(request).enqueue(new Callback<AuthResponse>() {
+        call.enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 isLoading.setValue(false);
-
-                if (response.isSuccessful() && response.body() != null) {
+                // Nếu Server gửi mail thành công và trả về code 200/201
+                if (response.isSuccessful()) {
                     isSuccess.setValue(true);
-                    message.setValue(response.body().getMessage() != null ? response.body().getMessage() : "Đăng ký thành công");
+                    message.setValue("Mã OTP đã được gửi vào Email của bạn.");
                 } else {
-                    String errorMessage = "Đăng ký thất bại";
-                    try {
-                        if (response.errorBody() != null) {
-                            String errorJson = response.errorBody().string();
-                            ApiError apiError = new Gson().fromJson(errorJson, ApiError.class);
-                            if (apiError != null && apiError.getMessage() != null) {
-                                errorMessage = apiError.getMessage();
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    message.setValue(errorMessage);
+                    isSuccess.setValue(false);
+                    handleErrorResponse(response);
                 }
             }
+
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 isLoading.setValue(false);
-                message.setValue("Lỗi kết nối: " + t.getMessage());
+                isSuccess.setValue(false);
+                message.setValue("Lỗi mạng: " + t.getMessage());
             }
         });
     }
 
-    private void clearErrors() {
-        fullNameError.setValue(null);
-        phoneError.setValue(null);
-        passwordError.setValue(null);
-        confirmPasswordError.setValue(null);
+    private void handleErrorResponse(Response<AuthResponse> response) {
+        String errorMessage = "Đăng ký thất bại (Lỗi " + response.code() + ")";
+        try {
+            if (response.errorBody() != null) {
+                String errorJson = response.errorBody().string();
+                ApiError apiError = new Gson().fromJson(errorJson, ApiError.class);
+                if (apiError != null && apiError.getMessage() != null) {
+                    errorMessage = apiError.getMessage();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        message.setValue(errorMessage);
     }
 }
