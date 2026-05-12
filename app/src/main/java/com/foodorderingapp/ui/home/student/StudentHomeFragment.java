@@ -8,43 +8,52 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import com.foodorderingapp.R;
+import com.foodorderingapp.databinding.FragmentStudentHomeBinding;
 import com.foodorderingapp.ui.adapter.DummyAdapter;
 
 public class StudentHomeFragment extends Fragment {
 
-    private RecyclerView rvCategories;
-    private RecyclerView rvFeaturedRestaurants;
-    private RecyclerView rvStudentDishes;
+    private FragmentStudentHomeBinding binding;
 
     public StudentHomeFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_student_home, container, false);
+        // Sử dụng View Binding để kết nối với layout fragment_student_home.xml
+        binding = FragmentStudentHomeBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
+        if (binding.rvMainHomeList != null) {
+            binding.rvMainHomeList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        rvCategories = view.findViewById(R.id.rvCategories);
-        rvFeaturedRestaurants = view.findViewById(R.id.rvFeaturedRestaurants);
-        rvStudentDishes = view.findViewById(R.id.rvStudentDishes);
+            binding.rvMainHomeList.setNestedScrollingEnabled(false);
 
-        rvCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        rvFeaturedRestaurants.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        rvStudentDishes.setLayoutManager(new LinearLayoutManager(getContext()));
+            DummyAdapter adapter = new DummyAdapter();
+            binding.rvMainHomeList.setAdapter(adapter);
+        }
 
-        // Tắt Nested Scrolling để cuộn mượt hơn trong NestedScrollView
-        rvCategories.setNestedScrollingEnabled(false);
-        rvFeaturedRestaurants.setNestedScrollingEnabled(false);
-        rvStudentDishes.setNestedScrollingEnabled(false);
+        setupTabListeners();
+    }
 
-        DummyAdapter adapter = new DummyAdapter();
-        rvCategories.setAdapter(adapter);
-        rvFeaturedRestaurants.setAdapter(adapter);
-        rvStudentDishes.setAdapter(adapter);
+    private void setupTabListeners() {
+        binding.tvTabRestaurants.setOnClickListener(v -> {
+            // Xử lý đổi dữ liệu sang danh sách Quán ăn tại đây
+        });
+
+        binding.tabDishes.setOnClickListener(v -> {
+            // Xử lý đổi dữ liệu sang danh sách Món ngon tại đây
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Hủy binding để tránh rò rỉ bộ nhớ
+        binding = null;
     }
 }

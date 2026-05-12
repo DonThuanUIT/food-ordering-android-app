@@ -4,25 +4,69 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#0D1033"
+    android:fitsSystemWindows="false">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/home_bg_top_dark"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#FFFFFF"
-            app:title="DormDash"
-            app:titleTextColor="#FF9800"/>
+            app:contentInsetStart="0dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="24dp">
+
+                <ImageView
+                    android:id="@+id/ivMenu"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_menu_3_stripes"
+                    app:tint="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/tvAppTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@id/ivMenu"
+                    android:text="UniEats"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/ivProfile"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/home_bg_circle_white"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_profile"
+                    app:tint="#444444" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Thêm layout_behavior để Fragment không bị Toolbar đè lên -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#F8F9FA"
+        android:layout_marginBottom="65dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -31,16 +75,19 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="100dp"
         android:src="@drawable/ic_cart"
         app:backgroundTint="#FF9800"
-        app:tint="#FFFFFF"/>
+        app:tint="#FFFFFF"
+        app:elevation="8dp"
+        app:borderWidth="0dp"
+        android:contentDescription="Giỏ hàng"/>
 
-    <!-- Xóa app:menu để xử lý hoàn toàn trong Java -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="wrap_content"
+        android:minHeight="65dp"
         android:layout_gravity="bottom"
         android:background="#FFFFFF"
         app:elevation="16dp"
@@ -48,8 +95,6 @@
         app:itemTextColor="@color/nav_item_color"
         app:itemActiveIndicatorStyle="@null"
         app:labelVisibilityMode="labeled"
-        app:itemIconSize="26dp"
-        app:itemPaddingTop="10dp"
-        app:itemPaddingBottom="10dp" />
+        app:itemIconSize="24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
