@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header Section: Chỉ giữ lại Lời chào và Thanh tìm kiếm -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,7 +20,6 @@
             android:paddingBottom="40dp"
             android:background="@drawable/home_bg_top_dark">
 
-            <!-- Lời chào -->
             <TextView
                 android:id="@+id/tvGreeting"
                 android:layout_width="wrap_content"
@@ -31,7 +29,6 @@
                 android:textSize="26sp"
                 android:textStyle="bold" />
 
-            <!-- Thanh Tìm Kiếm kiểu Pill -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
@@ -61,7 +58,6 @@
             </RelativeLayout>
         </LinearLayout>
 
-        <!-- Phần nội dung chính (Màu trắng bo góc đè lên nền xanh) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,23 +75,42 @@
                 android:paddingHorizontal="24dp"
                 android:gravity="bottom">
 
-                <TextView
-                    android:id="@+id/tvTabRestaurants"
+                <!-- Tab Quán Ăn -->
+                <LinearLayout
+                    android:id="@+id/tabRestaurants"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Quán Ăn"
-                    android:textSize="17sp"
-                    android:textColor="#555555"
-                    android:textStyle="bold"
-                    android:paddingBottom="10dp"/>
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/tvTabRestaurants"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quán Ăn"
+                        android:textSize="17sp"
+                        android:textColor="#555555"
+                        android:textStyle="bold"
+                        android:paddingBottom="10dp"/>
+                    <View
+                        android:id="@+id/indicatorRestaurants"
+                        android:layout_width="60dp"
+                        android:layout_height="3dp"
+                        android:visibility="invisible"
+                        android:background="@drawable/home_bg_tab_indicator"/>
+                </LinearLayout>
 
+                <!-- Tab Món Ngon -->
                 <LinearLayout
                     android:id="@+id/tabDishes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
                     android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
                     <TextView
                         android:id="@+id/tvTabDishes"
                         android:layout_width="wrap_content"

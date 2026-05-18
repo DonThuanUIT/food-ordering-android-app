@@ -9,7 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.foodorderingapp.data.respository.UploadImageRepository;
+import com.foodorderingapp.data.repository.UploadImageRepository;
 import com.foodorderingapp.model.response.UploadImageResponse;
 import com.foodorderingapp.utils.FileUtils;
 

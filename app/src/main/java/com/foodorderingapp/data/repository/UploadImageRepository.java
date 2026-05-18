@@ -1,4 +1,4 @@
-package com.foodorderingapp.data.respository;
+package com.foodorderingapp.data.repository;
 
 import com.foodorderingapp.data.remote.api.UploadImageApi;
 import com.foodorderingapp.model.response.UploadImageResponse;
