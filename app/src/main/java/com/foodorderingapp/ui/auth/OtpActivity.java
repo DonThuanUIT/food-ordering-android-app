@@ -37,6 +37,12 @@ public class OtpActivity extends AppCompatActivity {
 
         btnVerify.setOnClickListener(v -> {
             String otp = edtOtp.getText().toString();
+
+            if (otp.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            btnVerify.setEnabled(false);
             viewModel.verifyOtp(email, otp);
         });
 
@@ -64,11 +70,18 @@ public class OtpActivity extends AppCompatActivity {
         btnResend.setEnabled(false);
         viewModel.setOtpExpired(false);
 
-        countDownTimer = new CountDownTimer(60000, 1000) {
+        countDownTimer = new CountDownTimer(5 * 60 * 1000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                int seconds = (int) (millisUntilFinished / 1000);
-                tvTimer.setText(String.format(Locale.getDefault(), "Gửi lại sau %ds", seconds));
+                long minutes = millisUntilFinished / 1000 / 60;
+                long seconds = millisUntilFinished / 1000 % 60;
+
+                tvTimer.setText(String.format(
+                        Locale.getDefault(),
+                        "Gửi lại sau %02d:%02d",
+                        minutes,
+                        seconds
+                ));
             }
 
             @Override
@@ -90,6 +103,7 @@ public class OtpActivity extends AppCompatActivity {
         });
 
         viewModel.getErrorMessage().observe(this, msg -> {
+            btnVerify.setEnabled(true);
             if (msg != null) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         });
     }

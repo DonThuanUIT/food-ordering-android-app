@@ -1,16 +1,26 @@
 package com.foodorderingapp.data.remote.api;
 
+import com.foodorderingapp.model.ShopDetailResponse;
+import com.foodorderingapp.model.request.AddToCartRequest;
+import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.response.AuthResponse;
+import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
+import com.foodorderingapp.model.response.ShopResponse;
+import com.foodorderingapp.model.response.FoodExploreResponse;
+import com.foodorderingapp.model.response.CartResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
 
@@ -25,4 +35,27 @@ public interface ApiService {
 
     @POST("auth/login")
     Call<AuthResponse> login(@Body LoginRequest request);
+
+    @GET("shops")
+    Call<PageResponse<ShopResponse>> getShops(
+            @Query("page") int page,
+            @Query("size") int size,
+            @Query("keyword") String keyword
+    );
+
+    @GET("shops/{shopId}/detail-menu")
+    Call<ShopDetailResponse> getShopDetail(@Path("shopId") String shopId);
+
+    @GET("foods/explore")
+    Call<PageResponse<FoodExploreResponse>> getExploreFoods(
+            @Query("page") int page,
+            @Query("size") int size
+    );
+
+    @GET("cart")
+    Call<CartResponse> getCart();
+
+    @POST("cart/items")
+    Call<Void> addToCart(@Body CartItemRequest request);
+
 }

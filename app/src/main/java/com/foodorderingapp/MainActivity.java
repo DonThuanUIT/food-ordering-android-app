@@ -2,6 +2,7 @@ package com.foodorderingapp;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -21,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
+    private TextView tvAppTitle;
     private String userRole;
 
     @Override
@@ -30,24 +32,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNav = findViewById(R.id.bottom_navigation);
+        tvAppTitle = findViewById(R.id.tvAppTitle);
 
         if (findViewById(R.id.toolbar) != null) {
             setSupportActionBar(findViewById(R.id.toolbar));
         }
 
-        // Xử lý Window Insets để tránh bị BottomNav đè lên navigation bar của hệ thống
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_layout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            // Chỉ cần padding bottom cho bottomNav, phần top sẽ do AppBarLayout xử lý qua fitsSystemWindows
             bottomNav.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
 
-        // Lấy role từ Intent
         userRole = getIntent().getStringExtra("USER_ROLE");
-        Log.d("MAIN_DEBUG", "User Role in MainActivity: " + userRole);
-
-        // Nếu role null, mặc định là STUDENT để tránh lỗi trắng màn hình
         if (userRole == null) userRole = "STUDENT";
 
         setupMenuAndNavigation(userRole);
@@ -57,12 +54,13 @@ public class MainActivity extends AppCompatActivity {
     private void setupMenuAndNavigation(String role) {
         bottomNav.getMenu().clear();
 
-        // Sử dụng equalsIgnoreCase để khớp với chữ hoa từ Backend (STUDENT/VENDOR)
         if ("VENDOR".equalsIgnoreCase(role)) {
             bottomNav.inflateMenu(R.menu.menu_vendor);
+            updateHeader("Đơn Hàng");
             loadFragment(new VendorOrdersFragment());
         } else {
             bottomNav.inflateMenu(R.menu.menu_student);
+            updateHeader("UniEats");
             loadFragment(new StudentHomeFragment());
         }
 
@@ -70,32 +68,48 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
+            String title = "UniEats";
             int id = item.getItemId();
 
             if (id == R.id.nav_home) {
                 selectedFragment = new StudentHomeFragment();
+                title = "UniEats";
             } else if (id == R.id.nav_orders) {
                 selectedFragment = new StudentOrdersFragment();
+                title = "Đơn Hàng";
             } else if (id == R.id.nav_history) {
                 selectedFragment = new StudentHistoryFragment();
+                title = "Lịch Sử";
             } else if (id == R.id.nav_profile) {
                 selectedFragment = new StudentProfileFragment();
+                title = "Cá Nhân";
             } else if (id == R.id.nav_vendor_orders) {
                 selectedFragment = new VendorOrdersFragment();
+                title = "Đơn Hàng";
             } else if (id == R.id.nav_vendor_stats) {
                 selectedFragment = new VendorStatsFragment();
+                title = "Thống Kê";
             } else if (id == R.id.nav_vendor_menu) {
                 selectedFragment = new VendorMenuFragment();
+                title = "Thực Đơn";
             } else if (id == R.id.nav_vendor_settings) {
                 selectedFragment = new VendorSettingsFragment();
+                title = "Cài Đặt";
             }
 
             if (selectedFragment != null) {
+                updateHeader(title);
                 loadFragment(selectedFragment);
                 return true;
             }
             return false;
         });
+    }
+
+    private void updateHeader(String title) {
+        if (tvAppTitle != null) {
+            tvAppTitle.setText(title);
+        }
     }
 
     private void loadFragment(Fragment fragment) {

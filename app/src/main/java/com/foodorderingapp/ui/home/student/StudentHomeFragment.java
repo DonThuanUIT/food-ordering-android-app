@@ -1,5 +1,6 @@
 package com.foodorderingapp.ui.home.student;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,17 +10,31 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.foodorderingapp.databinding.FragmentStudentHomeBinding;
-import com.foodorderingapp.ui.adapter.DummyAdapter;
+import android.widget.Toast;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.foodorderingapp.ui.adapter.CartShopAdapter;
+import com.foodorderingapp.ui.adapter.ShopAdapter;
+import com.foodorderingapp.viewmodel.CartViewModel;
+import com.foodorderingapp.viewmodel.ShopViewModel;
+import java.util.ArrayList;
+import java.util.List;
+import com.foodorderingapp.model.response.ShopResponse;
+import com.foodorderingapp.ui.adapter.FoodExploreAdapter;
+import com.foodorderingapp.viewmodel.FoodViewModel;
 
 public class StudentHomeFragment extends Fragment {
-
+    private ShopViewModel shopViewModel;
+    private ShopAdapter shopAdapter;
     private FragmentStudentHomeBinding binding;
-
+    private FoodViewModel foodViewModel;
+    private FoodExploreAdapter foodAdapter;
+    private CartViewModel cartViewModel;
+    private CartShopAdapter cartShopAdapter;
     public StudentHomeFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Sử dụng View Binding để kết nối với layout fragment_student_home.xml
         binding = FragmentStudentHomeBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -27,33 +42,96 @@ public class StudentHomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
-        if (binding.rvMainHomeList != null) {
-            binding.rvMainHomeList.setLayoutManager(new LinearLayoutManager(getContext()));
 
-            binding.rvMainHomeList.setNestedScrollingEnabled(false);
+        shopViewModel = new ViewModelProvider(this).get(ShopViewModel.class);
+        shopAdapter = new ShopAdapter();
 
-            DummyAdapter adapter = new DummyAdapter();
-            binding.rvMainHomeList.setAdapter(adapter);
-        }
+        foodViewModel = new ViewModelProvider(this).get(FoodViewModel.class);
+        foodAdapter = new FoodExploreAdapter();
 
+        binding.rvMainHomeList.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.rvMainHomeList.setNestedScrollingEnabled(false);
+        binding.rvMainHomeList.setAdapter(shopAdapter);
+
+        shopViewModel.getShopData().observe(getViewLifecycleOwner(), response -> {
+            if (response != null && response.getContent() != null) {
+                List<ShopResponse> approvedShops = new ArrayList<>();
+
+                for (ShopResponse shop : response.getContent()) {
+                    if ("APPROVED".equalsIgnoreCase(shop.getStatus()) && shop.isActive()) {
+                        approvedShops.add(shop);
+                    }
+                }
+
+                shopAdapter.submitList(approvedShops);
+            } else {
+                Toast.makeText(getContext(), "Không tải được danh sách quán", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        shopViewModel.loadShops(null);
+
+        foodViewModel.getFoodData().observe(getViewLifecycleOwner(), response -> {
+            if (response != null && response.getContent() != null) {
+                foodAdapter.submitList(response.getContent());
+            } else {
+                Toast.makeText(getContext(), "Không tải được danh sách món ngon", Toast.LENGTH_SHORT).show();
+            }
+        });
         setupTabListeners();
-    }
+        selectTab(true);
 
+        cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
+        foodAdapter.setOnAddToCartClickListener(food -> {
+            cartViewModel.addToCart(food.getId());
+        });
+        cartViewModel.getAddResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(getContext(), "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Thêm vào giỏ thất bại", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private void setupTabListeners() {
-        binding.tvTabRestaurants.setOnClickListener(v -> {
-            // Xử lý đổi dữ liệu sang danh sách Quán ăn tại đây
+        binding.tabRestaurants.setOnClickListener(v -> {
+            selectTab(true);
+            binding.rvMainHomeList.setAdapter(shopAdapter);
+            shopViewModel.loadShops(null);
         });
 
         binding.tabDishes.setOnClickListener(v -> {
-            // Xử lý đổi dữ liệu sang danh sách Món ngon tại đây
+            selectTab(false);
+            binding.rvMainHomeList.setAdapter(foodAdapter);
+            foodViewModel.loadExploreFoods();
         });
+    }
+
+    private void selectTab(boolean isRestaurants) {
+        if (isRestaurants) {
+            // Select Restaurants
+            binding.tvTabRestaurants.setTextColor(Color.parseColor("#FF7A21"));
+            binding.indicatorRestaurants.setVisibility(View.VISIBLE);
+
+            // Unselect Dishes
+            binding.tvTabDishes.setTextColor(Color.parseColor("#555555"));
+            binding.indicatorDishes.setVisibility(View.INVISIBLE);
+
+        } else {
+            // Select Dishes
+            binding.tvTabDishes.setTextColor(Color.parseColor("#FF7A21"));
+            binding.indicatorDishes.setVisibility(View.VISIBLE);
+
+            // Unselect Restaurants
+            binding.tvTabRestaurants.setTextColor(Color.parseColor("#555555"));
+            binding.indicatorRestaurants.setVisibility(View.INVISIBLE);
+
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Hủy binding để tránh rò rỉ bộ nhớ
         binding = null;
     }
 }
