@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -21,10 +22,17 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.foodorderingapp.MainActivity;
 import com.foodorderingapp.R;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.model.request.ResendOtpRequest;
+import com.foodorderingapp.model.response.AuthResponse;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LOGIN_DEBUG";
-    private TextView txtSignUp;
+    private TextView txtSignUp, txtForgot;
     private EditText edtPhone, edtPassword;
     private ImageView imgEye;
     private Button btnLogin;
@@ -53,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initViews() {
         txtSignUp = findViewById(R.id.txtSignUp);
+        txtForgot = findViewById(R.id.txtForgot);
         edtPhone = findViewById(R.id.edtPhone);
         edtPassword = findViewById(R.id.edtPassword);
         imgEye = findViewById(R.id.imgEye);
@@ -68,6 +77,8 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         imgEye.setOnClickListener(v -> togglePasswordVisibility());
+
+        txtForgot.setOnClickListener(v -> showForgotPasswordDialog());
 
         btnLogin.setOnClickListener(v -> {
             String phone = edtPhone.getText().toString().trim();
@@ -111,6 +122,66 @@ public class LoginActivity extends AppCompatActivity {
                 finish(); // Đóng LoginActivity sau khi chuyển màn
             }
         });
+    }
+
+    private void showForgotPasswordDialog() {
+        EditText edtEmail = new EditText(this);
+        edtEmail.setHint("Email");
+        edtEmail.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        edtEmail.setSingleLine(true);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        edtEmail.setPadding(padding, 0, padding, 0);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Quen mat khau")
+                .setMessage("Nhap email de nhan ma OTP")
+                .setView(edtEmail)
+                .setNegativeButton("Huy", null)
+                .setPositiveButton("Gui ma", (dialog, which) -> {
+                    String email = edtEmail.getText().toString().trim();
+                    if (email.isEmpty()) {
+                        Toast.makeText(this, "Vui long nhap email", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    resendForgotPasswordOtp(email);
+                })
+                .show();
+    }
+
+    private void resendForgotPasswordOtp(String email) {
+        setForgotPasswordLoading(true);
+
+        ApiClient.getAuthApiService()
+                .resendOtp(new ResendOtpRequest(email))
+                .enqueue(new Callback<AuthResponse>() {
+                    @Override
+                    public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                        setForgotPasswordLoading(false);
+                        if (!response.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Khong the gui ma OTP", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        Toast.makeText(LoginActivity.this, "Da gui ma OTP", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(LoginActivity.this, OtpActivity.class);
+                        intent.putExtra("email", email);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onFailure(Call<AuthResponse> call, Throwable t) {
+                        setForgotPasswordLoading(false);
+                        Toast.makeText(LoginActivity.this, "Loi ket noi", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void setForgotPasswordLoading(boolean isLoading) {
+        txtForgot.setEnabled(!isLoading);
+        btnLogin.setEnabled(!isLoading);
+        if (progressBar != null) {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void togglePasswordVisibility() {

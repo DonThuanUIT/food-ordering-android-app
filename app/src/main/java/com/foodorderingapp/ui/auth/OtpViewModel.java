@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.model.request.ResendOtpRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.response.ApiError;
 import com.foodorderingapp.model.response.AuthResponse;
@@ -63,22 +64,25 @@ public class OtpViewModel extends ViewModel {
 
     public void resendOtp(String email) {
         isLoading.setValue(true);
-        isOtpExpired = false; // Reset trạng thái hết hạn khi gửi mã mới
+        isOtpExpired = false;
 
-        ApiClient.getAuthApiService().resendOtp(email).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                isLoading.setValue(false);
-                if (!response.isSuccessful()) {
-                    errorMessage.setValue("Không thể gửi lại mã");
+        ApiClient.getAuthApiService()
+            .resendOtp(new ResendOtpRequest(email))
+            .enqueue(new Callback<AuthResponse>() {
+                @Override
+                public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                    isLoading.setValue(false);
+                    if (!response.isSuccessful()) {
+                        errorMessage.setValue("Không thể gửi lại mã");
+                    }
                 }
-            }
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                isLoading.setValue(false);
-                errorMessage.setValue("Lỗi kết nối");
-            }
-        });
+
+                @Override
+                public void onFailure(Call<AuthResponse> call, Throwable t) {
+                    isLoading.setValue(false);
+                    errorMessage.setValue("Lỗi kết nối");
+                }
+            });
     }
 
     private void handleError(Response<?> response) {

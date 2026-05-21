@@ -2,6 +2,7 @@ package com.foodorderingapp.data.remote.api;
 
 import com.foodorderingapp.model.ShopDetailResponse;
 import com.foodorderingapp.model.request.CartItemRequest;
+import com.foodorderingapp.model.request.ResendOtpRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
@@ -27,6 +28,6 @@ public interface AuthApiService {
     Call<AuthResponse> verifyOtp(@Body VerifyOtpRequest request);
 
     @POST("auth/resend-otp")
-    Call<Void> resendOtp(@Query("email") String email);
+    Call<AuthResponse> resendOtp(@Body ResendOtpRequest request);
 
 }

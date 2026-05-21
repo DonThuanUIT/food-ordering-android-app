@@ -3,17 +3,21 @@ package com.foodorderingapp.data.remote.api;
 import com.foodorderingapp.model.ShopDetailResponse;
 import com.foodorderingapp.model.request.AddToCartRequest;
 import com.foodorderingapp.model.request.CartItemRequest;
+import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.response.AuthResponse;
+import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -57,5 +61,14 @@ public interface ApiService {
 
     @POST("cart/items")
     Call<Void> addToCart(@Body CartItemRequest request);
+
+    @POST("orders/checkout")
+    Call<List<OrderResponse>> checkout(@Body CheckoutRequest request);
+
+    @GET("orders/active")
+    Call<List<OrderResponse>> getActiveOrders();
+
+    @GET("orders/history")
+    Call<List<OrderResponse>> getOrderHistory();
 
 }
