@@ -1,7 +1,5 @@
 package com.foodorderingapp.data.remote.api;
 
-import com.foodorderingapp.model.ShopDetailResponse;
-import com.foodorderingapp.model.request.AddToCartRequest;
 import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
@@ -10,7 +8,7 @@ import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
-import com.foodorderingapp.model.response.RegisterResponse;
+import com.foodorderingapp.model.response.ShopDetailResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;

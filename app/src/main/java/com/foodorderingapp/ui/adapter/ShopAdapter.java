@@ -18,6 +18,15 @@ import java.util.List;
 public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder> {
 
     private final List<ShopResponse> shops = new ArrayList<>();
+    private OnShopClickListener onShopClickListener;
+
+    public interface OnShopClickListener {
+        void onShopClick(ShopResponse shop);
+    }
+
+    public void setOnShopClickListener(OnShopClickListener listener) {
+        this.onShopClickListener = listener;
+    }
 
     public void submitList(List<ShopResponse> newShops) {
         shops.clear();
@@ -54,6 +63,12 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             holder.tvShopStatus.setText("Đang đóng");
             holder.tvShopStatus.setTextColor(Color.parseColor("#777777"));
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (onShopClickListener != null) {
+                onShopClickListener.onShopClick(shop);
+            }
+        });
     }
 
     @Override

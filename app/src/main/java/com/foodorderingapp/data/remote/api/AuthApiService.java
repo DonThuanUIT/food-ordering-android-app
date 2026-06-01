@@ -1,19 +1,13 @@
 package com.foodorderingapp.data.remote.api;
 
-import com.foodorderingapp.model.ShopDetailResponse;
-import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.response.AuthResponse;
-import com.foodorderingapp.model.response.PageResponse;
-import com.foodorderingapp.model.response.ShopResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface AuthApiService {

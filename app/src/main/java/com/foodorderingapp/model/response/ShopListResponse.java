@@ -1,4 +1,4 @@
-package com.foodorderingapp.model;
+package com.foodorderingapp.model.response;
 
 import java.util.List;
 

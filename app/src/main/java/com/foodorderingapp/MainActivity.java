@@ -1,5 +1,6 @@
 package com.foodorderingapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -48,7 +49,15 @@ public class MainActivity extends AppCompatActivity {
         if (userRole == null) userRole = "STUDENT";
 
         setupMenuAndNavigation(userRole);
+        handleStartTab(getIntent());
         bottomNav.setItemIconTintList(null);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleStartTab(intent);
     }
 
     private void setupMenuAndNavigation(String role) {
@@ -116,5 +125,16 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
+    }
+
+    private void handleStartTab(Intent intent) {
+        if (intent == null || bottomNav == null) {
+            return;
+        }
+
+        String openTab = intent.getStringExtra("OPEN_TAB");
+        if ("ORDERS".equalsIgnoreCase(openTab)) {
+            bottomNav.setSelectedItemId(R.id.nav_orders);
+        }
     }
 }
