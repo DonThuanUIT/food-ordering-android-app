@@ -1,5 +1,7 @@
 package com.foodorderingapp.model.response;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class ShopDetailResponse {
@@ -46,7 +48,8 @@ public class ShopDetailResponse {
         private String description;
         private double price;
         private String imageUrl;
-        private boolean isAvailable;
+        @SerializedName(value = "isAvailable", alternate = {"available"})
+        private Boolean isAvailable = true;
         private String categoryId;
         private String categoryName;
 
@@ -55,7 +58,7 @@ public class ShopDetailResponse {
         public String getDescription() { return description; }
         public double getPrice() { return price; }
         public String getImageUrl() { return imageUrl; }
-        public boolean isAvailable() { return isAvailable; }
+        public boolean isAvailable() { return isAvailable == null || isAvailable; }
         public String getCategoryId() { return categoryId; }
         public String getCategoryName() { return categoryName; }
     }

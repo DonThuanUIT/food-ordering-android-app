@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.foodorderingapp.databinding.FragmentStudentHomeBinding;
 import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
+import android.content.Intent;
 
 import com.foodorderingapp.ui.adapter.CartShopAdapter;
 import com.foodorderingapp.ui.adapter.ShopAdapter;
@@ -22,6 +23,7 @@ import java.util.List;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.FoodExploreAdapter;
 import com.foodorderingapp.viewmodel.FoodViewModel;
+import com.foodorderingapp.ui.shop.ShopDetailActivity;
 
 public class StudentHomeFragment extends Fragment {
     private ShopViewModel shopViewModel;
@@ -52,6 +54,18 @@ public class StudentHomeFragment extends Fragment {
         binding.rvMainHomeList.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvMainHomeList.setNestedScrollingEnabled(false);
         binding.rvMainHomeList.setAdapter(shopAdapter);
+
+        shopAdapter.setOnShopClickListener(shop -> {
+            Intent intent = new Intent(requireContext(), ShopDetailActivity.class);
+            intent.putExtra("SHOP_ID", shop.getId());
+            intent.putExtra("SHOP_NAME", shop.getName());
+            intent.putExtra("SHOP_ADDRESS", shop.getAddress());
+            intent.putExtra("SHOP_DESCRIPTION", shop.getDescription());
+            intent.putExtra("SHOP_OPEN_TIME", shop.getOpenTime());
+            intent.putExtra("SHOP_CLOSE_TIME", shop.getCloseTime());
+            intent.putExtra("SHOP_DISPLAY_STATUS", shop.getDisplayStatus());
+            startActivity(intent);
+        });
 
         shopViewModel.getShopData().observe(getViewLifecycleOwner(), response -> {
             if (response != null && response.getContent() != null) {
