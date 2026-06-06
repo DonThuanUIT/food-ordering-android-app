@@ -51,6 +51,11 @@ public class FoodExploreAdapter extends RecyclerView.Adapter<FoodExploreAdapter.
                 .placeholder(R.drawable.logo_food)
                 .error(R.drawable.logo_food)
                 .into(holder.ivFoodImage);
+        holder.itemView.setOnClickListener(v -> {
+            if (foodClickListener != null) {
+                foodClickListener.onFoodClick(food);
+            }
+        });
         holder.btnAddToCart.setOnClickListener(v -> {
             if (addToCartClickListener != null) {
                 addToCartClickListener.onAddToCart(food);
@@ -90,6 +95,16 @@ public class FoodExploreAdapter extends RecyclerView.Adapter<FoodExploreAdapter.
             tvFoodPrice = itemView.findViewById(R.id.tvFoodPrice);
             btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
         }
+    }
+
+    public interface OnFoodClickListener {
+        void onFoodClick(FoodExploreResponse food);
+    }
+
+    private OnFoodClickListener foodClickListener;
+
+    public void setOnFoodClickListener(OnFoodClickListener listener) {
+        this.foodClickListener = listener;
     }
 
     //xuly sk theem vaof gio hang

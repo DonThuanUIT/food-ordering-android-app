@@ -55,6 +55,13 @@ public class StudentHomeFragment extends Fragment {
         binding.rvMainHomeList.setNestedScrollingEnabled(false);
         binding.rvMainHomeList.setAdapter(shopAdapter);
 
+        foodAdapter.setOnFoodClickListener(food -> {
+            Intent intent = new Intent(requireContext(), ShopDetailActivity.class);
+            intent.putExtra("SHOP_ID", food.getShopId());
+            intent.putExtra("SHOP_NAME", food.getShopName());
+            startActivity(intent);
+        });
+        
         shopAdapter.setOnShopClickListener(shop -> {
             Intent intent = new Intent(requireContext(), ShopDetailActivity.class);
             intent.putExtra("SHOP_ID", shop.getId());
@@ -86,10 +93,15 @@ public class StudentHomeFragment extends Fragment {
         shopViewModel.loadShops(null);
 
         foodViewModel.getFoodData().observe(getViewLifecycleOwner(), response -> {
-            if (response != null && response.getContent() != null) {
+            if (response != null && response.getContent() != null && !response.getContent().isEmpty()) {
+                binding.tvHomeEmpty.setVisibility(View.GONE);
+                binding.rvMainHomeList.setVisibility(View.VISIBLE);
                 foodAdapter.submitList(response.getContent());
             } else {
-                Toast.makeText(getContext(), "Không tải được danh sách món ngon", Toast.LENGTH_SHORT).show();
+                foodAdapter.submitList(null);
+                binding.rvMainHomeList.setVisibility(View.GONE);
+                binding.tvHomeEmpty.setVisibility(View.VISIBLE);
+                binding.tvHomeEmpty.setText("Chưa có món ngon nào");
             }
         });
         setupTabListeners();
@@ -110,12 +122,16 @@ public class StudentHomeFragment extends Fragment {
     private void setupTabListeners() {
         binding.tabRestaurants.setOnClickListener(v -> {
             selectTab(true);
+            binding.tvHomeEmpty.setVisibility(View.GONE);
+            binding.rvMainHomeList.setVisibility(View.VISIBLE);
             binding.rvMainHomeList.setAdapter(shopAdapter);
             shopViewModel.loadShops(null);
         });
 
         binding.tabDishes.setOnClickListener(v -> {
             selectTab(false);
+            binding.tvHomeEmpty.setVisibility(View.GONE);
+            binding.rvMainHomeList.setVisibility(View.VISIBLE);
             binding.rvMainHomeList.setAdapter(foodAdapter);
             foodViewModel.loadExploreFoods();
         });
