@@ -21,6 +21,15 @@ import java.util.Locale;
 public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH> {
 
     private final List<ShopCartResponse> shops = new ArrayList<>();
+    private OnCheckoutClickListener checkoutClickListener;
+
+    public interface OnCheckoutClickListener {
+        void onCheckoutClick();
+    }
+
+    public void setOnCheckoutClickListener(OnCheckoutClickListener listener) {
+        this.checkoutClickListener = listener;
+    }
 
     public void submitList(List<ShopCartResponse> newShops) {
         shops.clear();
@@ -61,6 +70,11 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
 
         holder.tvItemCount.setText("Tổng cộng (" + totalItems + " món):");
         holder.tvShopTotal.setText(formatPrice(totalPrice));
+        holder.btnCheckoutShop.setOnClickListener(v -> {
+            if (checkoutClickListener != null) {
+                checkoutClickListener.onCheckoutClick();
+            }
+        });
     }
 
     @Override
@@ -75,6 +89,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
 
     static class ShopVH extends RecyclerView.ViewHolder {
         TextView tvShopName, tvItemCount, tvShopTotal;
+        View btnCheckoutShop;
         RecyclerView rvFoods;
 
         ShopVH(@NonNull View itemView) {
@@ -82,6 +97,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
             tvShopName = itemView.findViewById(R.id.tvCartShopName);
             tvItemCount = itemView.findViewById(R.id.tvShopItemCount);
             tvShopTotal = itemView.findViewById(R.id.tvShopTotal);
+            btnCheckoutShop = itemView.findViewById(R.id.btnCheckoutShop);
             rvFoods = itemView.findViewById(R.id.rvCartFoods);
         }
     }
