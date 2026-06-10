@@ -1,4 +1,5 @@
 package com.foodorderingapp.ui.adapter;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.CartItemResponse;
 import com.foodorderingapp.model.response.ShopCartResponse;
-import com.foodorderingapp.ui.adapter.CartFoodAdapter;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
 
     private final List<ShopCartResponse> shops = new ArrayList<>();
     private OnCheckoutClickListener checkoutClickListener;
+    private CartFoodAdapter.OnQuantityChangeListener quantityChangeListener;
 
     public interface OnCheckoutClickListener {
         void onCheckoutClick();
@@ -31,9 +32,15 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         this.checkoutClickListener = listener;
     }
 
+    public void setOnQuantityChangeListener(CartFoodAdapter.OnQuantityChangeListener listener) {
+        this.quantityChangeListener = listener;
+    }
+
     public void submitList(List<ShopCartResponse> newShops) {
         shops.clear();
-        if (newShops != null) shops.addAll(newShops);
+        if (newShops != null) {
+            shops.addAll(newShops);
+        }
         notifyDataSetChanged();
     }
 
@@ -52,10 +59,10 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         holder.tvShopName.setText(shop.getShopName());
 
         CartFoodAdapter foodAdapter = new CartFoodAdapter();
+        foodAdapter.setOnQuantityChangeListener(quantityChangeListener);
         holder.rvFoods.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
         holder.rvFoods.setAdapter(foodAdapter);
         holder.rvFoods.setNestedScrollingEnabled(false);
-
         foodAdapter.submitList(shop.getItems());
 
         int totalItems = 0;
@@ -88,7 +95,9 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
     }
 
     static class ShopVH extends RecyclerView.ViewHolder {
-        TextView tvShopName, tvItemCount, tvShopTotal;
+        TextView tvShopName;
+        TextView tvItemCount;
+        TextView tvShopTotal;
         View btnCheckoutShop;
         RecyclerView rvFoods;
 
