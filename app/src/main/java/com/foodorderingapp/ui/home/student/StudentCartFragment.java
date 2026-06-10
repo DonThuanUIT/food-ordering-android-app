@@ -51,6 +51,9 @@ public class StudentCartFragment extends Fragment {
         tvCartEmpty = view.findViewById(R.id.tvCartEmpty);
 
         cartShopAdapter = new CartShopAdapter();
+        cartShopAdapter.setOnQuantityChangeListener((item, newQuantity) ->
+                cartViewModel.updateCartItemQuantity(item.getId(), newQuantity)
+        );
         rvCartShops.setLayoutManager(new LinearLayoutManager(getContext()));
         rvCartShops.setAdapter(cartShopAdapter);
         rvCartShops.setNestedScrollingEnabled(false);
@@ -82,6 +85,14 @@ public class StudentCartFragment extends Fragment {
                 openOrdersTab();
             } else {
                 Toast.makeText(getContext(), "Đặt hàng thất bại", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cartViewModel.getUpdateQuantityResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                cartViewModel.loadCart();
+            } else if (success != null) {
+                Toast.makeText(getContext(), "Không cập nhật được số lượng", Toast.LENGTH_SHORT).show();
             }
         });
 

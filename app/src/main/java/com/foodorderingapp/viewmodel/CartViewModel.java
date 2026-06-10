@@ -12,6 +12,7 @@ public class CartViewModel extends ViewModel {
 
     private final MutableLiveData<Boolean> addResult = new MutableLiveData<>();
     private final MutableLiveData<CartResponse> cartData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> updateQuantityResult = new MutableLiveData<>();
 
     public LiveData<Boolean> getAddResult() {
         return addResult;
@@ -21,11 +22,19 @@ public class CartViewModel extends ViewModel {
         return cartData;
     }
 
+    public LiveData<Boolean> getUpdateQuantityResult() {
+        return updateQuantityResult;
+    }
+
     public void addToCart(String foodId) {
         repository.addToCart(foodId, 1, "", addResult);
     }
 
     public void loadCart() {
         repository.getCart(cartData);
+    }
+
+    public void updateCartItemQuantity(String cartItemId, int quantity) {
+        repository.updateCartItemQuantity(cartItemId, quantity, updateQuantityResult);
     }
 }

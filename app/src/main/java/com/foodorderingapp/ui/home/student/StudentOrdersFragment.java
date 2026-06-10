@@ -51,7 +51,6 @@ public class StudentOrdersFragment extends Fragment {
             if (orders == null) {
                 activeOrderAdapter.submitList(null);
                 showActiveOrdersEmpty("Không tải được đơn đang xử lý");
-                Toast.makeText(getContext(), "Không tải được đơn đang xử lý", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -60,6 +59,11 @@ public class StudentOrdersFragment extends Fragment {
                 showActiveOrdersEmpty("Chưa có đơn đang xử lý");
             } else {
                 showActiveOrdersList();
+            }
+        });
+        orderViewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.trim().isEmpty()) {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.CartItemRequest;
+import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
 import com.foodorderingapp.model.response.CartResponse;
 
 import retrofit2.Call;
@@ -44,5 +45,21 @@ public class CartRepository {
             }
         });
 
+    }
+
+    public void updateCartItemQuantity(String cartItemId, int quantity, MutableLiveData<Boolean> result) {
+        UpdateCartQuantityRequest request = new UpdateCartQuantityRequest(quantity);
+
+        ApiClient.getApiService().updateCartItemQuantity(cartItemId, request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                result.postValue(response.isSuccessful());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                result.postValue(false);
+            }
+        });
     }
 }

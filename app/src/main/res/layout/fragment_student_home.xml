@@ -24,7 +24,7 @@
                 android:id="@+id/tvGreeting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Xin chào, Alex!"
+                android:text="Xin chào!"
                 android:textColor="@android:color/white"
                 android:textSize="26sp"
                 android:textStyle="bold" />

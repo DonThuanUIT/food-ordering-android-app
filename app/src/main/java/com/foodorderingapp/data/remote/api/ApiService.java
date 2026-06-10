@@ -3,7 +3,9 @@ package com.foodorderingapp.data.remote.api;
 import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.LoginRequest;
+import com.foodorderingapp.model.request.ReviewRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
+import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.response.AuthResponse;
@@ -20,6 +22,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -60,6 +63,12 @@ public interface ApiService {
     @POST("cart/items")
     Call<Void> addToCart(@Body CartItemRequest request);
 
+    @PATCH("cart/items/{cartItemId}")
+    Call<Void> updateCartItemQuantity(
+            @Path("cartItemId") String cartItemId,
+            @Body UpdateCartQuantityRequest request
+    );
+
     @POST("orders/checkout")
     Call<List<OrderResponse>> checkout(@Body CheckoutRequest request);
 
@@ -69,5 +78,11 @@ public interface ApiService {
 
     @GET("orders/history")
     Call<List<OrderResponse>> getOrderHistory();
+
+    @POST("orders/{orderId}/reviews")
+    Call<Void> createReview(
+            @Path("orderId") String orderId,
+            @Body ReviewRequest request
+    );
 
 }

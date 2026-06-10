@@ -19,6 +19,15 @@ import java.util.Locale;
 public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH> {
 
     private final List<CartItemResponse> items = new ArrayList<>();
+    private OnQuantityChangeListener quantityChangeListener;
+
+    public interface OnQuantityChangeListener {
+        void onQuantityChange(CartItemResponse item, int newQuantity);
+    }
+
+    public void setOnQuantityChangeListener(OnQuantityChangeListener listener) {
+        this.quantityChangeListener = listener;
+    }
 
     public void submitList(List<CartItemResponse> newItems) {
         items.clear();
@@ -41,6 +50,18 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
         holder.tvName.setText(item.getFoodName());
         holder.tvPrice.setText(formatPrice(item.getPrice()));
         holder.tvQuantity.setText(String.valueOf(item.getQuantity()));
+        holder.btnMinus.setEnabled(item.getQuantity() > 1);
+        holder.btnMinus.setAlpha(item.getQuantity() > 1 ? 1f : 0.35f);
+        holder.btnMinus.setOnClickListener(v -> {
+            if (quantityChangeListener != null && item.getQuantity() > 1) {
+                quantityChangeListener.onQuantityChange(item, item.getQuantity() - 1);
+            }
+        });
+        holder.btnPlus.setOnClickListener(v -> {
+            if (quantityChangeListener != null) {
+                quantityChangeListener.onQuantityChange(item, item.getQuantity() + 1);
+            }
+        });
         Glide.with(holder.itemView.getContext())
                 .load(item.getFoodImageUrl())
                 .placeholder(R.drawable.logo_food)
@@ -59,7 +80,7 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
     }
 
     static class FoodVH extends RecyclerView.ViewHolder {
-        TextView tvName, tvPrice, tvQuantity;
+        TextView tvName, tvPrice, tvQuantity, btnMinus, btnPlus;
         ImageView ivFoodImage;
 
         FoodVH(@NonNull View itemView) {
@@ -68,6 +89,8 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
             tvName = itemView.findViewById(R.id.tvCartFoodName);
             tvPrice = itemView.findViewById(R.id.tvCartFoodPrice);
             tvQuantity = itemView.findViewById(R.id.tvCartQuantity);
+            btnMinus = itemView.findViewById(R.id.btnMinus);
+            btnPlus = itemView.findViewById(R.id.btnPlus);
         }
     }
 }
