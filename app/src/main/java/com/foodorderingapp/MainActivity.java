@@ -14,7 +14,7 @@ import com.foodorderingapp.ui.home.student.StudentHomeFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentProfileFragment;
-import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
+import com.foodorderingapp.ui.home.student.StudentCartFragment;
 import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
 import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
 import com.foodorderingapp.ui.home.vendor.VendorSettingsFragment;
@@ -85,10 +85,10 @@ public class MainActivity extends AppCompatActivity {
                 title = "UniEats";
             } else if (id == R.id.nav_orders) {
                 selectedFragment = new StudentOrdersFragment();
-                title = "Đơn Hàng";
-            } else if (id == R.id.nav_history) {
-                selectedFragment = new StudentHistoryFragment();
-                title = "Lịch Sử";
+                title = "Trạng Thái Đơn Hàng";
+            } else if (id == R.id.nav_cart) {
+                selectedFragment = new StudentCartFragment();
+                title = "Giỏ Hàng";
             } else if (id == R.id.nav_profile) {
                 selectedFragment = new StudentProfileFragment();
                 title = "Cá Nhân";
@@ -135,6 +135,8 @@ public class MainActivity extends AppCompatActivity {
         String openTab = intent.getStringExtra("OPEN_TAB");
         if ("ORDERS".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_orders);
+        } else if ("CART".equalsIgnoreCase(openTab)) {
+            bottomNav.setSelectedItemId(R.id.nav_cart);
         }
     }
 }

@@ -147,7 +147,7 @@ public class ShopMenuActivity extends AppCompatActivity {
         layoutCartSummary.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("USER_ROLE", "STUDENT");
-            intent.putExtra("OPEN_TAB", "ORDERS");
+            intent.putExtra("OPEN_TAB", "CART");
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         });

@@ -3,7 +3,6 @@ package com.foodorderingapp.data.repository;
 import androidx.lifecycle.MutableLiveData;
 
 import com.foodorderingapp.data.remote.api.ApiClient;
-import com.foodorderingapp.data.remote.api.ApiService;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.response.OrderResponse;
 
@@ -26,6 +25,24 @@ public class OrderRepository {
             @Override
             public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
                 result.postValue(false);
+            }
+        });
+    }
+
+    public void getActiveOrders(MutableLiveData<List<OrderResponse>> activeOrders) {
+        ApiClient.getApiService().getActiveOrders().enqueue(new Callback<List<OrderResponse>>() {
+            @Override
+            public void onResponse(Call<List<OrderResponse>> call, Response<List<OrderResponse>> response) {
+                if (response.isSuccessful()) {
+                    activeOrders.postValue(response.body());
+                } else {
+                    activeOrders.postValue(null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
+                activeOrders.postValue(null);
             }
         });
     }
