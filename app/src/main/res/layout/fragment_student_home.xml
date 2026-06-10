@@ -46,13 +46,16 @@
                     app:tint="#4E342E" />
 
                 <EditText
+                    android:id="@+id/etHomeSearch"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginStart="12dp"
                     android:layout_toEndOf="@id/ivSearchIconHeader"
                     android:background="@android:color/transparent"
                     android:hint="Bạn muốn ăn gì hôm nay?"
+                    android:imeOptions="actionSearch"
                     android:inputType="text"
+                    android:singleLine="true"
                     android:textColorHint="#888888"
                     android:textSize="14sp" />
             </RelativeLayout>

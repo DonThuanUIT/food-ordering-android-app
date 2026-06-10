@@ -2,6 +2,10 @@ package com.foodorderingapp.ui.home.student;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +18,13 @@ import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 
-import com.foodorderingapp.ui.adapter.CartShopAdapter;
+import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.ui.adapter.ShopAdapter;
 import com.foodorderingapp.viewmodel.CartViewModel;
 import com.foodorderingapp.viewmodel.ShopViewModel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.FoodExploreAdapter;
 import com.foodorderingapp.viewmodel.FoodViewModel;
@@ -32,7 +37,11 @@ public class StudentHomeFragment extends Fragment {
     private FoodViewModel foodViewModel;
     private FoodExploreAdapter foodAdapter;
     private CartViewModel cartViewModel;
-    private CartShopAdapter cartShopAdapter;
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private final List<FoodExploreResponse> exploreFoods = new ArrayList<>();
+    private Runnable pendingSearchRunnable;
+    private boolean showingRestaurants = true;
+    private String searchKeyword = "";
     public StudentHomeFragment() {}
 
     @Override
@@ -85,27 +94,34 @@ public class StudentHomeFragment extends Fragment {
                 }
 
                 shopAdapter.submitList(approvedShops);
+                if (showingRestaurants) {
+                    if (approvedShops.isEmpty()) {
+                        showEmpty(searchKeyword.isEmpty()
+                                ? "Chưa có quán nào"
+                                : "Không tìm thấy quán phù hợp");
+                    } else {
+                        showList();
+                    }
+                }
             } else {
                 Toast.makeText(getContext(), "Không tải được danh sách quán", Toast.LENGTH_SHORT).show();
             }
         });
 
-        shopViewModel.loadShops(null);
-
         foodViewModel.getFoodData().observe(getViewLifecycleOwner(), response -> {
-            if (response != null && response.getContent() != null && !response.getContent().isEmpty()) {
-                binding.tvHomeEmpty.setVisibility(View.GONE);
-                binding.rvMainHomeList.setVisibility(View.VISIBLE);
-                foodAdapter.submitList(response.getContent());
-            } else {
-                foodAdapter.submitList(null);
-                binding.rvMainHomeList.setVisibility(View.GONE);
-                binding.tvHomeEmpty.setVisibility(View.VISIBLE);
-                binding.tvHomeEmpty.setText("Chưa có món ngon nào");
+            exploreFoods.clear();
+            if (response != null && response.getContent() != null) {
+                exploreFoods.addAll(response.getContent());
+            }
+
+            if (!showingRestaurants) {
+                filterExploreFoods();
             }
         });
+        setupSearchListener();
         setupTabListeners();
         selectTab(true);
+        loadShopsForCurrentSearch();
 
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
         foodAdapter.setOnAddToCartClickListener(food -> {
@@ -121,20 +137,103 @@ public class StudentHomeFragment extends Fragment {
     }
     private void setupTabListeners() {
         binding.tabRestaurants.setOnClickListener(v -> {
+            showingRestaurants = true;
             selectTab(true);
-            binding.tvHomeEmpty.setVisibility(View.GONE);
-            binding.rvMainHomeList.setVisibility(View.VISIBLE);
             binding.rvMainHomeList.setAdapter(shopAdapter);
-            shopViewModel.loadShops(null);
+            loadShopsForCurrentSearch();
         });
 
         binding.tabDishes.setOnClickListener(v -> {
+            showingRestaurants = false;
             selectTab(false);
-            binding.tvHomeEmpty.setVisibility(View.GONE);
-            binding.rvMainHomeList.setVisibility(View.VISIBLE);
             binding.rvMainHomeList.setAdapter(foodAdapter);
-            foodViewModel.loadExploreFoods();
+            if (exploreFoods.isEmpty()) {
+                showEmpty("Đang tải món ngon...");
+                foodViewModel.loadExploreFoods();
+            } else {
+                filterExploreFoods();
+            }
         });
+    }
+
+    private void setupSearchListener() {
+        binding.etHomeSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchKeyword = s == null ? "" : s.toString().trim();
+                if (pendingSearchRunnable != null) {
+                    searchHandler.removeCallbacks(pendingSearchRunnable);
+                }
+                pendingSearchRunnable = StudentHomeFragment.this::applySearch;
+                searchHandler.postDelayed(pendingSearchRunnable, 300);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void applySearch() {
+        if (binding == null) {
+            return;
+        }
+
+        if (showingRestaurants) {
+            loadShopsForCurrentSearch();
+        } else {
+            filterExploreFoods();
+        }
+    }
+
+    private void loadShopsForCurrentSearch() {
+        String keyword = searchKeyword.isEmpty() ? null : searchKeyword;
+        shopViewModel.loadShops(keyword);
+    }
+
+    private void filterExploreFoods() {
+        List<FoodExploreResponse> filteredFoods = new ArrayList<>();
+
+        for (FoodExploreResponse food : exploreFoods) {
+            if (matchesKeyword(food.getFoodName())
+                    || matchesKeyword(food.getShopName())
+                    || matchesKeyword(food.getCategoryName())
+                    || matchesKeyword(food.getDescription())) {
+                filteredFoods.add(food);
+            }
+        }
+
+        foodAdapter.submitList(filteredFoods);
+        if (filteredFoods.isEmpty()) {
+            showEmpty(searchKeyword.isEmpty()
+                    ? "Chưa có món ngon nào"
+                    : "Không tìm thấy món phù hợp");
+        } else {
+            showList();
+        }
+    }
+
+    private boolean matchesKeyword(String value) {
+        if (searchKeyword.isEmpty()) {
+            return true;
+        }
+        return value != null
+                && value.toLowerCase(Locale.ROOT).contains(searchKeyword.toLowerCase(Locale.ROOT));
+    }
+
+    private void showList() {
+        binding.tvHomeEmpty.setVisibility(View.GONE);
+        binding.rvMainHomeList.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmpty(String message) {
+        binding.rvMainHomeList.setVisibility(View.GONE);
+        binding.tvHomeEmpty.setVisibility(View.VISIBLE);
+        binding.tvHomeEmpty.setText(message);
     }
 
     private void selectTab(boolean isRestaurants) {
@@ -162,6 +261,9 @@ public class StudentHomeFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (pendingSearchRunnable != null) {
+            searchHandler.removeCallbacks(pendingSearchRunnable);
+        }
         binding = null;
     }
 }
