@@ -2,20 +2,27 @@ package com.foodorderingapp.ui.home.vendor;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -29,11 +36,17 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.ShopResponse;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -69,6 +82,9 @@ public class VendorSettingsFragment extends Fragment {
     private UUID currentShopId;
     private ShopResponse currentShopData;
 
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private boolean isEditingLogo = true;
+
     private final CompoundButton.OnCheckedChangeListener switchListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -84,6 +100,19 @@ public class VendorSettingsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedPreferences = requireContext().getSharedPreferences("vendor_settings_pref", Context.MODE_PRIVATE);
+
+        // Image picker callback
+        imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    Uri selectedImageUri = result.getData().getData();
+                    if (selectedImageUri != null) {
+                        uploadAndSaveImage(selectedImageUri);
+                    }
+                }
+            }
+        );
     }
 
     @Override
@@ -125,12 +154,21 @@ public class VendorSettingsFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        // Edit cover and logo click
-        View.OnClickListener photoEditListener = v -> {
-            Toast.makeText(getContext(), "Tính năng chọn ảnh sẽ sớm ra mắt!", Toast.LENGTH_SHORT).show();
-        };
-        if (btnEditCover != null) btnEditCover.setOnClickListener(photoEditListener);
-        if (btnEditLogo != null) btnEditLogo.setOnClickListener(photoEditListener);
+        // Edit Cover Banner Click
+        if (btnEditCover != null) {
+            btnEditCover.setOnClickListener(v -> {
+                isEditingLogo = false;
+                openImagePicker();
+            });
+        }
+
+        // Edit Logo Click
+        if (btnEditLogo != null) {
+            btnEditLogo.setOnClickListener(v -> {
+                isEditingLogo = true;
+                openImagePicker();
+            });
+        }
 
         // Profile Details Click (opens edit profile dialog)
         View.OnClickListener profileEditListener = v -> {
@@ -160,15 +198,11 @@ public class VendorSettingsFragment extends Fragment {
         // Business Hour Update button click (opens edit profile dialog)
         btnUpdateHours.setOnClickListener(profileEditListener);
 
-        // Manage Leads click
-        btnManageLeads.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Chuyển hướng đến Quản lý khách hàng tiềm năng", Toast.LENGTH_SHORT).show();
-        });
+        // Manage Leads Click -> Show detailed Dialog
+        btnManageLeads.setOnClickListener(v -> showManageLeadsDialog());
 
-        // View Statements click
-        btnViewStatements.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Hiển thị lịch sử sao kê thanh toán", Toast.LENGTH_SHORT).show();
-        });
+        // View Statements Click -> Show detailed Dialog
+        btnViewStatements.setOnClickListener(v -> showStatementsDialog());
 
         // Deactivate button click with warning alert dialog
         btnDeactivate.setOnClickListener(v -> {
@@ -181,6 +215,68 @@ public class VendorSettingsFragment extends Fragment {
                 .setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss())
                 .show();
         });
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void uploadAndSaveImage(Uri uri) {
+        File file = uriToFile(uri);
+        if (file == null) return;
+
+        Toast.makeText(getContext(), "Đang tải ảnh lên...", Toast.LENGTH_SHORT).show();
+
+        RequestBody rb = RequestBody.create(MediaType.parse("image/*"), file);
+        MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), rb);
+
+        ApiClient.getApiService().uploadImage(part).enqueue(new Callback<Map<String, String>>() {
+            @Override
+            public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String url = response.body().get("url");
+                    if (url != null) {
+                        if (isEditingLogo) {
+                            sharedPreferences.edit().putString("shop_logo_url_" + currentShopId, url).apply();
+                            Glide.with(requireContext())
+                                .load(url)
+                                .placeholder(R.drawable.logo_food)
+                                .into(imgShopLogo);
+                            Toast.makeText(getContext(), "Cập nhật logo thành công!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            sharedPreferences.edit().putString("shop_cover_url_" + currentShopId, url).apply();
+                            Glide.with(requireContext())
+                                .load(url)
+                                .placeholder(R.drawable.burger_sample)
+                                .into(imgShopCover);
+                            Toast.makeText(getContext(), "Cập nhật ảnh bìa thành công!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Tải ảnh lên thất bại", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, String>> call, Throwable t) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi mạng tải ảnh: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private File uriToFile(Uri uri) {
+        try {
+            File file = new File(requireContext().getCacheDir(), "temp_settings_" + System.currentTimeMillis() + ".jpg");
+            InputStream is = requireContext().getContentResolver().openInputStream(uri);
+            FileOutputStream os = new FileOutputStream(file);
+            byte[] buf = new byte[1024]; int len;
+            while ((len = is.read(buf)) > 0) os.write(buf, 0, len);
+            os.close(); is.close();
+            return file;
+        } catch (Exception e) { return null; }
     }
 
     private void loadSavedPreferences() {
@@ -232,14 +328,19 @@ public class VendorSettingsFragment extends Fragment {
             tvShopDescription.setText(shop.getDescription() != null ? shop.getDescription() : "Chưa có mô tả cửa hàng");
         }
 
-        // Format and show operating hours
+        // Format and show operating hours for Mon - Fri (API values)
         String openStr = formatTime12Hour(shop.getOpenTime());
         String closeStr = formatTime12Hour(shop.getCloseTime());
-        String formattedHours = openStr + " - " + closeStr;
+        if (tvHoursMonFri != null) tvHoursMonFri.setText(openStr + " - " + closeStr);
 
-        if (tvHoursMonFri != null) tvHoursMonFri.setText(formattedHours);
-        if (tvHoursSat != null) tvHoursSat.setText(formattedHours);
-        if (tvHoursSun != null) tvHoursSun.setText(formattedHours);
+        // Sat & Sun hours loaded from SharedPreferences
+        String satOpen = sharedPreferences.getString("sat_open_time_" + currentShopId, "10:00");
+        String satClose = sharedPreferences.getString("sat_close_time_" + currentShopId, "01:00");
+        if (tvHoursSat != null) tvHoursSat.setText(formatTime12Hour(satOpen) + " - " + formatTime12Hour(satClose));
+
+        String sunOpen = sharedPreferences.getString("sun_open_time_" + currentShopId, "10:00");
+        String sunClose = sharedPreferences.getString("sun_close_time_" + currentShopId, "22:00");
+        if (tvHoursSun != null) tvHoursSun.setText(formatTime12Hour(sunOpen) + " - " + formatTime12Hour(sunClose));
 
         // Bind switch toggle status programmatically without triggering listener recursion
         boolean isOpen = shop.getIsActive() != null ? shop.getIsActive() : true;
@@ -248,12 +349,20 @@ public class VendorSettingsFragment extends Fragment {
         switchOperational.setOnCheckedChangeListener(switchListener);
         updateOperationalStatusUI(isOpen);
 
-        // Load static logo fallback
-        if (getContext() != null && imgShopLogo != null) {
+        // Load custom logo and cover URLs if saved, else default resources
+        String logoUrl = sharedPreferences.getString("shop_logo_url_" + currentShopId, null);
+        String coverUrl = sharedPreferences.getString("shop_cover_url_" + currentShopId, null);
+
+        if (getContext() != null) {
             Glide.with(getContext())
-                .load(R.drawable.logo_food)
+                .load(logoUrl != null ? logoUrl : R.drawable.logo_food)
                 .placeholder(R.drawable.logo_food)
                 .into(imgShopLogo);
+
+            Glide.with(getContext())
+                .load(coverUrl != null ? coverUrl : R.drawable.burger_sample)
+                .placeholder(R.drawable.burger_sample)
+                .into(imgShopCover);
         }
     }
 
@@ -309,12 +418,13 @@ public class VendorSettingsFragment extends Fragment {
 
     private void showEditProfileDialog(ShopResponse shop) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Update Shop Profile");
+        builder.setTitle("Update Shop Settings");
 
         android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
         layout.setPadding(40, 20, 40, 20);
 
+        // General Shop Fields
         final android.widget.EditText etName = new android.widget.EditText(requireContext());
         etName.setHint("Shop Name");
         etName.setText(shop.getName());
@@ -330,15 +440,46 @@ public class VendorSettingsFragment extends Fragment {
         etAddress.setText(shop.getAddress() != null ? shop.getAddress() : "");
         layout.addView(etAddress);
 
+        // Section header for hours
+        TextView tvHoursHeader = new TextView(requireContext());
+        tvHoursHeader.setText("\nCài đặt giờ hoạt động chi tiết:");
+        tvHoursHeader.setTextColor(Color.BLACK);
+        tvHoursHeader.setTextSize(14);
+        tvHoursHeader.setTypeface(null, android.graphics.Typeface.BOLD);
+        layout.addView(tvHoursHeader);
+
+        // Spinner to choose Day Group
+        final Spinner spinnerDays = new Spinner(requireContext());
+        String[] dayGroups = {"Mon - Fri", "Saturday", "Sunday"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, dayGroups);
+        spinnerDays.setAdapter(adapter);
+        layout.addView(spinnerDays);
+
         final android.widget.EditText etOpen = new android.widget.EditText(requireContext());
-        etOpen.setHint("Opening Time (HH:mm)");
-        etOpen.setText(shop.getOpenTime() != null ? shop.getOpenTime().substring(0, 5) : "08:00");
+        etOpen.setHint("Giờ mở cửa (HH:mm)");
         layout.addView(etOpen);
 
         final android.widget.EditText etClose = new android.widget.EditText(requireContext());
-        etClose.setHint("Closing Time (HH:mm)");
-        etClose.setText(shop.getCloseTime() != null ? shop.getCloseTime().substring(0, 5) : "22:00");
+        etClose.setHint("Giờ đóng cửa (HH:mm)");
         layout.addView(etClose);
+
+        // Day selection listener to load appropriate hours dynamically
+        spinnerDays.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) { // Mon - Fri
+                    etOpen.setText(shop.getOpenTime() != null ? shop.getOpenTime().substring(0, 5) : "08:00");
+                    etClose.setText(shop.getCloseTime() != null ? shop.getCloseTime().substring(0, 5) : "22:00");
+                } else if (position == 1) { // Saturday
+                    etOpen.setText(sharedPreferences.getString("sat_open_time_" + currentShopId, "10:00"));
+                    etClose.setText(sharedPreferences.getString("sat_close_time_" + currentShopId, "01:00"));
+                } else { // Sunday
+                    etOpen.setText(sharedPreferences.getString("sun_open_time_" + currentShopId, "10:00"));
+                    etClose.setText(sharedPreferences.getString("sun_close_time_" + currentShopId, "22:00"));
+                }
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         builder.setView(layout);
 
@@ -348,14 +489,35 @@ public class VendorSettingsFragment extends Fragment {
             String addr = etAddress.getText().toString().trim();
             String open = etOpen.getText().toString().trim();
             String close = etClose.getText().toString().trim();
+            int selectedDayPos = spinnerDays.getSelectedItemPosition();
 
             if (name.isEmpty() || open.isEmpty() || close.isEmpty()) {
-                Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, open, close);
-            saveShopProfile(req);
+            // Save hours to respective day groups
+            if (selectedDayPos == 0) { // Mon - Fri (Sent to backend)
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, open, close);
+                saveShopProfile(req);
+            } else if (selectedDayPos == 1) { // Saturday (Stored locally)
+                sharedPreferences.edit()
+                    .putString("sat_open_time_" + currentShopId, open)
+                    .putString("sat_close_time_" + currentShopId, close)
+                    .apply();
+                
+                // Update text other fields via API with existing Mon-Fri hours
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime().substring(0,5), shop.getCloseTime().substring(0,5));
+                saveShopProfile(req);
+            } else { // Sunday (Stored locally)
+                sharedPreferences.edit()
+                    .putString("sun_open_time_" + currentShopId, open)
+                    .putString("sun_close_time_" + currentShopId, close)
+                    .apply();
+                
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime().substring(0,5), shop.getCloseTime().substring(0,5));
+                saveShopProfile(req);
+            }
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
@@ -368,7 +530,7 @@ public class VendorSettingsFragment extends Fragment {
             @Override
             public void onResponse(Call<ShopResponse> call, Response<ShopResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(getContext(), "Đã cập nhật thông tin thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Cập nhật thông tin quán ăn thành công!", Toast.LENGTH_SHORT).show();
                     bindShopData(response.body());
                 } else {
                     Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
@@ -382,5 +544,41 @@ public class VendorSettingsFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void showManageLeadsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Danh sách khách hàng tiềm năng");
+
+        String[] leads = {
+            "● Nguyễn Văn A - Yêu cầu hợp tác làm Campus Event cơm trưa",
+            "● Trần Thị B - Đặt tiệc trà bánh sự kiện CLB (150 khách)",
+            "● Lê Văn C - Đăng ký giao cơm suất hàng tuần (20 phần/ngày)",
+            "● Phạm Thị D - Đăng ký nhận thông báo món mới qua Email"
+        };
+
+        builder.setItems(leads, (dialog, which) -> {
+            Toast.makeText(getContext(), "Đang xử lý yêu cầu: " + leads[which], Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showStatementsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Lịch sử doanh thu & Sao kê");
+
+        String[] statements = {
+            "Tháng 06/2026 - Doanh thu: $1,280.50 (124 đơn) - ĐÃ DUYỆT CHI",
+            "Tháng 05/2026 - Doanh thu: $2,450.00 (236 đơn) - ĐÃ DUYỆT CHI",
+            "Tháng 04/2026 - Doanh thu: $1,890.20 (182 đơn) - ĐÃ DUYỆT CHI",
+            "Tháng 03/2026 - Doanh thu: $980.00 (92 đơn) - ĐÃ DUYỆT CHI"
+        };
+
+        builder.setItems(statements, (dialog, which) -> {
+            Toast.makeText(getContext(), "Mở chi tiết sao kê: " + statements[which].split(" - ")[0], Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 }

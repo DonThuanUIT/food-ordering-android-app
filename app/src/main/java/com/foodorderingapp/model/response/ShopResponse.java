@@ -1,5 +1,6 @@
 package com.foodorderingapp.model.response;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 public class ShopResponse {
@@ -11,6 +12,8 @@ public class ShopResponse {
     private String closeTime;
     private String address;
     private String status;
+
+    @SerializedName(value = "isActive", alternate = {"active"})
     private Boolean isActive;
     private String displayStatus;
 
