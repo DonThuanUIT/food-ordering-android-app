@@ -95,4 +95,11 @@ public interface ApiService {
             @Path("shopId") UUID shopId,
             @Body CategoryRequest request
     );
+
+    @PUT("vendor/shops/{shopId}/categories/{categoryId}")
+    Call<CategoryResponse> updateCategory(
+            @Path("shopId") UUID shopId,
+            @Path("categoryId") UUID categoryId,
+            @Body CategoryRequest request
+    );
 }

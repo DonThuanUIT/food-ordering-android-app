@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:text="CampusBites"
-                    android:textColor="#A34E0C"
+                    android:textColor="@color/primary_orange"
                     android:textSize="20sp"
                     android:textStyle="bold"/>
 
@@ -135,7 +135,7 @@
         android:visibility="gone"
         app:srcCompat="@drawable/ic_arrow_up"
         app:backgroundTint="@color/white"
-        app:tint="#A34E0C"
+        app:tint="@color/primary_orange"
         app:fabSize="mini"
         app:elevation="6dp"/>
 
@@ -146,7 +146,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         app:srcCompat="@drawable/ic_add"
-        app:backgroundTint="#A34E0C"
+        app:backgroundTint="@color/primary_orange"
         app:tint="@color/white"
         app:elevation="6dp"/>
 

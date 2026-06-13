@@ -13,22 +13,24 @@
         app:elevation="0dp">
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white">
             <ImageView
                 android:id="@+id/btn_back_dialog"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back"
-                app:tint="#A52A2A"
+                app:tint="#2D3748"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Add New Item"
-                android:textSize="22sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#A52A2A"
+                android:textColor="#1A202C"
                 android:layout_marginStart="24dp"/>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -37,14 +39,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:paddingBottom="100dp"
         android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="130dp"> <!-- Leaves enough empty space at bottom so Price field rolls above the bottom button -->
 
             <LinearLayout
                 android:id="@+id/upload_area"
@@ -54,14 +57,16 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:backgroundTint="#F7FAFC">
                 <ImageView
                     android:id="@+id/img_upload_preview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerInside"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/ic_camera_add"
-                    app:tint="#A52A2A" />
+                    app:tint="#A0AEC0"
+                    android:padding="32dp"/>
             </LinearLayout>
 
             <TextView
@@ -73,11 +78,13 @@
                 android:layout_marginTop="12dp"
                 android:textAlignment="center"/>
 
-            <TextView style="@style/LabelStyle" android:text="Item Name" android:layout_marginTop="16dp"/>
+            <TextView style="@style/LabelStyle" android:text="Item Name" android:textColor="#4A5568" android:layout_marginTop="20dp"/>
             <EditText
                 android:id="@+id/et_food_name"
                 style="@style/InputStyle"
-                android:hint="e.g., Spicy Buffalo Wings" />
+                android:hint="e.g., Spicy Buffalo Wings"
+                android:background="@drawable/bg_edittext"
+                android:importantForAutofill="no"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -87,22 +94,43 @@
                 <TextView
                     style="@style/LabelStyle"
                     android:text="Category"
+                    android:textColor="#4A5568"
                     android:layout_marginTop="0dp"
                     android:layout_marginBottom="0dp"
                     android:layout_centerVertical="true"/>
-                <TextView
-                    android:id="@+id/btn_add_category"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="+ New"
-                    android:textColor="@color/primary_orange"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
+                    android:orientation="horizontal"
                     android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:padding="4dp"
-                    android:clickable="true"
-                    android:focusable="true"/>
+                    android:layout_centerVertical="true">
+                    <TextView
+                        android:id="@+id/btn_edit_category"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Edit"
+                        android:textColor="@color/primary_orange"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:padding="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginEnd="12dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:visibility="gone"/>
+                    <TextView
+                        android:id="@+id/btn_add_category"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ New"
+                        android:textColor="@color/primary_orange"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:padding="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"/>
+                </LinearLayout>
             </RelativeLayout>
 
             <com.google.android.material.chip.ChipGroup
@@ -110,24 +138,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:singleSelection="true"
-                app:selectionRequired="true">
+                app:selectionRequired="true"
+                android:layout_marginBottom="12dp">
                 <!-- Categories will be added dynamically -->
             </com.google.android.material.chip.ChipGroup>
 
-            <TextView style="@style/LabelStyle" android:text="Item Details" />
+            <TextView style="@style/LabelStyle" android:text="Item Details" android:textColor="#4A5568"/>
             <EditText
                 android:id="@+id/et_food_description"
                 style="@style/InputStyle"
                 android:layout_height="100dp"
-                android:gravity="top"
-                android:hint="Describe ingredients..." />
+                android:gravity="top|start"
+                android:paddingVertical="12dp"
+                android:hint="Describe ingredients..."
+                android:background="@drawable/bg_edittext"
+                android:importantForAutofill="no"/>
 
-            <TextView style="@style/LabelStyle" android:text="Price ($)" />
+            <TextView style="@style/LabelStyle" android:text="Price ($)" android:textColor="#4A5568"/>
             <EditText
                 android:id="@+id/et_food_price"
                 style="@style/InputStyle"
                 android:hint="0.00"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal"
+                android:background="@drawable/bg_edittext"
+                android:importantForAutofill="no"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -136,13 +170,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:cardElevation="8dp">
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white">
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_add_to_menu"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_margin="16dp"
             android:text="Add to Menu"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
             android:backgroundTint="@color/button_orange"
             app:cornerRadius="12dp"/>
     </androidx.cardview.widget.CardView>

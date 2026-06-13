@@ -318,11 +318,36 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         Button btnAdd = dialogView.findViewById(R.id.btn_add_to_menu);
         ImageView btnBack = dialogView.findViewById(R.id.btn_back_dialog);
         View btnAddNewCategory = dialogView.findViewById(R.id.btn_add_category);
+        View btnEditCategory = dialogView.findViewById(R.id.btn_edit_category);
 
         updateDialogCategories(dialogChips);
 
         if (btnAddNewCategory != null) {
             btnAddNewCategory.setOnClickListener(v -> showAddNewCategoryDialog());
+        }
+
+        if (btnEditCategory != null) {
+            btnEditCategory.setVisibility(categories.isEmpty() ? View.GONE : View.VISIBLE);
+            dialogChips.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                btnEditCategory.setVisibility(checkedIds.isEmpty() ? View.GONE : View.VISIBLE);
+            });
+            btnEditCategory.setOnClickListener(v -> {
+                UUID selectedId = getSelectedCategoryId(dialogChips);
+                if (selectedId != null) {
+                    String currentName = "";
+                    for (CategoryResponse cat : categories) {
+                        if (cat.getId().equals(selectedId)) {
+                            currentName = cat.getName();
+                            break;
+                        }
+                    }
+                    if (!currentName.isEmpty()) {
+                        showEditCategoryDialog(selectedId, currentName);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Vui lòng chọn loại món ăn để sửa", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         if (btnBack != null) btnBack.setOnClickListener(v -> currentAddFoodDialog.dismiss());
@@ -387,6 +412,13 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (!hasSelected && dialogChips.getChildCount() > 0) {
             ((Chip) dialogChips.getChildAt(0)).setChecked(true);
         }
+
+        if (currentAddFoodDialog != null && currentAddFoodDialog.isShowing()) {
+            View btnEdit = currentAddFoodDialog.findViewById(R.id.btn_edit_category);
+            if (btnEdit != null) {
+                btnEdit.setVisibility(categories.isEmpty() ? View.GONE : View.VISIBLE);
+            }
+        }
     }
 
     private void showAddNewCategoryDialog() {
@@ -418,6 +450,49 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                     loadCategories(response.body().getId());
                 } else {
                     Toast.makeText(getContext(), "Failed to add category", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CategoryResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showEditCategoryDialog(UUID categoryId, String currentName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Rename Category");
+
+        final EditText input = new EditText(requireContext());
+        input.setHint("Category name");
+        input.setText(currentName);
+        if (currentName != null) {
+            input.setSelection(currentName.length());
+        }
+        builder.setView(input);
+
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String name = input.getText().toString().trim();
+            if (!TextUtils.isEmpty(name) && !name.equalsIgnoreCase(currentName)) {
+                editCategory(categoryId, name);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void editCategory(UUID categoryId, String name) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().updateCategory(currentShopId, categoryId, new CategoryRequest(name)).enqueue(new Callback<CategoryResponse>() {
+            @Override
+            public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(), "Category renamed!", Toast.LENGTH_SHORT).show();
+                    loadCategories(response.body().getId());
+                } else {
+                    Toast.makeText(getContext(), "Failed to rename category", Toast.LENGTH_SHORT).show();
                 }
             }
 
