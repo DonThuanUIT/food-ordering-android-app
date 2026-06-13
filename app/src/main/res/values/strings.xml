@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Food Ordering App</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_new_item">Add New Item</string>
+    <string name="expand_menu">Expand your kitchen menu</string>
+    <string name="all">All</string>
 </resources>

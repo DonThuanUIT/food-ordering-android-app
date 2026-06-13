@@ -3,285 +3,151 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_light">
+    android:background="#FDFDFF">
 
-    <androidx.core.widget.NestedScrollView
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="100dp">
+        android:layout_height="wrap_content"
+        android:background="#FDFDFF"
+        app:elevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Menu Management"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Update availability and manage your dormitory kitchen offerings."
-                android:textColor="@color/text_gray"
-                android:layout_marginBottom="16dp"/>
-
-            <!-- Category Chips -->
-            <HorizontalScrollView
+            <!-- Custom Header -->
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:layout_marginBottom="24dp">
-                <LinearLayout
+                android:layout_height="64dp"
+                android:paddingHorizontal="16dp">
+                <ImageView
+                    android:id="@+id/btn_drawer"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_menu"
+                    app:tint="@color/black"/>
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="All Items"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        android:backgroundTint="@color/primary_orange"
-                        android:textColor="@color/white"
-                        android:paddingHorizontal="16dp"
-                        app:cornerRadius="18dp"
-                        android:layout_marginEnd="8dp"/>
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="Main Course"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        android:backgroundTint="@color/button_gray"
-                        android:textColor="@color/black"
-                        android:paddingHorizontal="16dp"
-                        app:cornerRadius="18dp"
-                        android:layout_marginEnd="8dp"
-                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="Sides &amp; Snacks"
-                        android:textAllCaps="false"
-                        android:textSize="12sp"
-                        android:backgroundTint="@color/button_gray"
-                        android:textColor="@color/black"
-                        android:paddingHorizontal="16dp"
-                        app:cornerRadius="18dp"
-                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
-                </LinearLayout>
-            </HorizontalScrollView>
+                    android:layout_centerInParent="true"
+                    android:text="CampusBites"
+                    android:textColor="#A34E0C"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
 
-            <!-- Menu Item: Burger -->
-            <androidx.cardview.widget.CardView
+                <ImageView
+                    android:id="@+id/btn_search_toggle"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/iv_profile"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/black"/>
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_profile"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_profile"
+                    app:shapeAppearanceOverlay="@style/CircleImage"/>
+            </RelativeLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                android:layout_marginBottom="16dp">
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="160dp">
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/burger_sample"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="12dp"
-                            android:background="@drawable/bg_badge_green"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
-                            android:text="MAIN COURSE"
-                            android:textColor="@color/white"
-                            android:textSize="10sp"
-                            android:textStyle="bold"/>
-                    </RelativeLayout>
-                    <RelativeLayout
-                        android:padding="16dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Double Smash Burger"
-                                android:textSize="18sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/black"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="$12.50"
-                                android:textColor="@color/primary_orange"
-                                android:textStyle="bold"/>
-                        </LinearLayout>
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:gravity="end"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="AVAILABLE"
-                                android:textSize="10sp"
-                                android:textColor="@color/text_gray"/>
-                            <androidx.appcompat.widget.SwitchCompat
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:checked="true"
-                                app:trackTint="@color/status_green"
-                                android:thumbTint="@color/white"/>
-                        </LinearLayout>
-                    </RelativeLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <!-- Menu Item: Pizza -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                android:layout_marginBottom="16dp">
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="160dp">
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/pizza_sample"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="12dp"
-                            android:background="@drawable/bg_badge_green"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
-                            android:text="POPULAR"
-                            android:textColor="@color/white"
-                            android:textSize="10sp"
-                            android:textStyle="bold"/>
-                    </RelativeLayout>
-                    <RelativeLayout
-                        android:padding="16dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Pepperoni Classic"
-                                android:textSize="18sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/black"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="$14.99"
-                                android:textColor="@color/primary_orange"
-                                android:textStyle="bold"/>
-                        </LinearLayout>
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:gravity="end"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="AVAILABLE"
-                                android:textSize="10sp"
-                                android:textColor="@color/text_gray"/>
-                            <androidx.appcompat.widget.SwitchCompat
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:checked="true"
-                                app:trackTint="@color/status_green"
-                                android:thumbTint="@color/white"/>
-                        </LinearLayout>
-                    </RelativeLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Menu Management"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
 
-            <!-- Add New Item Section -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/bg_item"
-                android:layout_marginBottom="16dp">
-                <LinearLayout
-                    android:padding="32dp"
-                    android:orientation="vertical"
-                    android:gravity="center"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Update your offerings, manage inventory, and adjust pricing."
+                    android:textColor="@color/text_gray"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp"/>
+
+                <!-- Search Bar -->
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/search_view_menu"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    android:background="@drawable/bg_search_light_blue"
+                    app:iconifiedByDefault="false"
+                    app:queryHint="Search menu items..."
+                    app:queryBackground="@android:color/transparent" />
+
+                <!-- Category Chips -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginTop="8dp">
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chip_group_categories"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/ic_add"
-                        app:backgroundTint="@color/button_orange"
-                        app:tint="@color/white"
-                        app:fabSize="mini"
-                        app:elevation="0dp"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Add New Item"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"
-                        android:layout_marginTop="12dp"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Expand your kitchen's menu"
-                        android:textColor="@color/text_gray"
-                        android:textSize="12sp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+                        <!-- Chips will be added dynamically or can be static -->
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.MaterialComponents.Chip.Choice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="All"
+                            android:checked="true"/>
+                    </com.google.android.material.chip.ChipGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_vendor_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_filter"
+        android:id="@+id/fab_scroll_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="88dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_arrow_up"
+        app:backgroundTint="@color/white"
+        app:tint="#A34E0C"
+        app:fabSize="mini"
+        app:elevation="6dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_food"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        app:srcCompat="@drawable/ic_filter"
-        app:backgroundTint="@color/button_orange"
+        app:srcCompat="@drawable/ic_add"
+        app:backgroundTint="#A34E0C"
         app:tint="@color/white"
-        app:fabSize="normal"
         app:elevation="6dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

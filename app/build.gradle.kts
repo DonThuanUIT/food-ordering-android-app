@@ -59,4 +59,7 @@ dependencies {
     // Lifecycle (ViewModel & LiveData)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
+
+    // Glide
+    implementation(libs.glide)
 }

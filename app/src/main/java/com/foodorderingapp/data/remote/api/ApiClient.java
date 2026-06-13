@@ -17,33 +17,34 @@ public class ApiClient {
     private static ApiService apiService = null;
     private static AuthApiService authApiService = null;
 
-    public static synchronized Retrofit getRetrofit() {
+    public static Retrofit getRetrofit() {
         if (retrofit == null) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            synchronized (ApiClient.class) {
+                if (retrofit == null) {
+                    HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+                    logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addInterceptor(loggingInterceptor)
-                    .addInterceptor(chain -> {
-                        String token = TokenManager.getInstance().getAccessToken();
-                        Request.Builder builder = chain.request().newBuilder();
-                        
-                        if (token != null && !token.isEmpty()) {
-                            builder.addHeader("Authorization", "Bearer " + token);
-                        }
-                        
-                        return chain.proceed(builder.build());
-                    })
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .build();
+                    OkHttpClient client = new OkHttpClient.Builder()
+                            .addInterceptor(logging)
+                            .addInterceptor(chain -> {
+                                Request.Builder builder = chain.request().newBuilder();
+                                String token = TokenManager.getInstance().getAccessToken();
+                                if (token != null && !token.isEmpty()) {
+                                    builder.addHeader("Authorization", "Bearer " + token);
+                                }
+                                return chain.proceed(builder.build());
+                            })
+                            .connectTimeout(60, TimeUnit.SECONDS)
+                            .writeTimeout(60, TimeUnit.SECONDS)
+                            .build();
 
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(AppConstants.BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+                    retrofit = new Retrofit.Builder()
+                            .baseUrl(AppConstants.BASE_URL)
+                            .client(client)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                }
+            }
         }
         return retrofit;
     }

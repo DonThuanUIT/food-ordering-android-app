@@ -6,20 +6,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
- import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
- import com.foodorderingapp.ui.home.student.StudentProfileFragment;
- import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
- import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
- import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
- import com.foodorderingapp.ui.home.vendor.VendorSettingsFragment;
- import com.google.android.material.navigation.NavigationBarView;
+import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
+import com.foodorderingapp.ui.home.student.StudentProfileFragment;
+import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
+import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
+import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
+import com.foodorderingapp.ui.home.vendor.VendorSettingsFragment;
+import com.google.android.material.navigation.NavigationBarView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
-    private FloatingActionButton fabCart;
     private String userRole;
 
     @Override
@@ -28,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNav = findViewById(R.id.bottom_navigation);
-        fabCart = findViewById(R.id.fab_cart);
 
         if (findViewById(R.id.toolbar) != null) {
             setSupportActionBar(findViewById(R.id.toolbar));
