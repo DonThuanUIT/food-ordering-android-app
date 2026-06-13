@@ -119,7 +119,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class FoodViewHolder extends RecyclerView.ViewHolder {
         ImageView imgFood;
         View viewOverlay;
-        TextView tvSoldOut, tvName, tvPrice, tvStatus, tvDescription;
+        TextView tvSoldOut, tvName, tvPrice, tvStatus, tvDescription, tvBadge;
         SwitchCompat switchAvailability;
 
         public FoodViewHolder(@NonNull View itemView) {
@@ -132,6 +132,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             tvStatus = itemView.findViewById(R.id.tv_status_text);
             tvDescription = itemView.findViewById(R.id.tv_food_description);
             switchAvailability = itemView.findViewById(R.id.switch_available);
+            tvBadge = itemView.findViewById(R.id.tv_badge_label);
         }
 
         void bind(FoodResponse food) {
@@ -158,11 +159,27 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
 
+            // Set overlay badge
+            if (tvBadge != null) {
+                int hash = food.getName() != null ? Math.abs(food.getName().hashCode()) : 0;
+                if (hash % 3 == 0) {
+                    tvBadge.setVisibility(View.VISIBLE);
+                    tvBadge.setText("Popular");
+                    tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
+                } else if (hash % 3 == 1) {
+                    tvBadge.setVisibility(View.VISIBLE);
+                    tvBadge.setText("Bestseller");
+                    tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
+                } else {
+                    tvBadge.setVisibility(View.GONE);
+                }
+            }
+
             if (isAvailable) {
                 imgFood.setAlpha(1.0f);
                 viewOverlay.setVisibility(View.GONE);
                 tvSoldOut.setVisibility(View.GONE);
-                tvStatus.setText("In Stock");
+                tvStatus.setText("● In Stock");
                 tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
                 
                 switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#81C784"))); // Light green track
@@ -171,7 +188,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 imgFood.setAlpha(0.3f); 
                 viewOverlay.setVisibility(View.VISIBLE);
                 tvSoldOut.setVisibility(View.VISIBLE);
-                tvStatus.setText("Out of Stock");
+                tvStatus.setText("● Out of Stock");
                 tvStatus.setTextColor(Color.parseColor("#D32F2F")); // Red
                 
                 switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#E0E0E0"))); // Light gray track

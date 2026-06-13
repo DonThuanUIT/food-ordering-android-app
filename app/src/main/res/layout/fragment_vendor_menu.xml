@@ -71,7 +71,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Menu Management"
+                android:text="Inventory Management"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"/>
@@ -93,6 +93,152 @@
                 app:iconifiedByDefault="false"
                 app:queryHint="Search menu items..."
                 app:queryBackground="@android:color/transparent" />
+
+            <!-- Stats Dashboard Cards Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"
+                android:weightSum="4">
+
+                <!-- Total Items Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#F7FAFC">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TOTAL"
+                            android:textColor="#718096"
+                            android:textSize="10sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/tv_stat_total_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="@color/black"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- In Stock Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="2dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#E6FFFA">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ACTIVE"
+                            android:textColor="#319795"
+                            android:textSize="10sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/tv_stat_in_stock_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#234E52"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Sold Out Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="2dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#FFF5F5">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SOLD OUT"
+                            android:textColor="#E53E3E"
+                            android:textSize="10sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/tv_stat_sold_out_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#742A2A"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Categories Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#FFFAF0">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp"
+                        android:gravity="center">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="GROUPS"
+                            android:textColor="#DD6B20"
+                            android:textSize="10sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:id="@+id/tv_stat_categories_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#7B341E"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Pinned Category Chips -->

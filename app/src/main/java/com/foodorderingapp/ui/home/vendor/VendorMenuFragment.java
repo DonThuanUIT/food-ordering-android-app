@@ -79,6 +79,11 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private UUID currentShopId;
     private BottomSheetDialog currentAddFoodDialog;
 
+    private TextView tvStatTotalCount;
+    private TextView tvStatInStockCount;
+    private TextView tvStatSoldOutCount;
+    private TextView tvStatCategoriesCount;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +111,11 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         fabScrollTop = view.findViewById(R.id.fab_scroll_top);
         fabAddFood = view.findViewById(R.id.fab_add_food);
         btnSearchToggle = view.findViewById(R.id.btn_search_toggle);
+
+        tvStatTotalCount = view.findViewById(R.id.tv_stat_total_count);
+        tvStatInStockCount = view.findViewById(R.id.tv_stat_in_stock_count);
+        tvStatSoldOutCount = view.findViewById(R.id.tv_stat_sold_out_count);
+        tvStatCategoriesCount = view.findViewById(R.id.tv_stat_categories_count);
 
         setupRecyclerView();
         setupSearch();
@@ -228,6 +238,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 if (response.isSuccessful() && response.body() != null) {
                     foodList = response.body();
                     adapter.updateData(foodList);
+                    updateStatsCounts();
                     if (scrollToBottom) {
                         rvMenu.postDelayed(() -> rvMenu.smoothScrollToPosition(adapter.getItemCount() - 1), 300);
                     }
@@ -255,6 +266,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 if (response.isSuccessful() && response.body() != null) {
                     categories = response.body();
                     updateCategoryChips();
+                    updateStatsCounts();
                     if (currentAddFoodDialog != null && currentAddFoodDialog.isShowing()) {
                         updateDialogCategories(currentAddFoodDialog.findViewById(R.id.chip_group_category), selectedId);
                     }
@@ -652,5 +664,31 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             Color.parseColor("#4A5568")  // Inactive: charcoal gray
         };
         return new ColorStateList(states, colors);
+    }
+
+    private void updateStatsCounts() {
+        if (tvStatTotalCount == null || tvStatInStockCount == null || tvStatSoldOutCount == null || tvStatCategoriesCount == null) {
+            return;
+        }
+
+        int totalCount = foodList.size();
+        int inStockCount = 0;
+        int soldOutCount = 0;
+
+        for (FoodResponse food : foodList) {
+            boolean isAvailable = food.getIsAvailable() != null ? food.getIsAvailable() : true;
+            if (isAvailable) {
+                inStockCount++;
+            } else {
+                soldOutCount++;
+            }
+        }
+
+        int categoriesCount = categories.size();
+
+        tvStatTotalCount.setText(String.valueOf(totalCount));
+        tvStatInStockCount.setText(String.valueOf(inStockCount));
+        tvStatSoldOutCount.setText(String.valueOf(soldOutCount));
+        tvStatCategoriesCount.setText(String.valueOf(categoriesCount));
     }
 }
