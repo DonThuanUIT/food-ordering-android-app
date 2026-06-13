@@ -44,7 +44,12 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void updateData(List<FoodResponse> newList) {
-        this.originalList = newList != null ? newList : new ArrayList<>();
+        this.originalList = newList != null ? new ArrayList<>(newList) : new ArrayList<>();
+        java.util.Collections.sort(this.originalList, (f1, f2) -> {
+            if (f1.getName() == null) return 1;
+            if (f2.getName() == null) return -1;
+            return f1.getName().compareToIgnoreCase(f2.getName());
+        });
         applyFilters();
     }
 
