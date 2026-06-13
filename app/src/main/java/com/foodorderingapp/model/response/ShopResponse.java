@@ -8,6 +8,11 @@ public class ShopResponse {
     private String name;
     private String description;
     private String openTime;
+    private String closeTime;
+    private String address;
+    private String status;
+    private Boolean isActive;
+    private String displayStatus;
 
     public UUID getId() {
         return id;
@@ -47,5 +52,45 @@ public class ShopResponse {
 
     public void setOpenTime(String openTime) {
         this.openTime = openTime;
+    }
+
+    public String getCloseTime() {
+        return closeTime;
+    }
+
+    public void setCloseTime(String closeTime) {
+        this.closeTime = closeTime;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public String getDisplayStatus() {
+        return displayStatus;
+    }
+
+    public void setDisplayStatus(String displayStatus) {
+        this.displayStatus = displayStatus;
     }
 }

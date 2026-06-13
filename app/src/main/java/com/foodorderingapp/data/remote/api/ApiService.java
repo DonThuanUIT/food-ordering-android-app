@@ -6,6 +6,7 @@ import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
+import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
 import com.foodorderingapp.model.response.FoodResponse;
@@ -51,6 +52,18 @@ public interface ApiService {
     // --- Vendor Shop Management ---
     @GET("vendor/shops")
     Call<List<ShopResponse>> getVendorShops();
+
+    @PUT("vendor/shops/{shopId}/profile")
+    Call<ShopResponse> updateShopProfile(
+            @Path("shopId") UUID shopId,
+            @Body ShopUpdateRequest request
+    );
+
+    @PATCH("vendor/shops/{shopId}/status")
+    Call<ShopResponse> toggleShopStatus(
+            @Path("shopId") UUID shopId,
+            @Body Map<String, Boolean> body
+    );
 
     // --- Vendor Food Management ---
     @GET("vendor/shops/{shopId}/foods")

@@ -344,6 +344,7 @@
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
                             <TextView
+                                android:id="@+id/tv_hours_mon_fri"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="08:00 AM - 11:30 PM"
@@ -365,6 +366,7 @@
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
                             <TextView
+                                android:id="@+id/tv_hours_sat"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="10:00 AM - 01:00 AM"
@@ -386,6 +388,7 @@
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
                             <TextView
+                                android:id="@+id/tv_hours_sun"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="10:00 AM - 10:00 PM"
