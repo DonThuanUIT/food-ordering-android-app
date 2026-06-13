@@ -1,6 +1,7 @@
 package com.foodorderingapp.ui.adapter;
 
 import android.graphics.Color;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public interface OnFoodActionProvider {
         void onStatusChanged(FoodResponse food, boolean isAvailable);
         void onAddNewItemClick();
+        void onFoodImageClick(FoodResponse food);
     }
 
     public FoodAdapter(List<FoodResponse> foodList, OnFoodActionProvider actionProvider) {
@@ -145,18 +147,30 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             switchAvailability.setOnCheckedChangeListener(null);
             switchAvailability.setChecked(isAvailable);
 
+            imgFood.setOnClickListener(v -> {
+                if (actionProvider != null) {
+                    actionProvider.onFoodImageClick(food);
+                }
+            });
+
             if (isAvailable) {
                 imgFood.setAlpha(1.0f);
                 viewOverlay.setVisibility(View.GONE);
                 tvSoldOut.setVisibility(View.GONE);
                 tvStatus.setText("In Stock");
                 tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
+                
+                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#81C784"))); // Light green track
+                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#2E7D32")));  // Dark green thumb
             } else {
                 imgFood.setAlpha(0.3f); 
                 viewOverlay.setVisibility(View.VISIBLE);
                 tvSoldOut.setVisibility(View.VISIBLE);
                 tvStatus.setText("Out of Stock");
-                tvStatus.setTextColor(Color.RED);
+                tvStatus.setTextColor(Color.parseColor("#D32F2F")); // Red
+                
+                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#E0E0E0"))); // Light gray track
+                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#9E9E9E")));  // Gray thumb
             }
 
             switchAvailability.setOnCheckedChangeListener((buttonView, isChecked) -> {

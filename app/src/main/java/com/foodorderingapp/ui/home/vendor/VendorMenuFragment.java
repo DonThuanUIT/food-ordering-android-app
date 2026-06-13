@@ -3,6 +3,8 @@ package com.foodorderingapp.ui.home.vendor;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,8 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.TextView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -32,6 +37,7 @@ import com.foodorderingapp.model.response.CategoryResponse;
 import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.FoodAdapter;
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -267,12 +273,16 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         allChip.setText("All");
         allChip.setCheckable(true);
         allChip.setChecked(true);
+        allChip.setChipBackgroundColor(getChipBackgroundStateList());
+        allChip.setTextColor(getChipTextStateList());
         chipGroupCategories.addView(allChip);
 
         for (CategoryResponse category : categories) {
             Chip chip = new Chip(requireContext());
             chip.setText(category.getName());
             chip.setCheckable(true);
+            chip.setChipBackgroundColor(getChipBackgroundStateList());
+            chip.setTextColor(getChipTextStateList());
             chipGroupCategories.addView(chip);
         }
     }
@@ -379,6 +389,18 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         }
 
         currentAddFoodDialog.setContentView(dialogView);
+        currentAddFoodDialog.setOnShowListener(dialog -> {
+            BottomSheetDialog d = (BottomSheetDialog) dialog;
+            FrameLayout bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+                ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                bottomSheet.setLayoutParams(layoutParams);
+            }
+        });
         currentAddFoodDialog.show();
     }
 
@@ -396,6 +418,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             chip.setText(cat.getName());
             chip.setCheckable(true);
             chip.setId(View.generateViewId());
+            chip.setChipBackgroundColor(getChipBackgroundStateList());
+            chip.setTextColor(getChipTextStateList());
             if (selectedId != null) {
                 if (selectedId.equals(cat.getId())) {
                     chip.setChecked(true);
@@ -575,5 +599,58 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             os.close(); is.close();
             return file;
         } catch (Exception e) { return null; }
+    }
+
+    @Override
+    public void onFoodImageClick(FoodResponse food) {
+        if (food.getImageUrl() == null || food.getImageUrl().isEmpty()) return;
+        showFullImageDialog(food.getImageUrl(), food.getName());
+    }
+
+    private void showFullImageDialog(String imageUrl, String name) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        View view = getLayoutInflater().inflate(R.layout.dialog_full_image, null);
+        ImageView imgFull = view.findViewById(R.id.img_full_size);
+        TextView tvTitle = view.findViewById(R.id.tv_image_title);
+        View btnClose = view.findViewById(R.id.btn_close_image);
+
+        if (tvTitle != null) tvTitle.setText(name);
+
+        Glide.with(this)
+                .load(imageUrl)
+                .placeholder(R.drawable.logo_food)
+                .error(R.drawable.logo_food)
+                .into(imgFull);
+
+        AlertDialog dialog = builder.setView(view).create();
+
+        if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
+        view.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private ColorStateList getChipBackgroundStateList() {
+        int[][] states = new int[][] {
+            new int[] {android.R.attr.state_checked},
+            new int[] {-android.R.attr.state_checked}
+        };
+        int[] colors = new int[] {
+            Color.parseColor("#FF5722"), // Active: Orange (@color/button_orange)
+            Color.parseColor("#EDF2F7")  // Inactive: gray-blue
+        };
+        return new ColorStateList(states, colors);
+    }
+
+    private ColorStateList getChipTextStateList() {
+        int[][] states = new int[][] {
+            new int[] {android.R.attr.state_checked},
+            new int[] {-android.R.attr.state_checked}
+        };
+        int[] colors = new int[] {
+            Color.WHITE,                 // Active: white
+            Color.parseColor("#4A5568")  // Inactive: charcoal gray
+        };
+        return new ColorStateList(states, colors);
     }
 }
