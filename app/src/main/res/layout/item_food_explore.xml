@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="18dp"
+    android:layout_marginVertical="12dp"
+    app:cardCornerRadius="22dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="210dp"
+            android:background="@android:color/white">
+
+            <ImageView
+                android:id="@+id/ivFoodImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/logo_food" />
+
+        </FrameLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="20dp">
+
+            <LinearLayout
+                android:id="@+id/layoutFoodInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/btnAddToCart"
+                android:layout_centerVertical="true"
+                android:orientation="vertical"
+                android:paddingEnd="12dp">
+
+                <TextView
+                    android:id="@+id/tvFoodName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Bánh Mì Thịt Nướng"
+                    android:textColor="#111111"
+                    android:textSize="21sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvShopName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Cô Ba Bakery"
+                    android:textColor="#6D4C41"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tvFoodPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="25.000đ"
+                    android:textColor="#BF360C"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnAddToCart"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/home_bg_button_orange"
+                android:contentDescription="Thêm vào giỏ"
+                android:src="@drawable/ic_cart"
+                app:tint="@android:color/white" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

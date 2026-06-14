@@ -3,6 +3,7 @@ package com.foodorderingapp.ui.auth;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import com.foodorderingapp.MainActivity;
 import com.foodorderingapp.R;
 
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "LOGIN_DEBUG";
     private TextView txtSignUp;
     private EditText edtPhone, edtPassword;
     private ImageView imgEye;
@@ -55,8 +57,8 @@ public class LoginActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         imgEye = findViewById(R.id.imgEye);
         btnLogin = findViewById(R.id.btnLogin);
-        // Lưu ý: Nếu activity_login.xml chưa có ProgressBar, hãy thêm vào hoặc comment dòng này
-        // progressBar = findViewById(R.id.progressBar); 
+        // Lưu ý: Nếu activity_login.xml chưa có ProgressBar, bạn có thể thêm id="progressBar" vào XML
+        progressBar = findViewById(R.id.progressBar); 
     }
 
     private void setupListeners() {
@@ -70,6 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> {
             String phone = edtPhone.getText().toString().trim();
             String password = edtPassword.getText().toString().trim();
+            Log.d(TAG, "Attempting login for phone: " + phone);
             loginViewModel.login(phone, password);
         });
     }
@@ -85,20 +88,27 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel.getErrorMessage().observe(this, message -> {
             if (message != null) {
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Login Error: " + message);
             }
         });
 
         loginViewModel.getLoginResponse().observe(this, response -> {
             if (response != null) {
+                // Thêm Log theo checklist debug của bạn
+                Log.d(TAG, "response=" + response.getMessage());
+                Log.d(TAG, "role=" + response.getRole());
+                Log.d(TAG, "token=" + (response.getAccessToken() != null ? "FOUND" : "MISSING"));
+
                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                 String userRole = response.getRole();
 
+                // Chuyển sang MainActivity và truyền Role
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra("USER_ROLE", userRole);
 
                 startActivity(intent);
-                finish();
+                finish(); // Đóng LoginActivity sau khi chuyển màn
             }
         });
     }

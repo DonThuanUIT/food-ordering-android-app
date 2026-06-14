@@ -22,4 +22,15 @@
     <color name="button_gray">#E5E5EA</color>
 
     <color name="nav_active_color">#34C759</color>
+
+    <!-- Profile Screen Colors -->
+    <color name="profile_header_dark">#0D1033</color>
+    <color name="profile_spending_bg">#FFF4E6</color>
+    <color name="profile_chart_bar_light">#FFB380</color>
+    <color name="profile_chart_bar_main">#FF782E</color>
+    <color name="profile_chart_bar_empty">#D1D1D6</color>
+    <color name="profile_logout_red">#C1272D</color>
+    <color name="profile_tag_bg">#F2F2F7</color>
+    <color name="profile_divider">#E5E5EA</color>
+    <color name="profile_bg_grey">#EBECED</color>
 </resources>

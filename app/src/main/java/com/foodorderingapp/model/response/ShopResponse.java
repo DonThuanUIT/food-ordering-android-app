@@ -1,11 +1,10 @@
 package com.foodorderingapp.model.response;
 
 import com.google.gson.annotations.SerializedName;
-import java.util.UUID;
 
 public class ShopResponse {
-    private UUID id;
-    private UUID ownerId;
+    private String id;
+    private String ownerId;
     private String name;
     private String description;
     private String openTime;
@@ -17,19 +16,19 @@ public class ShopResponse {
     private Boolean isActive;
     private String displayStatus;
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public UUID getOwnerId() {
+    public String getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(UUID ownerId) {
+    public void setOwnerId(String ownerId) {
         this.ownerId = ownerId;
     }
 
@@ -87,6 +86,10 @@ public class ShopResponse {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public boolean isActive() {
+        return isActive != null ? isActive : false;
     }
 
     public String getDisplayStatus() {

@@ -14,7 +14,7 @@
         android:id="@+id/topBackground"
         android:layout_width="0dp"
         android:layout_height="260dp"
-        android:background="@drawable/bg_top_dark"
+        android:background="@drawable/home_bg_top_dark"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -171,7 +171,7 @@
                 android:textAllCaps="true"
                 android:textColor="#FFFFFF"
                 android:textStyle="bold"
-                android:background="@drawable/bg_button_orange"
+                android:background="@drawable/home_bg_button_orange"
                 app:backgroundTint="@null"/>
 
             <!-- Sign up -->
@@ -249,5 +249,17 @@
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminateTint="#FF7A21"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="10dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

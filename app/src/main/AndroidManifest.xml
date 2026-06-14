@@ -41,6 +41,13 @@
             android:name=".ui.auth.OtpActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.shop.ShopDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.shop.ShopMenuActivity"
+            android:exported="false" />
 
     </application>
 

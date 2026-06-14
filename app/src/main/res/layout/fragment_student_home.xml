@@ -4,71 +4,158 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA">
+    android:background="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- Thanh Tìm Kiếm -->
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:background="@drawable/bg_search_white"
-            android:paddingHorizontal="16dp">
-            <ImageView
-                android:id="@+id/ivSearchIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/ic_search"
-                app:tint="#8E8E93"/>
-            <EditText
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="40dp"
+            android:background="@drawable/home_bg_top_dark">
+
+            <TextView
+                android:id="@+id/tvGreeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xin chào!"
+                android:textColor="@android:color/white"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_toEndOf="@id/ivSearchIcon"
-                android:background="@android:color/transparent"
-                android:hint="Tìm món ăn..."
-                android:layout_marginStart="12dp"
-                android:textSize="14sp"
-                android:inputType="text"/>
-        </RelativeLayout>
+                android:layout_height="54dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/home_bg_header_pill"
+                android:elevation="4dp"
+                android:paddingHorizontal="18dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCategories"
+                <ImageView
+                    android:id="@+id/ivSearchIconHeader"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_search"
+                    app:tint="#4E342E" />
+
+                <EditText
+                    android:id="@+id/etHomeSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@id/ivSearchIconHeader"
+                    android:background="@android:color/transparent"
+                    android:hint="Bạn muốn ăn gì hôm nay?"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:textColorHint="#888888"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"/>
+            android:layout_marginTop="-25dp"
+            android:background="@drawable/home_bg_content_container"
+            android:orientation="vertical"
+            android:paddingTop="20dp"
+            android:minHeight="600dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quán Nổi Bật"
-            android:textStyle="bold"
-            android:textSize="19sp"
-            android:layout_marginTop="20dp"/>
+            <!-- Tab Selection Bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="24dp"
+                android:gravity="bottom">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvFeaturedRestaurants"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"/>
+                <!-- Tab Quán Ăn -->
+                <LinearLayout
+                    android:id="@+id/tabRestaurants"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/tvTabRestaurants"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quán Ăn"
+                        android:textSize="17sp"
+                        android:textColor="#555555"
+                        android:textStyle="bold"
+                        android:paddingBottom="10dp"/>
+                    <View
+                        android:id="@+id/indicatorRestaurants"
+                        android:layout_width="60dp"
+                        android:layout_height="3dp"
+                        android:visibility="invisible"
+                        android:background="@drawable/home_bg_tab_indicator"/>
+                </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Món Ngon Sinh Viên"
-            android:textStyle="bold"
-            android:textSize="19sp"
-            android:layout_marginTop="32dp"/>
+                <!-- Tab Món Ngon -->
+                <LinearLayout
+                    android:id="@+id/tabDishes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/tvTabDishes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Món Ngon"
+                        android:textSize="17sp"
+                        android:textColor="#FF7A21"
+                        android:textStyle="bold"
+                        android:paddingBottom="10dp"/>
+                    <View
+                        android:id="@+id/indicatorDishes"
+                        android:layout_width="60dp"
+                        android:layout_height="3dp"
+                        android:background="@drawable/home_bg_tab_indicator"/>
+                </LinearLayout>
+            </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvStudentDishes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="0dp"
+                android:background="#F0F0F0" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMainHomeList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingHorizontal="16dp" />
+
+            <TextView
+                android:id="@+id/tvHomeEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="32dp"
+                android:text="Chưa có món ngon nào"
+                android:textColor="#7D8494"
+                android:textSize="16sp"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

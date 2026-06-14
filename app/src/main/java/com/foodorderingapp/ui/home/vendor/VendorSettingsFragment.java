@@ -319,7 +319,7 @@ public class VendorSettingsFragment extends Fragment {
 
     private void bindShopData(ShopResponse shop) {
         currentShopData = shop;
-        currentShopId = shop.getId();
+        currentShopId = shop.getId() != null ? UUID.fromString(shop.getId()) : null;
 
         if (tvShopName != null) {
             tvShopName.setText(shop.getName());

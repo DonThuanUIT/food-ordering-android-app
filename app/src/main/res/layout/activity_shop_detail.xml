@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <ScrollView
+        android:id="@+id/shopDetailScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="104dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="260dp">
+
+                <ImageView
+                    android:id="@+id/ivShopHero"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/logo_food" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#33000000" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/shopInfoPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-28dp"
+                android:background="@drawable/bg_shop_detail_panel"
+                android:elevation="4dp"
+                android:orientation="vertical"
+                android:paddingStart="28dp"
+                android:paddingTop="44dp"
+                android:paddingEnd="28dp"
+                android:paddingBottom="40dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvShopDetailName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:includeFontPadding="false"
+                        android:text="Cơm Tấm Sài Gòn"
+                        android:textColor="#10152F"
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_shop_detail_rating"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_shop_detail_star"
+                            app:tint="#FF9800" />
+
+                        <TextView
+                            android:id="@+id/tvShopRating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="4.8"
+                            android:textColor="#1D1D1D"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutShopStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="28dp"
+                    android:background="@drawable/bg_shop_detail_status_open"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="16dp">
+
+                    <ImageView
+                        android:id="@+id/ivShopStatusIcon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_shop_detail_store"
+                        app:tint="#00A843" />
+
+                    <TextView
+                        android:id="@+id/tvShopStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Đang mở cửa"
+                        android:textColor="#00A843"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:gravity="top"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="2dp"
+                        android:src="@drawable/ic_shop_detail_location"
+                        app:tint="#A13A00" />
+
+                    <TextView
+                        android:id="@+id/tvShopDetailAddress"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:lineSpacingExtra="4dp"
+                        android:text="Khu Canteen A, Ký túc xá Khu B Đại học Quốc gia, TP. Thủ Đức"
+                        android:textColor="#563528"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_shop_detail_clock"
+                        app:tint="#A13A00" />
+
+                    <TextView
+                        android:id="@+id/tvShopTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="22dp"
+                        android:text="08:00 - 21:00"
+                        android:textColor="#563528"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="36dp"
+                    android:background="#E5E0DC" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:text="Về chúng tôi"
+                    android:textColor="#0D0D0D"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvShopDetailDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:lineSpacingExtra="8dp"
+                    android:text="Đang tải thông tin quán..."
+                    android:textColor="#563528"
+                    android:textSize="20sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_shop_detail_circle"
+        android:contentDescription="Quay lại"
+        android:elevation="6dp"
+        android:padding="12dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_arrow_back_clean" />
+
+    <ImageButton
+        android:id="@+id/btnFavorite"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="18dp"
+        android:background="@drawable/bg_shop_detail_circle"
+        android:contentDescription="Yêu thích"
+        android:elevation="6dp"
+        android:padding="13dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_shop_detail_heart"
+        app:tint="#FF7A21" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="104dp"
+        android:layout_gravity="bottom"
+        android:background="#FFFFFF"
+        android:elevation="10dp"
+        android:gravity="center"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewMenu"
+            android:layout_width="match_parent"
+            android:layout_height="66dp"
+            android:text="Xem Menu Quán  →"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:backgroundTint="#FF7A21"
+            app:cornerRadius="14dp"
+            app:elevation="0dp"
+            app:rippleColor="#E86714" />
+    </LinearLayout>
+</FrameLayout>

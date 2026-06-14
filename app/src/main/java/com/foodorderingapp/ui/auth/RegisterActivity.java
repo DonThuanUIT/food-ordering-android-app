@@ -100,7 +100,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Đừng quên observe message để hiện thông báo lỗi
         viewModel.getMessage().observe(this, msg -> {
-            if (msg != null) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            if (msg != null) {
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Đăng ký");
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -126,6 +130,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (!validateCommonInput(fullName, email, phone, password, confirmPassword)) return;
 
+        btnRegister.setEnabled(false);
+        btnRegister.setText("Đang xử lý...");
         String buildingId = "";
         String shopName = "";
 

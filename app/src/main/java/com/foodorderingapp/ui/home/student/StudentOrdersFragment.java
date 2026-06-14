@@ -1,66 +1,83 @@
 package com.foodorderingapp.ui.home.student;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.R;
+import com.foodorderingapp.ui.adapter.ActiveOrderAdapter;
+import com.foodorderingapp.viewmodel.OrderViewModel;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link StudentOrdersFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class StudentOrdersFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private ActiveOrderAdapter activeOrderAdapter;
+    private RecyclerView rvActiveOrders;
+    private TextView tvActiveOrdersEmpty;
+    private OrderViewModel orderViewModel;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public StudentOrdersFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment StudentOrdersFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static StudentOrdersFragment newInstance(String param1, String param2) {
-        StudentOrdersFragment fragment = new StudentOrdersFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public StudentOrdersFragment() {}
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_student_orders, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        rvActiveOrders = view.findViewById(R.id.rvActiveOrders);
+        tvActiveOrdersEmpty = view.findViewById(R.id.tvActiveOrdersEmpty);
+
+        activeOrderAdapter = new ActiveOrderAdapter();
+        rvActiveOrders.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvActiveOrders.setAdapter(activeOrderAdapter);
+        rvActiveOrders.setNestedScrollingEnabled(false);
+
+        orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
+        orderViewModel.getActiveOrders().observe(getViewLifecycleOwner(), orders -> {
+            if (orders == null) {
+                activeOrderAdapter.submitList(null);
+                showActiveOrdersEmpty("Không tải được đơn đang xử lý");
+                return;
+            }
+
+            activeOrderAdapter.submitList(orders);
+            if (orders.isEmpty()) {
+                showActiveOrdersEmpty("Chưa có đơn đang xử lý");
+            } else {
+                showActiveOrdersList();
+            }
+        });
+        orderViewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.trim().isEmpty()) {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        orderViewModel.loadActiveOrders();
+    }
+
+    private void showActiveOrdersList() {
+        rvActiveOrders.setVisibility(View.VISIBLE);
+        tvActiveOrdersEmpty.setVisibility(View.GONE);
+    }
+
+    private void showActiveOrdersEmpty(String message) {
+        rvActiveOrders.setVisibility(View.GONE);
+        tvActiveOrdersEmpty.setVisibility(View.VISIBLE);
+        tvActiveOrdersEmpty.setText(message);
     }
 }

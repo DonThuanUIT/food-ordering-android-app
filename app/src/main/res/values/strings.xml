@@ -4,4 +4,16 @@
     <string name="add_new_item">Add New Item</string>
     <string name="expand_menu">Expand your kitchen menu</string>
     <string name="all">All</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Tài khoản</string>
+    <string name="profile_spending_title">Chi tiêu tháng này</string>
+    <string name="profile_payment_method">Phương thức thanh toán</string>
+    <string name="profile_my_reviews">Đánh giá của tôi</string>
+    <string name="profile_support">Hỗ trợ</string>
+    <string name="profile_logout">Đăng xuất</string>
+    <string name="profile_week_1">Tuần 1</string>
+    <string name="profile_week_2">Tuần 2</string>
+    <string name="profile_week_3">Tuần 3</string>
+    <string name="profile_week_4">Tuần 4</string>
 </resources>

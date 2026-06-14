@@ -143,7 +143,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             @Override
             public void onResponse(Call<List<ShopResponse>> call, Response<List<ShopResponse>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    currentShopId = response.body().get(0).getId();
+                    String idStr = response.body().get(0).getId();
+                    currentShopId = idStr != null ? UUID.fromString(idStr) : null;
                     loadData(false);
                 } else {
                     if (getContext() != null) {
