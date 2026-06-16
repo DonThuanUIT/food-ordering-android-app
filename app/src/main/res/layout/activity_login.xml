@@ -125,7 +125,8 @@
                     android:layout_height="22dp"
                     android:layout_gravity="end|center_vertical"
                     android:layout_marginEnd="16dp"
-                    android:src="@android:drawable/ic_menu_view"
+                    android:contentDescription="Hiện mật khẩu"
+                    android:src="@drawable/ic_eye"
                     app:tint="#A0A6B2"/>
             </FrameLayout>
 
@@ -227,14 +228,14 @@
                     android:contentDescription="Facebook" />
 
                 <ImageButton
-                    android:id="@+id/btnTwitter"
+                    android:id="@+id/btnGoogle"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginEnd="20dp"
                     android:src="@drawable/ic_google"
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
-                    android:contentDescription="Twitter" />
+                    android:contentDescription="Google" />
 
                 <ImageButton
                     android:id="@+id/btnApple"

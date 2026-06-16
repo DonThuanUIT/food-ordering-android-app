@@ -1,5 +1,6 @@
 package com.foodorderingapp.ui.home.student;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.MainActivity;
 import com.foodorderingapp.R;
+import com.foodorderingapp.model.response.CartItemResponse;
+import com.foodorderingapp.model.response.ShopCartResponse;
 import com.foodorderingapp.ui.adapter.CartShopAdapter;
 import com.foodorderingapp.viewmodel.CartViewModel;
 import com.foodorderingapp.viewmodel.OrderViewModel;
@@ -28,6 +31,7 @@ public class StudentCartFragment extends Fragment {
     private CartViewModel cartViewModel;
     private OrderViewModel orderViewModel;
     private CartShopAdapter cartShopAdapter;
+    private RecyclerView rvCartShops;
     private TextView tvCartEmpty;
     private boolean hasCartItems = false;
 
@@ -44,22 +48,26 @@ public class StudentCartFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RecyclerView rvCartShops = view.findViewById(R.id.rvCartShops);
+        rvCartShops = view.findViewById(R.id.rvCartShops);
         EditText etBuilding = view.findViewById(R.id.etCheckoutBuilding);
         EditText etDropOff = view.findViewById(R.id.etCheckoutDropOff);
         Button btnCheckout = view.findViewById(R.id.btnCheckout);
         tvCartEmpty = view.findViewById(R.id.tvCartEmpty);
 
+        cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
+        orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
+
         cartShopAdapter = new CartShopAdapter();
         cartShopAdapter.setOnQuantityChangeListener((item, newQuantity) ->
                 cartViewModel.updateCartItemQuantity(item.getId(), newQuantity)
         );
+        cartShopAdapter.setOnDeleteClickListener(this::confirmDeleteCartItem);
+        cartShopAdapter.setOnClearShopCartListener(this::confirmClearShopCart);
+        cartShopAdapter.setOnCheckoutClickListener(() -> checkout(etBuilding, etDropOff));
+
         rvCartShops.setLayoutManager(new LinearLayoutManager(getContext()));
         rvCartShops.setAdapter(cartShopAdapter);
         rvCartShops.setNestedScrollingEnabled(false);
-
-        cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
-        orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
 
         cartViewModel.getCartData().observe(getViewLifecycleOwner(), cart -> {
             if (cart == null) {
@@ -71,8 +79,7 @@ public class StudentCartFragment extends Fragment {
             hasCartItems = cart.getShops() != null && !cart.getShops().isEmpty();
             cartShopAdapter.submitList(cart.getShops());
             if (hasCartItems) {
-                rvCartShops.setVisibility(View.VISIBLE);
-                tvCartEmpty.setVisibility(View.GONE);
+                showList();
             } else {
                 showEmpty("Giỏ hàng đang trống");
             }
@@ -83,7 +90,7 @@ public class StudentCartFragment extends Fragment {
                 Toast.makeText(getContext(), "Đặt hàng thành công", Toast.LENGTH_SHORT).show();
                 cartViewModel.loadCart();
                 openOrdersTab();
-            } else {
+            } else if (success != null) {
                 Toast.makeText(getContext(), "Đặt hàng thất bại", Toast.LENGTH_SHORT).show();
             }
         });
@@ -96,9 +103,25 @@ public class StudentCartFragment extends Fragment {
             }
         });
 
-        btnCheckout.setOnClickListener(v -> checkout(etBuilding, etDropOff));
-        cartShopAdapter.setOnCheckoutClickListener(() -> checkout(etBuilding, etDropOff));
+        cartViewModel.getDeleteItemResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(getContext(), "Đã xóa món khỏi giỏ", Toast.LENGTH_SHORT).show();
+                cartViewModel.loadCart();
+            } else if (success != null) {
+                Toast.makeText(getContext(), "Không thể xóa món", Toast.LENGTH_SHORT).show();
+            }
+        });
 
+        cartViewModel.getClearShopResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(getContext(), "Đã xóa giỏ của quán", Toast.LENGTH_SHORT).show();
+                cartViewModel.loadCart();
+            } else if (success != null) {
+                Toast.makeText(getContext(), "Không thể xóa giỏ của quán", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnCheckout.setOnClickListener(v -> checkout(etBuilding, etDropOff));
         cartViewModel.loadCart();
     }
 
@@ -124,7 +147,39 @@ public class StudentCartFragment extends Fragment {
         orderViewModel.checkout(building, dropOff);
     }
 
+    private void confirmDeleteCartItem(CartItemResponse item) {
+        if (getContext() == null || item == null) {
+            return;
+        }
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Xóa món")
+                .setMessage("Bạn muốn xóa món này khỏi giỏ hàng?")
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Xóa", (dialog, which) -> cartViewModel.deleteCartItem(item.getId()))
+                .show();
+    }
+
+    private void confirmClearShopCart(ShopCartResponse shop) {
+        if (getContext() == null || shop == null) {
+            return;
+        }
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Xóa giỏ của quán")
+                .setMessage("Bạn muốn xóa tất cả món của quán này?")
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Xóa", (dialog, which) -> cartViewModel.clearShopCart(shop.getShopId()))
+                .show();
+    }
+
+    private void showList() {
+        rvCartShops.setVisibility(View.VISIBLE);
+        tvCartEmpty.setVisibility(View.GONE);
+    }
+
     private void showEmpty(String message) {
+        rvCartShops.setVisibility(View.GONE);
         tvCartEmpty.setVisibility(View.VISIBLE);
         tvCartEmpty.setText(message);
     }

@@ -46,6 +46,11 @@ public class LoginViewModel extends ViewModel {
                             authResponse.getAccessToken(),
                             authResponse.getRefreshToken()
                     );
+                    TokenManager.getInstance().saveUserSession(
+                            authResponse.getPhone(),
+                            authResponse.getRole(),
+                            authResponse.getFullName()
+                    );
                     loginResponse.setValue(authResponse);
                 } else {
                     handleError(response);

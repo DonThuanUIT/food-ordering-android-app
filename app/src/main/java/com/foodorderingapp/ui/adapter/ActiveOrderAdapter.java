@@ -1,9 +1,11 @@
 package com.foodorderingapp.ui.adapter;
 
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -72,25 +74,26 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
                 "Đang giao", currentStep, 3, "Đơn đang trên đường giao");
     }
 
-    private void bindStep(TextView icon, TextView title, TextView subtitle,
+    private void bindStep(ImageView icon, TextView title, TextView subtitle,
                           String titleText, int currentStep, int step, String activeText) {
         title.setText(titleText);
 
         if (currentStep > step) {
-            icon.setText("✓");
-            icon.setTextColor(COLOR_ORANGE);
+            icon.setImageResource(R.drawable.ic_step_active);
+            icon.setColorFilter(COLOR_ORANGE, PorterDuff.Mode.SRC_IN);
             title.setTextColor(COLOR_DARK);
             subtitle.setTextColor(COLOR_TEXT_MUTED);
             subtitle.setText("Đã hoàn tất bước này");
         } else if (currentStep == step) {
-            icon.setText("●");
-            icon.setTextColor(step == 3 ? COLOR_BROWN : COLOR_ORANGE);
+            int color = step == 3 ? COLOR_BROWN : COLOR_ORANGE;
+            icon.setImageResource(R.drawable.ic_step_active);
+            icon.setColorFilter(color, PorterDuff.Mode.SRC_IN);
             title.setTextColor(step == 3 ? COLOR_BROWN : COLOR_DARK);
             subtitle.setTextColor(step == 3 ? COLOR_BROWN : COLOR_TEXT_MUTED);
             subtitle.setText(activeText);
         } else {
-            icon.setText("○");
-            icon.setTextColor(COLOR_MUTED);
+            icon.setImageResource(R.drawable.ic_step_inactive);
+            icon.setColorFilter(COLOR_MUTED, PorterDuff.Mode.SRC_IN);
             title.setTextColor(COLOR_MUTED);
             subtitle.setTextColor(COLOR_MUTED);
             subtitle.setText("Chờ cập nhật");
@@ -165,13 +168,13 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
     }
 
     static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvStepOneIcon;
+        ImageView tvStepOneIcon;
         TextView tvStepOneTitle;
         TextView tvStepOneSubtitle;
-        TextView tvStepTwoIcon;
+        ImageView tvStepTwoIcon;
         TextView tvStepTwoTitle;
         TextView tvStepTwoSubtitle;
-        TextView tvStepThreeIcon;
+        ImageView tvStepThreeIcon;
         TextView tvStepThreeTitle;
         TextView tvStepThreeSubtitle;
         TextView tvOrderShopName;

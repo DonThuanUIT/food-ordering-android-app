@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,6 +52,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         holder.tvShopName.setText(nullToDefault(shop.getName(), "Chưa có tên quán"));
         holder.tvShopDescription.setText(nullToDefault(shop.getDescription(), "Chưa có mô tả"));
         holder.tvShopAddress.setText("Địa chỉ: " + nullToDefault(shop.getAddress(), "Chưa cập nhật"));
+        holder.ivShopImage.setImageResource(R.drawable.ic_store_outline);
 
         String openTime = nullToDefault(shop.getOpenTime(), "--:--");
         String closeTime = nullToDefault(shop.getCloseTime(), "--:--");
@@ -89,6 +91,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         TextView tvShopAddress;
         TextView tvShopTime;
         TextView tvShopStatus;
+        ImageView ivShopImage;
 
         public ShopViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -97,6 +100,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             tvShopAddress = itemView.findViewById(R.id.tvShopAddress);
             tvShopTime = itemView.findViewById(R.id.tvShopTime);
             tvShopStatus = itemView.findViewById(R.id.tvShopStatus);
+            ivShopImage = itemView.findViewById(R.id.ivShopImage);
         }
     }
 }

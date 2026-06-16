@@ -5,6 +5,7 @@ public class AuthResponse {
     private String phone;
     private String accessToken;
     private String refreshToken;
+    private String fullName;
 
     private String role;
 
@@ -22,6 +23,10 @@ public class AuthResponse {
 
     public String getRefreshToken() {
         return refreshToken;
+    }
+
+    public String getFullName() {
+        return fullName;
     }
 
     public String getRole() {

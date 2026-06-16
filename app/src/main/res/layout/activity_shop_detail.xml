@@ -242,7 +242,7 @@
             android:id="@+id/btnViewMenu"
             android:layout_width="match_parent"
             android:layout_height="66dp"
-            android:text="Xem Menu Quán  →"
+            android:text="Xem Menu Quán"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
@@ -250,6 +250,10 @@
             app:backgroundTint="#FF7A21"
             app:cornerRadius="14dp"
             app:elevation="0dp"
+            app:icon="@drawable/ic_arrow_forward"
+            app:iconGravity="textEnd"
+            app:iconPadding="10dp"
+            app:iconTint="#FFFFFF"
             app:rippleColor="#E86714" />
     </LinearLayout>
 </FrameLayout>

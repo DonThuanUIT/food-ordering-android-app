@@ -36,15 +36,12 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <ImageView
                 android:id="@+id/tvStepOneIcon"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
-                android:gravity="center"
-                android:text="●"
-                android:textColor="#FF7118"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:contentDescription="Bước hiện tại"
+                android:src="@drawable/ic_step_active" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -85,15 +82,12 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <ImageView
                 android:id="@+id/tvStepTwoIcon"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
-                android:gravity="center"
-                android:text="○"
-                android:textColor="#A7AFBD"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:contentDescription="Bước tiếp theo"
+                android:src="@drawable/ic_step_inactive" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -134,15 +128,12 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <ImageView
                 android:id="@+id/tvStepThreeIcon"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
-                android:gravity="center"
-                android:text="○"
-                android:textColor="#A7AFBD"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:contentDescription="Bước tiếp theo"
+                android:src="@drawable/ic_step_inactive" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -243,7 +234,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="KTX Khu A - Cổng chính"
+                android:text="Chưa có điểm nhận"
                 android:textColor="#55607A"
                 android:textSize="14sp" />
 
@@ -282,7 +273,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Order Summary"
+                android:text="@string/order_summary"
                 android:textColor="#1A1D26"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -314,7 +305,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Total"
+                    android:text="@string/order_total"
                     android:textColor="#1A1D26"
                     android:textSize="18sp"
                     android:textStyle="bold" />

@@ -45,7 +45,9 @@
                 android:layout_height="24dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Clear shop cart"
+                android:padding="2dp"
+                android:src="@drawable/ic_delete_outline"
                 app:tint="#E53935" />
         </RelativeLayout>
 
@@ -93,12 +95,16 @@
             android:layout_height="56dp"
             android:layout_marginTop="20dp"
             android:backgroundTint="#FF7A21"
-            android:text="Thanh toán đơn này  ➔"
+            android:text="Thanh toán đơn này"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:cornerRadius="16dp" />
+            app:cornerRadius="16dp"
+            app:icon="@drawable/ic_arrow_forward"
+            app:iconGravity="textEnd"
+            app:iconPadding="8dp"
+            app:iconTint="#FFFFFF" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

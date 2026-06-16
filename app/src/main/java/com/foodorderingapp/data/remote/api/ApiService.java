@@ -21,6 +21,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -68,6 +69,12 @@ public interface ApiService {
             @Path("cartItemId") String cartItemId,
             @Body UpdateCartQuantityRequest request
     );
+
+    @DELETE("cart/items/{cartItemId}")
+    Call<Void> deleteCartItem(@Path("cartItemId") String cartItemId);
+
+    @DELETE("cart/shops/{shopId}")
+    Call<Void> clearShopCart(@Path("shopId") String shopId);
 
     @POST("orders/checkout")
     Call<List<OrderResponse>> checkout(@Body CheckoutRequest request);

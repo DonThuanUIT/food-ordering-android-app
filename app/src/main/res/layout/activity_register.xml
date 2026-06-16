@@ -29,7 +29,7 @@
         android:background="@drawable/home_bg_circle_white"
         android:padding="10dp"
         android:scaleType="centerInside"
-        android:src="@android:drawable/ic_media_previous"
+        android:src="@drawable/ic_arrow_back_rounded"
         app:tint="#1D223D"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -374,7 +374,8 @@
                         android:layout_height="22dp"
                         android:layout_gravity="end|center_vertical"
                         android:layout_marginEnd="16dp"
-                        android:src="@android:drawable/ic_menu_view"
+                        android:contentDescription="Hiện mật khẩu"
+                        android:src="@drawable/ic_eye"
                         app:tint="#A0A6B2"/>
                 </FrameLayout>
 
@@ -411,7 +412,8 @@
                         android:layout_height="22dp"
                         android:layout_gravity="end|center_vertical"
                         android:layout_marginEnd="16dp"
-                        android:src="@android:drawable/ic_menu_view"
+                        android:contentDescription="Hiện mật khẩu xác nhận"
+                        android:src="@drawable/ic_eye"
                         app:tint="#A0A6B2"/>
                 </FrameLayout>
 
