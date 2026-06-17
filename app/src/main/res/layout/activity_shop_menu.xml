@@ -29,7 +29,7 @@
                 android:contentDescription="Quay lại"
                 android:padding="8dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_arrow_back_clean"
+                android:src="@drawable/ic_back"
                 app:tint="#FFFFFF" />
 
             <TextView

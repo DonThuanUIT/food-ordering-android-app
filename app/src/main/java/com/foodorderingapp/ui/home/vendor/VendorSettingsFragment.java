@@ -1,66 +1,850 @@
 package com.foodorderingapp.ui.home.vendor;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.model.request.ShopUpdateRequest;
+import com.foodorderingapp.model.response.ShopResponse;
+import com.foodorderingapp.model.response.FoodResponse;
+import com.foodorderingapp.ui.auth.LoginActivity;
+import com.foodorderingapp.utils.TokenManager;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link VendorSettingsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import android.widget.RadioGroup;
+import android.widget.RadioButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class VendorSettingsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private ImageView imgShopCover;
+    private ImageView imgShopLogo;
+    private TextView tvShopName;
+    private TextView tvShopDescription;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private SwitchCompat switchOperational;
+    private TextView tvOperationalStatus;
+    private CardView cardStatusIconBg;
+    private ImageView ivStatusIcon;
+
+    private TextView btnUpdateHours;
+    private TextView tvHoursMonFri;
+    private TextView tvHoursSat;
+    private TextView tvHoursSun;
+
+    private TextView tvShopEmail;
+    private TextView tvShopPhone;
+    private Button btnEditContact;
+
+    private TextView tvBankName;
+    private TextView tvBankDetails;
+    private Button btnEditPayment;
+
+    private CheckBox checkboxOrderAlerts;
+    private CheckBox checkboxPromotions;
+    private CheckBox checkboxTurboMode;
+    private Button btnDeactivate;
+
+    private LinearLayout layoutPromoDetails;
+    private EditText etPromoDiscount;
+    private RadioGroup rgPromoType;
+    private RadioButton rbPromoEntire;
+    private RadioButton rbPromoSpecific;
+    private LinearLayout layoutPromoFoodSelect;
+    private Spinner spinnerPromoFood;
+    private Button btnSavePromoSettings;
+
+    private View btnLogout;
+
+    private View btnEditCover;
+    private View btnEditLogo;
+
+    private SharedPreferences sharedPreferences;
+    private UUID currentShopId;
+    private ShopResponse currentShopData;
+    private List<FoodResponse> shopFoodList;
+
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private boolean isEditingLogo = true;
+
+    private final CompoundButton.OnCheckedChangeListener switchListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            toggleShopStatusOnServer(isChecked);
+        }
+    };
 
     public VendorSettingsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment VendorSettingsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static VendorSettingsFragment newInstance(String param1, String param2) {
-        VendorSettingsFragment fragment = new VendorSettingsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        sharedPreferences = requireContext().getSharedPreferences("vendor_settings_pref", Context.MODE_PRIVATE);
+
+        // Image picker callback
+        imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    Uri selectedImageUri = result.getData().getData();
+                    if (selectedImageUri != null) {
+                        uploadAndSaveImage(selectedImageUri);
+                    }
+                }
+            }
+        );
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_vendor_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_vendor_settings, container, false);
+
+        // Bind views
+        imgShopCover = view.findViewById(R.id.img_shop_cover);
+        imgShopLogo = view.findViewById(R.id.img_shop_logo);
+        tvShopName = view.findViewById(R.id.tv_shop_name);
+        tvShopDescription = view.findViewById(R.id.tv_shop_description);
+
+        switchOperational = view.findViewById(R.id.switch_operational);
+        tvOperationalStatus = view.findViewById(R.id.tv_operational_status);
+        cardStatusIconBg = view.findViewById(R.id.card_status_icon_bg);
+        ivStatusIcon = view.findViewById(R.id.iv_status_icon);
+
+        btnUpdateHours = view.findViewById(R.id.btn_update_hours);
+        tvHoursMonFri = view.findViewById(R.id.tv_hours_mon_fri);
+        tvHoursSat = view.findViewById(R.id.tv_hours_sat);
+        tvHoursSun = view.findViewById(R.id.tv_hours_sun);
+
+        tvShopEmail = view.findViewById(R.id.tv_shop_email);
+        tvShopPhone = view.findViewById(R.id.tv_shop_phone);
+        btnEditContact = view.findViewById(R.id.btn_edit_contact);
+
+        tvBankName = view.findViewById(R.id.tv_bank_name);
+        tvBankDetails = view.findViewById(R.id.tv_bank_details);
+        btnEditPayment = view.findViewById(R.id.btn_edit_payment);
+
+        layoutPromoDetails = view.findViewById(R.id.layout_promo_details);
+        etPromoDiscount = view.findViewById(R.id.et_promo_discount);
+        rgPromoType = view.findViewById(R.id.rg_promo_type);
+        rbPromoEntire = view.findViewById(R.id.rb_promo_entire);
+        rbPromoSpecific = view.findViewById(R.id.rb_promo_specific);
+        layoutPromoFoodSelect = view.findViewById(R.id.layout_promo_food_select);
+        spinnerPromoFood = view.findViewById(R.id.spinner_promo_food);
+        btnSavePromoSettings = view.findViewById(R.id.btn_save_promo_settings);
+
+        btnLogout = view.findViewById(R.id.btn_logout);
+
+        checkboxOrderAlerts = view.findViewById(R.id.checkbox_order_alerts);
+        checkboxPromotions = view.findViewById(R.id.checkbox_promotions);
+        checkboxTurboMode = view.findViewById(R.id.checkbox_turbo_mode);
+        btnDeactivate = view.findViewById(R.id.btn_deactivate);
+
+        btnEditCover = view.findViewById(R.id.btn_edit_cover);
+        btnEditLogo = view.findViewById(R.id.btn_edit_logo);
+
+        setupClickListeners();
+        loadContactAndBankInfo();
+        loadSavedPreferences();
+        fetchShopInfo();
+
+        return view;
+    }
+
+    private void setupClickListeners() {
+        // Edit Cover Banner Click
+        if (btnEditCover != null) {
+            btnEditCover.setOnClickListener(v -> {
+                isEditingLogo = false;
+                openImagePicker();
+            });
+        }
+
+        // Edit Logo Click
+        if (btnEditLogo != null) {
+            btnEditLogo.setOnClickListener(v -> {
+                isEditingLogo = true;
+                openImagePicker();
+            });
+        }
+
+        // Profile Details Click (opens edit profile dialog)
+        View.OnClickListener profileEditListener = v -> {
+            if (currentShopData != null) {
+                showEditProfileDialog(currentShopData);
+            } else {
+                Toast.makeText(getContext(), "Đang tải dữ liệu cửa hàng...", Toast.LENGTH_SHORT).show();
+            }
+        };
+        if (tvShopName != null) tvShopName.setOnClickListener(profileEditListener);
+        if (tvShopDescription != null) tvShopDescription.setOnClickListener(profileEditListener);
+
+        // Preference checkboxes listeners
+        checkboxOrderAlerts.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPreferences.edit().putBoolean("order_alerts", isChecked).apply();
+            Toast.makeText(getContext(), isChecked ? "Đã bật thông báo đơn hàng" : "Đã tắt thông báo đơn hàng", Toast.LENGTH_SHORT).show();
+        });
+        checkboxPromotions.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPreferences.edit().putBoolean("promo_alerts", isChecked).apply();
+            if (isChecked) {
+                layoutPromoDetails.setVisibility(View.VISIBLE);
+                fetchShopFoodsForPromotion();
+            } else {
+                layoutPromoDetails.setVisibility(View.GONE);
+            }
+            Toast.makeText(getContext(), isChecked ? "Đã bật khuyến mãi" : "Đã tắt khuyến mãi", Toast.LENGTH_SHORT).show();
+        });
+        checkboxTurboMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPreferences.edit().putBoolean("turbo_mode", isChecked).apply();
+            Toast.makeText(getContext(), isChecked ? "Đã kích hoạt Chế độ Turbo" : "Đã tắt Chế độ Turbo", Toast.LENGTH_SHORT).show();
+        });
+
+        // Business Hour Update button click (opens edit profile dialog)
+        btnUpdateHours.setOnClickListener(profileEditListener);
+
+        // Edit Contact Info
+        btnEditContact.setOnClickListener(v -> showEditContactDialog());
+
+        // Edit Bank Info
+        btnEditPayment.setOnClickListener(v -> showEditBankDialog());
+
+        // Promo type radio group listener
+        rgPromoType.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rb_promo_specific) {
+                layoutPromoFoodSelect.setVisibility(View.VISIBLE);
+                if (shopFoodList == null) {
+                    fetchShopFoodsForPromotion();
+                }
+            } else {
+                layoutPromoFoodSelect.setVisibility(View.GONE);
+            }
+        });
+
+        // Save Promo settings
+        btnSavePromoSettings.setOnClickListener(v -> {
+            String discountStr = etPromoDiscount.getText().toString().trim();
+            if (discountStr.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng nhập phần trăm giảm giá", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int percent;
+            try {
+                percent = Integer.parseInt(discountStr);
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Phần trăm giảm giá không hợp lệ", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (percent <= 0 || percent > 100) {
+                Toast.makeText(getContext(), "Phần trăm giảm giá phải từ 1 đến 100", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String type = rbPromoSpecific.isChecked() ? "specific" : "entire";
+            String foodIdStr = "";
+            if ("specific".equals(type) && shopFoodList != null && !shopFoodList.isEmpty()) {
+                int selectedIndex = spinnerPromoFood.getSelectedItemPosition();
+                if (selectedIndex >= 0 && selectedIndex < shopFoodList.size()) {
+                    foodIdStr = shopFoodList.get(selectedIndex).getId().toString();
+                }
+            }
+
+            sharedPreferences.edit()
+                .putInt("promo_discount_percent", percent)
+                .putString("promo_discount_type", type)
+                .putString("promo_discount_food_id", foodIdStr)
+                .apply();
+
+            Toast.makeText(getContext(), "Đã lưu cấu hình khuyến mãi thành công!", Toast.LENGTH_SHORT).show();
+        });
+
+        // Logout click listener
+        btnLogout.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                .setTitle("Đăng xuất?")
+                .setMessage("Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?")
+                .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                    TokenManager.getInstance().clearTokens();
+                    Toast.makeText(getContext(), "Đăng xuất thành công!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    requireActivity().finish();
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+        });
+
+        // Deactivate button click with warning alert dialog
+        btnDeactivate.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                .setTitle("Vô hiệu hóa Cửa hàng?")
+                .setMessage("Bạn có chắc chắn muốn tạm thời vô hiệu hóa cửa hàng? Cửa hàng của bạn sẽ bị ẩn khỏi mọi kết quả tìm kiếm trên DormDash.")
+                .setPositiveButton("Vô hiệu hóa", (dialog, which) -> {
+                    Toast.makeText(getContext(), "Cửa hàng đã bị vô hiệu hóa tạm thời!", Toast.LENGTH_LONG).show();
+                })
+                .setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss())
+                .show();
+        });
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void uploadAndSaveImage(Uri uri) {
+        File file = uriToFile(uri);
+        if (file == null) return;
+
+        Toast.makeText(getContext(), "Đang tải ảnh lên...", Toast.LENGTH_SHORT).show();
+
+        RequestBody rb = RequestBody.create(MediaType.parse("image/*"), file);
+        MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), rb);
+
+        ApiClient.getApiService().uploadImage(part).enqueue(new Callback<Map<String, String>>() {
+            @Override
+            public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String url = response.body().get("url");
+                    if (url != null) {
+                        if (isEditingLogo) {
+                            sharedPreferences.edit().putString("shop_logo_url_" + currentShopId, url).apply();
+                            Glide.with(requireContext())
+                                .load(url)
+                                .placeholder(R.drawable.logo_food)
+                                .into(imgShopLogo);
+                            Toast.makeText(getContext(), "Cập nhật logo thành công!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            sharedPreferences.edit().putString("shop_cover_url_" + currentShopId, url).apply();
+                            Glide.with(requireContext())
+                                .load(url)
+                                .placeholder(R.drawable.burger_sample)
+                                .into(imgShopCover);
+                            Toast.makeText(getContext(), "Cập nhật ảnh bìa thành công!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Tải ảnh lên thất bại", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, String>> call, Throwable t) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi mạng tải ảnh: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private File uriToFile(Uri uri) {
+        try {
+            File file = new File(requireContext().getCacheDir(), "temp_settings_" + System.currentTimeMillis() + ".jpg");
+            InputStream is = requireContext().getContentResolver().openInputStream(uri);
+            FileOutputStream os = new FileOutputStream(file);
+            byte[] buf = new byte[1024]; int len;
+            while ((len = is.read(buf)) > 0) os.write(buf, 0, len);
+            os.close(); is.close();
+            return file;
+        } catch (Exception e) { return null; }
+    }
+
+    private void loadSavedPreferences() {
+        checkboxOrderAlerts.setChecked(sharedPreferences.getBoolean("order_alerts", true));
+        checkboxTurboMode.setChecked(sharedPreferences.getBoolean("turbo_mode", true));
+
+        boolean hasPromo = sharedPreferences.getBoolean("promo_alerts", false);
+        checkboxPromotions.setChecked(hasPromo);
+        if (hasPromo) {
+            layoutPromoDetails.setVisibility(View.VISIBLE);
+        } else {
+            layoutPromoDetails.setVisibility(View.GONE);
+        }
+
+        int discountPercent = sharedPreferences.getInt("promo_discount_percent", 15);
+        etPromoDiscount.setText(String.valueOf(discountPercent));
+
+        String discountType = sharedPreferences.getString("promo_discount_type", "entire");
+        if ("specific".equals(discountType)) {
+            rbPromoSpecific.setChecked(true);
+            layoutPromoFoodSelect.setVisibility(View.VISIBLE);
+        } else {
+            rbPromoEntire.setChecked(true);
+            layoutPromoFoodSelect.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadContactAndBankInfo() {
+        String email = sharedPreferences.getString("contact_email", "contact@burgerloft.com");
+        String phone = sharedPreferences.getString("contact_phone", "+1 (555) 098-7654");
+        String bankName = sharedPreferences.getString("bank_name", "Chase Business");
+        String bankDetails = sharedPreferences.getString("bank_details", "Ending in •••• 4402");
+
+        if (tvShopEmail != null) tvShopEmail.setText(email);
+        if (tvShopPhone != null) tvShopPhone.setText(phone);
+        if (tvBankName != null) tvBankName.setText(bankName);
+        if (tvBankDetails != null) tvBankDetails.setText(bankDetails);
+    }
+
+    private void showEditContactDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Chỉnh sửa thông tin liên hệ");
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final android.widget.EditText etEmail = new android.widget.EditText(requireContext());
+        etEmail.setHint("Email liên hệ");
+        etEmail.setText(tvShopEmail.getText().toString());
+        layout.addView(etEmail);
+
+        final android.widget.EditText etPhone = new android.widget.EditText(requireContext());
+        etPhone.setHint("Số điện thoại hỗ trợ");
+        etPhone.setText(tvShopPhone.getText().toString());
+        layout.addView(etPhone);
+
+        builder.setView(layout);
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String email = etEmail.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
+            if (email.isEmpty() || phone.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            sharedPreferences.edit()
+                .putString("contact_email", email)
+                .putString("contact_phone", phone)
+                .apply();
+            tvShopEmail.setText(email);
+            tvShopPhone.setText(phone);
+            Toast.makeText(getContext(), "Đã cập nhật thông tin liên hệ!", Toast.LENGTH_SHORT).show();
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showEditBankDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Chỉnh sửa thông tin ngân hàng");
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final android.widget.EditText etBankName = new android.widget.EditText(requireContext());
+        etBankName.setHint("Tên ngân hàng (ví dụ: Chase Business)");
+        etBankName.setText(tvBankName.getText().toString());
+        layout.addView(etBankName);
+
+        final android.widget.EditText etAccount = new android.widget.EditText(requireContext());
+        etAccount.setHint("Số tài khoản (hoặc 4 số cuối, ví dụ: Ending in •••• 4402)");
+        etAccount.setText(tvBankDetails.getText().toString());
+        layout.addView(etAccount);
+
+        builder.setView(layout);
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String name = etBankName.getText().toString().trim();
+            String acc = etAccount.getText().toString().trim();
+            if (name.isEmpty() || acc.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            sharedPreferences.edit()
+                .putString("bank_name", name)
+                .putString("bank_details", acc)
+                .apply();
+            tvBankName.setText(name);
+            tvBankDetails.setText(acc);
+            Toast.makeText(getContext(), "Đã cập nhật thông tin ngân hàng!", Toast.LENGTH_SHORT).show();
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void fetchShopFoodsForPromotion() {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().getAllFoods(currentShopId, null).enqueue(new Callback<List<FoodResponse>>() {
+            @Override
+            public void onResponse(Call<List<FoodResponse>> call, Response<List<FoodResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    shopFoodList = response.body();
+                    populateFoodSpinner();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<FoodResponse>> call, Throwable t) {
+                // Silently fail
+            }
+        });
+    }
+
+    private void populateFoodSpinner() {
+        if (shopFoodList == null || getContext() == null) return;
+        String[] foodNames = new String[shopFoodList.size()];
+        for (int i = 0; i < shopFoodList.size(); i++) {
+            foodNames[i] = shopFoodList.get(i).getName();
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, foodNames);
+        spinnerPromoFood.setAdapter(adapter);
+
+        // Restore selected food item from SharedPreferences
+        String savedFoodIdStr = sharedPreferences.getString("promo_discount_food_id", "");
+        if (!savedFoodIdStr.isEmpty()) {
+            for (int i = 0; i < shopFoodList.size(); i++) {
+                if (shopFoodList.get(i).getId().toString().equals(savedFoodIdStr)) {
+                    spinnerPromoFood.setSelection(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void updateOperationalStatusUI(boolean isOpen) {
+        if (isOpen) {
+            tvOperationalStatus.setText("Open");
+            tvOperationalStatus.setTextColor(Color.parseColor("#319795")); // Active Teal
+            cardStatusIconBg.setCardBackgroundColor(Color.parseColor("#E6FFFA")); // Light Teal background
+            ivStatusIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#319795")));
+        } else {
+            tvOperationalStatus.setText("Closed");
+            tvOperationalStatus.setTextColor(Color.parseColor("#718096")); // Gray text
+            cardStatusIconBg.setCardBackgroundColor(Color.parseColor("#EDF2F7")); // Light Gray background
+            ivStatusIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#718096")));
+        }
+    }
+
+    private void fetchShopInfo() {
+        ApiClient.getApiService().getVendorShops().enqueue(new Callback<List<ShopResponse>>() {
+            @Override
+            public void onResponse(Call<List<ShopResponse>> call, Response<List<ShopResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    bindShopData(response.body().get(0));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ShopResponse>> call, Throwable t) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Không thể tải thông tin cửa hàng", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void bindShopData(ShopResponse shop) {
+        currentShopData = shop;
+        currentShopId = shop.getId() != null ? UUID.fromString(shop.getId()) : null;
+
+        if (tvShopName != null) {
+            tvShopName.setText(shop.getName());
+        }
+        if (tvShopDescription != null) {
+            tvShopDescription.setText(shop.getDescription() != null ? shop.getDescription() : "Chưa có mô tả cửa hàng");
+        }
+
+        // Format and show operating hours for Mon - Fri (API values)
+        String openStr = formatTime12Hour(shop.getOpenTime());
+        String closeStr = formatTime12Hour(shop.getCloseTime());
+        if (tvHoursMonFri != null) tvHoursMonFri.setText(openStr + " - " + closeStr);
+
+        // Sat & Sun hours loaded from SharedPreferences
+        String satOpen = sharedPreferences.getString("sat_open_time_" + currentShopId, "10:00");
+        String satClose = sharedPreferences.getString("sat_close_time_" + currentShopId, "01:00");
+        if (tvHoursSat != null) tvHoursSat.setText(formatTime12Hour(satOpen) + " - " + formatTime12Hour(satClose));
+
+        String sunOpen = sharedPreferences.getString("sun_open_time_" + currentShopId, "10:00");
+        String sunClose = sharedPreferences.getString("sun_close_time_" + currentShopId, "22:00");
+        if (tvHoursSun != null) tvHoursSun.setText(formatTime12Hour(sunOpen) + " - " + formatTime12Hour(sunClose));
+
+        // Bind switch toggle status programmatically without triggering listener recursion
+        boolean isOpen = shop.getIsActive() != null ? shop.getIsActive() : true;
+        switchOperational.setOnCheckedChangeListener(null);
+        switchOperational.setChecked(isOpen);
+        switchOperational.setOnCheckedChangeListener(switchListener);
+        updateOperationalStatusUI(isOpen);
+
+        // Load custom logo and cover URLs if saved, else default resources
+        String logoUrl = sharedPreferences.getString("shop_logo_url_" + currentShopId, null);
+        String coverUrl = sharedPreferences.getString("shop_cover_url_" + currentShopId, null);
+
+        if (getContext() != null) {
+            Glide.with(getContext())
+                .load(logoUrl != null ? logoUrl : R.drawable.logo_food)
+                .placeholder(R.drawable.logo_food)
+                .into(imgShopLogo);
+
+            Glide.with(getContext())
+                .load(coverUrl != null ? coverUrl : R.drawable.burger_sample)
+                .placeholder(R.drawable.burger_sample)
+                .into(imgShopCover);
+        }
+
+        if (checkboxPromotions.isChecked()) {
+            fetchShopFoodsForPromotion();
+        }
+    }
+
+    private String formatTime12Hour(String timeStr) {
+        if (timeStr == null || !timeStr.contains(":")) return "08:00 AM";
+        try {
+            String[] parts = timeStr.split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int min = Integer.parseInt(parts[1]);
+            String ampm = hour >= 12 ? "PM" : "AM";
+            int h = hour % 12;
+            if (h == 0) h = 12;
+            return String.format(java.util.Locale.US, "%02d:%02d %s", h, min, ampm);
+        } catch (Exception e) {
+            return timeStr;
+        }
+    }
+
+    private void toggleShopStatusOnServer(boolean isActive) {
+        if (currentShopId == null) return;
+        Map<String, Boolean> body = new HashMap<>();
+        body.put("isActive", isActive);
+
+        ApiClient.getApiService().toggleShopStatus(currentShopId, body).enqueue(new Callback<ShopResponse>() {
+            @Override
+            public void onResponse(Call<ShopResponse> call, Response<ShopResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    bindShopData(response.body());
+                    String status = isActive ? "Open" : "Closed";
+                    Toast.makeText(getContext(), "Cửa hàng đã chuyển sang trạng thái: " + status, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Không thể cập nhật trạng thái hoạt động", Toast.LENGTH_SHORT).show();
+                    revertSwitchUI(!isActive);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ShopResponse> call, Throwable t) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi mạng, không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                }
+                revertSwitchUI(!isActive);
+            }
+        });
+    }
+
+    private void revertSwitchUI(boolean targetState) {
+        switchOperational.setOnCheckedChangeListener(null);
+        switchOperational.setChecked(targetState);
+        switchOperational.setOnCheckedChangeListener(switchListener);
+        updateOperationalStatusUI(targetState);
+    }
+
+    private void showEditProfileDialog(ShopResponse shop) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Update Shop Settings");
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        // General Shop Fields
+        final android.widget.EditText etName = new android.widget.EditText(requireContext());
+        etName.setHint("Shop Name");
+        etName.setText(shop.getName());
+        layout.addView(etName);
+
+        final android.widget.EditText etDesc = new android.widget.EditText(requireContext());
+        etDesc.setHint("Description");
+        etDesc.setText(shop.getDescription() != null ? shop.getDescription() : "");
+        layout.addView(etDesc);
+
+        final android.widget.EditText etAddress = new android.widget.EditText(requireContext());
+        etAddress.setHint("Address");
+        etAddress.setText(shop.getAddress() != null ? shop.getAddress() : "");
+        layout.addView(etAddress);
+
+        // Section header for hours
+        TextView tvHoursHeader = new TextView(requireContext());
+        tvHoursHeader.setText("\nCài đặt giờ hoạt động chi tiết:");
+        tvHoursHeader.setTextColor(Color.BLACK);
+        tvHoursHeader.setTextSize(14);
+        tvHoursHeader.setTypeface(null, android.graphics.Typeface.BOLD);
+        layout.addView(tvHoursHeader);
+
+        // Spinner to choose Day Group
+        final Spinner spinnerDays = new Spinner(requireContext());
+        String[] dayGroups = {"Mon - Fri", "Saturday", "Sunday"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, dayGroups);
+        spinnerDays.setAdapter(adapter);
+        layout.addView(spinnerDays);
+
+        final android.widget.EditText etOpen = new android.widget.EditText(requireContext());
+        etOpen.setHint("Giờ mở cửa (HH:mm)");
+        layout.addView(etOpen);
+
+        final android.widget.EditText etClose = new android.widget.EditText(requireContext());
+        etClose.setHint("Giờ đóng cửa (HH:mm)");
+        layout.addView(etClose);
+
+        // Day selection listener to load appropriate hours dynamically
+        spinnerDays.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) { // Mon - Fri
+                    etOpen.setText(shop.getOpenTime() != null ? shop.getOpenTime().substring(0, 5) : "08:00");
+                    etClose.setText(shop.getCloseTime() != null ? shop.getCloseTime().substring(0, 5) : "22:00");
+                } else if (position == 1) { // Saturday
+                    etOpen.setText(sharedPreferences.getString("sat_open_time_" + currentShopId, "10:00"));
+                    etClose.setText(sharedPreferences.getString("sat_close_time_" + currentShopId, "01:00"));
+                } else { // Sunday
+                    etOpen.setText(sharedPreferences.getString("sun_open_time_" + currentShopId, "10:00"));
+                    etClose.setText(sharedPreferences.getString("sun_close_time_" + currentShopId, "22:00"));
+                }
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String name = etName.getText().toString().trim();
+            String desc = etDesc.getText().toString().trim();
+            String addr = etAddress.getText().toString().trim();
+            String open = etOpen.getText().toString().trim();
+            String close = etClose.getText().toString().trim();
+            int selectedDayPos = spinnerDays.getSelectedItemPosition();
+
+            if (name.isEmpty() || open.isEmpty() || close.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Save hours to respective day groups
+            if (selectedDayPos == 0) { // Mon - Fri (Sent to backend)
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, open, close);
+                saveShopProfile(req);
+            } else if (selectedDayPos == 1) { // Saturday (Stored locally)
+                sharedPreferences.edit()
+                    .putString("sat_open_time_" + currentShopId, open)
+                    .putString("sat_close_time_" + currentShopId, close)
+                    .apply();
+                
+                // Update text other fields via API with existing Mon-Fri hours
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime().substring(0,5), shop.getCloseTime().substring(0,5));
+                saveShopProfile(req);
+            } else { // Sunday (Stored locally)
+                sharedPreferences.edit()
+                    .putString("sun_open_time_" + currentShopId, open)
+                    .putString("sun_close_time_" + currentShopId, close)
+                    .apply();
+                
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime().substring(0,5), shop.getCloseTime().substring(0,5));
+                saveShopProfile(req);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void saveShopProfile(ShopUpdateRequest req) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().updateShopProfile(currentShopId, req).enqueue(new Callback<ShopResponse>() {
+            @Override
+            public void onResponse(Call<ShopResponse> call, Response<ShopResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(), "Cập nhật thông tin quán ăn thành công!", Toast.LENGTH_SHORT).show();
+                    bindShopData(response.body());
+                } else {
+                    Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ShopResponse> call, Throwable t) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void showManageLeadsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Danh sách khách hàng tiềm năng");
+
+        String[] leads = {
+            "● Nguyễn Văn A - Yêu cầu hợp tác làm Campus Event cơm trưa",
+            "● Trần Thị B - Đặt tiệc trà bánh sự kiện CLB (150 khách)",
+            "● Lê Văn C - Đăng ký giao cơm suất hàng tuần (20 phần/ngày)",
+            "● Phạm Thị D - Đăng ký nhận thông báo món mới qua Email"
+        };
+
+        builder.setItems(leads, (dialog, which) -> {
+            Toast.makeText(getContext(), "Đang xử lý yêu cầu: " + leads[which], Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showStatementsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Lịch sử doanh thu & Sao kê");
+
+        String[] statements = {
+            "Tháng 06/2026 - Doanh thu: $1,280.50 (124 đơn) - ĐÃ DUYỆT CHI",
+            "Tháng 05/2026 - Doanh thu: $2,450.00 (236 đơn) - ĐÃ DUYỆT CHI",
+            "Tháng 04/2026 - Doanh thu: $1,890.20 (182 đơn) - ĐÃ DUYỆT CHI",
+            "Tháng 03/2026 - Doanh thu: $980.00 (92 đơn) - ĐÃ DUYỆT CHI"
+        };
+
+        builder.setItems(statements, (dialog, which) -> {
+            Toast.makeText(getContext(), "Mở chi tiết sao kê: " + statements[which].split(" - ")[0], Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 }

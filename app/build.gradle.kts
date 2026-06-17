@@ -60,7 +60,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
 
-    //image
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    // Glide
+    implementation(libs.glide)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }

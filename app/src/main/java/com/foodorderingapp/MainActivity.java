@@ -16,15 +16,19 @@ import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentProfileFragment;
+import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.student.StudentCartFragment;
 import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
 import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
 import com.foodorderingapp.ui.home.vendor.VendorSettingsFragment;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.annotation.NonNull;
+import androidx.viewpager2.widget.ViewPager2;
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
+    private ViewPager2 viewPager;
     private TextView tvAppTitle;
     private String userRole;
 
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNav = findViewById(R.id.bottom_navigation);
+        viewPager = findViewById(R.id.view_pager);
         tvAppTitle = findViewById(R.id.tvAppTitle);
 
         if (findViewById(R.id.toolbar) != null) {
@@ -68,53 +73,43 @@ public class MainActivity extends AppCompatActivity {
 
         if ("VENDOR".equalsIgnoreCase(role)) {
             bottomNav.inflateMenu(R.menu.menu_vendor);
-            updateHeader("Đơn Hàng");
-            loadFragment(new VendorOrdersFragment());
         } else {
             bottomNav.inflateMenu(R.menu.menu_student);
-            updateHeader("UniEats");
-            loadFragment(new StudentHomeFragment());
         }
+
+        if ("VENDOR".equalsIgnoreCase(role)) {
+            updateHeader("Đơn Hàng");
+        } else {
+            updateHeader("UniEats");
+        }
+
+        viewPager.setAdapter(new MainPagerAdapter(this, role));
+        viewPager.setUserInputEnabled(false);
+        viewPager.setOffscreenPageLimit(3);
 
         bottomNav.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
 
         bottomNav.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
-            String title = "UniEats";
             int id = item.getItemId();
-
-            if (id == R.id.nav_home) {
-                selectedFragment = new StudentHomeFragment();
-                title = "UniEats";
-            } else if (id == R.id.nav_orders) {
-                selectedFragment = new StudentOrdersFragment();
-                title = "Trạng Thái Đơn Hàng";
-            } else if (id == R.id.nav_history) {
-                selectedFragment = new StudentHistoryFragment();
-                title = "Lịch Sử";
-            } else if (id == R.id.nav_cart) {
-                selectedFragment = new StudentCartFragment();
-                title = "Giỏ Hàng";
+            if (id == R.id.nav_home || id == R.id.nav_vendor_orders) {
+                viewPager.setCurrentItem(0, false);
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Đơn Hàng" : "UniEats");
+                return true;
+            } else if (id == R.id.nav_orders || id == R.id.nav_vendor_stats) {
+                viewPager.setCurrentItem(1, false);
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Thống Kê" : "Trạng Thái Đơn Hàng");
+                return true;
+            } else if (id == R.id.nav_cart || id == R.id.nav_vendor_menu) {
+                viewPager.setCurrentItem(2, false);
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Thực Đơn" : "Giỏ Hàng");
+                return true;
+            } else if (id == R.id.nav_history || id == R.id.nav_vendor_settings) {
+                viewPager.setCurrentItem(3, false);
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Cài Đặt" : "Lịch Sử");
+                return true;
             } else if (id == R.id.nav_profile) {
-                selectedFragment = new StudentProfileFragment();
-                title = "Cá Nhân";
-            } else if (id == R.id.nav_vendor_orders) {
-                selectedFragment = new VendorOrdersFragment();
-                title = "Đơn Hàng";
-            } else if (id == R.id.nav_vendor_stats) {
-                selectedFragment = new VendorStatsFragment();
-                title = "Thống Kê";
-            } else if (id == R.id.nav_vendor_menu) {
-                selectedFragment = new VendorMenuFragment();
-                title = "Thực Đơn";
-            } else if (id == R.id.nav_vendor_settings) {
-                selectedFragment = new VendorSettingsFragment();
-                title = "Cài Đặt";
-            }
-
-            if (selectedFragment != null) {
-                updateHeader(title);
-                loadFragment(selectedFragment);
+                viewPager.setCurrentItem(4, false);
+                updateHeader("Cá Nhân");
                 return true;
             }
             return false;
@@ -127,10 +122,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
+    private static class MainPagerAdapter extends androidx.viewpager2.adapter.FragmentStateAdapter {
+        private final String role;
+
+        public MainPagerAdapter(@NonNull androidx.fragment.app.FragmentActivity fragmentActivity, String role) {
+            super(fragmentActivity);
+            this.role = role;
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            if ("VENDOR".equalsIgnoreCase(role)) {
+                switch (position) {
+                    case 0: return new VendorOrdersFragment();
+                    case 1: return new VendorStatsFragment();
+                    case 2: return new VendorMenuFragment();
+                    case 3: return new VendorSettingsFragment();
+                }
+            } else {
+                switch (position) {
+                    case 0: return new StudentHomeFragment();
+                    case 1: return new StudentOrdersFragment();
+                    case 2: return new StudentCartFragment();
+                    case 3: return new StudentHistoryFragment();
+                    case 4: return new StudentProfileFragment();
+                }
+            }
+            return new Fragment();
+        }
+
+        @Override
+        public int getItemCount() {
+            return "VENDOR".equalsIgnoreCase(role) ? 4 : 5;
+        }
     }
 
     private void setupHeaderActions() {

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    android:layout_marginBottom="16dp"
+    app:cardBackgroundColor="@color/white"
+    android:foreground="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/img_food"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/logo_food"
+                app:shapeAppearanceOverlay="@style/RoundedCorners12"/>
+
+            <!-- Sold Out Overlay -->
+            <View
+                android:id="@+id/view_sold_out_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#66FFFFFF"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_sold_out_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Sold Out"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:background="@drawable/bg_white_rounded_border"
+                android:visibility="gone" />
+
+            <!-- Badge Overlay (Popular / Bestseller) -->
+            <TextView
+                android:id="@+id/tv_badge_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="12dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_badge_orange"
+                android:text="Popular"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Title & Price Side-by-Side -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_food_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Classic Smash Burger"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+
+                <TextView
+                    android:id="@+id/tv_food_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$8.99"
+                    android:textColor="#A34E0C"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_food_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Double beef patty, American cheese, house sauce, pickles, toasted brioche bun."
+                android:textColor="@color/text_gray"
+                android:textSize="13sp"
+                android:layout_marginTop="6dp"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#F0F0F0"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Simplified Status Row -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:text="● In Stock"
+                    android:textColor="#2E7D32"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switch_available"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
