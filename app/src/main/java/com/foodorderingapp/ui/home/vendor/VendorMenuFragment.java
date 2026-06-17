@@ -70,7 +70,6 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private ChipGroup chipGroupCategories;
     private FloatingActionButton fabScrollTop;
     private FloatingActionButton fabAddFood;
-    private ImageView btnSearchToggle;
     
     private Uri selectedImageUri;
     private ImageView imgPreview;
@@ -110,7 +109,6 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         chipGroupCategories = view.findViewById(R.id.chip_group_categories);
         fabScrollTop = view.findViewById(R.id.fab_scroll_top);
         fabAddFood = view.findViewById(R.id.fab_add_food);
-        btnSearchToggle = view.findViewById(R.id.btn_search_toggle);
 
         tvStatTotalCount = view.findViewById(R.id.tv_stat_total_count);
         tvStatInStockCount = view.findViewById(R.id.tv_stat_in_stock_count);
@@ -169,19 +167,6 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private void setupSearch() {
-        if (btnSearchToggle != null) {
-            btnSearchToggle.setOnClickListener(v -> {
-                if (searchView.getVisibility() == View.VISIBLE) {
-                    searchView.setVisibility(View.GONE);
-                    searchView.setQuery("", false);
-                    adapter.filter("");
-                } else {
-                    searchView.setVisibility(View.VISIBLE);
-                    searchView.requestFocus();
-                }
-            });
-        }
-
         if (searchView != null) {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override

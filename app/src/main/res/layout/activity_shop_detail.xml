@@ -211,7 +211,7 @@
         android:elevation="6dp"
         android:padding="12dp"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_arrow_back_clean" />
+        android:src="@drawable/ic_back" />
 
     <ImageButton
         android:id="@+id/btnFavorite"

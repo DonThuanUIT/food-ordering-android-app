@@ -35,6 +35,14 @@ import com.foodorderingapp.R;
 import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.ShopResponse;
+import com.foodorderingapp.model.response.FoodResponse;
+import com.foodorderingapp.ui.auth.LoginActivity;
+import com.foodorderingapp.utils.TokenManager;
+
+import android.widget.RadioGroup;
+import android.widget.RadioButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,12 +76,29 @@ public class VendorSettingsFragment extends Fragment {
     private TextView tvHoursSat;
     private TextView tvHoursSun;
 
-    private Button btnManageLeads;
-    private Button btnViewStatements;
+    private TextView tvShopEmail;
+    private TextView tvShopPhone;
+    private Button btnEditContact;
+
+    private TextView tvBankName;
+    private TextView tvBankDetails;
+    private Button btnEditPayment;
+
     private CheckBox checkboxOrderAlerts;
     private CheckBox checkboxPromotions;
     private CheckBox checkboxTurboMode;
     private Button btnDeactivate;
+
+    private LinearLayout layoutPromoDetails;
+    private EditText etPromoDiscount;
+    private RadioGroup rgPromoType;
+    private RadioButton rbPromoEntire;
+    private RadioButton rbPromoSpecific;
+    private LinearLayout layoutPromoFoodSelect;
+    private Spinner spinnerPromoFood;
+    private Button btnSavePromoSettings;
+
+    private View btnLogout;
 
     private View btnEditCover;
     private View btnEditLogo;
@@ -81,6 +106,7 @@ public class VendorSettingsFragment extends Fragment {
     private SharedPreferences sharedPreferences;
     private UUID currentShopId;
     private ShopResponse currentShopData;
+    private List<FoodResponse> shopFoodList;
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private boolean isEditingLogo = true;
@@ -136,8 +162,25 @@ public class VendorSettingsFragment extends Fragment {
         tvHoursSat = view.findViewById(R.id.tv_hours_sat);
         tvHoursSun = view.findViewById(R.id.tv_hours_sun);
 
-        btnManageLeads = view.findViewById(R.id.btn_manage_leads);
-        btnViewStatements = view.findViewById(R.id.btn_view_statements);
+        tvShopEmail = view.findViewById(R.id.tv_shop_email);
+        tvShopPhone = view.findViewById(R.id.tv_shop_phone);
+        btnEditContact = view.findViewById(R.id.btn_edit_contact);
+
+        tvBankName = view.findViewById(R.id.tv_bank_name);
+        tvBankDetails = view.findViewById(R.id.tv_bank_details);
+        btnEditPayment = view.findViewById(R.id.btn_edit_payment);
+
+        layoutPromoDetails = view.findViewById(R.id.layout_promo_details);
+        etPromoDiscount = view.findViewById(R.id.et_promo_discount);
+        rgPromoType = view.findViewById(R.id.rg_promo_type);
+        rbPromoEntire = view.findViewById(R.id.rb_promo_entire);
+        rbPromoSpecific = view.findViewById(R.id.rb_promo_specific);
+        layoutPromoFoodSelect = view.findViewById(R.id.layout_promo_food_select);
+        spinnerPromoFood = view.findViewById(R.id.spinner_promo_food);
+        btnSavePromoSettings = view.findViewById(R.id.btn_save_promo_settings);
+
+        btnLogout = view.findViewById(R.id.btn_logout);
+
         checkboxOrderAlerts = view.findViewById(R.id.checkbox_order_alerts);
         checkboxPromotions = view.findViewById(R.id.checkbox_promotions);
         checkboxTurboMode = view.findViewById(R.id.checkbox_turbo_mode);
@@ -147,6 +190,7 @@ public class VendorSettingsFragment extends Fragment {
         btnEditLogo = view.findViewById(R.id.btn_edit_logo);
 
         setupClickListeners();
+        loadContactAndBankInfo();
         loadSavedPreferences();
         fetchShopInfo();
 
@@ -188,6 +232,12 @@ public class VendorSettingsFragment extends Fragment {
         });
         checkboxPromotions.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sharedPreferences.edit().putBoolean("promo_alerts", isChecked).apply();
+            if (isChecked) {
+                layoutPromoDetails.setVisibility(View.VISIBLE);
+                fetchShopFoodsForPromotion();
+            } else {
+                layoutPromoDetails.setVisibility(View.GONE);
+            }
             Toast.makeText(getContext(), isChecked ? "Đã bật khuyến mãi" : "Đã tắt khuyến mãi", Toast.LENGTH_SHORT).show();
         });
         checkboxTurboMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -198,11 +248,77 @@ public class VendorSettingsFragment extends Fragment {
         // Business Hour Update button click (opens edit profile dialog)
         btnUpdateHours.setOnClickListener(profileEditListener);
 
-        // Manage Leads Click -> Show detailed Dialog
-        btnManageLeads.setOnClickListener(v -> showManageLeadsDialog());
+        // Edit Contact Info
+        btnEditContact.setOnClickListener(v -> showEditContactDialog());
 
-        // View Statements Click -> Show detailed Dialog
-        btnViewStatements.setOnClickListener(v -> showStatementsDialog());
+        // Edit Bank Info
+        btnEditPayment.setOnClickListener(v -> showEditBankDialog());
+
+        // Promo type radio group listener
+        rgPromoType.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rb_promo_specific) {
+                layoutPromoFoodSelect.setVisibility(View.VISIBLE);
+                if (shopFoodList == null) {
+                    fetchShopFoodsForPromotion();
+                }
+            } else {
+                layoutPromoFoodSelect.setVisibility(View.GONE);
+            }
+        });
+
+        // Save Promo settings
+        btnSavePromoSettings.setOnClickListener(v -> {
+            String discountStr = etPromoDiscount.getText().toString().trim();
+            if (discountStr.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng nhập phần trăm giảm giá", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int percent;
+            try {
+                percent = Integer.parseInt(discountStr);
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Phần trăm giảm giá không hợp lệ", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (percent <= 0 || percent > 100) {
+                Toast.makeText(getContext(), "Phần trăm giảm giá phải từ 1 đến 100", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String type = rbPromoSpecific.isChecked() ? "specific" : "entire";
+            String foodIdStr = "";
+            if ("specific".equals(type) && shopFoodList != null && !shopFoodList.isEmpty()) {
+                int selectedIndex = spinnerPromoFood.getSelectedItemPosition();
+                if (selectedIndex >= 0 && selectedIndex < shopFoodList.size()) {
+                    foodIdStr = shopFoodList.get(selectedIndex).getId().toString();
+                }
+            }
+
+            sharedPreferences.edit()
+                .putInt("promo_discount_percent", percent)
+                .putString("promo_discount_type", type)
+                .putString("promo_discount_food_id", foodIdStr)
+                .apply();
+
+            Toast.makeText(getContext(), "Đã lưu cấu hình khuyến mãi thành công!", Toast.LENGTH_SHORT).show();
+        });
+
+        // Logout click listener
+        btnLogout.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                .setTitle("Đăng xuất?")
+                .setMessage("Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?")
+                .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                    TokenManager.getInstance().clearTokens();
+                    Toast.makeText(getContext(), "Đăng xuất thành công!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    requireActivity().finish();
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+        });
 
         // Deactivate button click with warning alert dialog
         btnDeactivate.setOnClickListener(v -> {
@@ -281,8 +397,154 @@ public class VendorSettingsFragment extends Fragment {
 
     private void loadSavedPreferences() {
         checkboxOrderAlerts.setChecked(sharedPreferences.getBoolean("order_alerts", true));
-        checkboxPromotions.setChecked(sharedPreferences.getBoolean("promo_alerts", false));
         checkboxTurboMode.setChecked(sharedPreferences.getBoolean("turbo_mode", true));
+
+        boolean hasPromo = sharedPreferences.getBoolean("promo_alerts", false);
+        checkboxPromotions.setChecked(hasPromo);
+        if (hasPromo) {
+            layoutPromoDetails.setVisibility(View.VISIBLE);
+        } else {
+            layoutPromoDetails.setVisibility(View.GONE);
+        }
+
+        int discountPercent = sharedPreferences.getInt("promo_discount_percent", 15);
+        etPromoDiscount.setText(String.valueOf(discountPercent));
+
+        String discountType = sharedPreferences.getString("promo_discount_type", "entire");
+        if ("specific".equals(discountType)) {
+            rbPromoSpecific.setChecked(true);
+            layoutPromoFoodSelect.setVisibility(View.VISIBLE);
+        } else {
+            rbPromoEntire.setChecked(true);
+            layoutPromoFoodSelect.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadContactAndBankInfo() {
+        String email = sharedPreferences.getString("contact_email", "contact@burgerloft.com");
+        String phone = sharedPreferences.getString("contact_phone", "+1 (555) 098-7654");
+        String bankName = sharedPreferences.getString("bank_name", "Chase Business");
+        String bankDetails = sharedPreferences.getString("bank_details", "Ending in •••• 4402");
+
+        if (tvShopEmail != null) tvShopEmail.setText(email);
+        if (tvShopPhone != null) tvShopPhone.setText(phone);
+        if (tvBankName != null) tvBankName.setText(bankName);
+        if (tvBankDetails != null) tvBankDetails.setText(bankDetails);
+    }
+
+    private void showEditContactDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Chỉnh sửa thông tin liên hệ");
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final android.widget.EditText etEmail = new android.widget.EditText(requireContext());
+        etEmail.setHint("Email liên hệ");
+        etEmail.setText(tvShopEmail.getText().toString());
+        layout.addView(etEmail);
+
+        final android.widget.EditText etPhone = new android.widget.EditText(requireContext());
+        etPhone.setHint("Số điện thoại hỗ trợ");
+        etPhone.setText(tvShopPhone.getText().toString());
+        layout.addView(etPhone);
+
+        builder.setView(layout);
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String email = etEmail.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
+            if (email.isEmpty() || phone.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            sharedPreferences.edit()
+                .putString("contact_email", email)
+                .putString("contact_phone", phone)
+                .apply();
+            tvShopEmail.setText(email);
+            tvShopPhone.setText(phone);
+            Toast.makeText(getContext(), "Đã cập nhật thông tin liên hệ!", Toast.LENGTH_SHORT).show();
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showEditBankDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Chỉnh sửa thông tin ngân hàng");
+
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final android.widget.EditText etBankName = new android.widget.EditText(requireContext());
+        etBankName.setHint("Tên ngân hàng (ví dụ: Chase Business)");
+        etBankName.setText(tvBankName.getText().toString());
+        layout.addView(etBankName);
+
+        final android.widget.EditText etAccount = new android.widget.EditText(requireContext());
+        etAccount.setHint("Số tài khoản (hoặc 4 số cuối, ví dụ: Ending in •••• 4402)");
+        etAccount.setText(tvBankDetails.getText().toString());
+        layout.addView(etAccount);
+
+        builder.setView(layout);
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String name = etBankName.getText().toString().trim();
+            String acc = etAccount.getText().toString().trim();
+            if (name.isEmpty() || acc.isEmpty()) {
+                Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            sharedPreferences.edit()
+                .putString("bank_name", name)
+                .putString("bank_details", acc)
+                .apply();
+            tvBankName.setText(name);
+            tvBankDetails.setText(acc);
+            Toast.makeText(getContext(), "Đã cập nhật thông tin ngân hàng!", Toast.LENGTH_SHORT).show();
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void fetchShopFoodsForPromotion() {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().getAllFoods(currentShopId, null).enqueue(new Callback<List<FoodResponse>>() {
+            @Override
+            public void onResponse(Call<List<FoodResponse>> call, Response<List<FoodResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    shopFoodList = response.body();
+                    populateFoodSpinner();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<FoodResponse>> call, Throwable t) {
+                // Silently fail
+            }
+        });
+    }
+
+    private void populateFoodSpinner() {
+        if (shopFoodList == null || getContext() == null) return;
+        String[] foodNames = new String[shopFoodList.size()];
+        for (int i = 0; i < shopFoodList.size(); i++) {
+            foodNames[i] = shopFoodList.get(i).getName();
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, foodNames);
+        spinnerPromoFood.setAdapter(adapter);
+
+        // Restore selected food item from SharedPreferences
+        String savedFoodIdStr = sharedPreferences.getString("promo_discount_food_id", "");
+        if (!savedFoodIdStr.isEmpty()) {
+            for (int i = 0; i < shopFoodList.size(); i++) {
+                if (shopFoodList.get(i).getId().toString().equals(savedFoodIdStr)) {
+                    spinnerPromoFood.setSelection(i);
+                    break;
+                }
+            }
+        }
     }
 
     private void updateOperationalStatusUI(boolean isOpen) {
@@ -363,6 +625,10 @@ public class VendorSettingsFragment extends Fragment {
                 .load(coverUrl != null ? coverUrl : R.drawable.burger_sample)
                 .placeholder(R.drawable.burger_sample)
                 .into(imgShopCover);
+        }
+
+        if (checkboxPromotions.isChecked()) {
+            fetchShopFoodsForPromotion();
         }
     }
 
