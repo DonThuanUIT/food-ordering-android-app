@@ -177,14 +177,12 @@
             android:textSize="22sp"
             android:textStyle="bold" />
 
-        <TextView
+        <ImageView
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_marginStart="16dp"
-            android:gravity="center"
-            android:text="→"
-            android:textColor="#FFFFFF"
-            android:textSize="38sp"
-            android:textStyle="bold" />
+            android:contentDescription="Xem giỏ hàng"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_forward" />
     </LinearLayout>
 </FrameLayout>

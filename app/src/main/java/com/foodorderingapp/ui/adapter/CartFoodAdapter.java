@@ -20,13 +20,22 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
 
     private final List<CartItemResponse> items = new ArrayList<>();
     private OnQuantityChangeListener quantityChangeListener;
+    private OnDeleteClickListener deleteClickListener;
 
     public interface OnQuantityChangeListener {
         void onQuantityChange(CartItemResponse item, int newQuantity);
     }
 
+    public interface OnDeleteClickListener {
+        void onDeleteClick(CartItemResponse item);
+    }
+
     public void setOnQuantityChangeListener(OnQuantityChangeListener listener) {
         this.quantityChangeListener = listener;
+    }
+
+    public void setOnDeleteClickListener(OnDeleteClickListener listener) {
+        this.deleteClickListener = listener;
     }
 
     public void submitList(List<CartItemResponse> newItems) {
@@ -62,6 +71,11 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
                 quantityChangeListener.onQuantityChange(item, item.getQuantity() + 1);
             }
         });
+        holder.btnDelete.setOnClickListener(v -> {
+            if (deleteClickListener != null) {
+                deleteClickListener.onDeleteClick(item);
+            }
+        });
         Glide.with(holder.itemView.getContext())
                 .load(item.getFoodImageUrl())
                 .placeholder(R.drawable.logo_food)
@@ -80,8 +94,8 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
     }
 
     static class FoodVH extends RecyclerView.ViewHolder {
-        TextView tvName, tvPrice, tvQuantity, btnMinus, btnPlus;
-        ImageView ivFoodImage;
+        TextView tvName, tvPrice, tvQuantity;
+        ImageView btnMinus, btnPlus, btnDelete, ivFoodImage;
 
         FoodVH(@NonNull View itemView) {
             super(itemView);
@@ -91,6 +105,7 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
             tvQuantity = itemView.findViewById(R.id.tvCartQuantity);
             btnMinus = itemView.findViewById(R.id.btnMinus);
             btnPlus = itemView.findViewById(R.id.btnPlus);
+            btnDelete = itemView.findViewById(R.id.btnDeleteCartItem);
         }
     }
 }

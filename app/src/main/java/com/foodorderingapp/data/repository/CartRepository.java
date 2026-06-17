@@ -62,4 +62,32 @@ public class CartRepository {
             }
         });
     }
+
+    public void deleteCartItem(String cartItemId, MutableLiveData<Boolean> result) {
+        ApiClient.getApiService().deleteCartItem(cartItemId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                result.postValue(response.isSuccessful());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                result.postValue(false);
+            }
+        });
+    }
+
+    public void clearShopCart(String shopId, MutableLiveData<Boolean> result) {
+        ApiClient.getApiService().clearShopCart(shopId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                result.postValue(response.isSuccessful());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                result.postValue(false);
+            }
+        });
+    }
 }

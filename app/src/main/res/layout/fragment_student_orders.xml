@@ -17,11 +17,21 @@
             android:layout_height="108dp"
             android:background="@drawable/home_bg_top_dark" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="18dp"
+            android:layout_marginTop="-80dp"
+            android:text="Đơn hàng đang xử lý"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="18dp"
-            android:layout_marginTop="-54dp"
+            android:layout_marginTop="-40dp"
             android:background="@drawable/home_bg_content_container"
             android:clipToPadding="false"
             android:elevation="2dp"

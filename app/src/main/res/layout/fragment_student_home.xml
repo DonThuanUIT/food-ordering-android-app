@@ -93,14 +93,14 @@
                         android:layout_height="wrap_content"
                         android:text="Quán Ăn"
                         android:textSize="17sp"
-                        android:textColor="#555555"
+                        android:textColor="#FF7A21"
                         android:textStyle="bold"
                         android:paddingBottom="10dp"/>
                     <View
                         android:id="@+id/indicatorRestaurants"
                         android:layout_width="60dp"
                         android:layout_height="3dp"
-                        android:visibility="invisible"
+                        android:visibility="visible"
                         android:background="@drawable/home_bg_tab_indicator"/>
                 </LinearLayout>
 
@@ -120,13 +120,14 @@
                         android:layout_height="wrap_content"
                         android:text="Món Ngon"
                         android:textSize="17sp"
-                        android:textColor="#FF7A21"
+                        android:textColor="#555555"
                         android:textStyle="bold"
                         android:paddingBottom="10dp"/>
                     <View
                         android:id="@+id/indicatorDishes"
                         android:layout_width="60dp"
                         android:layout_height="3dp"
+                        android:visibility="invisible"
                         android:background="@drawable/home_bg_tab_indicator"/>
                 </LinearLayout>
             </LinearLayout>

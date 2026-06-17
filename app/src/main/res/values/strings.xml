@@ -5,6 +5,13 @@
     <string name="expand_menu">Expand your kitchen menu</string>
     <string name="all">All</string>
 
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_orders">Đơn hàng</string>
+    <string name="nav_history">Lịch sử</string>
+    <string name="nav_cart">Giỏ hàng</string>
+    <string name="nav_profile">Cá nhân</string>
+
     <!-- Profile Screen -->
     <string name="profile_title">Tài khoản</string>
     <string name="profile_spending_title">Chi tiêu tháng này</string>
@@ -16,4 +23,8 @@
     <string name="profile_week_2">Tuần 2</string>
     <string name="profile_week_3">Tuần 3</string>
     <string name="profile_week_4">Tuần 4</string>
+
+    <!-- Order -->
+    <string name="order_summary">Tóm tắt đơn hàng</string>
+    <string name="order_total">Tổng cộng</string>
 </resources>

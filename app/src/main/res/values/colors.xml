@@ -3,25 +3,39 @@
     <color name="black">#1A1A1A</color>
     <color name="white">#FFFFFF</color>
 
-    <color name="primary_orange">#E64A19</color>
-    <color name="light_gray">#F5F5F5</color>
+    <!-- Brand Colors -->
+    <color name="brand_orange">#FF7A21</color>
+    <color name="brand_orange_dark">#E86714</color>
+    <color name="brand_orange_light">#FF9800</color>
+    <color name="brand_dark_bg">#081126</color>
+    <color name="brand_brown">#6D4C41</color>
+    <color name="brand_brown_dark">#4E342E</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#1A1D26</color>
+    <color name="text_secondary">#55607A</color>
     <color name="text_gray">#8E8E93</color>
+    <color name="text_hint">#B8BDC9</color>
+    <color name="text_muted">#7D8494</color>
+
+    <!-- Background Colors -->
+    <color name="bg_page">#F6F7FB</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_input">#F5F5F5</color>
+    <color name="light_gray">#F5F5F5</color>
     <color name="card_bg">#FFFFFF</color>
+
+    <!-- Divider & Border -->
+    <color name="divider">#E5E5EA</color>
+    <color name="border_input">#D9DEE8</color>
+
+    <!-- Status Colors -->
+    <color name="status_success">#00A843</color>
+    <color name="status_error">#E53935</color>
+    <color name="status_warning">#FF9800</color>
+
+    <!-- Vendor -->
     <color name="vendor_brown">#8B5A00</color>
-
-    <color name="status_red">#FF3B30</color>
-    <color name="status_orange">#FF9500</color>
-    <color name="status_green">#34C759</color>
-    <color name="status_gray">#8E8E93</color>
-
-    <color name="bg_light">#F8F8F8</color>
-    <color name="bg_item">#F2F2F7</color>
-
-    <color name="button_green">#107C10</color>
-    <color name="button_orange">#FF5722</color>
-    <color name="button_gray">#E5E5EA</color>
-
-    <color name="nav_active_color">#34C759</color>
 
     <!-- Profile Screen Colors -->
     <color name="profile_header_dark">#0D1033</color>

@@ -64,7 +64,6 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         boolean available = food.isAvailable();
         holder.btnAddFood.setEnabled(available);
         holder.btnAddFood.setAlpha(available ? 1f : 0.45f);
-        holder.btnAddFood.setText(available ? "+" : "!");
         holder.btnAddFood.setOnClickListener(v -> {
             if (listener != null && food.isAvailable()) {
                 listener.onFoodClick(food);
@@ -94,7 +93,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         TextView tvName;
         TextView tvDescription;
         TextView tvPrice;
-        TextView btnAddFood;
+        ImageView btnAddFood;
 
         FoodViewHolder(@NonNull View itemView) {
             super(itemView);

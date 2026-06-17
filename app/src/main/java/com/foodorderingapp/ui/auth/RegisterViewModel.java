@@ -9,6 +9,7 @@ import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.response.ApiError;
 import com.foodorderingapp.model.response.AuthResponse;
+import com.foodorderingapp.utils.TokenManager;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -52,6 +53,11 @@ public class RegisterViewModel extends ViewModel {
                 isLoading.setValue(false);
                 // Nếu Server gửi mail thành công và trả về code 200/201
                 if (response.isSuccessful()) {
+                    TokenManager.getInstance().saveUserSession(
+                            phone.trim(),
+                            isStudent ? "STUDENT" : "VENDOR",
+                            fullName.trim()
+                    );
                     isSuccess.setValue(true);
                     message.setValue("Mã OTP đã được gửi vào Email của bạn.");
                 } else {

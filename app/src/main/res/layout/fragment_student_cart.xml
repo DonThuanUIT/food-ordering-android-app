@@ -87,7 +87,6 @@
                         android:inputType="textCapWords"
                         android:minHeight="54dp"
                         android:singleLine="true"
-                        android:text="KTX Khu A"
                         android:textColor="#1A1D26"
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -113,7 +112,6 @@
                         android:inputType="textCapSentences"
                         android:minHeight="54dp"
                         android:singleLine="true"
-                        android:text="Cổng chính"
                         android:textColor="#1A1D26"
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>

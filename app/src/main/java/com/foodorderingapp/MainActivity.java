@@ -3,6 +3,7 @@ package com.foodorderingapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
+import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentProfileFragment;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         if (userRole == null) userRole = "STUDENT";
 
         setupMenuAndNavigation(userRole);
+        setupHeaderActions();
         handleStartTab(getIntent());
         bottomNav.setItemIconTintList(null);
     }
@@ -155,6 +158,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setupHeaderActions() {
+        findViewById(R.id.ivProfile).setOnClickListener(v -> openProfileShortcut());
+        findViewById(R.id.ivMenu).setOnClickListener(v -> showQuickMenu());
+    }
+
+    private void openProfileShortcut() {
+        if ("VENDOR".equalsIgnoreCase(userRole)) {
+            bottomNav.setSelectedItemId(R.id.nav_vendor_settings);
+        } else {
+            bottomNav.setSelectedItemId(R.id.nav_profile);
+        }
+    }
+
+    private void showQuickMenu() {
+        androidx.appcompat.widget.PopupMenu popupMenu =
+                new androidx.appcompat.widget.PopupMenu(this, findViewById(R.id.ivMenu));
+        Menu menu = popupMenu.getMenu();
+
+        if ("VENDOR".equalsIgnoreCase(userRole)) {
+            menu.add(Menu.NONE, R.id.nav_vendor_orders, Menu.NONE, "Đơn hàng");
+            menu.add(Menu.NONE, R.id.nav_vendor_stats, Menu.NONE, "Thống kê");
+            menu.add(Menu.NONE, R.id.nav_vendor_menu, Menu.NONE, "Thực đơn");
+            menu.add(Menu.NONE, R.id.nav_vendor_settings, Menu.NONE, "Cài đặt");
+        } else {
+            menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, "Trang chủ");
+            menu.add(Menu.NONE, R.id.nav_orders, Menu.NONE, "Đơn đang xử lý");
+            menu.add(Menu.NONE, R.id.nav_history, Menu.NONE, "Lịch sử đơn");
+            menu.add(Menu.NONE, R.id.nav_cart, Menu.NONE, "Giỏ hàng");
+            menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, "Cá nhân");
+        }
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            bottomNav.setSelectedItemId(item.getItemId());
+            return true;
+        });
+        popupMenu.show();
+    }
+
     private void handleStartTab(Intent intent) {
         if (intent == null || bottomNav == null) {
             return;
@@ -163,6 +204,8 @@ public class MainActivity extends AppCompatActivity {
         String openTab = intent.getStringExtra("OPEN_TAB");
         if ("ORDERS".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_orders);
+        } else if ("HISTORY".equalsIgnoreCase(openTab)) {
+            bottomNav.setSelectedItemId(R.id.nav_history);
         } else if ("CART".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_cart);
         }

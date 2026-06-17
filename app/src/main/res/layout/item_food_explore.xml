@@ -24,7 +24,7 @@
                 android:id="@+id/ivFoodImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerInside"
+                android:scaleType="centerCrop"
                 android:src="@drawable/logo_food" />
 
         </FrameLayout>
@@ -84,7 +84,9 @@
                 android:layout_centerVertical="true"
                 android:background="@drawable/home_bg_button_orange"
                 android:contentDescription="Thêm vào giỏ"
-                android:src="@drawable/ic_cart"
+                android:padding="16dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_plus_white"
                 app:tint="@android:color/white" />
 
         </RelativeLayout>

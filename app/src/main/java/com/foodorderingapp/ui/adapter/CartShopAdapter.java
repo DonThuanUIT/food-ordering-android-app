@@ -22,18 +22,32 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
 
     private final List<ShopCartResponse> shops = new ArrayList<>();
     private OnCheckoutClickListener checkoutClickListener;
+    private OnClearShopCartListener clearShopCartListener;
     private CartFoodAdapter.OnQuantityChangeListener quantityChangeListener;
+    private CartFoodAdapter.OnDeleteClickListener deleteClickListener;
 
     public interface OnCheckoutClickListener {
         void onCheckoutClick();
+    }
+
+    public interface OnClearShopCartListener {
+        void onClearShopCart(ShopCartResponse shop);
     }
 
     public void setOnCheckoutClickListener(OnCheckoutClickListener listener) {
         this.checkoutClickListener = listener;
     }
 
+    public void setOnClearShopCartListener(OnClearShopCartListener listener) {
+        this.clearShopCartListener = listener;
+    }
+
     public void setOnQuantityChangeListener(CartFoodAdapter.OnQuantityChangeListener listener) {
         this.quantityChangeListener = listener;
+    }
+
+    public void setOnDeleteClickListener(CartFoodAdapter.OnDeleteClickListener listener) {
+        this.deleteClickListener = listener;
     }
 
     public void submitList(List<ShopCartResponse> newShops) {
@@ -60,6 +74,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
 
         CartFoodAdapter foodAdapter = new CartFoodAdapter();
         foodAdapter.setOnQuantityChangeListener(quantityChangeListener);
+        foodAdapter.setOnDeleteClickListener(deleteClickListener);
         holder.rvFoods.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
         holder.rvFoods.setAdapter(foodAdapter);
         holder.rvFoods.setNestedScrollingEnabled(false);
@@ -82,6 +97,11 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
                 checkoutClickListener.onCheckoutClick();
             }
         });
+        holder.btnDeleteShopCart.setOnClickListener(v -> {
+            if (clearShopCartListener != null) {
+                clearShopCartListener.onClearShopCart(shop);
+            }
+        });
     }
 
     @Override
@@ -99,6 +119,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         TextView tvItemCount;
         TextView tvShopTotal;
         View btnCheckoutShop;
+        View btnDeleteShopCart;
         RecyclerView rvFoods;
 
         ShopVH(@NonNull View itemView) {
@@ -107,6 +128,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
             tvItemCount = itemView.findViewById(R.id.tvShopItemCount);
             tvShopTotal = itemView.findViewById(R.id.tvShopTotal);
             btnCheckoutShop = itemView.findViewById(R.id.btnCheckoutShop);
+            btnDeleteShopCart = itemView.findViewById(R.id.btnDeleteShopCart);
             rvFoods = itemView.findViewById(R.id.rvCartFoods);
         }
     }
