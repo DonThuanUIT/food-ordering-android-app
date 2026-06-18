@@ -11,6 +11,7 @@ import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
+import com.foodorderingapp.model.request.UpdateStatusRequest;
 import com.foodorderingapp.model.request.VoucherCreateRequest;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
@@ -157,6 +158,20 @@ public interface ApiService {
             @Path("shopId") UUID shopId,
             @Path("voucherId") UUID voucherId,
             @Body Map<String, Boolean> body
+    );
+
+    // --- Vendor Order Management ---
+    @GET("vendor/shops/{shopId}/orders")
+    Call<List<OrderResponse>> getShopOrders(
+            @Path("shopId") UUID shopId,
+            @Query("status") String status
+    );
+
+    @PATCH("vendor/shops/{shopId}/orders/{orderId}/status")
+    Call<OrderResponse> updateOrderStatus(
+            @Path("shopId") UUID shopId,
+            @Path("orderId") UUID orderId,
+            @Body UpdateStatusRequest request
     );
 
     @GET("shops")
