@@ -118,6 +118,55 @@ public class VendorSettingsFragment extends Fragment {
         }
     };
 
+    private final CompoundButton.OnCheckedChangeListener orderAlertsListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            sharedPreferences.edit().putBoolean("order_alerts", isChecked).apply();
+            updatePreference("orderAlertsEnabled", isChecked);
+        }
+    };
+
+    private final CompoundButton.OnCheckedChangeListener promotionsListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            sharedPreferences.edit().putBoolean("promo_alerts", isChecked).apply();
+            if (isChecked) {
+                layoutPromoDetails.setVisibility(View.VISIBLE);
+                fetchShopFoodsForPromotion();
+            } else {
+                layoutPromoDetails.setVisibility(View.GONE);
+            }
+            updatePreference("dormPromotionsEnabled", isChecked);
+        }
+    };
+
+    private final CompoundButton.OnCheckedChangeListener turboModeListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            sharedPreferences.edit().putBoolean("turbo_mode", isChecked).apply();
+            updatePreference("turboModeEnabled", isChecked);
+        }
+    };
+
+    private void updatePreference(String field, boolean value) {
+        if (currentShopId == null) return;
+        ShopUpdateRequest req = new ShopUpdateRequest();
+        if ("orderAlertsEnabled".equals(field)) {
+            req.setOrderAlertsEnabled(value);
+        } else if ("dormPromotionsEnabled".equals(field)) {
+            req.setDormPromotionsEnabled(value);
+            if (value) {
+                layoutPromoDetails.setVisibility(View.VISIBLE);
+                fetchShopFoodsForPromotion();
+            } else {
+                layoutPromoDetails.setVisibility(View.GONE);
+            }
+        } else if ("turboModeEnabled".equals(field)) {
+            req.setTurboModeEnabled(value);
+        }
+        saveShopProfile(req);
+    }
+
     public VendorSettingsFragment() {
         // Required empty public constructor
     }
@@ -226,24 +275,9 @@ public class VendorSettingsFragment extends Fragment {
         if (tvShopDescription != null) tvShopDescription.setOnClickListener(profileEditListener);
 
         // Preference checkboxes listeners
-        checkboxOrderAlerts.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPreferences.edit().putBoolean("order_alerts", isChecked).apply();
-            Toast.makeText(getContext(), isChecked ? "Đã bật thông báo đơn hàng" : "Đã tắt thông báo đơn hàng", Toast.LENGTH_SHORT).show();
-        });
-        checkboxPromotions.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPreferences.edit().putBoolean("promo_alerts", isChecked).apply();
-            if (isChecked) {
-                layoutPromoDetails.setVisibility(View.VISIBLE);
-                fetchShopFoodsForPromotion();
-            } else {
-                layoutPromoDetails.setVisibility(View.GONE);
-            }
-            Toast.makeText(getContext(), isChecked ? "Đã bật khuyến mãi" : "Đã tắt khuyến mãi", Toast.LENGTH_SHORT).show();
-        });
-        checkboxTurboMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPreferences.edit().putBoolean("turbo_mode", isChecked).apply();
-            Toast.makeText(getContext(), isChecked ? "Đã kích hoạt Chế độ Turbo" : "Đã tắt Chế độ Turbo", Toast.LENGTH_SHORT).show();
-        });
+        checkboxOrderAlerts.setOnCheckedChangeListener(orderAlertsListener);
+        checkboxPromotions.setOnCheckedChangeListener(promotionsListener);
+        checkboxTurboMode.setOnCheckedChangeListener(turboModeListener);
 
         // Business Hour Update button click (opens edit profile dialog)
         btnUpdateHours.setOnClickListener(profileEditListener);
@@ -353,21 +387,13 @@ public class VendorSettingsFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     String url = response.body().get("url");
                     if (url != null) {
+                        ShopUpdateRequest req = new ShopUpdateRequest();
                         if (isEditingLogo) {
-                            sharedPreferences.edit().putString("shop_logo_url_" + currentShopId, url).apply();
-                            Glide.with(requireContext())
-                                .load(url)
-                                .placeholder(R.drawable.logo_food)
-                                .into(imgShopLogo);
-                            Toast.makeText(getContext(), "Cập nhật logo thành công!", Toast.LENGTH_SHORT).show();
+                            req.setLogoUrl(url);
                         } else {
-                            sharedPreferences.edit().putString("shop_cover_url_" + currentShopId, url).apply();
-                            Glide.with(requireContext())
-                                .load(url)
-                                .placeholder(R.drawable.burger_sample)
-                                .into(imgShopCover);
-                            Toast.makeText(getContext(), "Cập nhật ảnh bìa thành công!", Toast.LENGTH_SHORT).show();
+                            req.setCoverUrl(url);
                         }
+                        saveShopProfile(req);
                     }
                 } else {
                     Toast.makeText(getContext(), "Tải ảnh lên thất bại", Toast.LENGTH_SHORT).show();
@@ -458,13 +484,10 @@ public class VendorSettingsFragment extends Fragment {
                 Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
-            sharedPreferences.edit()
-                .putString("contact_email", email)
-                .putString("contact_phone", phone)
-                .apply();
-            tvShopEmail.setText(email);
-            tvShopPhone.setText(phone);
-            Toast.makeText(getContext(), "Đã cập nhật thông tin liên hệ!", Toast.LENGTH_SHORT).show();
+            ShopUpdateRequest req = new ShopUpdateRequest();
+            req.setEmail(email);
+            req.setPhone(phone);
+            saveShopProfile(req);
         });
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
         builder.show();
@@ -496,13 +519,10 @@ public class VendorSettingsFragment extends Fragment {
                 Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
-            sharedPreferences.edit()
-                .putString("bank_name", name)
-                .putString("bank_details", acc)
-                .apply();
-            tvBankName.setText(name);
-            tvBankDetails.setText(acc);
-            Toast.makeText(getContext(), "Đã cập nhật thông tin ngân hàng!", Toast.LENGTH_SHORT).show();
+            ShopUpdateRequest req = new ShopUpdateRequest();
+            req.setBankName(name);
+            req.setBankAccountNumber(acc);
+            saveShopProfile(req);
         });
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
         builder.show();
@@ -590,30 +610,60 @@ public class VendorSettingsFragment extends Fragment {
             tvShopDescription.setText(shop.getDescription() != null ? shop.getDescription() : "Chưa có mô tả cửa hàng");
         }
 
-        // Format and show operating hours for Mon - Fri (API values)
-        String openStr = formatTime12Hour(shop.getOpenTime());
-        String closeStr = formatTime12Hour(shop.getCloseTime());
+        // Hours
+        String openStr = formatTime12Hour(shop.getMonFriOpenTime() != null ? shop.getMonFriOpenTime() : shop.getOpenTime());
+        String closeStr = formatTime12Hour(shop.getMonFriCloseTime() != null ? shop.getMonFriCloseTime() : shop.getCloseTime());
         if (tvHoursMonFri != null) tvHoursMonFri.setText(openStr + " - " + closeStr);
 
-        // Sat & Sun hours loaded from SharedPreferences
-        String satOpen = sharedPreferences.getString("sat_open_time_" + currentShopId, "10:00");
-        String satClose = sharedPreferences.getString("sat_close_time_" + currentShopId, "01:00");
+        String satOpen = shop.getSatOpenTime() != null ? shop.getSatOpenTime() : sharedPreferences.getString("sat_open_time_" + currentShopId, "10:00");
+        String satClose = shop.getSatCloseTime() != null ? shop.getSatCloseTime() : sharedPreferences.getString("sat_close_time_" + currentShopId, "01:00");
         if (tvHoursSat != null) tvHoursSat.setText(formatTime12Hour(satOpen) + " - " + formatTime12Hour(satClose));
 
-        String sunOpen = sharedPreferences.getString("sun_open_time_" + currentShopId, "10:00");
-        String sunClose = sharedPreferences.getString("sun_close_time_" + currentShopId, "22:00");
+        String sunOpen = shop.getSunOpenTime() != null ? shop.getSunOpenTime() : sharedPreferences.getString("sun_open_time_" + currentShopId, "10:00");
+        String sunClose = shop.getSunCloseTime() != null ? shop.getSunCloseTime() : sharedPreferences.getString("sun_close_time_" + currentShopId, "22:00");
         if (tvHoursSun != null) tvHoursSun.setText(formatTime12Hour(sunOpen) + " - " + formatTime12Hour(sunClose));
 
-        // Bind switch toggle status programmatically without triggering listener recursion
-        boolean isOpen = shop.getIsActive() != null ? shop.getIsActive() : true;
+        // Operational Status
+        boolean isActive = shop.getIsActive() != null ? shop.getIsActive() : true;
         switchOperational.setOnCheckedChangeListener(null);
-        switchOperational.setChecked(isOpen);
+        switchOperational.setChecked(isActive);
         switchOperational.setOnCheckedChangeListener(switchListener);
-        updateOperationalStatusUI(isOpen);
+        updateOperationalStatusUI(isActive);
 
-        // Load custom logo and cover URLs if saved, else default resources
-        String logoUrl = sharedPreferences.getString("shop_logo_url_" + currentShopId, null);
-        String coverUrl = sharedPreferences.getString("shop_cover_url_" + currentShopId, null);
+        // Preference checkboxes
+        checkboxOrderAlerts.setOnCheckedChangeListener(null);
+        checkboxOrderAlerts.setChecked(shop.getOrderAlertsEnabled() != null ? shop.getOrderAlertsEnabled() : true);
+        checkboxOrderAlerts.setOnCheckedChangeListener(orderAlertsListener);
+
+        checkboxPromotions.setOnCheckedChangeListener(null);
+        boolean hasPromo = shop.getDormPromotionsEnabled() != null ? shop.getDormPromotionsEnabled() : false;
+        checkboxPromotions.setChecked(hasPromo);
+        checkboxPromotions.setOnCheckedChangeListener(promotionsListener);
+        if (hasPromo) {
+            layoutPromoDetails.setVisibility(View.VISIBLE);
+        } else {
+            layoutPromoDetails.setVisibility(View.GONE);
+        }
+
+        checkboxTurboMode.setOnCheckedChangeListener(null);
+        checkboxTurboMode.setChecked(shop.getTurboModeEnabled() != null ? shop.getTurboModeEnabled() : false);
+        checkboxTurboMode.setOnCheckedChangeListener(turboModeListener);
+
+        // Contact Info
+        String email = shop.getEmail() != null ? shop.getEmail() : sharedPreferences.getString("contact_email", "contact@burgerloft.com");
+        String phone = shop.getPhone() != null ? shop.getPhone() : sharedPreferences.getString("contact_phone", "+1 (555) 098-7654");
+        if (tvShopEmail != null) tvShopEmail.setText(email);
+        if (tvShopPhone != null) tvShopPhone.setText(phone);
+
+        // Bank Info
+        String bankName = shop.getBankName() != null ? shop.getBankName() : sharedPreferences.getString("bank_name", "Chase Business");
+        String bankDetails = shop.getBankAccountNumber() != null ? shop.getBankAccountNumber() : sharedPreferences.getString("bank_details", "Ending in •• 4402");
+        if (tvBankName != null) tvBankName.setText(bankName);
+        if (tvBankDetails != null) tvBankDetails.setText(bankDetails);
+
+        // Load custom logo and cover URLs
+        String logoUrl = shop.getLogoUrl() != null ? shop.getLogoUrl() : sharedPreferences.getString("shop_logo_url_" + currentShopId, null);
+        String coverUrl = shop.getCoverUrl() != null ? shop.getCoverUrl() : sharedPreferences.getString("shop_cover_url_" + currentShopId, null);
 
         if (getContext() != null) {
             Glide.with(getContext())
@@ -627,7 +677,7 @@ public class VendorSettingsFragment extends Fragment {
                 .into(imgShopCover);
         }
 
-        if (checkboxPromotions.isChecked()) {
+        if (hasPromo) {
             fetchShopFoodsForPromotion();
         }
     }
@@ -734,14 +784,20 @@ public class VendorSettingsFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0) { // Mon - Fri
-                    etOpen.setText(shop.getOpenTime() != null ? shop.getOpenTime().substring(0, 5) : "08:00");
-                    etClose.setText(shop.getCloseTime() != null ? shop.getCloseTime().substring(0, 5) : "22:00");
+                    String openVal = shop.getMonFriOpenTime() != null ? shop.getMonFriOpenTime() : (shop.getOpenTime() != null ? shop.getOpenTime() : "08:00");
+                    String closeVal = shop.getMonFriCloseTime() != null ? shop.getMonFriCloseTime() : (shop.getCloseTime() != null ? shop.getCloseTime() : "22:00");
+                    etOpen.setText(openVal.substring(0, 5));
+                    etClose.setText(closeVal.substring(0, 5));
                 } else if (position == 1) { // Saturday
-                    etOpen.setText(sharedPreferences.getString("sat_open_time_" + currentShopId, "10:00"));
-                    etClose.setText(sharedPreferences.getString("sat_close_time_" + currentShopId, "01:00"));
+                    String openVal = shop.getSatOpenTime() != null ? shop.getSatOpenTime() : "10:00";
+                    String closeVal = shop.getSatCloseTime() != null ? shop.getSatCloseTime() : "01:00";
+                    etOpen.setText(openVal.substring(0, 5));
+                    etClose.setText(closeVal.substring(0, 5));
                 } else { // Sunday
-                    etOpen.setText(sharedPreferences.getString("sun_open_time_" + currentShopId, "10:00"));
-                    etClose.setText(sharedPreferences.getString("sun_close_time_" + currentShopId, "22:00"));
+                    String openVal = shop.getSunOpenTime() != null ? shop.getSunOpenTime() : "10:00";
+                    String closeVal = shop.getSunCloseTime() != null ? shop.getSunCloseTime() : "22:00";
+                    etOpen.setText(openVal.substring(0, 5));
+                    etClose.setText(closeVal.substring(0, 5));
                 }
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
@@ -765,23 +821,18 @@ public class VendorSettingsFragment extends Fragment {
             // Save hours to respective day groups
             if (selectedDayPos == 0) { // Mon - Fri (Sent to backend)
                 ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, open, close);
+                req.setMonFriOpenTime(open);
+                req.setMonFriCloseTime(close);
                 saveShopProfile(req);
-            } else if (selectedDayPos == 1) { // Saturday (Stored locally)
-                sharedPreferences.edit()
-                    .putString("sat_open_time_" + currentShopId, open)
-                    .putString("sat_close_time_" + currentShopId, close)
-                    .apply();
-                
-                // Update text other fields via API with existing Mon-Fri hours
-                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime().substring(0,5), shop.getCloseTime().substring(0,5));
+            } else if (selectedDayPos == 1) { // Saturday
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime() != null ? shop.getOpenTime().substring(0,5) : "08:00", shop.getCloseTime() != null ? shop.getCloseTime().substring(0,5) : "22:00");
+                req.setSatOpenTime(open);
+                req.setSatCloseTime(close);
                 saveShopProfile(req);
-            } else { // Sunday (Stored locally)
-                sharedPreferences.edit()
-                    .putString("sun_open_time_" + currentShopId, open)
-                    .putString("sun_close_time_" + currentShopId, close)
-                    .apply();
-                
-                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime().substring(0,5), shop.getCloseTime().substring(0,5));
+            } else { // Sunday
+                ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, shop.getOpenTime() != null ? shop.getOpenTime().substring(0,5) : "08:00", shop.getCloseTime() != null ? shop.getCloseTime().substring(0,5) : "22:00");
+                req.setSunOpenTime(open);
+                req.setSunCloseTime(close);
                 saveShopProfile(req);
             }
         });
