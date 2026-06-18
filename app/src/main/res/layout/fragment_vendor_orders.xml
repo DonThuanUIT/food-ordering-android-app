@@ -10,57 +10,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Store Status Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="2dp"
-            android:layout_marginBottom="8dp">
 
-            <RelativeLayout
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_alignParentStart="true"
-                    android:layout_toStartOf="@+id/switch_store_status">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Trạng thái Cửa hàng"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"/>
-
-                    <TextView
-                        android:id="@+id/tv_store_status_desc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang mở cửa nhận đơn hàng mới"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
-                        android:layout_marginTop="2dp"/>
-                </LinearLayout>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switch_store_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:checked="true"
-                    android:theme="@style/Theme.FoodOrderingApp"
-                    app:thumbTint="@color/white"
-                    app:trackTint="@color/status_green" />
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
 
         <!-- Status Filter Horizontal Scroll Chips -->
         <HorizontalScrollView

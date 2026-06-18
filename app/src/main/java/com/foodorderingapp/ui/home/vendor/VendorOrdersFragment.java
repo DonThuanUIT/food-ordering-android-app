@@ -39,8 +39,6 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
     private RecyclerView rvVendorOrders;
     private SwipeRefreshLayout swipeRefresh;
     private View layoutEmptyOrders;
-    private SwitchCompat switchStoreStatus;
-    private TextView tvStoreStatusDesc;
     private ChipGroup chipGroupStatus;
 
     private VendorOrderAdapter adapter;
@@ -48,12 +46,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
     private UUID currentShopId;
     private String selectedStatusFilter = null; // null represents "ALL"
 
-    private final CompoundButton.OnCheckedChangeListener statusSwitchListener = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            toggleShopStatusOnServer(isChecked);
-        }
-    };
+
 
     public VendorOrdersFragment() {
         // Required empty public constructor
@@ -67,8 +60,6 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         rvVendorOrders = view.findViewById(R.id.rv_vendor_orders);
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
         layoutEmptyOrders = view.findViewById(R.id.layout_empty_orders);
-        switchStoreStatus = view.findViewById(R.id.switch_store_status);
-        tvStoreStatusDesc = view.findViewById(R.id.tv_store_status_desc);
         chipGroupStatus = view.findViewById(R.id.chip_group_status);
 
         // Setup RecyclerView
@@ -129,12 +120,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
                     if (idStr != null) {
                         currentShopId = UUID.fromString(idStr);
 
-                        // Set store switch state without triggering listener
-                        switchStoreStatus.setOnCheckedChangeListener(null);
-                        boolean isOpen = shop.getIsOpen() != null ? shop.getIsOpen() : true;
-                        switchStoreStatus.setChecked(isOpen);
-                        switchStoreStatus.setOnCheckedChangeListener(statusSwitchListener);
-                        updateStoreStatusUI(isOpen);
+
 
                         // Load Orders
                         loadOrders(isRefresh);
@@ -190,49 +176,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         });
     }
 
-    private void toggleShopStatusOnServer(boolean isOpen) {
-        if (currentShopId == null) return;
-        Map<String, Boolean> body = new HashMap<>();
-        body.put("isOpen", isOpen);
 
-        ApiClient.getApiService().toggleShopStatus(currentShopId, body).enqueue(new Callback<ShopResponse>() {
-            @Override
-            public void onResponse(Call<ShopResponse> call, Response<ShopResponse> response) {
-                if (response.isSuccessful()) {
-                    updateStoreStatusUI(isOpen);
-                    String statusText = isOpen ? "Đã mở cửa nhận đơn" : "Đã đóng cửa nghỉ";
-                    Toast.makeText(getContext(), statusText, Toast.LENGTH_SHORT).show();
-                } else {
-                    // Revert switch on fail
-                    switchStoreStatus.setOnCheckedChangeListener(null);
-                    switchStoreStatus.setChecked(!isOpen);
-                    switchStoreStatus.setOnCheckedChangeListener(statusSwitchListener);
-                    Toast.makeText(getContext(), "Không thể cập nhật trạng thái cửa hàng", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ShopResponse> call, Throwable t) {
-                // Revert switch on fail
-                switchStoreStatus.setOnCheckedChangeListener(null);
-                switchStoreStatus.setChecked(!isOpen);
-                switchStoreStatus.setOnCheckedChangeListener(statusSwitchListener);
-                Toast.makeText(getContext(), "Lỗi mạng!", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateStoreStatusUI(boolean isOpen) {
-        if (isOpen) {
-            tvStoreStatusDesc.setText("Đang mở cửa nhận đơn hàng mới");
-            tvStoreStatusDesc.setTextColor(getResources().getColor(R.color.status_success));
-            switchStoreStatus.setText("OPEN ");
-        } else {
-            tvStoreStatusDesc.setText("Cửa hàng hiện đang tạm đóng cửa");
-            tvStoreStatusDesc.setTextColor(getResources().getColor(R.color.text_secondary));
-            switchStoreStatus.setText("CLOSED ");
-        }
-    }
 
     private void updateOrderStatusOnServer(OrderResponse order, String newStatus, @Nullable String cancelReason) {
         if (currentShopId == null || order.getId() == null) return;
