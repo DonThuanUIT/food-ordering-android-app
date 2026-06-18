@@ -11,6 +11,7 @@ import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
+import com.foodorderingapp.model.request.VoucherCreateRequest;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
 import com.foodorderingapp.model.response.FoodResponse;
@@ -21,6 +22,7 @@ import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
 import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;
+import com.foodorderingapp.model.response.VoucherResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -123,6 +125,38 @@ public interface ApiService {
             @Path("shopId") UUID shopId,
             @Path("categoryId") UUID categoryId,
             @Body CategoryRequest request
+    );
+
+    // --- Vendor Voucher Management ---
+    @GET("vendor/shops/{shopId}/vouchers")
+    Call<List<VoucherResponse>> getShopVouchers(
+            @Path("shopId") UUID shopId
+    );
+
+    @POST("vendor/shops/{shopId}/vouchers")
+    Call<VoucherResponse> createVoucher(
+            @Path("shopId") UUID shopId,
+            @Body VoucherCreateRequest request
+    );
+
+    @PUT("vendor/shops/{shopId}/vouchers/{voucherId}")
+    Call<VoucherResponse> updateVoucher(
+            @Path("shopId") UUID shopId,
+            @Path("voucherId") UUID voucherId,
+            @Body VoucherCreateRequest request
+    );
+
+    @DELETE("vendor/shops/{shopId}/vouchers/{voucherId}")
+    Call<Void> deleteVoucher(
+            @Path("shopId") UUID shopId,
+            @Path("voucherId") UUID voucherId
+    );
+
+    @PATCH("vendor/shops/{shopId}/vouchers/{voucherId}/status")
+    Call<VoucherResponse> toggleVoucherStatus(
+            @Path("shopId") UUID shopId,
+            @Path("voucherId") UUID voucherId,
+            @Body Map<String, Boolean> body
     );
 
     @GET("shops")

@@ -49,6 +49,16 @@
             android:name=".ui.shop.ShopMenuActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.voucher.VoucherManagementActivity"
+            android:exported="false"
+            android:label="Quản lý Voucher" />
+
+        <activity
+            android:name=".ui.voucher.VoucherFormActivity"
+            android:exported="false"
+            android:label="Thiết lập Voucher" />
+
     </application>
 
 </manifest>

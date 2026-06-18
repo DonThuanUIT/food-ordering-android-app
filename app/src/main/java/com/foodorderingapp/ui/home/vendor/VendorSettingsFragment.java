@@ -37,6 +37,7 @@ import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.ui.auth.LoginActivity;
+import com.foodorderingapp.ui.voucher.VoucherManagementActivity;
 import com.foodorderingapp.utils.TokenManager;
 
 import android.widget.RadioGroup;
@@ -85,18 +86,10 @@ public class VendorSettingsFragment extends Fragment {
     private Button btnEditPayment;
 
     private CheckBox checkboxOrderAlerts;
-    private CheckBox checkboxPromotions;
     private CheckBox checkboxTurboMode;
     private Button btnDeactivate;
 
-    private LinearLayout layoutPromoDetails;
-    private EditText etPromoDiscount;
-    private RadioGroup rgPromoType;
-    private RadioButton rbPromoEntire;
-    private RadioButton rbPromoSpecific;
-    private LinearLayout layoutPromoFoodSelect;
-    private Spinner spinnerPromoFood;
-    private Button btnSavePromoSettings;
+    private View layoutPrefPromo;
 
     private View btnLogout;
 
@@ -126,19 +119,7 @@ public class VendorSettingsFragment extends Fragment {
         }
     };
 
-    private final CompoundButton.OnCheckedChangeListener promotionsListener = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            sharedPreferences.edit().putBoolean("promo_alerts", isChecked).apply();
-            if (isChecked) {
-                layoutPromoDetails.setVisibility(View.VISIBLE);
-                fetchShopFoodsForPromotion();
-            } else {
-                layoutPromoDetails.setVisibility(View.GONE);
-            }
-            updatePreference("dormPromotionsEnabled", isChecked);
-        }
-    };
+
 
     private final CompoundButton.OnCheckedChangeListener turboModeListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
@@ -153,14 +134,6 @@ public class VendorSettingsFragment extends Fragment {
         ShopUpdateRequest req = new ShopUpdateRequest();
         if ("orderAlertsEnabled".equals(field)) {
             req.setOrderAlertsEnabled(value);
-        } else if ("dormPromotionsEnabled".equals(field)) {
-            req.setDormPromotionsEnabled(value);
-            if (value) {
-                layoutPromoDetails.setVisibility(View.VISIBLE);
-                fetchShopFoodsForPromotion();
-            } else {
-                layoutPromoDetails.setVisibility(View.GONE);
-            }
         } else if ("turboModeEnabled".equals(field)) {
             req.setTurboModeEnabled(value);
         }
@@ -219,19 +192,10 @@ public class VendorSettingsFragment extends Fragment {
         tvBankDetails = view.findViewById(R.id.tv_bank_details);
         btnEditPayment = view.findViewById(R.id.btn_edit_payment);
 
-        layoutPromoDetails = view.findViewById(R.id.layout_promo_details);
-        etPromoDiscount = view.findViewById(R.id.et_promo_discount);
-        rgPromoType = view.findViewById(R.id.rg_promo_type);
-        rbPromoEntire = view.findViewById(R.id.rb_promo_entire);
-        rbPromoSpecific = view.findViewById(R.id.rb_promo_specific);
-        layoutPromoFoodSelect = view.findViewById(R.id.layout_promo_food_select);
-        spinnerPromoFood = view.findViewById(R.id.spinner_promo_food);
-        btnSavePromoSettings = view.findViewById(R.id.btn_save_promo_settings);
-
         btnLogout = view.findViewById(R.id.btn_logout);
 
         checkboxOrderAlerts = view.findViewById(R.id.checkbox_order_alerts);
-        checkboxPromotions = view.findViewById(R.id.checkbox_promotions);
+        layoutPrefPromo = view.findViewById(R.id.layout_pref_promo);
         checkboxTurboMode = view.findViewById(R.id.checkbox_turbo_mode);
         btnDeactivate = view.findViewById(R.id.btn_deactivate);
 
@@ -276,7 +240,6 @@ public class VendorSettingsFragment extends Fragment {
 
         // Preference checkboxes listeners
         checkboxOrderAlerts.setOnCheckedChangeListener(orderAlertsListener);
-        checkboxPromotions.setOnCheckedChangeListener(promotionsListener);
         checkboxTurboMode.setOnCheckedChangeListener(turboModeListener);
 
         // Business Hour Update button click (opens edit profile dialog)
@@ -288,54 +251,13 @@ public class VendorSettingsFragment extends Fragment {
         // Edit Bank Info
         btnEditPayment.setOnClickListener(v -> showEditBankDialog());
 
-        // Promo type radio group listener
-        rgPromoType.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.rb_promo_specific) {
-                layoutPromoFoodSelect.setVisibility(View.VISIBLE);
-                if (shopFoodList == null) {
-                    fetchShopFoodsForPromotion();
-                }
-            } else {
-                layoutPromoFoodSelect.setVisibility(View.GONE);
-            }
-        });
-
-        // Save Promo settings
-        btnSavePromoSettings.setOnClickListener(v -> {
-            String discountStr = etPromoDiscount.getText().toString().trim();
-            if (discountStr.isEmpty()) {
-                Toast.makeText(getContext(), "Vui lòng nhập phần trăm giảm giá", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            int percent;
-            try {
-                percent = Integer.parseInt(discountStr);
-            } catch (Exception e) {
-                Toast.makeText(getContext(), "Phần trăm giảm giá không hợp lệ", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (percent <= 0 || percent > 100) {
-                Toast.makeText(getContext(), "Phần trăm giảm giá phải từ 1 đến 100", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String type = rbPromoSpecific.isChecked() ? "specific" : "entire";
-            String foodIdStr = "";
-            if ("specific".equals(type) && shopFoodList != null && !shopFoodList.isEmpty()) {
-                int selectedIndex = spinnerPromoFood.getSelectedItemPosition();
-                if (selectedIndex >= 0 && selectedIndex < shopFoodList.size()) {
-                    foodIdStr = shopFoodList.get(selectedIndex).getId().toString();
-                }
-            }
-
-            sharedPreferences.edit()
-                .putInt("promo_discount_percent", percent)
-                .putString("promo_discount_type", type)
-                .putString("promo_discount_food_id", foodIdStr)
-                .apply();
-
-            Toast.makeText(getContext(), "Đã lưu cấu hình khuyến mãi thành công!", Toast.LENGTH_SHORT).show();
-        });
+        // Navigation to Voucher Management
+        if (layoutPrefPromo != null) {
+            layoutPrefPromo.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), VoucherManagementActivity.class);
+                startActivity(intent);
+            });
+        }
 
         // Logout click listener
         btnLogout.setOnClickListener(v -> {
@@ -424,26 +346,6 @@ public class VendorSettingsFragment extends Fragment {
     private void loadSavedPreferences() {
         checkboxOrderAlerts.setChecked(sharedPreferences.getBoolean("order_alerts", true));
         checkboxTurboMode.setChecked(sharedPreferences.getBoolean("turbo_mode", true));
-
-        boolean hasPromo = sharedPreferences.getBoolean("promo_alerts", false);
-        checkboxPromotions.setChecked(hasPromo);
-        if (hasPromo) {
-            layoutPromoDetails.setVisibility(View.VISIBLE);
-        } else {
-            layoutPromoDetails.setVisibility(View.GONE);
-        }
-
-        int discountPercent = sharedPreferences.getInt("promo_discount_percent", 15);
-        etPromoDiscount.setText(String.valueOf(discountPercent));
-
-        String discountType = sharedPreferences.getString("promo_discount_type", "entire");
-        if ("specific".equals(discountType)) {
-            rbPromoSpecific.setChecked(true);
-            layoutPromoFoodSelect.setVisibility(View.VISIBLE);
-        } else {
-            rbPromoEntire.setChecked(true);
-            layoutPromoFoodSelect.setVisibility(View.GONE);
-        }
     }
 
     private void loadContactAndBankInfo() {
@@ -528,44 +430,7 @@ public class VendorSettingsFragment extends Fragment {
         builder.show();
     }
 
-    private void fetchShopFoodsForPromotion() {
-        if (currentShopId == null) return;
-        ApiClient.getApiService().getAllFoods(currentShopId, null).enqueue(new Callback<List<FoodResponse>>() {
-            @Override
-            public void onResponse(Call<List<FoodResponse>> call, Response<List<FoodResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    shopFoodList = response.body();
-                    populateFoodSpinner();
-                }
-            }
 
-            @Override
-            public void onFailure(Call<List<FoodResponse>> call, Throwable t) {
-                // Silently fail
-            }
-        });
-    }
-
-    private void populateFoodSpinner() {
-        if (shopFoodList == null || getContext() == null) return;
-        String[] foodNames = new String[shopFoodList.size()];
-        for (int i = 0; i < shopFoodList.size(); i++) {
-            foodNames[i] = shopFoodList.get(i).getName();
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, foodNames);
-        spinnerPromoFood.setAdapter(adapter);
-
-        // Restore selected food item from SharedPreferences
-        String savedFoodIdStr = sharedPreferences.getString("promo_discount_food_id", "");
-        if (!savedFoodIdStr.isEmpty()) {
-            for (int i = 0; i < shopFoodList.size(); i++) {
-                if (shopFoodList.get(i).getId().toString().equals(savedFoodIdStr)) {
-                    spinnerPromoFood.setSelection(i);
-                    break;
-                }
-            }
-        }
-    }
 
     private void updateOperationalStatusUI(boolean isOpen) {
         if (isOpen) {
@@ -630,21 +495,6 @@ public class VendorSettingsFragment extends Fragment {
         switchOperational.setOnCheckedChangeListener(switchListener);
         updateOperationalStatusUI(isActive);
 
-        // Preference checkboxes
-        checkboxOrderAlerts.setOnCheckedChangeListener(null);
-        checkboxOrderAlerts.setChecked(shop.getOrderAlertsEnabled() != null ? shop.getOrderAlertsEnabled() : true);
-        checkboxOrderAlerts.setOnCheckedChangeListener(orderAlertsListener);
-
-        checkboxPromotions.setOnCheckedChangeListener(null);
-        boolean hasPromo = shop.getDormPromotionsEnabled() != null ? shop.getDormPromotionsEnabled() : false;
-        checkboxPromotions.setChecked(hasPromo);
-        checkboxPromotions.setOnCheckedChangeListener(promotionsListener);
-        if (hasPromo) {
-            layoutPromoDetails.setVisibility(View.VISIBLE);
-        } else {
-            layoutPromoDetails.setVisibility(View.GONE);
-        }
-
         checkboxTurboMode.setOnCheckedChangeListener(null);
         checkboxTurboMode.setChecked(shop.getTurboModeEnabled() != null ? shop.getTurboModeEnabled() : false);
         checkboxTurboMode.setOnCheckedChangeListener(turboModeListener);
@@ -677,9 +527,7 @@ public class VendorSettingsFragment extends Fragment {
                 .into(imgShopCover);
         }
 
-        if (hasPromo) {
-            fetchShopFoodsForPromotion();
-        }
+
     }
 
     private String formatTime12Hour(String timeStr) {

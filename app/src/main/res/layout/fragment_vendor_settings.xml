@@ -626,8 +626,12 @@
 
                     <!-- Item 2: Promotions -->
                     <RelativeLayout
+                        android:id="@+id/layout_pref_promo"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp">
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
                         <ImageView
                             android:id="@+id/iv_pref_promo"
                             android:layout_width="20dp"
@@ -639,133 +643,21 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Dorm-Wide Promotions"
+                            android:text="Quản lý Khuyến mãi (Voucher)"
                             android:textColor="@color/black"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_centerVertical="true"
                             android:layout_toEndOf="@id/iv_pref_promo"
                             android:layout_marginStart="12dp"/>
-                        <CheckBox
-                            android:id="@+id/checkbox_promotions"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
-                            android:buttonTint="#DD6B20" />
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="#A0AEC0" />
                     </RelativeLayout>
-
-                    <!-- Promotion Settings Details (Collapsible) -->
-                    <LinearLayout
-                        android:id="@+id/layout_promo_details"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingStart="32dp"
-                        android:paddingEnd="16dp"
-                        android:paddingVertical="8dp"
-                        android:visibility="gone"
-                        android:background="#FFFBF7"
-                        android:layout_marginBottom="8dp">
-
-                        <!-- Discount Percentage Input Row -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="12dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Phần trăm giảm giá (%):"
-                                android:textColor="@color/black"
-                                android:textSize="13sp"
-                                android:textStyle="bold"/>
-                            <EditText
-                                android:id="@+id/et_promo_discount"
-                                android:layout_width="0dp"
-                                android:layout_height="40dp"
-                                android:layout_weight="1"
-                                android:layout_marginStart="12dp"
-                                android:hint="15"
-                                android:inputType="number"
-                                android:textSize="13sp"
-                                android:background="@drawable/bg_edittext"
-                                android:paddingHorizontal="10dp"
-                                android:gravity="center"/>
-                        </LinearLayout>
-
-                        <!-- Discount Type Selection (RadioGroup) -->
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Áp dụng cho:"
-                            android:textColor="@color/black"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="6dp"/>
-                        <RadioGroup
-                            android:id="@+id/rg_promo_type"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginBottom="12dp">
-                            <RadioButton
-                                android:id="@+id/rb_promo_entire"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Toàn bộ cửa hàng"
-                                android:textSize="12sp"
-                                android:buttonTint="#DD6B20"
-                                android:checked="true"/>
-                            <RadioButton
-                                android:id="@+id/rb_promo_specific"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Món ăn cụ thể"
-                                android:textSize="12sp"
-                                android:buttonTint="#DD6B20"/>
-                        </RadioGroup>
-
-                        <!-- Specific Food Item Selection Row (Visible only if rb_promo_specific is checked) -->
-                        <LinearLayout
-                            android:id="@+id/layout_promo_food_select"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:visibility="gone"
-                            android:layout_marginBottom="8dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Chọn món ăn áp dụng:"
-                                android:textColor="@color/black"
-                                android:textSize="13sp"
-                                android:textStyle="bold"
-                                android:layout_marginBottom="6dp"/>
-                            <Spinner
-                                android:id="@+id/spinner_promo_food"
-                                android:layout_width="match_parent"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_white_rounded_border"
-                                android:spinnerMode="dropdown"/>
-                        </LinearLayout>
-
-                        <!-- Save Promotion Settings Button -->
-                        <Button
-                            android:id="@+id/btn_save_promo_settings"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:layout_gravity="end"
-                            android:text="Lưu thiết lập"
-                            android:textSize="11sp"
-                            android:textColor="@color/white"
-                            android:backgroundTint="#DD6B20"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="0dp"
-                            app:cornerRadius="6dp" />
-                    </LinearLayout>
 
                     <!-- Item 3: Turbo Mode -->
                     <RelativeLayout
