@@ -20,7 +20,6 @@ import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentProfileFragment;
-import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.student.StudentCartFragment;
 import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
 import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
@@ -62,11 +61,8 @@ public class MainActivity extends AppCompatActivity {
         setupMenuAndNavigation(userRole);
         setupHeaderActions();
         handleStartTab(getIntent());
-        if (isAdminRole(userRole)) {
-            bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
-        } else {
-            bottomNav.setItemIconTintList(null);
-        }
+        bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
+        bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
     }
 
     @Override

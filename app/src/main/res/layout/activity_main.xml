@@ -71,21 +71,28 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="78dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="70dp"
         android:layout_gravity="bottom"
-        android:background="#FFFFFF"
-        app:elevation="24dp"
+        android:background="@drawable/bg_bottom_navigation"
+        android:minHeight="78dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        app:elevation="16dp"
+        app:itemActiveIndicatorStyle="@null"
         app:itemIconTint="@color/nav_item_color"
         app:itemTextColor="@color/nav_item_color"
-        app:itemActiveIndicatorStyle="@null"
-        app:labelVisibilityMode="labeled"
-        app:itemIconSize="24dp" />
+        app:itemIconSize="22dp"
+        app:itemPaddingBottom="8dp"
+        app:itemPaddingTop="8dp"
+        app:itemRippleColor="#1AFF7A21"
+        app:itemTextAppearanceActive="@style/TextAppearance_App_BottomNavigation_Active"
+        app:itemTextAppearanceInactive="@style/TextAppearance_App_BottomNavigation_Inactive"
+        app:labelVisibilityMode="labeled" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
