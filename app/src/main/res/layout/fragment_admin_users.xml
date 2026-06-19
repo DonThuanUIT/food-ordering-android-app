@@ -24,7 +24,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quản Lý User"
+                android:text="Quản lý user"
                 android:textColor="@color/white"
                 android:textSize="26sp"
                 android:textStyle="bold" />
@@ -54,55 +54,39 @@
                     android:src="@drawable/ic_search"
                     app:tint="@color/text_secondary" />
 
-                <TextView
+                <EditText
+                    android:id="@+id/edtAdminUserSearch"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:text="Tìm kiếm người dùng..."
-                    android:textColor="@color/text_secondary"
+                    android:background="@android:color/transparent"
+                    android:hint="Tìm kiếm người dùng..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/text_secondary"
                     android:textSize="18sp" />
             </LinearLayout>
 
-            <include
-                android:id="@+id/userRowAlex"
-                layout="@layout/item_admin_user_alex"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAdminUsers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="22dp" />
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false" />
 
-            <View
+            <TextView
+                android:id="@+id/tvAdminUsersEmpty"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/profile_divider" />
-
-            <include
-                android:id="@+id/userRowMaria"
-                layout="@layout/item_admin_user_maria"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/profile_divider" />
-
-            <include
-                android:id="@+id/userRowJohn"
-                layout="@layout/item_admin_user_john"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/profile_divider" />
-
-            <include
-                android:id="@+id/userRowChen"
-                layout="@layout/item_admin_user_chen"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="28dp"
+                android:text="Không có user phù hợp"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
