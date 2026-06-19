@@ -81,7 +81,14 @@ public class StudentCartFragment extends Fragment {
 
         btnCheckout.setOnClickListener(v -> checkout());
         orderViewModel.loadBuildings();
-        cartViewModel.loadCart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (cartViewModel != null) {
+            cartViewModel.loadCart();
+        }
     }
 
     private void setupCartList() {
