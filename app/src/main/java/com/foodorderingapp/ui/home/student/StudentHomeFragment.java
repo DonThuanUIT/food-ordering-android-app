@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.foodorderingapp.databinding.FragmentStudentHomeBinding;
-import android.widget.Toast;
 import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 
@@ -29,6 +28,7 @@ import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.FoodExploreAdapter;
 import com.foodorderingapp.viewmodel.FoodViewModel;
 import com.foodorderingapp.ui.shop.ShopDetailActivity;
+import com.foodorderingapp.utils.ToastUtils;
 
 public class StudentHomeFragment extends Fragment {
     private ShopViewModel shopViewModel;
@@ -104,7 +104,7 @@ public class StudentHomeFragment extends Fragment {
                     }
                 }
             } else {
-                Toast.makeText(getContext(), "Không tải được danh sách quán", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(getContext(), "Không tải được danh sách quán");
             }
         });
 
@@ -129,9 +129,9 @@ public class StudentHomeFragment extends Fragment {
         });
         cartViewModel.getAddResult().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Thêm vào giỏ thất bại", Toast.LENGTH_SHORT).show();
+                ToastUtils.success(getContext(), "Đã thêm vào giỏ hàng");
+            } else if (success != null) {
+                ToastUtils.error(getContext(), "Thêm vào giỏ thất bại");
             }
         });
     }

@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.ui.adapter.OrderAdapter;
+import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.OrderViewModel;
 
 public class StudentHistoryFragment extends Fragment {
@@ -66,7 +66,7 @@ public class StudentHistoryFragment extends Fragment {
         });
         orderViewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.trim().isEmpty()) {
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                ToastUtils.info(getContext(), message);
             }
         });
 
@@ -102,7 +102,7 @@ public class StudentHistoryFragment extends Fragment {
                 .setPositiveButton("Gửi", (dialog, which) -> {
                     int rating = Math.round(ratingBar.getRating());
                     if (rating <= 0) {
-                        Toast.makeText(getContext(), "Vui lòng chọn số sao", Toast.LENGTH_SHORT).show();
+                        ToastUtils.error(getContext(), "Vui lòng chọn số sao");
                         return;
                     }
                     orderViewModel.createReview(order.getId(), rating, commentInput.getText().toString().trim());

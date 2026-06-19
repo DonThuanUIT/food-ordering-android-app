@@ -9,6 +9,9 @@ public class ShopDetailResponse {
     private String name;
     private String address;
     private String description;
+    private String coverUrl;
+    private String logoUrl;
+    private Boolean isOpen;
     private List<CategoryMenu> menu;
 
     public String getId() {
@@ -25,6 +28,18 @@ public class ShopDetailResponse {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public Boolean getIsOpen() {
+        return isOpen;
     }
 
     public List<CategoryMenu> getMenu() {

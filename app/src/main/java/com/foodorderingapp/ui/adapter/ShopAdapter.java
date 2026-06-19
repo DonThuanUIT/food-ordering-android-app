@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.ShopResponse;
 
@@ -52,13 +53,25 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         holder.tvShopName.setText(nullToDefault(shop.getName(), "Chưa có tên quán"));
         holder.tvShopDescription.setText(nullToDefault(shop.getDescription(), "Chưa có mô tả"));
         holder.tvShopAddress.setText("Địa chỉ: " + nullToDefault(shop.getAddress(), "Chưa cập nhật"));
-        holder.ivShopImage.setImageResource(R.drawable.ic_store_outline);
+        String imageUrl = firstNonBlank(shop.getLogoUrl(), shop.getCoverUrl());
+        if (imageUrl == null) {
+            holder.ivShopImage.setImageResource(R.drawable.ic_store_outline);
+        } else {
+            Glide.with(holder.itemView)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_store_outline)
+                    .error(R.drawable.ic_store_outline)
+                    .into(holder.ivShopImage);
+        }
 
         String openTime = nullToDefault(shop.getOpenTime(), "--:--");
         String closeTime = nullToDefault(shop.getCloseTime(), "--:--");
         holder.tvShopTime.setText(openTime + " - " + closeTime);
 
-        if ("OPENING".equalsIgnoreCase(shop.getDisplayStatus())) {
+        boolean isOpening = shop.getIsOpen() != null
+                ? shop.getIsOpen()
+                : "OPENING".equalsIgnoreCase(shop.getDisplayStatus());
+        if (isOpening) {
             holder.tvShopStatus.setText("Đang mở");
             holder.tvShopStatus.setTextColor(Color.parseColor("#FF7A21"));
         } else {
@@ -83,6 +96,16 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             return defaultValue;
         }
         return value;
+    }
+
+    private String firstNonBlank(String first, String second) {
+        if (first != null && !first.trim().isEmpty()) {
+            return first;
+        }
+        if (second != null && !second.trim().isEmpty()) {
+            return second;
+        }
+        return null;
     }
 
     static class ShopViewHolder extends RecyclerView.ViewHolder {

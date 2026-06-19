@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.ui.adapter.ActiveOrderAdapter;
+import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.OrderViewModel;
 
 public class StudentOrdersFragment extends Fragment {
@@ -63,7 +63,7 @@ public class StudentOrdersFragment extends Fragment {
         });
         orderViewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.trim().isEmpty()) {
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                ToastUtils.info(getContext(), message);
             }
         });
 

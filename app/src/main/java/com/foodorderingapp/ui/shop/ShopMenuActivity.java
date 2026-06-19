@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -26,6 +25,7 @@ import com.foodorderingapp.model.response.ShopCartResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
 import com.foodorderingapp.ui.adapter.ShopMenuFoodAdapter;
 import com.foodorderingapp.ui.adapter.ShopMenuTabAdapter;
+import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.CartViewModel;
 import com.foodorderingapp.viewmodel.ShopViewModel;
 
@@ -64,7 +64,7 @@ public class ShopMenuActivity extends AppCompatActivity {
 
         shopId = getIntent().getStringExtra("SHOP_ID");
         if (shopId == null || shopId.trim().isEmpty()) {
-            Toast.makeText(this, "Không tìm thấy quán", Toast.LENGTH_SHORT).show();
+            ToastUtils.error(this, "Không tìm thấy quán");
             finish();
             return;
         }
@@ -187,10 +187,10 @@ public class ShopMenuActivity extends AppCompatActivity {
             }
 
             if (success) {
-                Toast.makeText(this, "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+                ToastUtils.success(this, "Đã thêm vào giỏ hàng");
                 cartViewModel.loadCart();
             } else {
-                Toast.makeText(this, "Không thêm được món", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(this, "Không thêm được món");
             }
         });
 

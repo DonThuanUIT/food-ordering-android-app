@@ -11,27 +11,28 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="136dp"
+        android:layout_height="112dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="18dp"
-        android:paddingBottom="16dp">
+        android:paddingStart="12dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="12dp">
 
         <ImageView
             android:id="@+id/ivMenuFoodImage"
-            android:layout_width="122dp"
-            android:layout_height="104dp"
+            android:layout_width="78dp"
+            android:layout_height="78dp"
             android:background="#F3F4F6"
             android:scaleType="centerCrop"
             android:src="@drawable/logo_food" />
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="24dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:layout_weight="1"
+            android:gravity="center_vertical"
             android:orientation="vertical">
 
             <TextView
@@ -42,42 +43,44 @@
                 android:maxLines="1"
                 android:text="Cơm Tấm Sườn Nướng"
                 android:textColor="#05070B"
-                android:textSize="21sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvMenuFoodDescription"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="8dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:ellipsize="end"
-                android:lineSpacingExtra="2dp"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:text="Cơm tấm dẻo, sườn nướng mỡ hành đậm vị."
                 android:textColor="#5B3A2E"
-                android:textSize="17sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tvMenuFoodPrice"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="35.000đ"
                 android:textColor="#05070B"
-                android:textSize="22sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnAddFood"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="14dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
             android:background="@drawable/bg_shop_menu_plus"
             android:clickable="true"
             android:contentDescription="Thêm món"
             android:focusable="true"
-            android:padding="14dp"
+            android:padding="12dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_plus_white"
             app:tint="@android:color/white" />

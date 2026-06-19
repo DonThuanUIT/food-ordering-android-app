@@ -62,6 +62,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         holder.tvCreatedAt.setText(nullToDefault(order.getCreatedAt(), ""));
         holder.tvAddress.setText(buildAddress(order));
         holder.tvDetails.setText(buildDetails(order.getDetails()));
+        bindDiscount(holder.tvDiscount, order);
 
         String cancelReason = order.getCancelReason();
         if (cancelReason != null && !cancelReason.trim().isEmpty()) {
@@ -120,6 +121,17 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         return building + " - " + dropOff;
     }
 
+    private void bindDiscount(TextView view, OrderResponse order) {
+        if (order.getDiscountAmount() <= 0) {
+            view.setVisibility(View.GONE);
+            return;
+        }
+        String code = order.getVoucherCode();
+        String prefix = code == null || code.trim().isEmpty() ? "Giam gia" : "Voucher " + code;
+        view.setVisibility(View.VISIBLE);
+        view.setText(prefix + ": -" + formatPrice(order.getDiscountAmount()));
+    }
+
     private String formatStatus(String status) {
         if (status == null) {
             return "Không rõ";
@@ -164,6 +176,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         TextView tvAddress;
         TextView tvDetails;
         TextView tvCancelReason;
+        TextView tvDiscount;
         MaterialButton btnReview;
 
         OrderVH(@NonNull View itemView) {
@@ -175,6 +188,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
             tvAddress = itemView.findViewById(R.id.tvOrderAddress);
             tvDetails = itemView.findViewById(R.id.tvOrderDetails);
             tvCancelReason = itemView.findViewById(R.id.tvOrderCancelReason);
+            tvDiscount = itemView.findViewById(R.id.tvOrderDiscount);
             btnReview = itemView.findViewById(R.id.btnReviewOrder);
         }
     }

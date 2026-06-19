@@ -4,10 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="18dp"
-    android:layout_marginVertical="12dp"
-    app:cardCornerRadius="22dp"
-    app:cardElevation="4dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="10dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="3dp"
     app:cardBackgroundColor="@android:color/white">
 
     <LinearLayout
@@ -17,8 +17,8 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="210dp"
-            android:background="@android:color/white">
+            android:layout_height="152dp"
+            android:background="#FFF4E6">
 
             <ImageView
                 android:id="@+id/ivFoodImage"
@@ -32,27 +32,29 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="20dp">
+            android:minHeight="104dp"
+            android:paddingStart="16dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="14dp">
 
             <LinearLayout
                 android:id="@+id/layoutFoodInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/btnAddToCart"
-                android:layout_centerVertical="true"
-                android:orientation="vertical"
-                android:paddingEnd="12dp">
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="0dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvFoodName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:text="Bánh Mì Thịt Nướng"
-                    android:textColor="#111111"
-                    android:textSize="21sp"
+                    android:textColor="#1A1D26"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -60,34 +62,46 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="Cô Ba Bakery"
-                    android:textColor="#6D4C41"
-                    android:textSize="15sp" />
+                    android:textColor="#55607A"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@id/layoutFoodInfo"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tvFoodPrice"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
                     android:text="25.000đ"
-                    android:textColor="#BF360C"
-                    android:textSize="22sp"
+                    android:textColor="#FF7A21"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
+                <ImageButton
+                    android:id="@+id/btnAddToCart"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/home_bg_button_orange"
+                    android:contentDescription="Thêm vào giỏ"
+                    android:padding="13dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_plus_white"
+                    app:tint="@android:color/white" />
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/btnAddToCart"
-                android:layout_width="58dp"
-                android:layout_height="58dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/home_bg_button_orange"
-                android:contentDescription="Thêm vào giỏ"
-                android:padding="16dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_plus_white"
-                app:tint="@android:color/white" />
 
         </RelativeLayout>
 

@@ -55,6 +55,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         holder.tvOrderNumber.setText("Đơn hàng #" + shortOrderId(order.getId()));
         holder.tvOrderLocation.setText(formatLocation(order.getBuilding(), order.getDropOff()));
         holder.tvOrderSummaryItems.setText(formatSummaryItems(order.getDetails()));
+        bindDiscount(holder.tvOrderDiscount, order);
         holder.tvOrderTotal.setText(formatPrice(order.getTotalPrice()));
     }
 
@@ -138,6 +139,17 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         return builder.toString();
     }
 
+    private void bindDiscount(TextView view, OrderResponse order) {
+        if (order.getDiscountAmount() <= 0) {
+            view.setVisibility(View.GONE);
+            return;
+        }
+        String code = order.getVoucherCode();
+        String prefix = code == null || code.trim().isEmpty() ? "Giam gia" : "Voucher " + code;
+        view.setVisibility(View.VISIBLE);
+        view.setText(prefix + ": -" + formatPrice(order.getDiscountAmount()));
+    }
+
     private String formatLocation(String building, String dropOff) {
         String safeBuilding = nullToDefault(building, "Chưa có tòa nhà");
         String safeDropOff = nullToDefault(dropOff, "Chưa có điểm nhận");
@@ -181,6 +193,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         TextView tvOrderNumber;
         TextView tvOrderLocation;
         TextView tvOrderSummaryItems;
+        TextView tvOrderDiscount;
         TextView tvOrderTotal;
 
         OrderViewHolder(@NonNull View itemView) {
@@ -198,6 +211,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
             tvOrderNumber = itemView.findViewById(R.id.tvOrderNumber);
             tvOrderLocation = itemView.findViewById(R.id.tvOrderLocation);
             tvOrderSummaryItems = itemView.findViewById(R.id.tvOrderSummaryItems);
+            tvOrderDiscount = itemView.findViewById(R.id.tvOrderDiscount);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
         }
     }

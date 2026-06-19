@@ -12,15 +12,20 @@ import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.AuthResponse;
+import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
 import com.foodorderingapp.model.response.FoodResponse;
+import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
+import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
 import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;
+import com.foodorderingapp.model.response.UserProfileResponse;
+import com.foodorderingapp.model.response.VoucherResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -135,11 +140,26 @@ public interface ApiService {
     @GET("shops/{shopId}/detail-menu")
     Call<ShopDetailResponse> getShopDetail(@Path("shopId") String shopId);
 
+    @GET("shops/{shopId}/vouchers")
+    Call<List<VoucherResponse>> getActiveVouchers(@Path("shopId") String shopId);
+
     @GET("foods/explore")
     Call<PageResponse<FoodExploreResponse>> getExploreFoods(
             @Query("page") int page,
             @Query("size") int size
     );
+
+    @GET("buildings")
+    Call<List<BuildingResponse>> getBuildings();
+
+    @GET("buildings/{buildingId}/drop-off-points")
+    Call<List<DropOffPointResponse>> getDropOffPoints(@Path("buildingId") String buildingId);
+
+    @GET("users/me")
+    Call<UserProfileResponse> getMyProfile();
+
+    @GET("users/me/spending-summary")
+    Call<SpendingSummaryResponse> getSpendingSummary();
 
     @GET("cart")
     Call<CartResponse> getCart();

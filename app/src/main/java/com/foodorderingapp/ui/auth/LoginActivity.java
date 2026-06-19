@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.foodorderingapp.MainActivity;
 import com.foodorderingapp.R;
+import com.foodorderingapp.utils.ToastUtils;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LOGIN_DEBUG";
@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
 
         loginViewModel.getErrorMessage().observe(this, message -> {
             if (message != null) {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                ToastUtils.error(this, message);
                 Log.e(TAG, "Login Error: " + message);
             }
         });
@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "role=" + response.getRole());
                 Log.d(TAG, "token=" + (response.getAccessToken() != null ? "FOUND" : "MISSING"));
 
-                Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                ToastUtils.success(this, "Đăng nhập thành công!");
 
                 String userRole = response.getRole();
 

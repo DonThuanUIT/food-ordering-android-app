@@ -6,17 +6,26 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.MainActivity;
 import com.foodorderingapp.R;
+import com.foodorderingapp.model.response.SpendingSummaryResponse;
+import com.foodorderingapp.model.response.UserProfileResponse;
 import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.utils.TokenManager;
+import com.foodorderingapp.utils.ToastUtils;
+import com.foodorderingapp.viewmodel.StudentProfileViewModel;
+
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class StudentProfileFragment extends Fragment {
 
@@ -33,6 +42,7 @@ public class StudentProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         bindSessionInfo(view);
         setupActions(view);
+        loadRemoteProfile(view);
     }
 
     private void bindSessionInfo(View view) {
@@ -47,9 +57,59 @@ public class StudentProfileFragment extends Fragment {
         String fullName = tokenManager.getFullName();
 
         tvUserName.setText(isBlank(fullName) ? defaultDisplayName(role) : fullName);
-        tvUserEmail.setText(isBlank(phone) ? "Chưa có số điện thoại" : phone);
-        tvUserTag.setText("Vai trò: " + formatRole(role));
-        tvMonthlySpending.setText("0đ");
+        tvUserEmail.setText(isBlank(phone) ? "Chua co so dien thoai" : phone);
+        tvUserTag.setText("Vai tro: " + formatRole(role));
+        tvMonthlySpending.setText("0d");
+    }
+
+    private void loadRemoteProfile(View view) {
+        StudentProfileViewModel viewModel = new ViewModelProvider(this).get(StudentProfileViewModel.class);
+        viewModel.getProfile().observe(getViewLifecycleOwner(), profile -> {
+            if (profile != null) {
+                bindProfile(view, profile);
+            }
+        });
+        viewModel.getSpendingSummary().observe(getViewLifecycleOwner(), summary -> {
+            if (summary != null) {
+                bindSpending(view, summary);
+            }
+        });
+        viewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.trim().isEmpty()) {
+                ToastUtils.info(getContext(), message);
+            }
+        });
+
+        viewModel.loadProfile();
+        viewModel.loadSpendingSummary();
+    }
+
+    private void bindProfile(View view, UserProfileResponse profile) {
+        TextView tvUserName = view.findViewById(R.id.tvUserName);
+        TextView tvUserEmail = view.findViewById(R.id.tvUserEmail);
+        TextView tvUserTag = view.findViewById(R.id.tvUserTag);
+        ImageView ivAvatar = view.findViewById(R.id.ivAvatar);
+
+        tvUserName.setText(isBlank(profile.getFullName()) ? "Sinh vien UniEats" : profile.getFullName());
+
+        String emailOrPhone = !isBlank(profile.getEmail()) ? profile.getEmail() : profile.getPhone();
+        tvUserEmail.setText(isBlank(emailOrPhone) ? "Chua co thong tin lien he" : emailOrPhone);
+
+        String building = isBlank(profile.getBuildingName()) ? "Chua chon toa nha" : profile.getBuildingName();
+        tvUserTag.setText(formatRole(profile.getRole()) + " - " + building);
+
+        if (!isBlank(profile.getAvatarUrl()) && getContext() != null) {
+            Glide.with(this)
+                    .load(profile.getAvatarUrl())
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .into(ivAvatar);
+        }
+    }
+
+    private void bindSpending(View view, SpendingSummaryResponse summary) {
+        TextView tvMonthlySpending = view.findViewById(R.id.tvMonthlySpending);
+        tvMonthlySpending.setText(formatPrice(summary.getTotalSpent()));
     }
 
     private void setupActions(View view) {
@@ -61,7 +121,7 @@ public class StudentProfileFragment extends Fragment {
     }
 
     private void showPaymentInfo() {
-        Toast.makeText(getContext(), "Thanh toán khi nhận hàng", Toast.LENGTH_SHORT).show();
+        ToastUtils.info(getContext(), "Thanh toan khi nhan hang");
     }
 
     private void showSupportInfo() {
@@ -70,14 +130,14 @@ public class StudentProfileFragment extends Fragment {
         }
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Hỗ trợ")
-                .setMessage("Vui lòng liên hệ quầy hỗ trợ UniEats nếu đơn hàng hoặc tài khoản gặp vấn đề.")
-                .setPositiveButton("Đã hiểu", null)
+                .setTitle("Ho tro")
+                .setMessage("Vui long lien he quay ho tro UniEats neu don hang hoac tai khoan gap van de.")
+                .setPositiveButton("Da hieu", null)
                 .show();
     }
 
     private void showAvatarComingSoon() {
-        Toast.makeText(getContext(), "Chỉnh sửa ảnh đại diện chưa được hỗ trợ", Toast.LENGTH_SHORT).show();
+        ToastUtils.info(getContext(), "Chinh sua anh dai dien chua duoc ho tro");
     }
 
     private void openHistoryTab() {
@@ -94,10 +154,10 @@ public class StudentProfileFragment extends Fragment {
         }
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Đăng xuất")
-                .setMessage("Bạn muốn đăng xuất khỏi tài khoản này?")
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Đăng xuất", (dialog, which) -> logout())
+                .setTitle("Dang xuat")
+                .setMessage("Ban muon dang xuat khoi tai khoan nay?")
+                .setNegativeButton("Huy", null)
+                .setPositiveButton("Dang xuat", (dialog, which) -> logout())
                 .show();
     }
 
@@ -110,19 +170,24 @@ public class StudentProfileFragment extends Fragment {
 
     private String formatRole(String role) {
         if ("STUDENT".equalsIgnoreCase(role)) {
-            return "Sinh viên";
+            return "Sinh vien";
         }
         if (isBlank(role)) {
-            return "Sinh viên";
+            return "Sinh vien";
         }
         return role;
     }
 
     private String defaultDisplayName(String role) {
-        return "STUDENT".equalsIgnoreCase(role) ? "Sinh viên UniEats" : "Người dùng UniEats";
+        return "STUDENT".equalsIgnoreCase(role) ? "Sinh vien UniEats" : "Nguoi dung UniEats";
     }
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private String formatPrice(double price) {
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return formatter.format(price) + "d";
     }
 }

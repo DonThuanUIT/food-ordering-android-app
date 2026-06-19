@@ -11,12 +11,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.foodorderingapp.R;
+import com.foodorderingapp.utils.ToastUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -103,7 +103,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (msg != null) {
                 btnRegister.setEnabled(true);
                 btnRegister.setText("Đăng ký");
-                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                ToastUtils.info(this, msg);
             }
         });
     }
