@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_admin_overview"
-        android:icon="@drawable/ic_admin_overview"
+        android:icon="@drawable/ic_nav_overview"
         android:title="Overview" />
     <item
         android:id="@+id/nav_admin_approvals"
-        android:icon="@drawable/ic_admin_approvals"
+        android:icon="@drawable/ic_nav_approvals"
         android:title="Approvals" />
     <item
         android:id="@+id/nav_admin_users"
-        android:icon="@drawable/ic_admin_users"
+        android:icon="@drawable/ic_nav_users"
         android:title="Users" />
 </menu>

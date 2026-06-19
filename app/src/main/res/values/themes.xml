@@ -88,4 +88,18 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">12dp</item>
     </style>
+
+    <style name="TextAppearance_App_BottomNavigation_Active">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance_App_BottomNavigation_Inactive">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textSize">10.5sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
 </resources>
