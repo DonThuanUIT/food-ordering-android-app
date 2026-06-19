@@ -14,6 +14,8 @@ public class ShopResponse {
     private String coverUrl;
     private String logoUrl;
     private Boolean isOpen;
+    private String email;
+    private String phone;
 
     @SerializedName(value = "isActive", alternate = {"active"})
     private Boolean isActive;
@@ -93,6 +95,14 @@ public class ShopResponse {
 
     public Boolean getIsOpen() {
         return isOpen;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public Boolean getIsActive() {

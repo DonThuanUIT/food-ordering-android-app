@@ -11,6 +11,7 @@ import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
+import com.foodorderingapp.model.response.AdminUserResponse;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
@@ -193,4 +194,31 @@ public interface ApiService {
             @Path("orderId") String orderId,
             @Body ReviewRequest request
     );
+
+    // --- Admin ---
+    @GET("admin/shops")
+    Call<PageResponse<ShopResponse>> getAdminShops(
+            @Query("status") String status,
+            @Query("page") int page,
+            @Query("size") int size
+    );
+
+    @PATCH("admin/shops/{shopId}/status")
+    Call<ShopResponse> updateAdminShopStatus(
+            @Path("shopId") String shopId,
+            @Body Map<String, String> body
+    );
+
+    @GET("admin/users")
+    Call<PageResponse<AdminUserResponse>> getAdminUsers(
+            @Query("search") String search,
+            @Query("role") String role,
+            @Query("page") int page,
+            @Query("size") int size,
+            @Query("sortBy") String sortBy,
+            @Query("direction") String direction
+    );
+
+    @PATCH("admin/users/{userId}/lock")
+    Call<Void> toggleAdminUserLock(@Path("userId") String userId);
 }

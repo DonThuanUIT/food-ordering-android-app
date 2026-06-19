@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tổng Quan"
+                android:text="Tổng quan"
                 android:textColor="@color/black"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -75,10 +75,11 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvAdminUsersValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="1,240"
+                        android:text="0"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold" />
@@ -114,10 +115,11 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvAdminShopsValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="42"
+                        android:text="0"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold" />
@@ -153,10 +155,11 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvAdminPendingValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="5"
+                        android:text="0"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold" />
@@ -179,23 +182,24 @@
                         <ImageView
                             android:layout_width="22dp"
                             android:layout_height="22dp"
-                            android:src="@drawable/ic_admin_revenue"
+                            android:src="@drawable/ic_admin_check"
                             app:tint="#B24C08" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
-                            android:text="Doanh thu"
+                            android:text="Đã duyệt"
                             android:textColor="#5B3728"
                             android:textSize="15sp" />
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvAdminRevenueValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="45Mđ"
+                        android:text="0"
                         android:textColor="@color/black"
                         android:textSize="28sp"
                         android:textStyle="bold" />
@@ -213,7 +217,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Đơn hàng hằng ngày"
+                    android:text="Trạng thái cửa hàng"
                     android:textColor="@color/black"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -224,21 +228,19 @@
                     android:background="@drawable/bg_admin_metric_card"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="7dp"
-                    android:text="30 NGÀY QUA"
+                    android:text="HIỆN CÓ"
                     android:textColor="#5B3728"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <ImageView
+            <com.foodorderingapp.ui.widget.AdminOrderChartView
+                android:id="@+id/adminDailyChart"
                 android:layout_width="match_parent"
                 android:layout_height="190dp"
                 android:layout_marginTop="16dp"
-                android:adjustViewBounds="true"
                 android:background="@drawable/bg_admin_metric_card"
-                android:padding="10dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/placeholder_admin_chart" />
+                android:padding="14dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
