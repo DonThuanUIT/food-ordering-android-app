@@ -42,7 +42,14 @@ public class StudentRepository {
 
     public void getSpendingSummary(MutableLiveData<SpendingSummaryResponse> summary,
                                    MutableLiveData<String> message) {
-        apiService.getSpendingSummary().enqueue(new Callback<SpendingSummaryResponse>() {
+        getSpendingSummary(null, null, summary, message);
+    }
+
+    public void getSpendingSummary(String from,
+                                   String to,
+                                   MutableLiveData<SpendingSummaryResponse> summary,
+                                   MutableLiveData<String> message) {
+        apiService.getSpendingSummary(from, to).enqueue(new Callback<SpendingSummaryResponse>() {
             @Override
             public void onResponse(Call<SpendingSummaryResponse> call,
                                    Response<SpendingSummaryResponse> response) {

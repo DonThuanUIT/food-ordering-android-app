@@ -48,6 +48,10 @@ public class StudentProfileViewModel extends ViewModel {
         repository.getSpendingSummary(spendingSummary, message);
     }
 
+    public void loadSpendingSummary(String from, String to) {
+        repository.getSpendingSummary(from, to, spendingSummary, message);
+    }
+
     public void loadBuildings() {
         repository.getBuildings(buildings, message);
     }

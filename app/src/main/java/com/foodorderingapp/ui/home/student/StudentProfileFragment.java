@@ -1,7 +1,10 @@
 package com.foodorderingapp.ui.home.student;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.content.res.ColorStateList;
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -30,17 +34,27 @@ import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.StudentProfileViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
 
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class StudentProfileFragment extends Fragment {
     private final List<BuildingResponse> buildingOptions = new ArrayList<>();
+    private final DateTimeFormatter apiDateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+    private final DateTimeFormatter displayDateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final DateTimeFormatter shortDateFormatter = DateTimeFormatter.ofPattern("dd/MM");
     private StudentProfileViewModel viewModel;
     private UserProfileResponse currentProfile;
     private BottomSheetDialog editProfileDialog;
+    private LocalDate spendingFrom;
+    private LocalDate spendingTo;
 
     public StudentProfileFragment() {}
 
@@ -55,6 +69,7 @@ public class StudentProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this).get(StudentProfileViewModel.class);
         bindSessionInfo(view);
+        setupSpendingRange(view);
         setupActions(view);
         loadRemoteProfile(view);
     }
@@ -121,7 +136,7 @@ public class StudentProfileFragment extends Fragment {
         });
 
         viewModel.loadProfile();
-        viewModel.loadSpendingSummary();
+        loadSpendingForSelectedRange();
         viewModel.loadBuildings();
     }
 
@@ -151,15 +166,275 @@ public class StudentProfileFragment extends Fragment {
     private void bindSpending(View view, SpendingSummaryResponse summary) {
         TextView tvMonthlySpending = view.findViewById(R.id.tvMonthlySpending);
         tvMonthlySpending.setText(formatPrice(summary.getTotalSpent()));
+        bindSpendingSummaryStats(view, summary);
+        bindSpendingChart(view, summary.getBreakdown());
+        bindSpendingBreakdown(view, summary.getBreakdown());
     }
 
     private void setupActions(View view) {
+        view.findViewById(R.id.btnSpendingThisWeek).setOnClickListener(v -> {
+            setCurrentWeekRange();
+            updateSpendingRangeControls(view);
+            loadSpendingForSelectedRange();
+        });
+        view.findViewById(R.id.btnSpendingThisMonth).setOnClickListener(v -> {
+            setCurrentMonthRange();
+            updateSpendingRangeControls(view);
+            loadSpendingForSelectedRange();
+        });
+        view.findViewById(R.id.btnSpendingFrom).setOnClickListener(v -> pickSpendingDate(true, view));
+        view.findViewById(R.id.btnSpendingTo).setOnClickListener(v -> pickSpendingDate(false, view));
+        view.findViewById(R.id.btnSpendingRefresh).setOnClickListener(v -> {
+            updateSpendingRangeControls(view);
+            loadSpendingForSelectedRange();
+        });
         view.findViewById(R.id.rowEditProfile).setOnClickListener(v -> showEditProfileSheet());
         view.findViewById(R.id.rowPaymentMethod).setOnClickListener(v -> showPaymentInfo());
         view.findViewById(R.id.rowMyReviews).setOnClickListener(v -> openHistoryTab());
         view.findViewById(R.id.rowSupport).setOnClickListener(v -> showSupportInfo());
         view.findViewById(R.id.btnEditAvatar).setOnClickListener(v -> showEditProfileSheet());
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> confirmLogout());
+    }
+
+    private void setupSpendingRange(View view) {
+        setCurrentMonthRange();
+        updateSpendingRangeControls(view);
+    }
+
+    private void setCurrentMonthRange() {
+        YearMonth currentMonth = YearMonth.now();
+        spendingFrom = currentMonth.atDay(1);
+        spendingTo = LocalDate.now();
+    }
+
+    private void setCurrentWeekRange() {
+        LocalDate today = LocalDate.now();
+        spendingFrom = today.minusDays(today.getDayOfWeek().getValue() - 1L);
+        spendingTo = today;
+    }
+
+    private void updateQuickRangeState(View view) {
+        MaterialButton weekButton = view.findViewById(R.id.btnSpendingThisWeek);
+        MaterialButton monthButton = view.findViewById(R.id.btnSpendingThisMonth);
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1L);
+        LocalDate monthStart = YearMonth.now().atDay(1);
+
+        setQuickButtonState(weekButton, matchesSelectedRange(weekStart, today));
+        setQuickButtonState(monthButton, matchesSelectedRange(monthStart, today));
+    }
+
+    private void setQuickButtonState(MaterialButton button, boolean selected) {
+        int backgroundColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.white);
+        int strokeColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.profile_divider);
+        int textColor = requireContext().getColor(selected ? R.color.white : R.color.text_primary);
+
+        button.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
+        button.setStrokeColor(ColorStateList.valueOf(strokeColor));
+        button.setStrokeWidth(dp(selected ? 0 : 1));
+        button.setTextColor(textColor);
+    }
+
+    private boolean matchesSelectedRange(LocalDate from, LocalDate to) {
+        return spendingFrom != null
+                && spendingTo != null
+                && spendingFrom.equals(from)
+                && spendingTo.equals(to);
+    }
+
+    private void pickSpendingDate(boolean pickFrom, View rootView) {
+        LocalDate initialDate = pickFrom ? spendingFrom : spendingTo;
+        if (initialDate == null) {
+            initialDate = LocalDate.now();
+        }
+
+        new DatePickerDialog(
+                requireContext(),
+                (picker, year, month, dayOfMonth) -> {
+                    LocalDate selectedDate = LocalDate.of(year, month + 1, dayOfMonth);
+                    if (pickFrom) {
+                        spendingFrom = selectedDate;
+                        if (spendingTo != null && spendingFrom.isAfter(spendingTo)) {
+                            spendingTo = spendingFrom;
+                        }
+                    } else {
+                        spendingTo = selectedDate;
+                        if (spendingFrom != null && spendingTo.isBefore(spendingFrom)) {
+                            spendingFrom = spendingTo;
+                        }
+                    }
+                    updateSpendingRangeControls(rootView);
+                    loadSpendingForSelectedRange();
+                },
+                initialDate.getYear(),
+                initialDate.getMonthValue() - 1,
+                initialDate.getDayOfMonth()
+        ).show();
+    }
+
+    private void updateSpendingRangeControls(View view) {
+        TextView tvRange = view.findViewById(R.id.tvSpendingRange);
+        TextView btnFrom = view.findViewById(R.id.btnSpendingFrom);
+        TextView btnTo = view.findViewById(R.id.btnSpendingTo);
+        TextView tvBreakdownTitle = view.findViewById(R.id.tvSpendingBreakdownTitle);
+
+        String fromText = spendingFrom == null ? "--/--/----" : spendingFrom.format(displayDateFormatter);
+        String toText = spendingTo == null ? "--/--/----" : spendingTo.format(displayDateFormatter);
+        tvRange.setText("Từ " + fromText + " đến " + toText);
+        btnFrom.setText(fromText);
+        btnTo.setText(toText);
+
+        if (tvBreakdownTitle != null) {
+            tvBreakdownTitle.setText(isSelectedRangeWithinOneWeek()
+                    ? "Chi tiết tuần đã chọn"
+                    : "Chi tiết theo tuần");
+        }
+        updateQuickRangeState(view);
+    }
+
+    private void loadSpendingForSelectedRange() {
+        if (viewModel == null || spendingFrom == null || spendingTo == null) {
+            return;
+        }
+        viewModel.loadSpendingSummary(
+                spendingFrom.format(apiDateFormatter),
+                spendingTo.format(apiDateFormatter)
+        );
+    }
+
+    private void bindSpendingSummaryStats(View view, SpendingSummaryResponse summary) {
+        TextView tvPeriodCount = view.findViewById(R.id.tvSpendingPeriodCount);
+        TextView tvAverage = view.findViewById(R.id.tvSpendingAverage);
+        TextView tvPeak = view.findViewById(R.id.tvSpendingPeak);
+
+        List<SpendingSummaryResponse.SpendingBreakdown> breakdown = summary.getBreakdown();
+        int count = breakdown == null ? 0 : breakdown.size();
+        double peak = 0;
+        if (breakdown != null) {
+            for (SpendingSummaryResponse.SpendingBreakdown item : breakdown) {
+                peak = Math.max(peak, item.getTotal());
+            }
+        }
+
+        double average = count == 0 ? 0 : summary.getTotalSpent() / count;
+        tvPeriodCount.setText(String.valueOf(count));
+        tvAverage.setText(formatCompactPrice(average));
+        tvPeak.setText(formatCompactPrice(peak));
+    }
+
+    private void bindSpendingChart(View view, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
+        LinearLayout chart = view.findViewById(R.id.llSpendingChart);
+        chart.removeAllViews();
+
+        int dataSize = breakdown == null ? 0 : breakdown.size();
+        int visibleBars = dataSize == 0 ? 4 : Math.min(6, dataSize);
+        int startIndex = Math.max(0, dataSize - visibleBars);
+        double maxValue = 0;
+        for (int i = startIndex; i < dataSize; i++) {
+            maxValue = Math.max(maxValue, breakdown.get(i).getTotal());
+        }
+
+        for (int i = 0; i < visibleBars; i++) {
+            int sourceIndex = startIndex + i;
+            boolean hasData = sourceIndex < dataSize;
+            double value = hasData ? breakdown.get(sourceIndex).getTotal() : 0;
+            int height = maxValue <= 0 ? 16 : (int) Math.max(16, Math.round(70 * (value / maxValue)));
+
+            LinearLayout column = new LinearLayout(requireContext());
+            column.setGravity(android.view.Gravity.CENTER_HORIZONTAL | android.view.Gravity.BOTTOM);
+            column.setOrientation(LinearLayout.VERTICAL);
+
+            View bar = new View(requireContext());
+            bar.setBackground(roundedBackground(requireContext().getColor(
+                    value > 0 ? R.color.profile_chart_bar_main : R.color.profile_chart_bar_empty
+            ), 8));
+
+            TextView label = new TextView(requireContext());
+            label.setText(hasData ? shortPeriod(breakdown.get(sourceIndex).getPeriod(), i + 1) : "--");
+            label.setTextColor(requireContext().getColor(value > 0 ? R.color.text_primary : R.color.text_gray));
+            label.setTextSize(11);
+            label.setGravity(android.view.Gravity.CENTER);
+            label.setMaxLines(1);
+
+            LinearLayout.LayoutParams barParams = new LinearLayout.LayoutParams(dp(28), dp(height));
+            column.addView(bar, barParams);
+
+            LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            labelParams.topMargin = dp(8);
+            column.addView(label, labelParams);
+
+            chart.addView(column, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        }
+    }
+
+    private void bindSpendingBreakdown(View view, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
+        LinearLayout container = view.findViewById(R.id.llSpendingBreakdown);
+        container.removeAllViews();
+
+        if (breakdown == null || breakdown.isEmpty()) {
+            TextView empty = new TextView(requireContext());
+            empty.setText("Chưa có chi tiêu trong khoảng này");
+            empty.setTextColor(requireContext().getColor(R.color.text_secondary));
+            empty.setTextSize(13);
+            empty.setPadding(0, dp(8), 0, dp(8));
+            container.addView(empty);
+            return;
+        }
+
+        double maxValue = 0;
+        for (SpendingSummaryResponse.SpendingBreakdown item : breakdown) {
+            maxValue = Math.max(maxValue, item.getTotal());
+        }
+
+        for (SpendingSummaryResponse.SpendingBreakdown item : breakdown) {
+            LinearLayout itemContainer = new LinearLayout(requireContext());
+            itemContainer.setOrientation(LinearLayout.VERTICAL);
+            itemContainer.setPadding(0, dp(9), 0, dp(9));
+
+            LinearLayout row = new LinearLayout(requireContext());
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+            TextView period = new TextView(requireContext());
+            period.setText(formatPeriod(item.getPeriod()));
+            period.setTextColor(requireContext().getColor(R.color.text_secondary));
+            period.setTextSize(13);
+
+            TextView total = new TextView(requireContext());
+            total.setText(formatPrice(item.getTotal()));
+            total.setTextColor(requireContext().getColor(R.color.text_primary));
+            total.setTextSize(13);
+            total.setTypeface(total.getTypeface(), android.graphics.Typeface.BOLD);
+            total.setGravity(android.view.Gravity.END);
+
+            row.addView(period, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+            row.addView(total, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            itemContainer.addView(row);
+
+            LinearLayout track = new LinearLayout(requireContext());
+            track.setOrientation(LinearLayout.HORIZONTAL);
+            track.setBackground(roundedBackground(requireContext().getColor(R.color.profile_chart_bar_empty), 8));
+
+            float percent = maxValue <= 0 ? 0f : (float) (item.getTotal() / maxValue);
+            if (percent > 0f) {
+                View fill = new View(requireContext());
+                fill.setBackground(roundedBackground(requireContext().getColor(R.color.profile_chart_bar_main), 8));
+                track.addView(fill, new LinearLayout.LayoutParams(0, dp(8), Math.max(0.08f, percent)));
+            }
+            View spacer = new View(requireContext());
+            track.addView(spacer, new LinearLayout.LayoutParams(0, dp(8), Math.max(0.001f, 1f - percent)));
+
+            LinearLayout.LayoutParams trackParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    dp(8)
+            );
+            trackParams.topMargin = dp(8);
+            itemContainer.addView(track, trackParams);
+            container.addView(itemContainer);
+        }
     }
 
     private void showPaymentInfo() {
@@ -331,6 +606,95 @@ public class StudentProfileFragment extends Fragment {
 
     private String nonNull(String value) {
         return value == null ? "" : value;
+    }
+
+    private String shortPeriod(String period, int fallbackIndex) {
+        LocalDate[] dates = parsePeriod(period);
+        if (dates == null) {
+            return "K" + fallbackIndex;
+        }
+        return clampPeriodToSelectedRange(dates)[0].format(shortDateFormatter);
+    }
+
+    private String formatPeriod(String period) {
+        LocalDate[] dates = parsePeriod(period);
+        if (dates == null) {
+            return isBlank(period) ? "Không rõ thời gian" : period;
+        }
+        LocalDate[] clippedDates = clampPeriodToSelectedRange(dates);
+        return "Tuần " + clippedDates[0].format(displayDateFormatter)
+                + " - " + clippedDates[1].format(displayDateFormatter);
+    }
+
+    private LocalDate[] clampPeriodToSelectedRange(LocalDate[] dates) {
+        LocalDate start = dates[0];
+        LocalDate end = dates[1];
+        if (spendingFrom != null && start.isBefore(spendingFrom)) {
+            start = spendingFrom;
+        }
+        if (spendingTo != null && end.isAfter(spendingTo)) {
+            end = spendingTo;
+        }
+        if (start.isAfter(end)) {
+            return dates;
+        }
+        return new LocalDate[]{start, end};
+    }
+
+    private boolean isSelectedRangeWithinOneWeek() {
+        if (spendingFrom == null || spendingTo == null) {
+            return false;
+        }
+        return spendingTo.toEpochDay() - spendingFrom.toEpochDay() < 7;
+    }
+
+    private LocalDate[] parsePeriod(String period) {
+        if (isBlank(period) || !period.contains(" - ")) {
+            return null;
+        }
+        String[] parts = period.split(" - ");
+        if (parts.length != 2) {
+            return null;
+        }
+        try {
+            return new LocalDate[]{
+                    LocalDate.parse(parts[0].trim(), apiDateFormatter),
+                    LocalDate.parse(parts[1].trim(), apiDateFormatter)
+            };
+        } catch (DateTimeParseException ignored) {
+            return null;
+        }
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private GradientDrawable roundedBackground(int color, int radiusDp) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(color);
+        drawable.setCornerRadius(dp(radiusDp));
+        return drawable;
+    }
+
+    private String formatCompactPrice(double price) {
+        if (price >= 1_000_000_000D) {
+            return formatOneDecimal(price / 1_000_000_000D) + "Bđ";
+        }
+        if (price >= 1_000_000D) {
+            return formatOneDecimal(price / 1_000_000D) + "Mđ";
+        }
+        if (price >= 1_000D) {
+            return formatOneDecimal(price / 1_000D) + "Kđ";
+        }
+        return formatPrice(price);
+    }
+
+    private String formatOneDecimal(double value) {
+        if (value == Math.rint(value)) {
+            return String.valueOf((long) value);
+        }
+        return String.format(Locale.US, "%.1f", value);
     }
 
     private String formatPrice(double price) {

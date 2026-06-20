@@ -164,7 +164,10 @@ public interface ApiService {
     Call<UserProfileResponse> updateMyProfile(@Body UpdateProfileRequest request);
 
     @GET("users/me/spending-summary")
-    Call<SpendingSummaryResponse> getSpendingSummary();
+    Call<SpendingSummaryResponse> getSpendingSummary(
+            @Query("from") String from,
+            @Query("to") String to
+    );
 
     @GET("cart")
     Call<CartResponse> getCart();
