@@ -8,6 +8,7 @@ import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.ReviewRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
+import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
@@ -158,6 +159,9 @@ public interface ApiService {
 
     @GET("users/me")
     Call<UserProfileResponse> getMyProfile();
+
+    @PATCH("users/me")
+    Call<UserProfileResponse> updateMyProfile(@Body UpdateProfileRequest request);
 
     @GET("users/me/spending-summary")
     Call<SpendingSummaryResponse> getSpendingSummary();

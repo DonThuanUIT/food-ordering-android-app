@@ -4,8 +4,12 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.data.remote.api.ApiService;
+import com.foodorderingapp.model.request.UpdateProfileRequest;
+import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,6 +58,54 @@ public class StudentRepository {
             public void onFailure(Call<SpendingSummaryResponse> call, Throwable t) {
                 summary.postValue(null);
                 postMessage(message, "Loi ket noi khi tai chi tieu");
+            }
+        });
+    }
+
+    public void getBuildings(MutableLiveData<List<BuildingResponse>> buildings,
+                             MutableLiveData<String> message) {
+        apiService.getBuildings().enqueue(new Callback<List<BuildingResponse>>() {
+            @Override
+            public void onResponse(Call<List<BuildingResponse>> call,
+                                   Response<List<BuildingResponse>> response) {
+                if (response.isSuccessful()) {
+                    buildings.postValue(response.body());
+                } else {
+                    buildings.postValue(null);
+                    postMessage(message, "Khong tai duoc danh sach toa nha");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<BuildingResponse>> call, Throwable t) {
+                buildings.postValue(null);
+                postMessage(message, "Loi ket noi khi tai toa nha");
+            }
+        });
+    }
+
+    public void updateMyProfile(UpdateProfileRequest request,
+                                MutableLiveData<UserProfileResponse> profile,
+                                MutableLiveData<Boolean> updateResult,
+                                MutableLiveData<String> message) {
+        apiService.updateMyProfile(request).enqueue(new Callback<UserProfileResponse>() {
+            @Override
+            public void onResponse(Call<UserProfileResponse> call,
+                                   Response<UserProfileResponse> response) {
+                boolean success = response.isSuccessful() && response.body() != null;
+                if (success) {
+                    profile.postValue(response.body());
+                    updateResult.postValue(true);
+                } else {
+                    updateResult.postValue(false);
+                    postMessage(message, "Khong cap nhat duoc ho so");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserProfileResponse> call, Throwable t) {
+                updateResult.postValue(false);
+                postMessage(message, "Loi ket noi khi cap nhat ho so");
             }
         });
     }
