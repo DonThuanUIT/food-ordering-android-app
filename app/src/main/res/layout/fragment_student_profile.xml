@@ -104,62 +104,44 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:background="@drawable/bg_spending_card"
-                android:elevation="2dp"
+                android:elevation="3dp"
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile_spending_title"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvSpendingRange"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Tháng này"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
-
+                <!-- Header Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSpendingThisWeek"
-                        android:layout_width="0dp"
-                        android:layout_height="42dp"
-                        android:layout_weight="1"
-                        android:text="Tuần này"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        app:backgroundTint="@color/brand_dark_bg"
-                        app:cornerRadius="14dp" />
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_stats"
+                        app:tint="@color/brand_orange" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSpendingThisMonth"
+                    <TextView
                         android:layout_width="0dp"
-                        android:layout_height="42dp"
-                        android:layout_marginStart="10dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:text="Tháng này"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        app:backgroundTint="@color/brand_orange"
-                        app:cornerRadius="14dp" />
+                        android:text="Thống kê chi tiêu"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btnSpendingRefresh"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Tải lại thống kê"
+                        android:src="@drawable/ic_turbo"
+                        app:tint="@color/text_secondary" />
                 </LinearLayout>
 
+                <!-- Filter Controls Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -168,71 +150,142 @@
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSpendingFrom"
+                        android:id="@+id/btnSpendingThisWeek"
                         android:layout_width="0dp"
-                        android:layout_height="44dp"
+                        android:layout_height="38dp"
                         android:layout_weight="1"
-                        android:text="Từ ngày"
+                        android:text="Tuần này"
                         android:textAllCaps="false"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        app:backgroundTint="@color/white"
-                        app:cornerRadius="12dp"
-                        app:strokeColor="@color/profile_divider"
-                        app:strokeWidth="1dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSpendingTo"
-                        android:layout_width="0dp"
-                        android:layout_height="44dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:text="Đến ngày"
-                        android:textAllCaps="false"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        app:backgroundTint="@color/white"
-                        app:cornerRadius="12dp"
-                        app:strokeColor="@color/profile_divider"
-                        app:strokeWidth="1dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSpendingRefresh"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:layout_marginStart="8dp"
-                        android:contentDescription="Tải lại thống kê"
-                        android:text="↺"
                         android:textColor="@color/white"
-                        android:textSize="18sp"
-                        app:backgroundTint="@color/brand_dark_bg"
-                        app:cornerRadius="12dp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/brand_orange"
+                        app:cornerRadius="10dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSpendingThisMonth"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="Tháng này"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/brand_orange"
+                        app:cornerRadius="10dp" />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tvMonthlySpending"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="0đ"
-                    android:textColor="@color/profile_chart_bar_main"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
-
+                <!-- Custom Date Range Pill -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_spending_date_picker"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_clock"
+                        app:tint="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/btnSpendingFrom"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:padding="6dp"
+                        android:text="Từ ngày"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="→"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/btnSpendingTo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:padding="6dp"
+                        android:text="Đến ngày"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Total Spent Premium Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_total_spending_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.05"
+                        android:text="TỔNG CHI TIÊU"
+                        android:textColor="#94A3B8"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvMonthlySpending"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0đ"
+                        android:textColor="@color/white"
+                        android:textSize="26sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSpendingRange"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Từ --/--/---- đến --/--/----"
+                        android:textColor="#CBD5E1"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Mini Metrics Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
                     android:orientation="horizontal">
 
+                    <!-- Period Count Card -->
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="72dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_profile_tag"
+                        android:background="@drawable/bg_spending_mini_card"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="10dp">
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
                         <TextView
                             android:id="@+id/tvSpendingPeriodCount"
@@ -240,27 +293,29 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="@color/text_primary"
-                            android:textSize="17sp"
+                            android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Tuần"
+                            android:text="Số tuần"
                             android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+                            android:textSize="10sp" />
                     </LinearLayout>
 
+                    <!-- Average Card -->
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="72dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_profile_tag"
+                        android:background="@drawable/bg_spending_mini_card"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="10dp">
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
                         <TextView
                             android:id="@+id/tvSpendingAverage"
@@ -277,18 +332,20 @@
                             android:layout_marginTop="2dp"
                             android:text="Trung bình"
                             android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+                            android:textSize="10sp" />
                     </LinearLayout>
 
+                    <!-- Peak Card -->
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="72dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_profile_tag"
+                        android:background="@drawable/bg_spending_mini_card"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="10dp">
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="10dp">
 
                         <TextView
                             android:id="@+id/tvSpendingPeak"
@@ -305,112 +362,20 @@
                             android:layout_marginTop="2dp"
                             android:text="Cao nhất"
                             android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+                            android:textSize="10sp" />
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Chart container -->
                 <LinearLayout
                     android:id="@+id/llSpendingChart"
                     android:layout_width="match_parent"
-                    android:layout_height="92dp"
-                    android:layout_marginTop="18dp"
+                    android:layout_height="110dp"
+                    android:layout_marginTop="16dp"
                     android:gravity="bottom"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center_horizontal|bottom"
-                        android:orientation="vertical">
-
-                        <View
-                            android:id="@+id/barSpending1"
-                            android:layout_width="34dp"
-                            android:layout_height="28dp"
-                            android:background="@color/profile_chart_bar_light" />
-
-                        <TextView
-                            android:id="@+id/tvSpendingLabel1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/profile_week_1"
-                            android:textColor="@color/text_primary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center_horizontal|bottom"
-                        android:orientation="vertical">
-
-                        <View
-                            android:id="@+id/barSpending2"
-                            android:layout_width="34dp"
-                            android:layout_height="48dp"
-                            android:background="@color/profile_chart_bar_light" />
-
-                        <TextView
-                            android:id="@+id/tvSpendingLabel2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/profile_week_2"
-                            android:textColor="@color/text_primary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center_horizontal|bottom"
-                        android:orientation="vertical">
-
-                        <View
-                            android:id="@+id/barSpending3"
-                            android:layout_width="34dp"
-                            android:layout_height="66dp"
-                            android:background="@color/profile_chart_bar_main" />
-
-                        <TextView
-                            android:id="@+id/tvSpendingLabel3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/profile_week_3"
-                            android:textColor="@color/text_primary"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center_horizontal|bottom"
-                        android:orientation="vertical">
-
-                        <View
-                            android:id="@+id/barSpending4"
-                            android:layout_width="34dp"
-                            android:layout_height="16dp"
-                            android:background="@color/profile_chart_bar_empty" />
-
-                        <TextView
-                            android:id="@+id/tvSpendingLabel4"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/profile_week_4"
-                            android:textColor="@color/text_gray"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-                </LinearLayout>
-
+                <!-- Breakdown List -->
                 <TextView
                     android:id="@+id/tvSpendingBreakdownTitle"
                     android:layout_width="match_parent"

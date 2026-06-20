@@ -338,16 +338,16 @@ public class StudentProfileFragment extends Fragment {
             int sourceIndex = startIndex + i;
             boolean hasData = sourceIndex < dataSize;
             double value = hasData ? breakdown.get(sourceIndex).getTotal() : 0;
-            int height = maxValue <= 0 ? 16 : (int) Math.max(16, Math.round(70 * (value / maxValue)));
+            int height = maxValue <= 0 ? 16 : (int) Math.max(16, Math.round(80 * (value / maxValue)));
 
             LinearLayout column = new LinearLayout(requireContext());
             column.setGravity(android.view.Gravity.CENTER_HORIZONTAL | android.view.Gravity.BOTTOM);
             column.setOrientation(LinearLayout.VERTICAL);
 
             View bar = new View(requireContext());
-            bar.setBackground(roundedBackground(requireContext().getColor(
+            bar.setBackground(topRoundedBackground(requireContext().getColor(
                     value > 0 ? R.color.profile_chart_bar_main : R.color.profile_chart_bar_empty
-            ), 8));
+            ), 6));
 
             TextView label = new TextView(requireContext());
             label.setText(hasData ? shortPeriod(breakdown.get(sourceIndex).getPeriod(), i + 1) : "--");
@@ -397,6 +397,13 @@ public class StudentProfileFragment extends Fragment {
             LinearLayout row = new LinearLayout(requireContext());
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+            // Add bullet point indicator
+            View bullet = new View(requireContext());
+            bullet.setBackground(roundedBackground(requireContext().getColor(R.color.brand_orange), 4));
+            LinearLayout.LayoutParams bulletParams = new LinearLayout.LayoutParams(dp(8), dp(8));
+            bulletParams.rightMargin = dp(8);
+            row.addView(bullet, bulletParams);
 
             TextView period = new TextView(requireContext());
             period.setText(formatPeriod(item.getPeriod()));
@@ -674,6 +681,14 @@ public class StudentProfileFragment extends Fragment {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(color);
         drawable.setCornerRadius(dp(radiusDp));
+        return drawable;
+    }
+
+    private GradientDrawable topRoundedBackground(int color, int radiusDp) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(color);
+        float r = dp(radiusDp);
+        drawable.setCornerRadii(new float[]{r, r, r, r, 0f, 0f, 0f, 0f});
         return drawable;
     }
 
