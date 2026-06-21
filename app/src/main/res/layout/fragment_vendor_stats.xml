@@ -54,7 +54,7 @@
                     android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/button_gray"
+                    android:background="@drawable/bg_edittext"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp" />
             </RelativeLayout>
