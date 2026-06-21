@@ -47,12 +47,28 @@ public class AdminViewModel extends ViewModel {
         repository.getPendingShops(pendingShops);
     }
 
+    public void loadShops(String status) {
+        repository.getShopsByStatus(status, pendingShops);
+    }
+
+    public void loadShops(String status, int page, int size) {
+        repository.getShopsByStatus(status, page, size, pendingShops);
+    }
+
     public void updateShopStatus(String shopId, String status) {
         repository.updateShopStatus(shopId, status, shopStatusResult);
     }
 
     public void loadUsers(String search) {
         repository.getUsers(search, users);
+    }
+
+    public void loadUsers(String search, String role) {
+        repository.getUsers(search, role, users);
+    }
+
+    public void loadUsers(String search, String role, int page, int size) {
+        repository.getUsers(search, role, page, size, users);
     }
 
     public void toggleUserLock(String userId) {

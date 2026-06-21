@@ -21,6 +21,7 @@ import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
+import com.foodorderingapp.model.response.StudentReviewResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
@@ -168,6 +169,9 @@ public interface ApiService {
             @Query("from") String from,
             @Query("to") String to
     );
+
+    @GET("users/me/reviews")
+    Call<List<StudentReviewResponse>> getMyReviews();
 
     @GET("cart")
     Call<CartResponse> getCart();

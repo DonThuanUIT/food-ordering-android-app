@@ -76,6 +76,62 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminStatusPending"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:minWidth="0dp"
+                        android:text="Cho duyet"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminStatusApproved"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:layout_marginStart="8dp"
+                        android:minWidth="0dp"
+                        android:text="Da duyet"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminStatusRejected"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:layout_marginStart="8dp"
+                        android:minWidth="0dp"
+                        android:text="Tu choi"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminStatusBanned"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:layout_marginStart="8dp"
+                        android:minWidth="0dp"
+                        android:text="Da khoa"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        app:cornerRadius="12dp" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvAdminPendingShops"
                 android:layout_width="match_parent"
@@ -94,6 +150,21 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="15sp"
                 android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAdminShopsLoadMore"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="14dp"
+                android:backgroundTint="@color/white"
+                android:text="Tai them"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:visibility="gone"
+                app:cornerRadius="14dp"
+                app:strokeColor="@color/profile_divider"
+                app:strokeWidth="1dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -84,7 +84,18 @@ public class AdminRepository {
     }
 
     public void getPendingShops(MutableLiveData<PageResponse<ShopResponse>> liveData) {
-        ApiClient.getApiService().getAdminShops("PENDING", 0, 50).enqueue(new Callback<PageResponse<ShopResponse>>() {
+        getShopsByStatus("PENDING", liveData);
+    }
+
+    public void getShopsByStatus(String status, MutableLiveData<PageResponse<ShopResponse>> liveData) {
+        getShopsByStatus(status, 0, 50, liveData);
+    }
+
+    public void getShopsByStatus(String status,
+                                 int page,
+                                 int size,
+                                 MutableLiveData<PageResponse<ShopResponse>> liveData) {
+        ApiClient.getApiService().getAdminShops(status, page, size).enqueue(new Callback<PageResponse<ShopResponse>>() {
             @Override
             public void onResponse(Call<PageResponse<ShopResponse>> call, Response<PageResponse<ShopResponse>> response) {
                 liveData.postValue(response.isSuccessful() ? response.body() : null);
@@ -115,8 +126,20 @@ public class AdminRepository {
     }
 
     public void getUsers(String search, MutableLiveData<PageResponse<AdminUserResponse>> liveData) {
+        getUsers(search, null, liveData);
+    }
+
+    public void getUsers(String search, String role, MutableLiveData<PageResponse<AdminUserResponse>> liveData) {
+        getUsers(search, role, 0, 50, liveData);
+    }
+
+    public void getUsers(String search,
+                         String role,
+                         int page,
+                         int size,
+                         MutableLiveData<PageResponse<AdminUserResponse>> liveData) {
         ApiClient.getApiService()
-                .getAdminUsers(search, null, 0, 50, "createdAt", "desc")
+                .getAdminUsers(search, role, page, size, "createdAt", "desc")
                 .enqueue(new Callback<PageResponse<AdminUserResponse>>() {
                     @Override
                     public void onResponse(Call<PageResponse<AdminUserResponse>> call, Response<PageResponse<AdminUserResponse>> response) {

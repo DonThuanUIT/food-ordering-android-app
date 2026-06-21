@@ -8,6 +8,7 @@ import com.foodorderingapp.data.repository.StudentRepository;
 import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
+import com.foodorderingapp.model.response.StudentReviewResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class StudentProfileViewModel extends ViewModel {
     private final MutableLiveData<UserProfileResponse> profile = new MutableLiveData<>();
     private final MutableLiveData<SpendingSummaryResponse> spendingSummary = new MutableLiveData<>();
     private final MutableLiveData<List<BuildingResponse>> buildings = new MutableLiveData<>();
+    private final MutableLiveData<List<StudentReviewResponse>> myReviews = new MutableLiveData<>();
     private final MutableLiveData<Boolean> updateResult = new MutableLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
 
@@ -30,6 +32,10 @@ public class StudentProfileViewModel extends ViewModel {
 
     public LiveData<List<BuildingResponse>> getBuildings() {
         return buildings;
+    }
+
+    public LiveData<List<StudentReviewResponse>> getMyReviews() {
+        return myReviews;
     }
 
     public LiveData<Boolean> getUpdateResult() {
@@ -54,6 +60,10 @@ public class StudentProfileViewModel extends ViewModel {
 
     public void loadBuildings() {
         repository.getBuildings(buildings, message);
+    }
+
+    public void loadMyReviews() {
+        repository.getMyReviews(myReviews, message);
     }
 
     public void updateProfile(UpdateProfileRequest request) {
