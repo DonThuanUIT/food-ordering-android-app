@@ -49,25 +49,38 @@
             android:paddingTop="20dp"
             android:paddingBottom="130dp"> <!-- Leaves enough empty space at bottom so Price field rolls above the bottom button -->
 
-            <LinearLayout
-                android:id="@+id/upload_area"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:background="@drawable/bg_dashed_border"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:focusable="true"
-                android:backgroundTint="#F7FAFC">
-                <ImageView
-                    android:id="@+id/img_upload_preview"
+                android:layout_height="180dp">
+
+                <LinearLayout
+                    android:id="@+id/upload_area"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_camera_add"
-                    app:tint="#A0AEC0"
-                    android:padding="32dp"/>
-            </LinearLayout>
+                    android:background="@drawable/bg_dashed_border"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:backgroundTint="#F7FAFC">
+                    <ImageView
+                        android:id="@+id/img_upload_preview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_camera_add"
+                        app:tint="#A0AEC0"
+                        android:padding="32dp"/>
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progress_upload"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    android:indeterminateTint="@color/primary_orange"/>
+            </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"

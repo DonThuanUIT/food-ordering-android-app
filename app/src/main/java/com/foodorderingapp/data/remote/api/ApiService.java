@@ -26,6 +26,7 @@ import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
 import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;
+import com.foodorderingapp.model.response.UploadImageResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
 import com.foodorderingapp.model.response.VoucherResponse;
 
@@ -63,7 +64,7 @@ public interface ApiService {
     // --- Image Upload ---
     @Multipart
     @POST("upload/image")
-    Call<Map<String, String>> uploadImage(@Part MultipartBody.Part file);
+    Call<UploadImageResponse> uploadImage(@Part MultipartBody.Part file);
 
     // --- Vendor Shop Management ---
     @GET("vendor/shops")
