@@ -1,66 +1,422 @@
 package com.foodorderingapp.ui.home.vendor;
 
+import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.R;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.databinding.FragmentVendorStatsBinding;
+import com.foodorderingapp.model.response.ShopResponse;
+import com.foodorderingapp.model.response.TopProductData;
+import com.foodorderingapp.model.response.TrendData;
+import com.foodorderingapp.model.response.VendorDashboardResponse;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link VendorStatsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class VendorStatsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private FragmentVendorStatsBinding binding;
+    private UUID currentShopId;
+    private TopProductAdapter topProductAdapter;
 
     public VendorStatsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment VendorStatsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static VendorStatsFragment newInstance(String param1, String param2) {
-        VendorStatsFragment fragment = new VendorStatsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static VendorStatsFragment newInstance() {
+        return new VendorStatsFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_vendor_stats, container, false);
+        binding = FragmentVendorStatsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        setupRecyclerView();
+        setupFilterSpinner();
+        setupSwipeRefresh();
+
+        // Load data
+        fetchShopInfoAndLoadStats();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    private void setupRecyclerView() {
+        binding.rvTopProducts.setLayoutManager(new LinearLayoutManager(getContext()));
+        topProductAdapter = new TopProductAdapter();
+        binding.rvTopProducts.setAdapter(topProductAdapter);
+    }
+
+    private void setupFilterSpinner() {
+        String[] filters = {"30 ngày gần đây", "7 ngày gần đây", "Hôm nay"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, filters);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerFilter.setAdapter(adapter);
+
+        binding.spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (currentShopId != null) {
+                    loadDashboardStats(false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener(() -> {
+            if (currentShopId == null) {
+                fetchShopInfoAndLoadStats();
+            } else {
+                loadDashboardStats(true);
+            }
+        });
+    }
+
+    private void fetchShopInfoAndLoadStats() {
+        binding.swipeRefresh.setRefreshing(true);
+        ApiClient.getApiService().getVendorShops().enqueue(new Callback<List<ShopResponse>>() {
+            @Override
+            public void onResponse(Call<List<ShopResponse>> call, Response<List<ShopResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    ShopResponse shop = response.body().get(0);
+                    binding.tvShopName.setText(shop.getName());
+                    String idStr = shop.getId();
+                    if (idStr != null) {
+                        currentShopId = UUID.fromString(idStr);
+                        loadDashboardStats(false);
+                    } else {
+                        binding.swipeRefresh.setRefreshing(false);
+                        Toast.makeText(getContext(), "Không tìm thấy ID quán ăn", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    binding.swipeRefresh.setRefreshing(false);
+                    Toast.makeText(getContext(), "Không thể tải thông tin cửa hàng", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ShopResponse>> call, Throwable t) {
+                binding.swipeRefresh.setRefreshing(false);
+                Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadDashboardStats(boolean isRefresh) {
+        if (currentShopId == null) {
+            binding.swipeRefresh.setRefreshing(false);
+            return;
+        }
+
+        if (!isRefresh) {
+            binding.swipeRefresh.setRefreshing(true);
+        }
+
+        // Calculate date range based on filter
+        int selectedIndex = binding.spinnerFilter.getSelectedItemPosition();
+        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start;
+
+        if (selectedIndex == 1) { // 7 days
+            start = LocalDateTime.now().minusDays(7);
+        } else if (selectedIndex == 2) { // Today
+            start = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        } else { // 30 days (default)
+            start = LocalDateTime.now().minusDays(30);
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        String startDateStr = start.format(formatter);
+        String endDateStr = end.format(formatter);
+
+        ApiClient.getApiService().getDashboardStats(currentShopId, startDateStr, endDateStr)
+                .enqueue(new Callback<VendorDashboardResponse>() {
+                    @Override
+                    public void onResponse(Call<VendorDashboardResponse> call, Response<VendorDashboardResponse> response) {
+                        binding.swipeRefresh.setRefreshing(false);
+                        if (response.isSuccessful() && response.body() != null) {
+                            displayDashboardData(response.body());
+                        } else {
+                            Toast.makeText(getContext(), "Không thể tải số liệu thống kê", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<VendorDashboardResponse> call, Throwable t) {
+                        binding.swipeRefresh.setRefreshing(false);
+                        Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void displayDashboardData(VendorDashboardResponse data) {
+        BigDecimal revenue = data.getTotalRevenue() != null ? data.getTotalRevenue() : BigDecimal.ZERO;
+        binding.tvTotalRevenue.setText(formatCurrency(revenue));
+
+        Long totalOrders = data.getTotalOrders() != null ? data.getTotalOrders() : 0L;
+        binding.tvTotalOrders.setText(String.valueOf(totalOrders));
+
+        Double rate = data.getCompletionRate() != null ? data.getCompletionRate() : 0.0;
+        binding.tvCompletionRate.setText(String.format(Locale.US, "%.1f%%", rate));
+
+        BigDecimal avgValue = data.getAverageOrderValue() != null ? data.getAverageOrderValue() : BigDecimal.ZERO;
+        binding.tvAverageOrderValue.setText(formatCurrency(avgValue));
+
+        // Draw Line Chart
+        setupLineChart(data.getOrderTrends());
+
+        // Draw Pie Chart
+        setupPieChart(data.getOrderStatusBreakdown());
+
+        // Populate RecyclerView
+        topProductAdapter.submitList(data.getTopSellingProducts());
+    }
+
+    private String formatCurrency(BigDecimal value) {
+        return String.format(Locale.US, "%,dđ", value.longValue());
+    }
+
+    private void setupLineChart(List<TrendData> trends) {
+        if (trends == null || trends.isEmpty()) {
+            binding.chartRevenueTrend.clear();
+            return;
+        }
+
+        List<Entry> revenueEntries = new ArrayList<>();
+        final List<String> dates = new ArrayList<>();
+
+        for (int i = 0; i < trends.size(); i++) {
+            TrendData trend = trends.get(i);
+            revenueEntries.add(new Entry(i, trend.getRevenue().floatValue()));
+            
+            // Format yyyy-MM-dd to MM-dd for visual simplicity
+            String dateStr = trend.getDate();
+            if (dateStr != null && dateStr.length() >= 10) {
+                dates.add(dateStr.substring(5)); // take MM-dd
+            } else {
+                dates.add(dateStr);
+            }
+        }
+
+        LineDataSet set = new LineDataSet(revenueEntries, "Doanh thu");
+        set.setColor(Color.parseColor("#FF7A21")); // brand_orange
+        set.setCircleColor(Color.parseColor("#FF7A21"));
+        set.setLineWidth(2.5f);
+        set.setCircleRadius(4f);
+        set.setDrawCircleHole(false);
+        set.setValueTextSize(9f);
+        set.setDrawFilled(true);
+        set.setFillColor(Color.parseColor("#FFE4D1")); // light orange fill
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+
+        LineData lineData = new LineData(set);
+        binding.chartRevenueTrend.setData(lineData);
+
+        // Styling Line Chart
+        binding.chartRevenueTrend.getDescription().setEnabled(false);
+        binding.chartRevenueTrend.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        binding.chartRevenueTrend.getXAxis().setGranularity(1f);
+        binding.chartRevenueTrend.getXAxis().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int idx = (int) value;
+                if (idx >= 0 && idx < dates.size()) {
+                    return dates.get(idx);
+                }
+                return "";
+            }
+        });
+        
+        binding.chartRevenueTrend.getAxisRight().setEnabled(false);
+        binding.chartRevenueTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                if (value >= 1000000) {
+                    return String.format(Locale.US, "%.1fM", value / 1000000.0);
+                } else if (value >= 1000) {
+                    return String.format(Locale.US, "%.0fK", value / 1000.0);
+                }
+                return String.format(Locale.US, "%.0f", value);
+            }
+        });
+
+        binding.chartRevenueTrend.animateY(800);
+        binding.chartRevenueTrend.invalidate();
+    }
+
+    private void setupPieChart(Map<String, Long> statusMap) {
+        if (statusMap == null || statusMap.isEmpty()) {
+            binding.chartStatusBreakdown.clear();
+            return;
+        }
+
+        List<PieEntry> pieEntries = new ArrayList<>();
+        List<Integer> colors = new ArrayList<>();
+
+        // Map status names to display names and set status specific colors
+        for (Map.Entry<String, Long> entry : statusMap.entrySet()) {
+            if (entry.getValue() > 0) {
+                String label;
+                int color;
+                switch (entry.getKey().toUpperCase()) {
+                    case "COMPLETED":
+                        label = "Hoàn thành";
+                        color = Color.parseColor("#34C759"); // status_green
+                        break;
+                    case "CANCELLED":
+                        label = "Đã hủy";
+                        color = Color.parseColor("#FF3B30"); // status_red
+                        break;
+                    case "DELIVERING":
+                        label = "Đang giao";
+                        color = Color.parseColor("#FF9500"); // status_orange
+                        break;
+                    case "PENDING":
+                        label = "Chờ duyệt";
+                        color = Color.parseColor("#8E8E93"); // status_gray
+                        break;
+                    case "PREPARING":
+                        label = "Chuẩn bị";
+                        color = Color.parseColor("#FF7A21"); // brand_orange
+                        break;
+                    default:
+                        label = entry.getKey();
+                        color = Color.LTGRAY;
+                        break;
+                }
+                pieEntries.add(new PieEntry(entry.getValue().floatValue(), label));
+                colors.add(color);
+            }
+        }
+
+        if (pieEntries.isEmpty()) {
+            binding.chartStatusBreakdown.clear();
+            return;
+        }
+
+        PieDataSet dataSet = new PieDataSet(pieEntries, "");
+        dataSet.setColors(colors);
+        dataSet.setSliceSpace(3f);
+        dataSet.setValueTextSize(12f);
+        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueFormatter(new PercentFormatter(binding.chartStatusBreakdown));
+
+        PieData pieData = new PieData(dataSet);
+        binding.chartStatusBreakdown.setData(pieData);
+        binding.chartStatusBreakdown.setUsePercentValues(true);
+        binding.chartStatusBreakdown.getDescription().setEnabled(false);
+        binding.chartStatusBreakdown.setDrawHoleEnabled(true);
+        binding.chartStatusBreakdown.setHoleRadius(40f);
+        binding.chartStatusBreakdown.setTransparentCircleRadius(45f);
+        binding.chartStatusBreakdown.setCenterText("Đơn hàng");
+        binding.chartStatusBreakdown.setCenterTextSize(14f);
+
+        Legend l = binding.chartStatusBreakdown.getLegend();
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        l.setDrawInside(false);
+        l.setWordWrapEnabled(true);
+
+        binding.chartStatusBreakdown.animateY(800);
+        binding.chartStatusBreakdown.invalidate();
+    }
+
+    // RecyclerView Adapter for Top Selling Products
+    private static class TopProductAdapter extends RecyclerView.Adapter<TopProductAdapter.ViewHolder> {
+
+        private final List<TopProductData> list = new ArrayList<>();
+
+        public void submitList(List<TopProductData> newList) {
+            list.clear();
+            if (newList != null) {
+                list.addAll(newList);
+            }
+            notifyDataSetChanged();
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_top_product, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            TopProductData item = list.get(position);
+            holder.tvFoodName.setText(item.getFoodName());
+            holder.tvQuantitySold.setText(String.valueOf(item.getQuantitySold()));
+            holder.tvRevenue.setText(String.format(Locale.US, "%,dđ", item.getRevenue()));
+        }
+
+        @Override
+        public int getItemCount() {
+            return list.size();
+        }
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            android.widget.TextView tvFoodName;
+            android.widget.TextView tvQuantitySold;
+            android.widget.TextView tvRevenue;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                tvFoodName = itemView.findViewById(R.id.tv_food_name);
+                tvQuantitySold = itemView.findViewById(R.id.tv_quantity_sold);
+                tvRevenue = itemView.findViewById(R.id.tv_revenue);
+            }
+        }
     }
 }

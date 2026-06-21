@@ -24,6 +24,7 @@ import com.foodorderingapp.model.response.ShopDetailResponse;
 import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;
 import com.foodorderingapp.model.response.VoucherResponse;
+import com.foodorderingapp.model.response.VendorDashboardResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -221,5 +222,12 @@ public interface ApiService {
     Call<Void> createReview(
             @Path("orderId") String orderId,
             @Body ReviewRequest request
+    );
+
+    @GET("orders/{shopId}/dashboard")
+    Call<VendorDashboardResponse> getDashboardStats(
+            @Path("shopId") UUID shopId,
+            @Query("startDate") String startDate,
+            @Query("endDate") String endDate
     );
 }
