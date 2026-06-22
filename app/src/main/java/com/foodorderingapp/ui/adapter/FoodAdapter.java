@@ -34,6 +34,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onStatusChanged(FoodResponse food, boolean isAvailable);
         void onAddNewItemClick();
         void onFoodImageClick(FoodResponse food);
+        void onFoodLongClick(FoodResponse food);
     }
 
     public FoodAdapter(List<FoodResponse> foodList, OnFoodActionProvider actionProvider) {
@@ -199,6 +200,13 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (buttonView.isPressed() && actionProvider != null) {
                     actionProvider.onStatusChanged(food, isChecked);
                 }
+            });
+
+            itemView.setOnLongClickListener(v -> {
+                if (actionProvider != null) {
+                    actionProvider.onFoodLongClick(food);
+                }
+                return true;
             });
         }
     }

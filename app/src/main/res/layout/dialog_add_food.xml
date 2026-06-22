@@ -25,6 +25,7 @@
                 android:focusable="true"
                 android:background="?attr/selectableItemBackgroundBorderless"/>
             <TextView
+                android:id="@+id/tv_dialog_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Add New Item"

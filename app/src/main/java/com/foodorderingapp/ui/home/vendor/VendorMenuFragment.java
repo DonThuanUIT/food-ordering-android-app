@@ -490,4 +490,156 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         tvStatSoldOutCount.setText(String.valueOf(soldOutCount));
         tvStatCategoriesCount.setText(String.valueOf(categories.size()));
     }
+
+    @Override
+    public void onFoodLongClick(FoodResponse food) {
+        showFoodOptionsDialog(food);
+    }
+
+    private void showFoodOptionsDialog(FoodResponse food) {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        View view = getLayoutInflater().inflate(R.layout.dialog_food_options, null);
+
+        TextView tvTitle = view.findViewById(R.id.tv_food_title);
+        View btnEdit = view.findViewById(R.id.layout_option_edit);
+        View btnDelete = view.findViewById(R.id.layout_option_delete);
+
+        if (tvTitle != null) tvTitle.setText(food.getName());
+
+        if (btnEdit != null) {
+            btnEdit.setOnClickListener(v -> {
+                dialog.dismiss();
+                showEditFoodDialog(food);
+            });
+        }
+
+        if (btnDelete != null) {
+            btnDelete.setOnClickListener(v -> {
+                dialog.dismiss();
+                showDeleteConfirmDialog(food);
+            });
+        }
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void showEditFoodDialog(FoodResponse food) {
+        currentUploadedUrl = food.getImageUrl();
+        currentAddFoodDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_food, null);
+
+        TextView tvDialogTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        if (tvDialogTitle != null) {
+            tvDialogTitle.setText("Chỉnh sửa món ăn");
+        }
+
+        imgPreview = dialogView.findViewById(R.id.img_upload_preview);
+        EditText etName = dialogView.findViewById(R.id.et_food_name);
+        EditText etPrice = dialogView.findViewById(R.id.et_food_price);
+        EditText etDesc = dialogView.findViewById(R.id.et_food_description);
+        ChipGroup dialogChips = dialogView.findViewById(R.id.chip_group_category);
+        Button btnSave = dialogView.findViewById(R.id.btn_add_to_menu);
+        ImageView btnBack = dialogView.findViewById(R.id.btn_back_dialog);
+        View btnAddNewCategory = dialogView.findViewById(R.id.btn_add_category);
+
+        // Prepopulate fields
+        if (etName != null) etName.setText(food.getName());
+        if (etPrice != null && food.getPrice() != null) etPrice.setText(food.getPrice().toPlainString());
+        if (etDesc != null) etDesc.setText(food.getDescription() != null ? food.getDescription() : "");
+        
+        if (imgPreview != null && food.getImageUrl() != null && !food.getImageUrl().isEmpty()) {
+            Glide.with(this)
+                    .load(food.getImageUrl())
+                    .placeholder(R.drawable.logo_food)
+                    .error(R.drawable.logo_food)
+                    .into(imgPreview);
+            imgPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        }
+
+        updateDialogCategories(dialogChips, food.getCategoryId());
+
+        if (btnAddNewCategory != null) btnAddNewCategory.setOnClickListener(v -> showAddNewCategoryDialog());
+        if (btnBack != null) btnBack.setOnClickListener(v -> currentAddFoodDialog.dismiss());
+
+        View uploadArea = dialogView.findViewById(R.id.upload_area);
+        if (uploadArea != null) {
+            uploadArea.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
+                imagePickerLauncher.launch(intent);
+            });
+        }
+
+        if (btnSave != null) {
+            btnSave.setText("Lưu thay đổi");
+            btnSave.setOnClickListener(v -> {
+                String name = etName != null ? etName.getText().toString().trim() : "";
+                String priceStr = etPrice != null ? etPrice.getText().toString().trim() : "";
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(priceStr)) {
+                    Toast.makeText(getContext(), "Vui lòng nhập tên và giá", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                UUID catId = getSelectedCategoryId(dialogChips);
+                saveEditedFoodToDb(currentAddFoodDialog, food.getId(), name, priceStr, etDesc != null ? etDesc.getText().toString() : "", catId, currentUploadedUrl);
+            });
+        }
+
+        currentAddFoodDialog.setContentView(dialogView);
+        currentAddFoodDialog.show();
+    }
+
+    private void saveEditedFoodToDb(BottomSheetDialog dialog, UUID foodId, String name, String price, String desc, UUID catId, String url) {
+        if (currentShopId == null) return;
+        try {
+            FoodRequest request = new FoodRequest(catId, name, desc, new BigDecimal(price), url);
+            ApiClient.getApiService().updateFood(currentShopId, foodId, request).enqueue(new Callback<FoodResponse>() {
+                @Override
+                public void onResponse(Call<FoodResponse> call, Response<FoodResponse> response) {
+                    if (response.isSuccessful()) {
+                        ToastUtils.success(getContext(), "Đã cập nhật món ăn!");
+                        loadData(false);
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(getContext(), "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                @Override
+                public void onFailure(Call<FoodResponse> call, Throwable t) {
+                    Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Giá không hợp lệ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showDeleteConfirmDialog(FoodResponse food) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Xóa món ăn?")
+                .setMessage("Bạn có chắc chắn muốn xóa món '" + food.getName() + "' khỏi thực đơn?")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteFoodFromDb(food.getId()))
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void deleteFoodFromDb(UUID foodId) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().deleteFood(currentShopId, foodId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful() || response.code() == 204) {
+                    ToastUtils.success(getContext(), "Đã xóa món ăn thành công!");
+                    loadData(false);
+                } else {
+                    Toast.makeText(getContext(), "Không thể xóa món ăn!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }
