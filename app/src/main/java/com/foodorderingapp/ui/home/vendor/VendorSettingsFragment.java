@@ -36,6 +36,7 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.FoodResponse;
+import com.foodorderingapp.model.response.UploadImageResponse;
 import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.ui.voucher.VoucherManagementActivity;
 import com.foodorderingapp.utils.TokenManager;
@@ -303,11 +304,11 @@ public class VendorSettingsFragment extends Fragment {
         RequestBody rb = RequestBody.create(MediaType.parse("image/*"), file);
         MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), rb);
 
-        ApiClient.getApiService().uploadImage(part).enqueue(new Callback<Map<String, String>>() {
+        ApiClient.getApiService().uploadImage(part).enqueue(new Callback<UploadImageResponse>() {
             @Override
-            public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
+            public void onResponse(Call<UploadImageResponse> call, Response<UploadImageResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    String url = response.body().get("url");
+                    String url = response.body().getUrl();
                     if (url != null) {
                         ShopUpdateRequest req = new ShopUpdateRequest();
                         if (isEditingLogo) {
@@ -323,7 +324,7 @@ public class VendorSettingsFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<Map<String, String>> call, Throwable t) {
+            public void onFailure(Call<UploadImageResponse> call, Throwable t) {
                 if (getContext() != null) {
                     Toast.makeText(getContext(), "Lỗi mạng tải ảnh: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }

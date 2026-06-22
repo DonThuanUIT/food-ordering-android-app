@@ -71,6 +71,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:hint="Tòa nhà nhận hàng"
+                    app:endIconMode="dropdown_menu"
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusBottomEnd="14dp"
@@ -80,7 +81,7 @@
                     app:boxStrokeColor="#D9DEE8"
                     app:hintTextColor="#7D8494">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etCheckoutBuilding"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -96,6 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Điểm nhận hàng"
+                    app:endIconMode="dropdown_menu"
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusBottomEnd="14dp"
@@ -105,11 +107,37 @@
                     app:boxStrokeColor="#D9DEE8"
                     app:hintTextColor="#7D8494">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/etCheckoutDropOff"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textCapSentences"
+                        android:minHeight="54dp"
+                        android:singleLine="true"
+                        android:textColor="#1A1D26"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Mã giảm giá"
+                    app:endIconMode="dropdown_menu"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeColor="#D9DEE8"
+                    app:hintTextColor="#7D8494">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/etVoucherCode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapCharacters"
                         android:minHeight="54dp"
                         android:singleLine="true"
                         android:textColor="#1A1D26"

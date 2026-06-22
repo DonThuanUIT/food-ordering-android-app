@@ -14,6 +14,8 @@ public class OrderResponse {
     private String cancelReason;
     private String createdAt;
     private List<OrderDetailResponse> details;
+    private String voucherCode;
+    private double discountAmount;
 
     public String getId() { return id; }
     public String getShopName() { return shopName; }
@@ -26,4 +28,6 @@ public class OrderResponse {
     public String getCancelReason() { return cancelReason; }
     public String getCreatedAt() { return createdAt; }
     public List<OrderDetailResponse> getDetails() { return details; }
+    public String getVoucherCode() { return voucherCode; }
+    public double getDiscountAmount() { return discountAmount; }
 }

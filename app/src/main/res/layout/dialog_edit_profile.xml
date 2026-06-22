@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_admin_panel_top"
+    android:clipToPadding="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="22dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="26dp">
+
+        <View
+            android:layout_width="56dp"
+            android:layout_height="7dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_admin_handle" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Chỉnh sửa hồ sơ"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/LabelStyle"
+            android:text="Họ tên" />
+
+        <EditText
+            android:id="@+id/etProfileFullName"
+            style="@style/InputStyle"
+            android:hint="Nhập họ tên"
+            android:imeOptions="actionNext"
+            android:inputType="textPersonName"
+            android:singleLine="true" />
+
+        <TextView
+            style="@style/LabelStyle"
+            android:text="Email" />
+
+        <EditText
+            android:id="@+id/etProfileEmail"
+            style="@style/InputStyle"
+            android:hint="Nhập email"
+            android:imeOptions="actionNext"
+            android:inputType="textEmailAddress"
+            android:singleLine="true" />
+
+        <TextView
+            style="@style/LabelStyle"
+            android:text="Tòa nhà" />
+
+        <Spinner
+            android:id="@+id/spinnerProfileBuilding"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_edittext"
+            android:paddingHorizontal="12dp" />
+
+        <TextView
+            style="@style/LabelStyle"
+            android:text="Ảnh đại diện" />
+
+        <EditText
+            android:id="@+id/etProfileAvatarUrl"
+            style="@style/InputStyle"
+            android:hint="URL ảnh đại diện"
+            android:imeOptions="actionDone"
+            android:inputType="textUri"
+            android:singleLine="true" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveProfile"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:text="Lưu thay đổi"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/brand_orange"
+            app:cornerRadius="16dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelEditProfile"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="10dp"
+            android:text="Hủy"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            app:backgroundTint="@color/white"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/profile_divider"
+            app:strokeWidth="1dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

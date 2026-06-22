@@ -9,12 +9,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
+import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.ShopViewModel;
 
 public class ShopDetailActivity extends AppCompatActivity {
@@ -24,6 +25,7 @@ public class ShopDetailActivity extends AppCompatActivity {
     private TextView tvShopDescription;
     private TextView tvShopStatus;
     private TextView tvShopTime;
+    private ImageView ivShopHero;
     private ImageView ivShopStatusIcon;
     private LinearLayout layoutShopStatus;
     private Button btnViewMenu;
@@ -38,7 +40,7 @@ public class ShopDetailActivity extends AppCompatActivity {
 
         shopId = getIntent().getStringExtra("SHOP_ID");
         if (shopId == null || shopId.isEmpty()) {
-            Toast.makeText(this, "Không tìm thấy quán", Toast.LENGTH_SHORT).show();
+            ToastUtils.error(this, "Không tìm thấy quán");
             finish();
             return;
         }
@@ -58,6 +60,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         tvShopDescription = findViewById(R.id.tvShopDetailDescription);
         tvShopStatus = findViewById(R.id.tvShopStatus);
         tvShopTime = findViewById(R.id.tvShopTime);
+        ivShopHero = findViewById(R.id.ivShopHero);
         ivShopStatusIcon = findViewById(R.id.ivShopStatusIcon);
         layoutShopStatus = findViewById(R.id.layoutShopStatus);
         btnViewMenu = findViewById(R.id.btnViewMenu);
@@ -71,7 +74,11 @@ public class ShopDetailActivity extends AppCompatActivity {
 
         btnFavorite.setOnClickListener(v -> {
             v.setSelected(!v.isSelected());
-            Toast.makeText(this, v.isSelected() ? "Đã thêm vào yêu thích" : "Đã bỏ yêu thích", Toast.LENGTH_SHORT).show();
+            if (v.isSelected()) {
+                ToastUtils.success(this, "Đã thêm vào yêu thích");
+            } else {
+                ToastUtils.info(this, "Đã bỏ yêu thích");
+            }
         });
 
         btnViewMenu.setOnClickListener(v -> {
@@ -100,14 +107,35 @@ public class ShopDetailActivity extends AppCompatActivity {
     private void observeShopDetail() {
         shopViewModel.getShopDetail().observe(this, detail -> {
             if (detail == null) {
-                Toast.makeText(this, "Không tải được chi tiết quán", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(this, "Không tải được chi tiết quán");
                 return;
             }
 
             tvShopName.setText(nullToDefault(detail.getName(), tvShopName.getText().toString()));
             tvShopAddress.setText(nullToDefault(detail.getAddress(), "Chưa cập nhật địa chỉ"));
             tvShopDescription.setText(nullToDefault(detail.getDescription(), tvShopDescription.getText().toString()));
+            bindStatus(detail.getIsOpen());
+            bindHeroImage(detail.getCoverUrl(), detail.getLogoUrl());
         });
+    }
+
+    private void bindHeroImage(String coverUrl, String logoUrl) {
+        String imageUrl = coverUrl != null && !coverUrl.trim().isEmpty() ? coverUrl : logoUrl;
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            return;
+        }
+        Glide.with(this)
+                .load(imageUrl)
+                .placeholder(R.drawable.logo_food)
+                .error(R.drawable.logo_food)
+                .into(ivShopHero);
+    }
+
+    private void bindStatus(Boolean isOpen) {
+        if (isOpen == null) {
+            return;
+        }
+        bindStatus(isOpen ? "OPENING" : "CLOSED");
     }
 
     private void bindStatus(String displayStatus) {

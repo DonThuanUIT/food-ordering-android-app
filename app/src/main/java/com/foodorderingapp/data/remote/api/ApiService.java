@@ -8,15 +8,20 @@ import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.ReviewRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
+import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.request.UpdateStatusRequest;
 import com.foodorderingapp.model.request.VoucherCreateRequest;
+import com.foodorderingapp.model.response.AdminUserResponse;
 import com.foodorderingapp.model.response.AuthResponse;
+import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
 import com.foodorderingapp.model.response.FoodResponse;
+import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
+import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.PageResponse;
@@ -25,6 +30,8 @@ import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;
 import com.foodorderingapp.model.response.VoucherResponse;
 import com.foodorderingapp.model.response.VendorDashboardResponse;
+import com.foodorderingapp.model.response.UploadImageResponse;
+import com.foodorderingapp.model.response.UserProfileResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +67,7 @@ public interface ApiService {
     // --- Image Upload ---
     @Multipart
     @POST("upload/image")
-    Call<Map<String, String>> uploadImage(@Part MultipartBody.Part file);
+    Call<UploadImageResponse> uploadImage(@Part MultipartBody.Part file);
 
     // --- Vendor Shop Management ---
     @GET("vendor/shops")
@@ -185,10 +192,31 @@ public interface ApiService {
     @GET("shops/{shopId}/detail-menu")
     Call<ShopDetailResponse> getShopDetail(@Path("shopId") String shopId);
 
+    @GET("shops/{shopId}/vouchers")
+    Call<List<VoucherResponse>> getActiveVouchers(@Path("shopId") String shopId);
+
     @GET("foods/explore")
     Call<PageResponse<FoodExploreResponse>> getExploreFoods(
             @Query("page") int page,
             @Query("size") int size
+    );
+
+    @GET("buildings")
+    Call<List<BuildingResponse>> getBuildings();
+
+    @GET("buildings/{buildingId}/drop-off-points")
+    Call<List<DropOffPointResponse>> getDropOffPoints(@Path("buildingId") String buildingId);
+
+    @GET("users/me")
+    Call<UserProfileResponse> getMyProfile();
+
+    @PATCH("users/me")
+    Call<UserProfileResponse> updateMyProfile(@Body UpdateProfileRequest request);
+
+    @GET("users/me/spending-summary")
+    Call<SpendingSummaryResponse> getSpendingSummary(
+            @Query("from") String from,
+            @Query("to") String to
     );
 
     @GET("cart")
@@ -230,4 +258,31 @@ public interface ApiService {
             @Query("startDate") String startDate,
             @Query("endDate") String endDate
     );
+
+    // --- Admin ---
+    @GET("admin/shops")
+    Call<PageResponse<ShopResponse>> getAdminShops(
+            @Query("status") String status,
+            @Query("page") int page,
+            @Query("size") int size
+    );
+
+    @PATCH("admin/shops/{shopId}/status")
+    Call<ShopResponse> updateAdminShopStatus(
+            @Path("shopId") String shopId,
+            @Body Map<String, String> body
+    );
+
+    @GET("admin/users")
+    Call<PageResponse<AdminUserResponse>> getAdminUsers(
+            @Query("search") String search,
+            @Query("role") String role,
+            @Query("page") int page,
+            @Query("size") int size,
+            @Query("sortBy") String sortBy,
+            @Query("direction") String direction
+    );
+
+    @PATCH("admin/users/{userId}/lock")
+    Call<Void> toggleAdminUserLock(@Path("userId") String userId);
 }

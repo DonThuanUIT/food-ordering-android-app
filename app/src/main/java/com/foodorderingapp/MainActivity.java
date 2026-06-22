@@ -7,16 +7,19 @@ import android.view.Menu;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import com.foodorderingapp.ui.home.admin.AdminApprovalsFragment;
+import com.foodorderingapp.ui.home.admin.AdminOverviewFragment;
+import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
 import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentProfileFragment;
-import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.student.StudentCartFragment;
 import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
 import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
@@ -58,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
         setupMenuAndNavigation(userRole);
         setupHeaderActions();
         handleStartTab(getIntent());
-        bottomNav.setItemIconTintList(null);
+        bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
+        bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
     }
 
     @Override
@@ -71,13 +75,17 @@ public class MainActivity extends AppCompatActivity {
     private void setupMenuAndNavigation(String role) {
         bottomNav.getMenu().clear();
 
-        if ("VENDOR".equalsIgnoreCase(role)) {
+        if (isAdminRole(role)) {
+            bottomNav.inflateMenu(R.menu.menu_admin);
+        } else if (isVendorRole(role)) {
             bottomNav.inflateMenu(R.menu.menu_vendor);
         } else {
             bottomNav.inflateMenu(R.menu.menu_student);
         }
 
-        if ("VENDOR".equalsIgnoreCase(role)) {
+        if (isAdminRole(role)) {
+            updateHeader("UniEats Admin");
+        } else if (isVendorRole(role)) {
             updateHeader("Đơn Hàng");
         } else {
             updateHeader("UniEats");
@@ -91,7 +99,19 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home || id == R.id.nav_vendor_orders) {
+            if (id == R.id.nav_admin_overview) {
+                viewPager.setCurrentItem(0, false);
+                updateHeader("UniEats Admin");
+                return true;
+            } else if (id == R.id.nav_admin_approvals) {
+                viewPager.setCurrentItem(1, false);
+                updateHeader("UniEats Admin");
+                return true;
+            } else if (id == R.id.nav_admin_users) {
+                viewPager.setCurrentItem(2, false);
+                updateHeader("UniEats Admin");
+                return true;
+            } else if (id == R.id.nav_home || id == R.id.nav_vendor_orders) {
                 viewPager.setCurrentItem(0, false);
                 updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Đơn Hàng" : "UniEats");
                 return true;
@@ -133,7 +153,13 @@ public class MainActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if ("VENDOR".equalsIgnoreCase(role)) {
+            if (isAdminRole(role)) {
+                switch (position) {
+                    case 0: return new AdminOverviewFragment();
+                    case 1: return new AdminApprovalsFragment();
+                    case 2: return new AdminUsersFragment();
+                }
+            } else if (isVendorRole(role)) {
                 switch (position) {
                     case 0: return new VendorOrdersFragment();
                     case 1: return new VendorStatsFragment();
@@ -154,7 +180,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return "VENDOR".equalsIgnoreCase(role) ? 4 : 5;
+            if (isAdminRole(role)) {
+                return 3;
+            }
+            return isVendorRole(role) ? 4 : 5;
         }
     }
 
@@ -164,7 +193,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openProfileShortcut() {
-        if ("VENDOR".equalsIgnoreCase(userRole)) {
+        if (isAdminRole(userRole)) {
+            bottomNav.setSelectedItemId(R.id.nav_admin_users);
+        } else if (isVendorRole(userRole)) {
             bottomNav.setSelectedItemId(R.id.nav_vendor_settings);
         } else {
             bottomNav.setSelectedItemId(R.id.nav_profile);
@@ -176,7 +207,11 @@ public class MainActivity extends AppCompatActivity {
                 new androidx.appcompat.widget.PopupMenu(this, findViewById(R.id.ivMenu));
         Menu menu = popupMenu.getMenu();
 
-        if ("VENDOR".equalsIgnoreCase(userRole)) {
+        if (isAdminRole(userRole)) {
+            menu.add(Menu.NONE, R.id.nav_admin_overview, Menu.NONE, "Overview");
+            menu.add(Menu.NONE, R.id.nav_admin_approvals, Menu.NONE, "Approvals");
+            menu.add(Menu.NONE, R.id.nav_admin_users, Menu.NONE, "Users");
+        } else if (isVendorRole(userRole)) {
             menu.add(Menu.NONE, R.id.nav_vendor_orders, Menu.NONE, "Đơn hàng");
             menu.add(Menu.NONE, R.id.nav_vendor_stats, Menu.NONE, "Thống kê");
             menu.add(Menu.NONE, R.id.nav_vendor_menu, Menu.NONE, "Thực đơn");
@@ -202,12 +237,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String openTab = intent.getStringExtra("OPEN_TAB");
-        if ("ORDERS".equalsIgnoreCase(openTab)) {
+        if (isAdminRole(userRole) && "APPROVALS".equalsIgnoreCase(openTab)) {
+            bottomNav.setSelectedItemId(R.id.nav_admin_approvals);
+        } else if (isAdminRole(userRole) && "USERS".equalsIgnoreCase(openTab)) {
+            bottomNav.setSelectedItemId(R.id.nav_admin_users);
+        } else if ("ORDERS".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_orders);
         } else if ("HISTORY".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_history);
         } else if ("CART".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_cart);
         }
+    }
+
+    private static boolean isVendorRole(String role) {
+        return "VENDOR".equalsIgnoreCase(role);
+    }
+
+    private static boolean isAdminRole(String role) {
+        return "ADMIN".equalsIgnoreCase(role);
     }
 }

@@ -5,7 +5,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.foodorderingapp.data.repository.OrderRepository;
+import com.foodorderingapp.model.response.BuildingResponse;
+import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.OrderResponse;
+import com.foodorderingapp.model.response.VoucherResponse;
 
 import java.util.List;
 
@@ -14,6 +17,9 @@ public class OrderViewModel extends ViewModel {
     private final MutableLiveData<Boolean> checkoutResult = new MutableLiveData<>();
     private final MutableLiveData<List<OrderResponse>> activeOrders = new MutableLiveData<>();
     private final MutableLiveData<List<OrderResponse>> orderHistory = new MutableLiveData<>();
+    private final MutableLiveData<List<BuildingResponse>> buildings = new MutableLiveData<>();
+    private final MutableLiveData<List<DropOffPointResponse>> dropOffPoints = new MutableLiveData<>();
+    private final MutableLiveData<List<VoucherResponse>> vouchers = new MutableLiveData<>();
     private final MutableLiveData<Boolean> reviewResult = new MutableLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
 
@@ -29,6 +35,18 @@ public class OrderViewModel extends ViewModel {
         return orderHistory;
     }
 
+    public LiveData<List<BuildingResponse>> getBuildings() {
+        return buildings;
+    }
+
+    public LiveData<List<DropOffPointResponse>> getDropOffPoints() {
+        return dropOffPoints;
+    }
+
+    public LiveData<List<VoucherResponse>> getVouchers() {
+        return vouchers;
+    }
+
     public LiveData<Boolean> getReviewResult() {
         return reviewResult;
     }
@@ -39,6 +57,24 @@ public class OrderViewModel extends ViewModel {
 
     public void checkout(String building, String dropOff) {
         orderRepository.checkout(building, dropOff, checkoutResult);
+    }
+
+    public void checkout(String building, String dropOff, String buildingId,
+                         String dropOffPointId, String voucherCode) {
+        orderRepository.checkout(building, dropOff, buildingId, dropOffPointId,
+                voucherCode, checkoutResult, message);
+    }
+
+    public void loadBuildings() {
+        orderRepository.getBuildings(buildings, message);
+    }
+
+    public void loadDropOffPoints(String buildingId) {
+        orderRepository.getDropOffPoints(buildingId, dropOffPoints, message);
+    }
+
+    public void loadVouchers(String shopId) {
+        orderRepository.getActiveVouchers(shopId, vouchers, message);
     }
 
     public void loadActiveOrders() {

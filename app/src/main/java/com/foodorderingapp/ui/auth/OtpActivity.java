@@ -6,10 +6,10 @@ import android.os.CountDownTimer;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import com.foodorderingapp.R;
+import com.foodorderingapp.utils.ToastUtils;
 
 import java.util.Locale;
 
@@ -39,7 +39,7 @@ public class OtpActivity extends AppCompatActivity {
             String otp = edtOtp.getText().toString();
 
             if (otp.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(this, "Vui lòng nhập mã OTP");
                 return;
             }
             btnVerify.setEnabled(false);
@@ -96,7 +96,7 @@ public class OtpActivity extends AppCompatActivity {
     private void observeViewModel() {
         viewModel.getIsVerified().observe(this, verified -> {
             if (verified != null && verified) {
-                Toast.makeText(this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
+                ToastUtils.success(this, "Xác thực thành công!");
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
             }
@@ -104,7 +104,7 @@ public class OtpActivity extends AppCompatActivity {
 
         viewModel.getErrorMessage().observe(this, msg -> {
             btnVerify.setEnabled(true);
-            if (msg != null) Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            if (msg != null) ToastUtils.error(this, msg);
         });
     }
 

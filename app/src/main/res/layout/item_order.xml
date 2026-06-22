@@ -84,6 +84,16 @@
             android:textSize="14sp"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/tvOrderDiscount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#00A843"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

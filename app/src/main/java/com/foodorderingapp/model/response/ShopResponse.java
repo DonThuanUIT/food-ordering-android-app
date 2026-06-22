@@ -11,6 +11,11 @@ public class ShopResponse {
     private String closeTime;
     private String address;
     private String status;
+    private String coverUrl;
+    private String logoUrl;
+    private Boolean isOpen;
+    private String email;
+    private String phone;
 
     @SerializedName(value = "isActive", alternate = {"active"})
     private Boolean isActive;
@@ -97,6 +102,26 @@ public class ShopResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public Boolean getIsOpen() {
+        return isOpen;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public Boolean getIsActive() {

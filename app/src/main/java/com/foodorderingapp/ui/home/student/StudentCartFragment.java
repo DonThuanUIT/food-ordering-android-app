@@ -6,10 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,11 +20,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.MainActivity;
 import com.foodorderingapp.R;
+import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.CartItemResponse;
+import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.ShopCartResponse;
+import com.foodorderingapp.model.response.VoucherResponse;
 import com.foodorderingapp.ui.adapter.CartShopAdapter;
+import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.CartViewModel;
 import com.foodorderingapp.viewmodel.OrderViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StudentCartFragment extends Fragment {
 
@@ -33,6 +40,14 @@ public class StudentCartFragment extends Fragment {
     private CartShopAdapter cartShopAdapter;
     private RecyclerView rvCartShops;
     private TextView tvCartEmpty;
+    private AutoCompleteTextView acBuilding;
+    private AutoCompleteTextView acDropOff;
+    private AutoCompleteTextView acVoucherCode;
+    private final List<BuildingResponse> buildingOptions = new ArrayList<>();
+    private final List<DropOffPointResponse> dropOffOptions = new ArrayList<>();
+    private final List<VoucherResponse> voucherOptions = new ArrayList<>();
+    private BuildingResponse selectedBuilding;
+    private DropOffPointResponse selectedDropOffPoint;
     private boolean hasCartItems = false;
 
     public StudentCartFragment() {}
@@ -49,30 +64,82 @@ public class StudentCartFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         rvCartShops = view.findViewById(R.id.rvCartShops);
-        EditText etBuilding = view.findViewById(R.id.etCheckoutBuilding);
-        EditText etDropOff = view.findViewById(R.id.etCheckoutDropOff);
+        acBuilding = view.findViewById(R.id.etCheckoutBuilding);
+        acDropOff = view.findViewById(R.id.etCheckoutDropOff);
+        acVoucherCode = view.findViewById(R.id.etVoucherCode);
         Button btnCheckout = view.findViewById(R.id.btnCheckout);
         tvCartEmpty = view.findViewById(R.id.tvCartEmpty);
 
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
         orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
 
+        setupCheckoutDropdowns();
+        setupCartList();
+        observeCart();
+        observeCheckoutSupportData();
+        observeActions();
+
+        btnCheckout.setOnClickListener(v -> checkout());
+        orderViewModel.loadBuildings();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (cartViewModel != null) {
+            cartViewModel.loadCart();
+        }
+    }
+
+    private void setupCartList() {
         cartShopAdapter = new CartShopAdapter();
         cartShopAdapter.setOnQuantityChangeListener((item, newQuantity) ->
                 cartViewModel.updateCartItemQuantity(item.getId(), newQuantity)
         );
         cartShopAdapter.setOnDeleteClickListener(this::confirmDeleteCartItem);
         cartShopAdapter.setOnClearShopCartListener(this::confirmClearShopCart);
-        cartShopAdapter.setOnCheckoutClickListener(() -> checkout(etBuilding, etDropOff));
+        cartShopAdapter.setOnCheckoutClickListener(this::checkout);
 
         rvCartShops.setLayoutManager(new LinearLayoutManager(getContext()));
         rvCartShops.setAdapter(cartShopAdapter);
         rvCartShops.setNestedScrollingEnabled(false);
+    }
 
+    private void setupCheckoutDropdowns() {
+        setupDropdown(acBuilding);
+        setupDropdown(acDropOff);
+        setupDropdown(acVoucherCode);
+
+        acBuilding.setOnItemClickListener((parent, view, position, id) -> {
+            selectedBuilding = (BuildingResponse) parent.getItemAtPosition(position);
+            selectedDropOffPoint = null;
+            acDropOff.setText("");
+            bindDropOffPoints(null);
+            if (selectedBuilding != null && selectedBuilding.getId() != null) {
+                orderViewModel.loadDropOffPoints(selectedBuilding.getId());
+            }
+        });
+
+        acDropOff.setOnItemClickListener((parent, view, position, id) ->
+                selectedDropOffPoint = (DropOffPointResponse) parent.getItemAtPosition(position)
+        );
+    }
+
+    private void setupDropdown(AutoCompleteTextView view) {
+        view.setThreshold(0);
+        view.setOnClickListener(v -> view.showDropDown());
+        view.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                view.showDropDown();
+            }
+        });
+    }
+
+    private void observeCart() {
         cartViewModel.getCartData().observe(getViewLifecycleOwner(), cart -> {
             if (cart == null) {
-                showEmpty("Không tải được giỏ hàng");
-                Toast.makeText(getContext(), "Không tải được giỏ hàng", Toast.LENGTH_SHORT).show();
+                showEmpty("Khong tai duoc gio hang");
+                ToastUtils.error(getContext(), "Khong tai duoc gio hang");
                 return;
             }
 
@@ -80,18 +147,33 @@ public class StudentCartFragment extends Fragment {
             cartShopAdapter.submitList(cart.getShops());
             if (hasCartItems) {
                 showList();
+                loadVouchersForFirstShop(cart.getShops());
             } else {
-                showEmpty("Giỏ hàng đang trống");
+                showEmpty("Gio hang dang trong");
+                bindVouchers(null);
             }
         });
+    }
 
+    private void observeCheckoutSupportData() {
+        orderViewModel.getBuildings().observe(getViewLifecycleOwner(), this::bindBuildings);
+        orderViewModel.getDropOffPoints().observe(getViewLifecycleOwner(), this::bindDropOffPoints);
+        orderViewModel.getVouchers().observe(getViewLifecycleOwner(), this::bindVouchers);
+        orderViewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.trim().isEmpty()) {
+                ToastUtils.info(getContext(), message);
+            }
+        });
+    }
+
+    private void observeActions() {
         orderViewModel.getCheckoutResult().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Đặt hàng thành công", Toast.LENGTH_SHORT).show();
+                ToastUtils.success(getContext(), "Dat hang thanh cong");
                 cartViewModel.loadCart();
                 openOrdersTab();
             } else if (success != null) {
-                Toast.makeText(getContext(), "Đặt hàng thất bại", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(getContext(), "Dat hang that bai");
             }
         });
 
@@ -99,52 +181,147 @@ public class StudentCartFragment extends Fragment {
             if (success != null && success) {
                 cartViewModel.loadCart();
             } else if (success != null) {
-                Toast.makeText(getContext(), "Không cập nhật được số lượng", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(getContext(), "Khong cap nhat duoc so luong");
             }
         });
 
         cartViewModel.getDeleteItemResult().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Đã xóa món khỏi giỏ", Toast.LENGTH_SHORT).show();
+                ToastUtils.success(getContext(), "Da xoa mon khoi gio");
                 cartViewModel.loadCart();
             } else if (success != null) {
-                Toast.makeText(getContext(), "Không thể xóa món", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(getContext(), "Khong the xoa mon");
             }
         });
 
         cartViewModel.getClearShopResult().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Đã xóa giỏ của quán", Toast.LENGTH_SHORT).show();
+                ToastUtils.success(getContext(), "Da xoa gio cua quan");
                 cartViewModel.loadCart();
             } else if (success != null) {
-                Toast.makeText(getContext(), "Không thể xóa giỏ của quán", Toast.LENGTH_SHORT).show();
+                ToastUtils.error(getContext(), "Khong the xoa gio cua quan");
             }
         });
-
-        btnCheckout.setOnClickListener(v -> checkout(etBuilding, etDropOff));
-        cartViewModel.loadCart();
     }
 
-    private void checkout(EditText etBuilding, EditText etDropOff) {
+    private void bindBuildings(List<BuildingResponse> buildings) {
+        buildingOptions.clear();
+        if (buildings != null) {
+            buildingOptions.addAll(buildings);
+        }
+        ArrayAdapter<BuildingResponse> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                buildingOptions
+        );
+        acBuilding.setAdapter(adapter);
+    }
+
+    private void bindDropOffPoints(List<DropOffPointResponse> dropOffPoints) {
+        dropOffOptions.clear();
+        if (dropOffPoints != null) {
+            dropOffOptions.addAll(dropOffPoints);
+        }
+        ArrayAdapter<DropOffPointResponse> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                dropOffOptions
+        );
+        acDropOff.setAdapter(adapter);
+    }
+
+    private void bindVouchers(List<VoucherResponse> vouchers) {
+        voucherOptions.clear();
+        if (vouchers != null) {
+            voucherOptions.addAll(vouchers);
+        }
+        ArrayAdapter<VoucherResponse> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                voucherOptions
+        );
+        acVoucherCode.setAdapter(adapter);
+    }
+
+    private void loadVouchersForFirstShop(List<ShopCartResponse> shops) {
+        if (shops == null || shops.isEmpty() || shops.get(0).getShopId() == null) {
+            bindVouchers(null);
+            return;
+        }
+        orderViewModel.loadVouchers(shops.get(0).getShopId());
+    }
+
+    private void checkout() {
         if (!hasCartItems) {
-            Toast.makeText(getContext(), "Giỏ hàng đang trống", Toast.LENGTH_SHORT).show();
+            ToastUtils.info(getContext(), "Gio hang dang trong");
             return;
         }
 
-        String building = etBuilding.getText().toString().trim();
-        String dropOff = etDropOff.getText().toString().trim();
+        String building = acBuilding.getText().toString().trim();
+        String dropOff = acDropOff.getText().toString().trim();
 
         if (building.isEmpty()) {
-            Toast.makeText(getContext(), "Vui lòng nhập tòa nhà", Toast.LENGTH_SHORT).show();
+            ToastUtils.error(getContext(), "Vui long chon hoac nhap toa nha");
             return;
         }
 
         if (dropOff.isEmpty()) {
-            Toast.makeText(getContext(), "Vui lòng nhập điểm nhận hàng", Toast.LENGTH_SHORT).show();
+            ToastUtils.error(getContext(), "Vui long chon hoac nhap diem nhan hang");
             return;
         }
 
-        orderViewModel.checkout(building, dropOff);
+        BuildingResponse buildingMatch = findBuilding(building);
+        DropOffPointResponse dropOffMatch = findDropOffPoint(dropOff);
+        String voucherCode = resolveVoucherCode(acVoucherCode.getText().toString().trim());
+
+        orderViewModel.checkout(
+                building,
+                dropOff,
+                buildingMatch != null ? buildingMatch.getId() : null,
+                dropOffMatch != null ? dropOffMatch.getId() : null,
+                voucherCode
+        );
+    }
+
+    private BuildingResponse findBuilding(String name) {
+        if (selectedBuilding != null && sameText(selectedBuilding.getName(), name)) {
+            return selectedBuilding;
+        }
+        for (BuildingResponse building : buildingOptions) {
+            if (sameText(building.getName(), name)) {
+                return building;
+            }
+        }
+        return null;
+    }
+
+    private DropOffPointResponse findDropOffPoint(String name) {
+        if (selectedDropOffPoint != null && sameText(selectedDropOffPoint.getName(), name)) {
+            return selectedDropOffPoint;
+        }
+        for (DropOffPointResponse dropOffPoint : dropOffOptions) {
+            if (sameText(dropOffPoint.getName(), name)) {
+                return dropOffPoint;
+            }
+        }
+        return null;
+    }
+
+    private String resolveVoucherCode(String value) {
+        if (value.isEmpty()) {
+            return null;
+        }
+        for (VoucherResponse voucher : voucherOptions) {
+            if (sameText(voucher.getDisplayText(), value) || sameText(voucher.getCode(), value)) {
+                return voucher.getCode();
+            }
+        }
+        int dashIndex = value.indexOf(" - ");
+        return dashIndex > 0 ? value.substring(0, dashIndex).trim() : value;
+    }
+
+    private boolean sameText(String first, String second) {
+        return first != null && second != null && first.trim().equalsIgnoreCase(second.trim());
     }
 
     private void confirmDeleteCartItem(CartItemResponse item) {
@@ -153,10 +330,10 @@ public class StudentCartFragment extends Fragment {
         }
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Xóa món")
-                .setMessage("Bạn muốn xóa món này khỏi giỏ hàng?")
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Xóa", (dialog, which) -> cartViewModel.deleteCartItem(item.getId()))
+                .setTitle("Xoa mon")
+                .setMessage("Ban muon xoa mon nay khoi gio hang?")
+                .setNegativeButton("Huy", null)
+                .setPositiveButton("Xoa", (dialog, which) -> cartViewModel.deleteCartItem(item.getId()))
                 .show();
     }
 
@@ -166,10 +343,10 @@ public class StudentCartFragment extends Fragment {
         }
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Xóa giỏ của quán")
-                .setMessage("Bạn muốn xóa tất cả món của quán này?")
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Xóa", (dialog, which) -> cartViewModel.clearShopCart(shop.getShopId()))
+                .setTitle("Xoa gio cua quan")
+                .setMessage("Ban muon xoa tat ca mon cua quan nay?")
+                .setNegativeButton("Huy", null)
+                .setPositiveButton("Xoa", (dialog, which) -> cartViewModel.clearShopCart(shop.getShopId()))
                 .show();
     }
 
