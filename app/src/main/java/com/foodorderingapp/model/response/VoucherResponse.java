@@ -125,4 +125,16 @@ public class VoucherResponse {
     public void setFoodIds(List<UUID> foodIds) {
         this.foodIds = foodIds;
     }
+
+    public String getDisplayText() {
+        String safeCode = code == null ? "" : code;
+        String safeTitle = title == null || title.trim().isEmpty() ? "Voucher" : title;
+        return safeCode + " - " + safeTitle;
+    }
+
+    @Override
+    public String toString() {
+        return getDisplayText();
+    }
 }
+
