@@ -39,7 +39,13 @@ import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.UploadImageResponse;
 import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.ui.voucher.VoucherManagementActivity;
+import com.foodorderingapp.ui.voucher.VoucherFormActivity;
 import com.foodorderingapp.utils.TokenManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import com.foodorderingapp.ui.adapter.VoucherAdapter;
+import com.foodorderingapp.model.response.VoucherResponse;
+import java.util.ArrayList;
 
 import android.widget.RadioGroup;
 import android.widget.RadioButton;
@@ -61,7 +67,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class VendorSettingsFragment extends Fragment {
+public class VendorSettingsFragment extends Fragment implements VoucherAdapter.VoucherActionHandler {
 
     private ImageView imgShopCover;
     private ImageView imgShopLogo;
@@ -101,6 +107,10 @@ public class VendorSettingsFragment extends Fragment {
     private UUID currentShopId;
     private ShopResponse currentShopData;
     private List<FoodResponse> shopFoodList;
+    private CardView cardActiveVouchers;
+    private RecyclerView rvActiveVouchers;
+    private VoucherAdapter voucherAdapter;
+    private final List<VoucherResponse> activeVoucherList = new ArrayList<>();
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private boolean isEditingLogo = true;
@@ -202,6 +212,14 @@ public class VendorSettingsFragment extends Fragment {
 
         btnEditCover = view.findViewById(R.id.btn_edit_cover);
         btnEditLogo = view.findViewById(R.id.btn_edit_logo);
+
+        cardActiveVouchers = view.findViewById(R.id.card_active_vouchers);
+        rvActiveVouchers = view.findViewById(R.id.rv_active_vouchers);
+        if (rvActiveVouchers != null) {
+            rvActiveVouchers.setLayoutManager(new LinearLayoutManager(getContext()));
+            voucherAdapter = new VoucherAdapter(activeVoucherList, this);
+            rvActiveVouchers.setAdapter(voucherAdapter);
+        }
 
         setupClickListeners();
         loadContactAndBankInfo();
@@ -468,6 +486,7 @@ public class VendorSettingsFragment extends Fragment {
     private void bindShopData(ShopResponse shop) {
         currentShopData = shop;
         currentShopId = shop.getId() != null ? UUID.fromString(shop.getId()) : null;
+        loadActiveVouchers();
 
         if (tvShopName != null) {
             tvShopName.setText(shop.getName());
@@ -746,5 +765,135 @@ public class VendorSettingsFragment extends Fragment {
         });
         builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
         builder.show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchShopInfo();
+    }
+
+    private void loadActiveVouchers() {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().getShopVouchers(currentShopId).enqueue(new Callback<List<VoucherResponse>>() {
+            @Override
+            public void onResponse(Call<List<VoucherResponse>> call, Response<List<VoucherResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<VoucherResponse> allVouchers = response.body();
+                    List<VoucherResponse> activeVouchers = new ArrayList<>();
+                    for (VoucherResponse v : allVouchers) {
+                        if (v.getActive() != null && v.getActive()) {
+                            activeVouchers.add(v);
+                        }
+                    }
+                    activeVoucherList.clear();
+                    activeVoucherList.addAll(activeVouchers);
+                    if (voucherAdapter != null) {
+                        voucherAdapter.updateData(activeVoucherList);
+                    }
+                    if (cardActiveVouchers != null) {
+                        cardActiveVouchers.setVisibility(activeVouchers.isEmpty() ? View.GONE : View.VISIBLE);
+                    }
+                } else {
+                    if (cardActiveVouchers != null) {
+                        cardActiveVouchers.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<VoucherResponse>> call, Throwable t) {
+                if (cardActiveVouchers != null) {
+                    cardActiveVouchers.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onStatusToggled(VoucherResponse voucher, boolean isActive) {
+        if (currentShopId == null || voucher.getId() == null) return;
+        Map<String, Boolean> body = new HashMap<>();
+        body.put("isActive", isActive);
+
+        ApiClient.getApiService().toggleVoucherStatus(currentShopId, voucher.getId(), body).enqueue(new Callback<VoucherResponse>() {
+            @Override
+            public void onResponse(Call<VoucherResponse> call, Response<VoucherResponse> response) {
+                if (response.isSuccessful()) {
+                    String statusStr = isActive ? "đã kích hoạt" : "đã tắt kích hoạt";
+                    Toast.makeText(getContext(), "Voucher " + voucher.getCode() + " " + statusStr, Toast.LENGTH_SHORT).show();
+                    loadActiveVouchers();
+                } else {
+                    Toast.makeText(getContext(), "Không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                    loadActiveVouchers();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<VoucherResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+                loadActiveVouchers();
+            }
+        });
+    }
+
+    @Override
+    public void onEditClicked(VoucherResponse voucher) {
+        if (currentShopId == null) return;
+        Intent intent = new Intent(getContext(), VoucherFormActivity.class);
+        intent.putExtra("SHOP_ID", currentShopId.toString());
+        intent.putExtra("VOUCHER_ID", voucher.getId().toString());
+        intent.putExtra("CODE", voucher.getCode());
+        intent.putExtra("TITLE", voucher.getTitle());
+        intent.putExtra("DISCOUNT_TYPE", voucher.getDiscountType());
+        if (voucher.getDiscountValue() != null) {
+            intent.putExtra("DISCOUNT_VALUE", voucher.getDiscountValue().toString());
+        }
+        intent.putExtra("MIN_ORDER_VALUE", voucher.getMinOrderValue() != null ? voucher.getMinOrderValue().toString() : "0");
+        intent.putExtra("MAX_DISCOUNT_VALUE", voucher.getMaxDiscountValue() != null ? voucher.getMaxDiscountValue().toString() : "");
+        intent.putExtra("APPLY_TYPE", voucher.getApplyType());
+        intent.putExtra("START_DATE", voucher.getStartDate());
+        intent.putExtra("END_DATE", voucher.getEndDate());
+        intent.putExtra("IS_ACTIVE", voucher.getActive() != null ? voucher.getActive() : false);
+        
+        if (voucher.getFoodIds() != null && !voucher.getFoodIds().isEmpty()) {
+            ArrayList<String> foodIdsStrList = new ArrayList<>();
+            for (UUID uuid : voucher.getFoodIds()) {
+                foodIdsStrList.add(uuid.toString());
+            }
+            intent.putStringArrayListExtra("FOOD_IDS", foodIdsStrList);
+        }
+        startActivity(intent);
+    }
+
+    @Override
+    public void onDeleteClicked(VoucherResponse voucher) {
+        if (currentShopId == null || voucher.getId() == null) return;
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Xóa Voucher?")
+                .setMessage("Bạn có chắc chắn muốn xóa voucher " + voucher.getCode() + "? Hành động này không thể hoàn tác.")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteVoucherOnServer(voucher.getId()))
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void deleteVoucherOnServer(UUID voucherId) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().deleteVoucher(currentShopId, voucherId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful() || response.code() == 204) {
+                    Toast.makeText(getContext(), "Đã xóa voucher thành công!", Toast.LENGTH_SHORT).show();
+                    loadActiveVouchers();
+                } else {
+                    Toast.makeText(getContext(), "Không thể xóa voucher", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
