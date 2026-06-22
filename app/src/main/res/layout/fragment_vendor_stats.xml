@@ -227,7 +227,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Biểu Đồ Doanh Thu &amp; Đơn Hàng"
+                        android:text="Biểu Đồ Doanh Thu"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/black"
@@ -235,6 +235,36 @@
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/chart_revenue_trend"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Order Trend Chart -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/white">
+                <LinearLayout
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Biểu Đồ Số Lượng Đơn Hàng"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_marginBottom="12dp"/>
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chart_order_trend"
                         android:layout_width="match_parent"
                         android:layout_height="220dp" />
                 </LinearLayout>

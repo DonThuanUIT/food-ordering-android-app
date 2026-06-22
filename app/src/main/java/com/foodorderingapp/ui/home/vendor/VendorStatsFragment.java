@@ -213,8 +213,9 @@ public class VendorStatsFragment extends Fragment {
         BigDecimal avgValue = data.getAverageOrderValue() != null ? data.getAverageOrderValue() : BigDecimal.ZERO;
         binding.tvAverageOrderValue.setText(formatCurrency(avgValue));
 
-        // Draw Line Chart
-        setupLineChart(data.getOrderTrends());
+        // Draw Line Charts
+        setupRevenueChart(data.getOrderTrends());
+        setupOrderChart(data.getOrderTrends());
 
         // Draw Pie Chart
         setupPieChart(data.getOrderStatusBreakdown());
@@ -227,7 +228,7 @@ public class VendorStatsFragment extends Fragment {
         return String.format(Locale.US, "%,dđ", value.longValue());
     }
 
-    private void setupLineChart(List<TrendData> trends) {
+    private void setupRevenueChart(List<TrendData> trends) {
         if (trends == null || trends.isEmpty()) {
             binding.chartRevenueTrend.clear();
             return;
@@ -240,7 +241,6 @@ public class VendorStatsFragment extends Fragment {
             TrendData trend = trends.get(i);
             revenueEntries.add(new Entry(i, trend.getRevenue().floatValue()));
             
-            // Format yyyy-MM-dd to MM-dd for visual simplicity
             String dateStr = trend.getDate();
             if (dateStr != null && dateStr.length() >= 10) {
                 dates.add(dateStr.substring(5)); // take MM-dd
@@ -249,13 +249,13 @@ public class VendorStatsFragment extends Fragment {
             }
         }
 
-        LineDataSet set = new LineDataSet(revenueEntries, "Doanh thu");
+        LineDataSet set = new LineDataSet(revenueEntries, "Doanh thu (đ)");
         set.setColor(Color.parseColor("#FF7A21")); // brand_orange
         set.setCircleColor(Color.parseColor("#FF7A21"));
         set.setLineWidth(2.5f);
         set.setCircleRadius(4f);
         set.setDrawCircleHole(false);
-        set.setValueTextSize(9f);
+        set.setDrawValues(false); // Clean design: hide values on line points
         set.setDrawFilled(true);
         set.setFillColor(Color.parseColor("#FFE4D1")); // light orange fill
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
@@ -265,9 +265,13 @@ public class VendorStatsFragment extends Fragment {
 
         // Styling Line Chart
         binding.chartRevenueTrend.getDescription().setEnabled(false);
-        binding.chartRevenueTrend.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        binding.chartRevenueTrend.getXAxis().setGranularity(1f);
-        binding.chartRevenueTrend.getXAxis().setValueFormatter(new ValueFormatter() {
+        
+        XAxis xAxis = binding.chartRevenueTrend.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
+        xAxis.setTextColor(Color.parseColor("#718096"));
+        xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
                 int idx = (int) value;
@@ -279,6 +283,22 @@ public class VendorStatsFragment extends Fragment {
         });
         
         binding.chartRevenueTrend.getAxisRight().setEnabled(false);
+        
+        binding.chartRevenueTrend.getAxisLeft().setAxisMinimum(0f);
+        
+        float maxRevenue = 0f;
+        for (Entry entry : revenueEntries) {
+            maxRevenue = Math.max(maxRevenue, entry.getY());
+        }
+        if (maxRevenue == 0f) {
+            binding.chartRevenueTrend.getAxisLeft().setAxisMaximum(10000f);
+        } else {
+            binding.chartRevenueTrend.getAxisLeft().resetAxisMaximum();
+        }
+
+        binding.chartRevenueTrend.getAxisLeft().setDrawGridLines(true);
+        binding.chartRevenueTrend.getAxisLeft().setGridColor(Color.parseColor("#EDF2F7")); // faint horizontal grid lines
+        binding.chartRevenueTrend.getAxisLeft().setTextColor(Color.parseColor("#718096"));
         binding.chartRevenueTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -291,8 +311,93 @@ public class VendorStatsFragment extends Fragment {
             }
         });
 
+        binding.chartRevenueTrend.getLegend().setTextColor(Color.parseColor("#4A5568"));
         binding.chartRevenueTrend.animateY(800);
         binding.chartRevenueTrend.invalidate();
+    }
+
+    private void setupOrderChart(List<TrendData> trends) {
+        if (trends == null || trends.isEmpty()) {
+            binding.chartOrderTrend.clear();
+            return;
+        }
+
+        List<Entry> orderEntries = new ArrayList<>();
+        final List<String> dates = new ArrayList<>();
+
+        for (int i = 0; i < trends.size(); i++) {
+            TrendData trend = trends.get(i);
+            orderEntries.add(new Entry(i, trend.getOrderCount().floatValue()));
+            
+            String dateStr = trend.getDate();
+            if (dateStr != null && dateStr.length() >= 10) {
+                dates.add(dateStr.substring(5)); // take MM-dd
+            } else {
+                dates.add(dateStr);
+            }
+        }
+
+        LineDataSet set = new LineDataSet(orderEntries, "Số đơn hàng");
+        set.setColor(Color.parseColor("#3182CE")); // Material Blue
+        set.setCircleColor(Color.parseColor("#3182CE"));
+        set.setLineWidth(2.5f);
+        set.setCircleRadius(4f);
+        set.setDrawCircleHole(false);
+        set.setDrawValues(false); // Clean design: hide values on line points
+        set.setDrawFilled(true);
+        set.setFillColor(Color.parseColor("#EBF8FF")); // light blue fill
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+
+        LineData lineData = new LineData(set);
+        binding.chartOrderTrend.setData(lineData);
+
+        // Styling Line Chart
+        binding.chartOrderTrend.getDescription().setEnabled(false);
+        
+        XAxis xAxis = binding.chartOrderTrend.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
+        xAxis.setTextColor(Color.parseColor("#718096"));
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int idx = (int) value;
+                if (idx >= 0 && idx < dates.size()) {
+                    return dates.get(idx);
+                }
+                return "";
+            }
+        });
+        
+        binding.chartOrderTrend.getAxisRight().setEnabled(false);
+        
+        binding.chartOrderTrend.getAxisLeft().setAxisMinimum(0f);
+        binding.chartOrderTrend.getAxisLeft().setGranularity(1f);
+
+        float maxOrders = 0f;
+        for (Entry entry : orderEntries) {
+            maxOrders = Math.max(maxOrders, entry.getY());
+        }
+        if (maxOrders == 0f) {
+            binding.chartOrderTrend.getAxisLeft().setAxisMaximum(10f);
+        } else {
+            binding.chartOrderTrend.getAxisLeft().resetAxisMaximum();
+        }
+
+        binding.chartOrderTrend.getAxisLeft().setDrawGridLines(true);
+        binding.chartOrderTrend.getAxisLeft().setGridColor(Color.parseColor("#EDF2F7")); // faint horizontal grid lines
+        binding.chartOrderTrend.getAxisLeft().setTextColor(Color.parseColor("#718096"));
+        binding.chartOrderTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.format(Locale.US, "%.0f đơn", value);
+            }
+        });
+
+        binding.chartOrderTrend.getLegend().setTextColor(Color.parseColor("#4A5568"));
+        binding.chartOrderTrend.animateY(800);
+        binding.chartOrderTrend.invalidate();
     }
 
     private void setupPieChart(Map<String, Long> statusMap) {
