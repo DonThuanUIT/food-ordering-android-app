@@ -27,6 +27,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
         void onDeliverClicked(OrderResponse order);
         void onCompleteClicked(OrderResponse order);
         void onCancelClicked(OrderResponse order);
+        void onOrderClicked(OrderResponse order);
     }
 
     private final List<OrderResponse> orders;
@@ -202,6 +203,10 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
 
             btnActionCancel.setOnClickListener(v -> {
                 if (actionHandler != null) actionHandler.onCancelClicked(order);
+            });
+
+            itemView.setOnClickListener(v -> {
+                if (actionHandler != null) actionHandler.onOrderClicked(order);
             });
         }
 
