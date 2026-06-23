@@ -1,5 +1,7 @@
 package com.foodorderingapp.model.response;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdminOverviewResponse {
@@ -7,6 +9,10 @@ public class AdminOverviewResponse {
     private long totalShops;
     private long pendingShops;
     private long approvedShops;
+    private long rejectedShops;
+    private long bannedShops;
+    private BigDecimal totalSystemRevenue;
+    private long totalSystemOrders;
     private List<AdminDailyOrderResponse> dailyOrders;
 
     public AdminOverviewResponse(long totalUsers,
@@ -37,7 +43,32 @@ public class AdminOverviewResponse {
         return approvedShops;
     }
 
+    public long getRejectedShops() {
+        return rejectedShops;
+    }
+
+    public long getBannedShops() {
+        return bannedShops;
+    }
+
+    public BigDecimal getTotalSystemRevenue() {
+        return totalSystemRevenue == null ? BigDecimal.ZERO : totalSystemRevenue;
+    }
+
+    public long getTotalSystemOrders() {
+        return totalSystemOrders;
+    }
+
     public List<AdminDailyOrderResponse> getDailyOrders() {
-        return dailyOrders;
+        if (dailyOrders != null && !dailyOrders.isEmpty()) {
+            return dailyOrders;
+        }
+
+        List<AdminDailyOrderResponse> statusBreakdown = new ArrayList<>();
+        statusBreakdown.add(new AdminDailyOrderResponse("Pending", pendingShops));
+        statusBreakdown.add(new AdminDailyOrderResponse("Approved", approvedShops));
+        statusBreakdown.add(new AdminDailyOrderResponse("Rejected", rejectedShops));
+        statusBreakdown.add(new AdminDailyOrderResponse("Banned", bannedShops));
+        return statusBreakdown;
     }
 }

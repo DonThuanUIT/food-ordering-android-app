@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
+import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
@@ -47,6 +48,10 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class StudentProfileFragment extends Fragment {
     private final List<BuildingResponse> buildingOptions = new ArrayList<>();
@@ -631,8 +636,37 @@ public class StudentProfileFragment extends Fragment {
     }
 
     private void logout() {
+        if (!unregisterDeviceToken()) {
+            finishLogout();
+        }
+    }
+
+    private boolean unregisterDeviceToken() {
+        String fcmToken = TokenManager.getInstance().getFcmToken();
+        if (isBlank(fcmToken)) {
+            return false;
+        }
+
+        ApiClient.getApiService().removeDeviceToken(fcmToken).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                finishLogout();
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                finishLogout();
+            }
+        });
+        return true;
+    }
+
+    private void finishLogout() {
         TokenManager.getInstance().clearTokens();
-        Intent intent = new Intent(requireContext(), LoginActivity.class);
+        if (getContext() == null) {
+            return;
+        }
+        Intent intent = new Intent(getContext(), LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }

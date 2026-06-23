@@ -16,6 +16,7 @@ import com.foodorderingapp.model.response.AdminOverviewResponse;
 import com.foodorderingapp.ui.widget.AdminOrderChartView;
 import com.foodorderingapp.viewmodel.AdminViewModel;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -76,12 +77,16 @@ public class AdminOverviewFragment extends Fragment {
         tvUsersValue.setText(formatNumber(overview.getTotalUsers()));
         tvShopsValue.setText(formatNumber(overview.getTotalShops()));
         tvPendingValue.setText(formatNumber(overview.getPendingShops()));
-        tvRevenueValue.setText(formatNumber(overview.getApprovedShops()));
+        tvRevenueValue.setText(formatCurrency(overview.getTotalSystemRevenue()));
         dailyChart.setData(overview.getDailyOrders());
     }
 
     private String formatNumber(long value) {
         return NumberFormat.getNumberInstance(vietnameseLocale).format(value);
+    }
+
+    private String formatCurrency(BigDecimal value) {
+        return formatNumber(value == null ? 0L : value.longValue()) + " VND";
     }
 
 }

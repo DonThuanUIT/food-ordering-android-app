@@ -81,7 +81,8 @@ public class LoginViewModel extends ViewModel {
 
     private void sendFcmTokenToServer() {
         // Chủ động gọi thẳng Firebase để đòi Token hiện tại
-        com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
+        try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         android.util.Log.w("FCM_SERVICE", " Lấy FCM token từ Firebase thất bại", task.getException());
@@ -116,5 +117,8 @@ public class LoginViewModel extends ViewModel {
                         }
                     });
                 });
+        } catch (IllegalStateException exception) {
+            android.util.Log.w("FCM_SERVICE", "Firebase is not configured on this build", exception);
+        }
     }
 }

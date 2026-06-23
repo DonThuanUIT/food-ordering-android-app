@@ -1,12 +1,16 @@
 package com.foodorderingapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -60,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupMenuAndNavigation(userRole);
         setupHeaderActions();
+        requestNotificationPermissionIfNeeded();
         handleStartTab(getIntent());
         bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
         bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
@@ -190,6 +195,21 @@ public class MainActivity extends AppCompatActivity {
     private void setupHeaderActions() {
         findViewById(R.id.ivProfile).setOnClickListener(v -> openProfileShortcut());
         findViewById(R.id.ivMenu).setOnClickListener(v -> showQuickMenu());
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return;
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                1001
+        );
     }
 
     private void openProfileShortcut() {

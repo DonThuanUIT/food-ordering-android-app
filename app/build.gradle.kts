@@ -1,7 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
-    // Kích hoạt plugin Firebase cho module app này
-    id("com.google.gms.google-services")
+}
+
+val hasGoogleServicesConfig =
+    file("google-services.json").exists() ||
+        file("src/debug/google-services.json").exists() ||
+        file("src/release/google-services.json").exists()
+
+if (hasGoogleServicesConfig) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 android {
