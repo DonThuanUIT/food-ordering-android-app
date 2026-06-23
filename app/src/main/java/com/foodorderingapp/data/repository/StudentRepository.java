@@ -7,6 +7,7 @@ import com.foodorderingapp.data.remote.api.ApiService;
 import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
+import com.foodorderingapp.model.response.StudentReviewResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
 
 import java.util.List;
@@ -92,9 +93,9 @@ public class StudentRepository {
     }
 
     public void updateMyProfile(UpdateProfileRequest request,
-                                MutableLiveData<UserProfileResponse> profile,
-                                MutableLiveData<Boolean> updateResult,
-                                MutableLiveData<String> message) {
+                                 MutableLiveData<UserProfileResponse> profile,
+                                 MutableLiveData<Boolean> updateResult,
+                                 MutableLiveData<String> message) {
         apiService.updateMyProfile(request).enqueue(new Callback<UserProfileResponse>() {
             @Override
             public void onResponse(Call<UserProfileResponse> call,
@@ -113,6 +114,28 @@ public class StudentRepository {
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
                 updateResult.postValue(false);
                 postMessage(message, "Loi ket noi khi cap nhat ho so");
+            }
+        });
+    }
+
+    public void getMyReviews(MutableLiveData<List<StudentReviewResponse>> reviews,
+                             MutableLiveData<String> message) {
+        apiService.getMyReviews().enqueue(new Callback<List<StudentReviewResponse>>() {
+            @Override
+            public void onResponse(Call<List<StudentReviewResponse>> call,
+                                   Response<List<StudentReviewResponse>> response) {
+                if (response.isSuccessful()) {
+                    reviews.postValue(response.body());
+                } else {
+                    reviews.postValue(null);
+                    postMessage(message, "Khong tai duoc danh gia cua toi");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<StudentReviewResponse>> call, Throwable t) {
+                reviews.postValue(null);
+                postMessage(message, "Loi ket noi khi tai danh gia");
             }
         });
     }

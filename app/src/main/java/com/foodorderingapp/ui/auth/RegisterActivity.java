@@ -16,10 +16,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.foodorderingapp.R;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.utils.ToastUtils;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -30,17 +38,15 @@ public class RegisterActivity extends AppCompatActivity {
     private LinearLayout layoutStudentFields, layoutVendorFields;
     private Button btnRegister;
     private ImageView imgEyePassword, imgEyeConfirmPassword;
-
     private RegisterViewModel viewModel;
-
     private boolean isPasswordVisible = false;
     private boolean isConfirmPasswordVisible = false;
 
-    private final Pattern PHONE_PATTERN = Pattern.compile("^\\d{10}$");
-    private final Pattern PASSWORD_PATTERN =
+    private final Pattern phonePattern = Pattern.compile("^\\d{10}$");
+    private final Pattern passwordPattern =
             Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$");
-
     private final Map<String, String> buildingMap = new HashMap<>();
+    private String defaultBuildingId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +55,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
 
-        initBuildingMap();
         initViews();
         setupListeners();
         observeViewModel();
-    }
-
-    private void initBuildingMap() {
-        buildingMap.put("e01", "11111111-1111-1111-1111-111111111111");
-        buildingMap.put("e02", "22222222-2222-2222-2222-222222222222");
+        loadBuildings();
     }
 
     private void initViews() {
@@ -79,30 +80,26 @@ public class RegisterActivity extends AppCompatActivity {
         imgEyePassword = findViewById(R.id.imgEyePassword);
         imgEyeConfirmPassword = findViewById(R.id.imgEyeConfirmPassword);
 
+        edtBuildingId.setHint("Nhap ten hoac UUID toa nha");
         layoutStudentFields.setVisibility(View.VISIBLE);
         layoutVendorFields.setVisibility(View.GONE);
     }
 
-    // Trong RegisterActivity.java
     private void observeViewModel() {
         viewModel.getIsSuccess().observe(this, success -> {
-            // Chỉ chuyển màn khi success đích thân là TRUE
             if (success != null && success) {
-                // Lấy email trực tiếp từ EditText
                 String email = edtEmail.getText().toString().trim();
-
                 Intent intent = new Intent(RegisterActivity.this, OtpActivity.class);
-                intent.putExtra("email", email); // Truyền email sang màn OTP
+                intent.putExtra("email", email);
                 startActivity(intent);
-                finish(); // Đóng màn hình đăng ký
+                finish();
             }
         });
 
-        // Đừng quên observe message để hiện thông báo lỗi
         viewModel.getMessage().observe(this, msg -> {
             if (msg != null) {
                 btnRegister.setEnabled(true);
-                btnRegister.setText("Đăng ký");
+                btnRegister.setText("Dang ky");
                 ToastUtils.info(this, msg);
             }
         });
@@ -121,6 +118,39 @@ public class RegisterActivity extends AppCompatActivity {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
     }
 
+    private void loadBuildings() {
+        ApiClient.getApiService().getBuildings().enqueue(new Callback<List<BuildingResponse>>() {
+            @Override
+            public void onResponse(Call<List<BuildingResponse>> call, Response<List<BuildingResponse>> response) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    return;
+                }
+                buildingMap.clear();
+                defaultBuildingId = null;
+                for (BuildingResponse building : response.body()) {
+                    if (building == null || isBlank(building.getId())) {
+                        continue;
+                    }
+                    if (defaultBuildingId == null) {
+                        defaultBuildingId = building.getId();
+                    }
+                    buildingMap.put(building.getId().toLowerCase(), building.getId());
+                    if (!isBlank(building.getName())) {
+                        buildingMap.put(building.getName().trim().toLowerCase(), building.getId());
+                    }
+                }
+                if (defaultBuildingId != null && edtBuildingId.getText().toString().trim().isEmpty()) {
+                    edtBuildingId.setHint("VD: " + firstBuildingLabel(response.body()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<BuildingResponse>> call, Throwable t) {
+                ToastUtils.info(RegisterActivity.this, "Khong tai duoc danh sach toa nha");
+            }
+        });
+    }
+
     private void handleRegister() {
         String fullName = edtFullName.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
@@ -128,20 +158,30 @@ public class RegisterActivity extends AppCompatActivity {
         String password = edtPassword.getText().toString().trim();
         String confirmPassword = edtConfirmPassword.getText().toString().trim();
 
-        if (!validateCommonInput(fullName, email, phone, password, confirmPassword)) return;
+        if (!validateCommonInput(fullName, email, phone, password, confirmPassword)) {
+            return;
+        }
 
         btnRegister.setEnabled(false);
-        btnRegister.setText("Đang xử lý...");
+        btnRegister.setText("Dang xu ly...");
         String buildingId = "";
         String shopName = "";
 
         if (rbStudent.isChecked()) {
-            String code = edtBuildingId.getText().toString().trim().toLowerCase();
-            buildingId = buildingMap.getOrDefault(code, buildingMap.get("e01"));
+            String input = edtBuildingId.getText().toString().trim().toLowerCase();
+            buildingId = input.isEmpty() ? defaultBuildingId : buildingMap.get(input);
+            if (isBlank(buildingId)) {
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Dang ky");
+                edtBuildingId.setError("Chon toa nha co trong he thong");
+                return;
+            }
         } else {
             shopName = edtShopName.getText().toString().trim();
             if (shopName.isEmpty()) {
-                edtShopName.setError("Nhập tên quán");
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Dang ky");
+                edtShopName.setError("Nhap ten quan");
                 return;
             }
         }
@@ -150,27 +190,55 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean validateCommonInput(String fullName, String email, String phone, String password, String confirm) {
-        if (fullName.isEmpty()) { edtFullName.setError("Nhập họ tên"); return false; }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { edtEmail.setError("Email sai"); return false; }
-        if (!PHONE_PATTERN.matcher(phone).matches()) { edtPhone.setError("SĐT 10 số"); return false; }
-        if (!PASSWORD_PATTERN.matcher(password).matches()) { edtPassword.setError("Mật khẩu ít nhất 8 ký tự, gồm hoa, thường, số và ký tự đặc biệt"); return false; }
-        if (!password.equals(confirm)) { edtConfirmPassword.setError("Mật khẩu không khớp"); return false; }
+        if (fullName.isEmpty()) {
+            edtFullName.setError("Nhap ho ten");
+            return false;
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            edtEmail.setError("Email sai");
+            return false;
+        }
+        if (!phonePattern.matcher(phone).matches()) {
+            edtPhone.setError("SDT 10 so");
+            return false;
+        }
+        if (!passwordPattern.matcher(password).matches()) {
+            edtPassword.setError("Mat khau it nhat 8 ky tu, gom hoa, thuong, so va ky tu dac biet");
+            return false;
+        }
+        if (!password.equals(confirm)) {
+            edtConfirmPassword.setError("Mat khau khong khop");
+            return false;
+        }
         return true;
     }
 
     private void togglePasswordVisibility() {
         isPasswordVisible = !isPasswordVisible;
-        edtPassword.setInputType(isPasswordVisible ?
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        edtPassword.setInputType(isPasswordVisible
+                ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         edtPassword.setSelection(edtPassword.length());
     }
 
     private void toggleConfirmPasswordVisibility() {
         isConfirmPasswordVisible = !isConfirmPasswordVisible;
-        edtConfirmPassword.setInputType(isConfirmPasswordVisible ?
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD :
-                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        edtConfirmPassword.setInputType(isConfirmPasswordVisible
+                ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         edtConfirmPassword.setSelection(edtConfirmPassword.length());
+    }
+
+    private String firstBuildingLabel(List<BuildingResponse> values) {
+        for (BuildingResponse building : values) {
+            if (building != null && !isBlank(building.getName())) {
+                return building.getName();
+            }
+        }
+        return "toa nha";
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

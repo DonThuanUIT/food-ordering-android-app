@@ -119,7 +119,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/ic_stats"
-                        app:tint="@color/brand_orange" />
+                        app:tint="@color/profile_spending_accent" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -138,7 +138,7 @@
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="Tải lại thống kê"
                         android:src="@drawable/ic_turbo"
-                        app:tint="@color/text_secondary" />
+                        app:tint="@color/profile_spending_accent_dark" />
                 </LinearLayout>
 
                 <!-- Filter Controls Row -->
@@ -159,7 +159,7 @@
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        app:backgroundTint="@color/brand_orange"
+                        app:backgroundTint="@color/profile_spending_accent"
                         app:cornerRadius="10dp" />
 
                     <com.google.android.material.button.MaterialButton
@@ -173,7 +173,7 @@
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        app:backgroundTint="@color/brand_orange"
+                        app:backgroundTint="@color/profile_spending_accent"
                         app:cornerRadius="10dp" />
                 </LinearLayout>
 
@@ -192,7 +192,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_clock"
-                        app:tint="@color/text_secondary" />
+                        app:tint="@color/profile_spending_accent_dark" />
 
                     <TextView
                         android:id="@+id/btnSpendingFrom"
@@ -245,7 +245,7 @@
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.05"
                         android:text="TỔNG CHI TIÊU"
-                        android:textColor="#94A3B8"
+                        android:textColor="@color/profile_spending_accent_dark"
                         android:textSize="11sp"
                         android:textStyle="bold" />
 
@@ -255,7 +255,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="0đ"
-                        android:textColor="@color/white"
+                        android:textColor="@color/profile_spending_accent_dark"
                         android:textSize="26sp"
                         android:textStyle="bold" />
 
@@ -265,7 +265,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Từ --/--/---- đến --/--/----"
-                        android:textColor="#CBD5E1"
+                        android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -292,7 +292,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/profile_spending_accent_dark"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -322,7 +322,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0đ"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/profile_spending_accent_dark"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -352,7 +352,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0đ"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/profile_spending_accent_dark"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -370,10 +370,14 @@
                 <LinearLayout
                     android:id="@+id/llSpendingChart"
                     android:layout_width="match_parent"
-                    android:layout_height="110dp"
+                    android:layout_height="128dp"
                     android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_spending_chart_surface"
                     android:gravity="bottom"
-                    android:orientation="horizontal" />
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="6dp" />
 
                 <!-- Breakdown List -->
                 <TextView
