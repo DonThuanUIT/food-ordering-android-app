@@ -3,11 +3,15 @@
     <item
         android:id="@+id/nav_vendor_orders"
         android:icon="@drawable/ic_nav_orders"
-        android:title="Orders" />
+        android:title="Đơn hàng" />
+    <item
+        android:id="@+id/nav_vendor_messages"
+        android:icon="@drawable/ic_contact"
+        android:title="Tin nhắn" />
     <item
         android:id="@+id/nav_vendor_stats"
         android:icon="@drawable/ic_nav_stats"
-        android:title="Stats" />
+        android:title="Thống kê" />
     <item
         android:id="@+id/nav_vendor_menu"
         android:icon="@drawable/ic_nav_menu"
@@ -15,5 +19,5 @@
     <item
         android:id="@+id/nav_vendor_settings"
         android:icon="@drawable/ic_nav_settings"
-        android:title="Settings" />
+        android:title="Cài đặt" />
 </menu>

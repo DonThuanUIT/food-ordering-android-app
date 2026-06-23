@@ -6,6 +6,7 @@ import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.ReviewRequest;
+import com.foodorderingapp.model.request.SendChatMessageRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
 import com.foodorderingapp.model.request.UpdateProfileRequest;
@@ -17,6 +18,8 @@ import com.foodorderingapp.model.response.AdminUserResponse;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
+import com.foodorderingapp.model.response.ChatMessageResponse;
+import com.foodorderingapp.model.response.ChatRoomResponse;
 import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
@@ -207,6 +210,19 @@ public interface ApiService {
             @Path("orderId") String orderId,
             @Body ReviewRequest request
     );
+
+    // --- Chat ---
+    @GET("chat/rooms")
+    Call<List<ChatRoomResponse>> getChatRooms();
+
+    @GET("chat/{roomId}/history")
+    Call<List<ChatMessageResponse>> getChatHistory(@Path("roomId") String roomId);
+
+    @POST("chat/send")
+    Call<Void> sendChatMessage(@Body SendChatMessageRequest request);
+
+    @PUT("chat/{roomId}/read")
+    Call<Void> markChatRoomRead(@Path("roomId") String roomId);
 
     // --- Admin ---
     @GET("admin/overview")
