@@ -52,10 +52,15 @@
 
     <!-- Profile Screen Colors -->
     <color name="profile_header_dark">#0D1033</color>
-    <color name="profile_spending_bg">#FFF4E6</color>
-    <color name="profile_chart_bar_light">#FFB380</color>
-    <color name="profile_chart_bar_main">#FF782E</color>
-    <color name="profile_chart_bar_empty">#D1D1D6</color>
+    <color name="profile_spending_bg">#FFFFFF</color>
+    <color name="profile_spending_surface">#F8FFFB</color>
+    <color name="profile_spending_accent">#10B981</color>
+    <color name="profile_spending_accent_dark">#047857</color>
+    <color name="profile_spending_accent_soft">#ECFDF5</color>
+    <color name="profile_spending_border">#D6F3E3</color>
+    <color name="profile_chart_bar_light">#A7F3D0</color>
+    <color name="profile_chart_bar_main">#10B981</color>
+    <color name="profile_chart_bar_empty">#DCEFE7</color>
     <color name="profile_logout_red">#C1272D</color>
     <color name="profile_tag_bg">#F2F2F7</color>
     <color name="profile_divider">#E5E5EA</color>

@@ -239,13 +239,34 @@
         android:paddingEnd="28dp">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnViewMenu"
-            android:layout_width="match_parent"
+            android:id="@+id/btnChatShop"
+            android:layout_width="0dp"
             android:layout_height="66dp"
-            android:text="Xem Menu Quán"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:text="Chat"
+            android:textAllCaps="false"
+            android:textColor="#FF7A21"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#FFF3EC"
+            app:cornerRadius="14dp"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_contact"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="#FF7A21"
+            app:rippleColor="#1AFF7A21" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewMenu"
+            android:layout_width="0dp"
+            android:layout_height="66dp"
+            android:layout_weight="1"
+            android:text="Xem Menu"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:backgroundTint="#FF7A21"
             app:cornerRadius="14dp"

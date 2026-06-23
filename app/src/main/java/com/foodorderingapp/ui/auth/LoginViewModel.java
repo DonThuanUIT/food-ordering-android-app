@@ -51,6 +51,7 @@ public class LoginViewModel extends ViewModel {
                             authResponse.getRole(),
                             authResponse.getFullName()
                     );
+                    sendFcmTokenToServer();
                     loginResponse.setValue(authResponse);
                 } else {
                     handleError(response);
@@ -75,6 +76,49 @@ public class LoginViewModel extends ViewModel {
             }
         } catch (IOException e) {
             errorMessage.setValue("Lỗi hệ thống");
+        }
+    }
+
+    private void sendFcmTokenToServer() {
+        // Chủ động gọi thẳng Firebase để đòi Token hiện tại
+        try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        android.util.Log.w("FCM_SERVICE", " Lấy FCM token từ Firebase thất bại", task.getException());
+                        return;
+                    }
+
+                    String fcmToken = task.getResult();
+
+                    // Lưu dự phòng vào Local
+                    TokenManager.getInstance().saveFcmToken(fcmToken);
+
+                    // 2. Đóng gói thông tin thiết bị
+                    String deviceInfo = android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
+                    java.util.Map<String, String> body = new java.util.HashMap<>();
+                    body.put("fcmToken", fcmToken);
+                    body.put("deviceInfo", deviceInfo);
+
+                    // 3. Bắn lên Server
+                    ApiClient.getApiService().registerDeviceToken(body).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (response.isSuccessful()) {
+                                android.util.Log.d("FCM_SERVICE", " Đã nộp FCM Token lên Backend thành công!");
+                            } else {
+                                android.util.Log.e("FCM_SERVICE", " Nộp FCM Token thất bại. Code: " + response.code());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            android.util.Log.e("FCM_SERVICE", " Rớt mạng khi nộp FCM Token: " + t.getMessage());
+                        }
+                    });
+                });
+        } catch (IllegalStateException exception) {
+            android.util.Log.w("FCM_SERVICE", "Firebase is not configured on this build", exception);
         }
     }
 }

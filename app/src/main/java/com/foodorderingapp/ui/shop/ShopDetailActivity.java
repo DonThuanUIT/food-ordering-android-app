@@ -15,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
+import com.foodorderingapp.ui.chat.ChatActivity;
 import com.foodorderingapp.utils.ToastUtils;
+import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.viewmodel.ShopViewModel;
 
 public class ShopDetailActivity extends AppCompatActivity {
@@ -29,6 +31,7 @@ public class ShopDetailActivity extends AppCompatActivity {
     private ImageView ivShopStatusIcon;
     private LinearLayout layoutShopStatus;
     private Button btnViewMenu;
+    private Button btnChatShop;
 
     private ShopViewModel shopViewModel;
     private String shopId;
@@ -64,6 +67,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         ivShopStatusIcon = findViewById(R.id.ivShopStatusIcon);
         layoutShopStatus = findViewById(R.id.layoutShopStatus);
         btnViewMenu = findViewById(R.id.btnViewMenu);
+        btnChatShop = findViewById(R.id.btnChatShop);
     }
 
     private void bindClickListeners() {
@@ -85,6 +89,15 @@ public class ShopDetailActivity extends AppCompatActivity {
             Intent intent = new Intent(this, ShopMenuActivity.class);
             intent.putExtra("SHOP_ID", shopId);
             intent.putExtra("SHOP_NAME", tvShopName.getText().toString());
+            startActivity(intent);
+        });
+
+        boolean isStudent = "STUDENT".equalsIgnoreCase(TokenManager.getInstance().getRole());
+        btnChatShop.setVisibility(isStudent ? android.view.View.VISIBLE : android.view.View.GONE);
+        btnChatShop.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.putExtra(ChatActivity.EXTRA_SHOP_ID, shopId);
+            intent.putExtra(ChatActivity.EXTRA_SHOP_NAME, tvShopName.getText().toString());
             startActivity(intent);
         });
     }

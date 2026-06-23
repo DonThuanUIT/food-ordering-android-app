@@ -1,9 +1,12 @@
 package com.foodorderingapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.os.Bundle;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.os.Bundle;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,6 +26,7 @@ import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
 import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
+import com.foodorderingapp.ui.home.vendor.VendorMessagesFragment;
 import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentProfileFragment;
 import com.foodorderingapp.ui.home.student.StudentCartFragment;
@@ -90,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupHeaderActions();
+        requestNotificationPermissionIfNeeded();
         handleStartTab(getIntent());
         bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
         bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
@@ -116,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         if (isAdminRole(role)) {
             updateHeader("UniEats Admin");
         } else if (isVendorRole(role)) {
-            updateHeader("Đơn Hàng");
+            updateHeader("Đơn hàng");
         } else {
             updateHeader("UniEats");
         }
@@ -143,23 +149,27 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (id == R.id.nav_home || id == R.id.nav_vendor_orders) {
                 viewPager.setCurrentItem(0, false);
-                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Đơn Hàng" : "UniEats");
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Đơn hàng" : "UniEats");
+                return true;
+            } else if (id == R.id.nav_vendor_messages) {
+                viewPager.setCurrentItem(1, false);
+                updateHeader("Tin nhắn");
                 return true;
             } else if (id == R.id.nav_orders || id == R.id.nav_vendor_stats) {
-                viewPager.setCurrentItem(1, false);
-                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Thống Kê" : "Trạng Thái Đơn Hàng");
+                viewPager.setCurrentItem("VENDOR".equalsIgnoreCase(userRole) ? 2 : 1, false);
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Thống kê" : "Trạng thái đơn hàng");
                 return true;
             } else if (id == R.id.nav_cart || id == R.id.nav_vendor_menu) {
-                viewPager.setCurrentItem(2, false);
-                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Thực Đơn" : "Giỏ Hàng");
+                viewPager.setCurrentItem("VENDOR".equalsIgnoreCase(userRole) ? 3 : 2, false);
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Thực đơn" : "Giỏ hàng");
                 return true;
             } else if (id == R.id.nav_history || id == R.id.nav_vendor_settings) {
-                viewPager.setCurrentItem(3, false);
-                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Cài Đặt" : "Lịch Sử");
+                viewPager.setCurrentItem("VENDOR".equalsIgnoreCase(userRole) ? 4 : 3, false);
+                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Cài đặt" : "Lịch sử");
                 return true;
             } else if (id == R.id.nav_profile) {
                 viewPager.setCurrentItem(4, false);
-                updateHeader("Cá Nhân");
+                updateHeader("Cá nhân");
                 return true;
             }
             return false;
@@ -192,9 +202,10 @@ public class MainActivity extends AppCompatActivity {
             } else if (isVendorRole(role)) {
                 switch (position) {
                     case 0: return new VendorOrdersFragment();
-                    case 1: return new VendorStatsFragment();
-                    case 2: return new VendorMenuFragment();
-                    case 3: return new VendorSettingsFragment();
+                    case 1: return new VendorMessagesFragment();
+                    case 2: return new VendorStatsFragment();
+                    case 3: return new VendorMenuFragment();
+                    case 4: return new VendorSettingsFragment();
                 }
             } else {
                 switch (position) {
@@ -213,13 +224,28 @@ public class MainActivity extends AppCompatActivity {
             if (isAdminRole(role)) {
                 return 3;
             }
-            return isVendorRole(role) ? 4 : 5;
+            return 5;
         }
     }
 
     private void setupHeaderActions() {
         findViewById(R.id.ivProfile).setOnClickListener(v -> openProfileShortcut());
         findViewById(R.id.ivMenu).setOnClickListener(v -> showQuickMenu());
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return;
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                1001
+        );
     }
 
     private void openProfileShortcut() {
@@ -243,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
             menu.add(Menu.NONE, R.id.nav_admin_users, Menu.NONE, "Users");
         } else if (isVendorRole(userRole)) {
             menu.add(Menu.NONE, R.id.nav_vendor_orders, Menu.NONE, "Đơn hàng");
+            menu.add(Menu.NONE, R.id.nav_vendor_messages, Menu.NONE, "Tin nhắn");
             menu.add(Menu.NONE, R.id.nav_vendor_stats, Menu.NONE, "Thống kê");
             menu.add(Menu.NONE, R.id.nav_vendor_menu, Menu.NONE, "Thực đơn");
             menu.add(Menu.NONE, R.id.nav_vendor_settings, Menu.NONE, "Cài đặt");
@@ -271,8 +298,10 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_admin_approvals);
         } else if (isAdminRole(userRole) && "USERS".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_admin_users);
+        } else if (isVendorRole(userRole) && "MESSAGES".equalsIgnoreCase(openTab)) {
+            bottomNav.setSelectedItemId(R.id.nav_vendor_messages);
         } else if ("ORDERS".equalsIgnoreCase(openTab)) {
-            bottomNav.setSelectedItemId(R.id.nav_orders);
+            bottomNav.setSelectedItemId(isVendorRole(userRole) ? R.id.nav_vendor_orders : R.id.nav_orders);
         } else if ("HISTORY".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_history);
         } else if ("CART".equalsIgnoreCase(openTab)) {

@@ -6,6 +6,7 @@ import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.ReviewRequest;
+import com.foodorderingapp.model.request.SendChatMessageRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
 import com.foodorderingapp.model.request.UpdateProfileRequest;
@@ -14,15 +15,19 @@ import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.request.UpdateStatusRequest;
 import com.foodorderingapp.model.request.VoucherCreateRequest;
+import com.foodorderingapp.model.response.AdminOverviewResponse;
 import com.foodorderingapp.model.response.AdminUserResponse;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.CategoryResponse;
+import com.foodorderingapp.model.response.ChatMessageResponse;
+import com.foodorderingapp.model.response.ChatRoomResponse;
 import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
+import com.foodorderingapp.model.response.StudentReviewResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
@@ -238,6 +243,9 @@ public interface ApiService {
             @Query("to") String to
     );
 
+    @GET("users/me/reviews")
+    Call<List<StudentReviewResponse>> getMyReviews();
+
     @GET("cart")
     Call<CartResponse> getCart();
 
@@ -278,7 +286,23 @@ public interface ApiService {
             @Query("endDate") String endDate
     );
 
+    // --- Chat ---
+    @GET("chat/rooms")
+    Call<List<ChatRoomResponse>> getChatRooms();
+
+    @GET("chat/{roomId}/history")
+    Call<List<ChatMessageResponse>> getChatHistory(@Path("roomId") String roomId);
+
+    @POST("chat/send")
+    Call<Void> sendChatMessage(@Body SendChatMessageRequest request);
+
+    @PUT("chat/{roomId}/read")
+    Call<Void> markChatRoomRead(@Path("roomId") String roomId);
+
     // --- Admin ---
+    @GET("admin/overview")
+    Call<AdminOverviewResponse> getAdminOverview();
+
     @GET("admin/shops")
     Call<PageResponse<ShopResponse>> getAdminShops(
             @Query("status") String status,
@@ -304,4 +328,17 @@ public interface ApiService {
 
     @PATCH("admin/users/{userId}/lock")
     Call<Void> toggleAdminUserLock(@Path("userId") String userId);
+
+    /**
+     * Gửi FCM Token lên Backend mỗi khi người dùng Mở app (hoặc Vừa Đăng Nhập xong)
+     * Body của Map ví dụ: {"fcmToken": "asd...", "deviceInfo": "Android 14"}
+     */
+    @POST("notifications/device-token")
+    Call<Void> registerDeviceToken(@Body Map<String, String> body);
+
+    /**
+     * Gỡ bỏ Token ra khỏi Database của Backend trước khi bấm nút ĐĂNG XUẤT.
+     */
+    @DELETE("notifications/device-token")
+    Call<Void> removeDeviceToken(@Query("fcmToken") String fcmToken);
 }
