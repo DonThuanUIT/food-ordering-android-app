@@ -21,14 +21,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.foodorderingapp.MainActivity;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
+import com.foodorderingapp.model.response.StudentReviewResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
+import com.foodorderingapp.ui.adapter.StudentReviewAdapter;
 import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.utils.ToastUtils;
@@ -53,6 +56,9 @@ public class StudentProfileFragment extends Fragment {
     private StudentProfileViewModel viewModel;
     private UserProfileResponse currentProfile;
     private BottomSheetDialog editProfileDialog;
+    private BottomSheetDialog reviewsDialog;
+    private StudentReviewAdapter reviewAdapter;
+    private TextView tvReviewsEmpty;
     private LocalDate spendingFrom;
     private LocalDate spendingTo;
 
@@ -71,6 +77,7 @@ public class StudentProfileFragment extends Fragment {
         bindSessionInfo(view);
         setupSpendingRange(view);
         setupActions(view);
+        observeMyReviews();
         loadRemoteProfile(view);
     }
 
@@ -190,7 +197,7 @@ public class StudentProfileFragment extends Fragment {
         });
         view.findViewById(R.id.rowEditProfile).setOnClickListener(v -> showEditProfileSheet());
         view.findViewById(R.id.rowPaymentMethod).setOnClickListener(v -> showPaymentInfo());
-        view.findViewById(R.id.rowMyReviews).setOnClickListener(v -> openHistoryTab());
+        view.findViewById(R.id.rowMyReviews).setOnClickListener(v -> showMyReviewsSheet());
         view.findViewById(R.id.rowSupport).setOnClickListener(v -> showSupportInfo());
         view.findViewById(R.id.btnEditAvatar).setOnClickListener(v -> showEditProfileSheet());
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> confirmLogout());
@@ -225,9 +232,9 @@ public class StudentProfileFragment extends Fragment {
     }
 
     private void setQuickButtonState(MaterialButton button, boolean selected) {
-        int backgroundColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.white);
-        int strokeColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.profile_divider);
-        int textColor = requireContext().getColor(selected ? R.color.white : R.color.text_primary);
+        int backgroundColor = requireContext().getColor(selected ? R.color.profile_spending_accent : R.color.white);
+        int strokeColor = requireContext().getColor(selected ? R.color.profile_spending_accent : R.color.profile_spending_border);
+        int textColor = requireContext().getColor(selected ? R.color.white : R.color.profile_spending_accent_dark);
 
         button.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
         button.setStrokeColor(ColorStateList.valueOf(strokeColor));
@@ -351,7 +358,7 @@ public class StudentProfileFragment extends Fragment {
 
             TextView label = new TextView(requireContext());
             label.setText(hasData ? shortPeriod(breakdown.get(sourceIndex).getPeriod(), i + 1) : "--");
-            label.setTextColor(requireContext().getColor(value > 0 ? R.color.text_primary : R.color.text_gray));
+            label.setTextColor(requireContext().getColor(value > 0 ? R.color.profile_spending_accent_dark : R.color.text_gray));
             label.setTextSize(11);
             label.setGravity(android.view.Gravity.CENTER);
             label.setMaxLines(1);
@@ -400,7 +407,7 @@ public class StudentProfileFragment extends Fragment {
 
             // Add bullet point indicator
             View bullet = new View(requireContext());
-            bullet.setBackground(roundedBackground(requireContext().getColor(R.color.brand_orange), 4));
+            bullet.setBackground(roundedBackground(requireContext().getColor(R.color.profile_spending_accent), 4));
             LinearLayout.LayoutParams bulletParams = new LinearLayout.LayoutParams(dp(8), dp(8));
             bulletParams.rightMargin = dp(8);
             row.addView(bullet, bulletParams);
@@ -458,6 +465,55 @@ public class StudentProfileFragment extends Fragment {
                 .setMessage("Vui long lien he quay ho tro UniEats neu don hang hoac tai khoan gap van de.")
                 .setPositiveButton("Da hieu", null)
                 .show();
+    }
+
+    private void showMyReviewsSheet() {
+        if (getContext() == null) {
+            return;
+        }
+
+        reviewsDialog = new BottomSheetDialog(requireContext());
+        View content = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_student_reviews, null);
+        reviewsDialog.setContentView(content);
+
+        RecyclerView rvReviews = content.findViewById(R.id.rvStudentReviews);
+        tvReviewsEmpty = content.findViewById(R.id.tvStudentReviewsEmpty);
+        reviewAdapter = new StudentReviewAdapter();
+        rvReviews.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rvReviews.setAdapter(reviewAdapter);
+
+        tvReviewsEmpty.setVisibility(View.VISIBLE);
+        tvReviewsEmpty.setText("Dang tai danh gia...");
+        rvReviews.setVisibility(View.GONE);
+
+        reviewsDialog.setOnDismissListener(dialog -> {
+            reviewsDialog = null;
+            reviewAdapter = null;
+            tvReviewsEmpty = null;
+        });
+        reviewsDialog.show();
+        viewModel.loadMyReviews();
+    }
+
+    private void observeMyReviews() {
+        viewModel.getMyReviews().observe(getViewLifecycleOwner(), this::bindMyReviews);
+    }
+
+    private void bindMyReviews(List<StudentReviewResponse> reviews) {
+        if (reviewAdapter == null || tvReviewsEmpty == null || reviewsDialog == null) {
+            return;
+        }
+
+        boolean empty = reviews == null || reviews.isEmpty();
+        reviewAdapter.submitList(reviews);
+        tvReviewsEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+        tvReviewsEmpty.setText(reviews == null ? "Khong tai duoc danh gia" : "Ban chua co danh gia nao");
+
+        View rvReviews = reviewsDialog.findViewById(R.id.rvStudentReviews);
+        if (rvReviews != null) {
+            rvReviews.setVisibility(empty ? View.GONE : View.VISIBLE);
+        }
     }
 
     private void showEditProfileSheet() {
@@ -559,14 +615,6 @@ public class StudentProfileFragment extends Fragment {
                 buildingId,
                 cleanAvatarUrl
         ));
-    }
-
-    private void openHistoryTab() {
-        Intent intent = new Intent(requireContext(), MainActivity.class);
-        intent.putExtra("USER_ROLE", "STUDENT");
-        intent.putExtra("OPEN_TAB", "HISTORY");
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
     }
 
     private void confirmLogout() {
