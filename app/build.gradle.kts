@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    // Kích hoạt plugin Firebase cho module app này
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -63,4 +65,15 @@ dependencies {
     // Glide
     implementation(libs.glide)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // 1. Firebase Cloud Messaging (Sử dụng BOM để đồng bộ phiên bản tự động)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
+    // 2. Thư viện kết nối WebSocket STOMP
+    implementation("com.github.NaikSoftware:StompProtocolAndroid:1.6.6")
+
+    // 3. RxJava (Thư viện StompProtocolAndroid yêu cầu RxJava để chạy đa luồng)
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
+    implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
 }
