@@ -1,9 +1,13 @@
 package com.foodorderingapp;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,6 +63,32 @@ public class MainActivity extends AppCompatActivity {
         if (userRole == null) userRole = "STUDENT";
 
         setupMenuAndNavigation(userRole);
+
+        if ("VENDOR".equalsIgnoreCase(userRole)) {
+            if (findViewById(R.id.appBarLayout) != null) {
+                findViewById(R.id.appBarLayout).setBackgroundColor(Color.parseColor("#FFFFFF"));
+            }
+            if (findViewById(R.id.toolbar) != null) {
+                findViewById(R.id.toolbar).setBackgroundColor(Color.parseColor("#FFFFFF"));
+            }
+            if (tvAppTitle != null) {
+                tvAppTitle.setTextColor(Color.parseColor("#181C2E"));
+            }
+            ImageView ivMenu = findViewById(R.id.ivMenu);
+            if (ivMenu != null) {
+                ivMenu.setImageTintList(ColorStateList.valueOf(Color.parseColor("#181C2E")));
+            }
+            ImageView ivProfile = findViewById(R.id.ivProfile);
+            if (ivProfile != null) {
+                ivProfile.setImageTintList(ColorStateList.valueOf(Color.parseColor("#181C2E")));
+                ivProfile.setBackground(null);
+            }
+            if (getWindow() != null) {
+                getWindow().setStatusBarColor(Color.parseColor("#FFFFFF"));
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+        }
+
         setupHeaderActions();
         handleStartTab(getIntent());
         bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));

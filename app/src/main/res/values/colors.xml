@@ -19,7 +19,7 @@
     <color name="text_muted">#7D8494</color>
 
     <!-- Background Colors -->
-    <color name="bg_page">#F6F7FB</color>
+    <color name="bg_page">#F8FAFC</color>
     <color name="bg_card">#FFFFFF</color>
     <color name="bg_input">#F5F5F5</color>
     <color name="light_gray">#F5F5F5</color>
