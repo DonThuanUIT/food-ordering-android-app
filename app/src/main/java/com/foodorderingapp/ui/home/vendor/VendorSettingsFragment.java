@@ -634,6 +634,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
 
         // Spinner to choose Day Group
         final Spinner spinnerDays = new Spinner(requireContext());
+        spinnerDays.setPopupBackgroundResource(R.color.white);
         String[] dayGroups = {"Thứ 2 - Thứ 6", "Thứ Bảy", "Chủ Nhật"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, dayGroups);
         spinnerDays.setAdapter(adapter);

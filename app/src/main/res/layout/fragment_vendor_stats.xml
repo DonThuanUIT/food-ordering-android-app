@@ -67,7 +67,8 @@
                     android:layout_centerVertical="true"
                     android:background="@drawable/bg_edittext"
                     android:paddingStart="8dp"
-                    android:paddingEnd="8dp" />
+                    android:paddingEnd="8dp"
+                    android:popupBackground="@color/white" />
             </RelativeLayout>
 
             <!-- Metrics Cards Grid -->
