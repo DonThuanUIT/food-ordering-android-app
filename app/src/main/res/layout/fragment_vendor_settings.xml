@@ -66,7 +66,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text=" Edit Cover"
+                                android:text=" Sửa ảnh bìa"
                                 android:textColor="@color/black"
                                 android:textSize="11sp"
                                 android:textStyle="bold" />
@@ -190,7 +190,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Operational Status"
+                            android:text="Trạng thái hoạt động"
                             android:textColor="@color/black"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -198,7 +198,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Instantly toggle shop visibility"
+                            android:text="Bật/tắt nhanh hiển thị cửa hàng"
                             android:textColor="@color/text_gray"
                             android:textSize="12sp"
                             android:layout_marginTop="2dp" />
@@ -215,7 +215,7 @@
                         android:id="@+id/tv_operational_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Open"
+                        android:text="Đang mở cửa"
                         android:textColor="#319795"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -257,7 +257,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Business Hours"
+                                android:text="Giờ hoạt động"
                                 android:textColor="@color/black"
                                 android:textSize="15sp"
                                 android:textStyle="bold"
@@ -268,7 +268,7 @@
                             android:id="@+id/btn_update_hours"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Update"
+                            android:text="Cập nhật"
                             android:textColor="#DD6B20"
                             android:textSize="13sp"
                             android:textStyle="bold"
@@ -297,7 +297,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Mon - Fri"
+                                android:text="Thứ 2 - Thứ 6"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
@@ -319,7 +319,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Saturday"
+                                android:text="Thứ Bảy"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
@@ -341,7 +341,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Sunday"
+                                android:text="Chủ Nhật"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
@@ -373,7 +373,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Holiday hours may vary. Please check calendar."
+                            android:text="Giờ hoạt động ngày lễ có thể thay đổi. Vui lòng kiểm tra."
                             android:textColor="#C53030"
                             android:textSize="11sp"
                             android:layout_marginStart="8dp" />
@@ -411,7 +411,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Contact"
+                            android:text="Liên hệ"
                             android:textColor="@color/black"
                             android:textSize="15sp"
                             android:textStyle="bold"
@@ -466,7 +466,7 @@
                         android:id="@+id/btn_edit_contact"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:text="Edit Contact Info"
+                        android:text="Sửa thông tin liên hệ"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:textColor="#2B6CB0"
                         app:strokeColor="#CBD5E0"
@@ -492,7 +492,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Payment"
+                        android:text="Thanh toán"
                         android:textColor="@color/black"
                         android:textSize="15sp"
                         android:textStyle="bold"
@@ -555,7 +555,7 @@
                         android:id="@+id/btn_edit_payment"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:text="Edit Bank Info"
+                        android:text="Sửa tài khoản ngân hàng"
                         android:backgroundTint="#FFFAF0"
                         android:textColor="#DD6B20"
                         app:elevation="0dp"
@@ -581,7 +581,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Quick Preferences"
+                        android:text="Cài đặt nhanh"
                         android:textColor="@color/black"
                         android:textSize="15sp"
                         android:textStyle="bold"
@@ -608,7 +608,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Order Alerts"
+                            android:text="Thông báo đơn mới"
                             android:textColor="@color/black"
                             android:textSize="13sp"
                             android:textStyle="bold"
@@ -674,7 +674,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Turbo Mode (Pre-ordering)"
+                            android:text="Chế độ đặt trước (Turbo Mode)"
                             android:textColor="@color/black"
                             android:textSize="13sp"
                             android:textStyle="bold"
@@ -767,7 +767,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Deactivate Store"
+                            android:text="Tạm ngưng hoạt động cửa hàng"
                             android:textColor="#C53030"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -775,7 +775,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Temporarily remove your store from all search results."
+                            android:text="Ẩn tạm thời cửa hàng của bạn khỏi kết quả tìm kiếm."
                             android:textColor="#E53E3E"
                             android:textSize="11sp"
                             android:layout_marginTop="2dp" />
@@ -786,7 +786,7 @@
                         android:id="@+id/btn_deactivate"
                         android:layout_width="wrap_content"
                         android:layout_height="44dp"
-                        android:text="Deactivate"
+                        android:text="Tạm dừng"
                         android:backgroundTint="#C53030"
                         android:textColor="@color/white"
                         app:cornerRadius="8dp"

@@ -453,12 +453,12 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
 
     private void updateOperationalStatusUI(boolean isOpen) {
         if (isOpen) {
-            tvOperationalStatus.setText("Open");
-            tvOperationalStatus.setTextColor(Color.parseColor("#319795")); // Active Teal
-            cardStatusIconBg.setCardBackgroundColor(Color.parseColor("#E6FFFA")); // Light Teal background
-            ivStatusIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#319795")));
+            tvOperationalStatus.setText("Đang mở cửa");
+            tvOperationalStatus.setTextColor(Color.parseColor("#00A843")); // Green
+            cardStatusIconBg.setCardBackgroundColor(Color.parseColor("#E6FFE6")); // Light Green background
+            ivStatusIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00A843")));
         } else {
-            tvOperationalStatus.setText("Closed");
+            tvOperationalStatus.setText("Tạm đóng cửa");
             tvOperationalStatus.setTextColor(Color.parseColor("#718096")); // Gray text
             cardStatusIconBg.setCardBackgroundColor(Color.parseColor("#EDF2F7")); // Light Gray background
             ivStatusIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#718096")));
@@ -575,7 +575,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
             public void onResponse(Call<ShopResponse> call, Response<ShopResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     bindShopData(response.body());
-                    String status = isActive ? "Open" : "Closed";
+                    String status = isActive ? "Đang mở cửa" : "Tạm đóng cửa";
                     Toast.makeText(getContext(), "Cửa hàng đã chuyển sang trạng thái: " + status, Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), "Không thể cập nhật trạng thái hoạt động", Toast.LENGTH_SHORT).show();
@@ -602,7 +602,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
 
     private void showEditProfileDialog(ShopResponse shop) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Update Shop Settings");
+        builder.setTitle("Cập nhật thông tin quán");
 
         android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
@@ -610,17 +610,17 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
 
         // General Shop Fields
         final android.widget.EditText etName = new android.widget.EditText(requireContext());
-        etName.setHint("Shop Name");
+        etName.setHint("Tên quán ăn");
         etName.setText(shop.getName());
         layout.addView(etName);
 
         final android.widget.EditText etDesc = new android.widget.EditText(requireContext());
-        etDesc.setHint("Description");
+        etDesc.setHint("Mô tả");
         etDesc.setText(shop.getDescription() != null ? shop.getDescription() : "");
         layout.addView(etDesc);
 
         final android.widget.EditText etAddress = new android.widget.EditText(requireContext());
-        etAddress.setHint("Address");
+        etAddress.setHint("Địa chỉ");
         etAddress.setText(shop.getAddress() != null ? shop.getAddress() : "");
         layout.addView(etAddress);
 
@@ -634,7 +634,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
 
         // Spinner to choose Day Group
         final Spinner spinnerDays = new Spinner(requireContext());
-        String[] dayGroups = {"Mon - Fri", "Saturday", "Sunday"};
+        String[] dayGroups = {"Thứ 2 - Thứ 6", "Thứ Bảy", "Chủ Nhật"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, dayGroups);
         spinnerDays.setAdapter(adapter);
         layout.addView(spinnerDays);
@@ -673,7 +673,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
 
         builder.setView(layout);
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
             String name = etName.getText().toString().trim();
             String desc = etDesc.getText().toString().trim();
             String addr = etAddress.getText().toString().trim();
@@ -705,7 +705,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
             }
         });
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 
