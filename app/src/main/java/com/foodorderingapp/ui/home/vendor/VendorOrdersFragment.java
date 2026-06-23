@@ -307,7 +307,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
 
         String status = order.getStatus();
         if (tvOrderStatus != null) {
-            tvOrderStatus.setText(status);
+            tvOrderStatus.setText(getReadableStatus(status));
             int badgeColor = android.graphics.Color.parseColor("#E53935");
             if ("CONFIRMED".equalsIgnoreCase(status)) {
                 badgeColor = android.graphics.Color.parseColor("#3182CE");

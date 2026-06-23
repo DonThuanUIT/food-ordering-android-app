@@ -103,7 +103,13 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
 
             // 2. Status Badge Styling
             String status = order.getStatus();
-            tvOrderStatus.setText(status);
+            String readableStatus = status;
+            if ("PENDING".equalsIgnoreCase(status)) readableStatus = "Chờ xử lý";
+            else if ("CONFIRMED".equalsIgnoreCase(status)) readableStatus = "Đã xác nhận";
+            else if ("DELIVERING".equalsIgnoreCase(status)) readableStatus = "Đang giao";
+            else if ("COMPLETED".equalsIgnoreCase(status)) readableStatus = "Hoàn thành";
+            else if ("CANCELLED".equalsIgnoreCase(status)) readableStatus = "Đã hủy";
+            tvOrderStatus.setText(readableStatus);
             int badgeColor = Color.parseColor("#E53935"); // Default Red
             if ("PENDING".equalsIgnoreCase(status)) {
                 badgeColor = Color.parseColor("#E53935"); // Red
