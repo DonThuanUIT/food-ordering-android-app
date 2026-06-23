@@ -41,6 +41,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.foodorderingapp.utils.StompClient;
+import com.foodorderingapp.utils.constants.AppConstants;
+import com.foodorderingapp.utils.TokenManager;
+
 public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter.OrderActionHandler {
 
     private RecyclerView rvVendorOrders;
@@ -52,6 +56,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
     private final List<OrderResponse> orderList = new ArrayList<>();
     private UUID currentShopId;
     private String selectedStatusFilter = null; // null represents "ALL"
+    private StompClient stompClient;
 
 
 
@@ -126,9 +131,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
                     String idStr = shop.getId();
                     if (idStr != null) {
                         currentShopId = UUID.fromString(idStr);
-
-
-
+                        connectWebSocket();
                         // Load Orders
                         loadOrders(isRefresh);
                     }
@@ -144,6 +147,55 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
                 Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void connectWebSocket() {
+        if (currentShopId == null) return;
+        if (stompClient != null) {
+            stompClient.disconnect();
+        }
+
+        String wsUrl = AppConstants.BASE_URL.replace("http://", "ws://").replace("https://", "wss://") + "ws-chat";
+        Map<String, String> headers = new HashMap<>();
+        String token = TokenManager.getInstance().getAccessToken();
+        if (token != null && !token.isEmpty()) {
+            headers.put("Authorization", "Bearer " + token);
+        }
+
+        stompClient = new StompClient(wsUrl, headers);
+        stompClient.setConnectionListener(new StompClient.ConnectionListener() {
+            @Override
+            public void onConnected() {
+                stompClient.subscribe("/topic/shop/" + currentShopId + "/orders", payload -> {
+                    if (isAdded() && getContext() != null) {
+                        try {
+                            loadOrders(false);
+                            Toast.makeText(getContext(), "Có cập nhật đơn hàng mới!", Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onDisconnected() {
+            }
+
+            @Override
+            public void onError(Throwable t) {
+            }
+        });
+        stompClient.connect();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (stompClient != null) {
+            stompClient.disconnect();
+            stompClient = null;
+        }
     }
 
     private void loadOrders(boolean isRefresh) {
