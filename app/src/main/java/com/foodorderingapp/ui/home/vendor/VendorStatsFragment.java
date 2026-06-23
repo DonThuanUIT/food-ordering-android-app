@@ -272,15 +272,19 @@ public class VendorStatsFragment extends Fragment {
     private void displayDashboardData(VendorDashboardResponse data) {
         BigDecimal revenue = data.getTotalRevenue() != null ? data.getTotalRevenue() : BigDecimal.ZERO;
         binding.tvTotalRevenue.setText(formatCurrency(revenue));
+        displayGrowthMetric(data.getRevenueGrowth(), binding.tvRevenueGrowth);
 
         Long totalOrders = data.getTotalOrders() != null ? data.getTotalOrders() : 0L;
         binding.tvTotalOrders.setText(String.valueOf(totalOrders));
+        displayGrowthMetric(data.getOrderCountGrowth(), binding.tvOrdersGrowth);
 
         Double rate = data.getCompletionRate() != null ? data.getCompletionRate() : 0.0;
         binding.tvCompletionRate.setText(String.format(Locale.US, "%.1f%%", rate));
+        displayGrowthMetric(data.getCompletionRateGrowth(), binding.tvCompletionRateGrowth);
 
         BigDecimal avgValue = data.getAverageOrderValue() != null ? data.getAverageOrderValue() : BigDecimal.ZERO;
         binding.tvAverageOrderValue.setText(formatCurrency(avgValue));
+        displayGrowthMetric(data.getAverageOrderValueGrowth(), binding.tvAovGrowth);
 
         // Draw Line Charts
         setupRevenueChart(data.getOrderTrends());
@@ -291,6 +295,24 @@ public class VendorStatsFragment extends Fragment {
 
         // Populate RecyclerView
         topProductAdapter.submitList(data.getTopSellingProducts());
+    }
+
+    private void displayGrowthMetric(Double growth, android.widget.TextView tvGrowth) {
+        if (growth == null) {
+            tvGrowth.setVisibility(View.GONE);
+            return;
+        }
+        tvGrowth.setVisibility(View.VISIBLE);
+        if (growth > 0) {
+            tvGrowth.setText(String.format(Locale.US, "▲ +%.1f%% so với kỳ trước", growth));
+            tvGrowth.setTextColor(Color.parseColor("#48BB78")); // Green
+        } else if (growth < 0) {
+            tvGrowth.setText(String.format(Locale.US, "▼ %.1f%% so với kỳ trước", growth));
+            tvGrowth.setTextColor(Color.parseColor("#E53E3E")); // Red
+        } else {
+            tvGrowth.setText("0.0% so với kỳ trước");
+            tvGrowth.setTextColor(Color.parseColor("#718096")); // Gray
+        }
     }
 
     private String formatCurrency(BigDecimal value) {

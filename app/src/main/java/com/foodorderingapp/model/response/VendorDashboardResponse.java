@@ -12,6 +12,10 @@ public class VendorDashboardResponse {
     private List<TrendData> orderTrends;
     private List<TopProductData> topSellingProducts;
     private Map<String, Long> orderStatusBreakdown;
+    private Double revenueGrowth;
+    private Double orderCountGrowth;
+    private Double completionRateGrowth;
+    private Double averageOrderValueGrowth;
 
     public VendorDashboardResponse() {}
 
@@ -81,5 +85,37 @@ public class VendorDashboardResponse {
 
     public void setOrderStatusBreakdown(Map<String, Long> orderStatusBreakdown) {
         this.orderStatusBreakdown = orderStatusBreakdown;
+    }
+
+    public Double getRevenueGrowth() {
+        return revenueGrowth;
+    }
+
+    public void setRevenueGrowth(Double revenueGrowth) {
+        this.revenueGrowth = revenueGrowth;
+    }
+
+    public Double getOrderCountGrowth() {
+        return orderCountGrowth;
+    }
+
+    public void setOrderCountGrowth(Double orderCountGrowth) {
+        this.orderCountGrowth = orderCountGrowth;
+    }
+
+    public Double getCompletionRateGrowth() {
+        return completionRateGrowth;
+    }
+
+    public void setCompletionRateGrowth(Double completionRateGrowth) {
+        this.completionRateGrowth = completionRateGrowth;
+    }
+
+    public Double getAverageOrderValueGrowth() {
+        return averageOrderValueGrowth;
+    }
+
+    public void setAverageOrderValueGrowth(Double averageOrderValueGrowth) {
+        this.averageOrderValueGrowth = averageOrderValueGrowth;
     }
 }
