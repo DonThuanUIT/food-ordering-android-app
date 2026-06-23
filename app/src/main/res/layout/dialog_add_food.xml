@@ -28,7 +28,7 @@
                 android:id="@+id/tv_dialog_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add New Item"
+                android:text="Thêm món ăn"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="#1A202C"
@@ -86,17 +86,17 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="High-quality photos help increase sales."
+                android:text="Ảnh chất lượng cao giúp tăng doanh thu."
                 android:textSize="12sp"
                 android:textColor="@color/text_gray"
                 android:layout_marginTop="12dp"
                 android:textAlignment="center"/>
 
-            <TextView style="@style/LabelStyle" android:text="Item Name" android:textColor="#4A5568" android:layout_marginTop="20dp"/>
+            <TextView style="@style/LabelStyle" android:text="Tên món ăn" android:textColor="#4A5568" android:layout_marginTop="20dp"/>
             <EditText
                 android:id="@+id/et_food_name"
                 style="@style/InputStyle"
-                android:hint="e.g., Spicy Buffalo Wings"
+                android:hint="Ví dụ: Cánh gà sốt cay"
                 android:background="@drawable/bg_edittext"
                 android:importantForAutofill="no"/>
 
@@ -107,7 +107,7 @@
                 android:layout_marginBottom="8dp">
                 <TextView
                     style="@style/LabelStyle"
-                    android:text="Category"
+                    android:text="Danh mục"
                     android:textColor="#4A5568"
                     android:layout_marginTop="0dp"
                     android:layout_marginBottom="0dp"
@@ -122,7 +122,7 @@
                         android:id="@+id/btn_edit_category"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Edit"
+                        android:text="Sửa"
                         android:textColor="@color/primary_orange"
                         android:textStyle="bold"
                         android:textSize="14sp"
@@ -136,7 +136,7 @@
                         android:id="@+id/btn_add_category"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+ New"
+                        android:text="+ Mới"
                         android:textColor="@color/primary_orange"
                         android:textStyle="bold"
                         android:textSize="14sp"
@@ -157,22 +157,22 @@
                 <!-- Categories will be added dynamically -->
             </com.google.android.material.chip.ChipGroup>
 
-            <TextView style="@style/LabelStyle" android:text="Item Details" android:textColor="#4A5568"/>
+            <TextView style="@style/LabelStyle" android:text="Mô tả chi tiết" android:textColor="#4A5568"/>
             <EditText
                 android:id="@+id/et_food_description"
                 style="@style/InputStyle"
                 android:layout_height="100dp"
                 android:gravity="top|start"
                 android:paddingVertical="12dp"
-                android:hint="Describe ingredients..."
+                android:hint="Mô tả nguyên liệu, hương vị..."
                 android:background="@drawable/bg_edittext"
                 android:importantForAutofill="no"/>
 
-            <TextView style="@style/LabelStyle" android:text="Price ($)" android:textColor="#4A5568"/>
+            <TextView style="@style/LabelStyle" android:text="Giá tiền (đ)" android:textColor="#4A5568"/>
             <EditText
                 android:id="@+id/et_food_price"
                 style="@style/InputStyle"
-                android:hint="0.00"
+                android:hint="0"
                 android:inputType="numberDecimal"
                 android:background="@drawable/bg_edittext"
                 android:importantForAutofill="no"/>
@@ -191,7 +191,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_margin="16dp"
-            android:text="Add to Menu"
+            android:text="Thêm vào thực đơn"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/white"

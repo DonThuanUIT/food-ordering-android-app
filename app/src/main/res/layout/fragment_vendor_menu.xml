@@ -25,14 +25,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Inventory Management"
+                android:text="Quản lý Thực đơn"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Update your offerings, manage inventory, and adjust pricing."
+                android:text="Cập nhật món ăn, quản lý kho hàng và điều chỉnh giá bán."
                 android:textColor="@color/text_gray"
                 android:textSize="12sp"
                 android:layout_marginTop="2dp"/>
@@ -43,9 +43,9 @@
                 android:layout_height="44dp"
                 android:layout_marginTop="12dp"
                 android:visibility="visible"
-                android:background="@drawable/bg_search_light_blue"
+                android:background="@drawable/bg_edittext"
                 app:iconifiedByDefault="false"
-                app:queryHint="Search menu items..."
+                app:queryHint="Tìm kiếm món ăn..."
                 app:queryBackground="@android:color/transparent" />
 
             <!-- Stats Dashboard Cards Row -->
@@ -75,7 +75,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TOTAL"
+                            android:text="TỔNG SỐ"
                             android:textColor="#718096"
                             android:textSize="10sp"
                             android:textStyle="bold"/>
@@ -109,7 +109,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="ACTIVE"
+                            android:text="ĐANG BÁN"
                             android:textColor="#319795"
                             android:textSize="10sp"
                             android:textStyle="bold"/>
@@ -143,7 +143,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="SOLD OUT"
+                            android:text="HẾT MÓN"
                             android:textColor="#E53E3E"
                             android:textSize="10sp"
                             android:textStyle="bold"/>
@@ -177,7 +177,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="GROUPS"
+                            android:text="DANH MỤC"
                             android:textColor="#DD6B20"
                             android:textSize="10sp"
                             android:textStyle="bold"/>

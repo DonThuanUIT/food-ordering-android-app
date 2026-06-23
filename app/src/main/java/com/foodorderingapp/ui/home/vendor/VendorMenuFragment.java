@@ -277,11 +277,13 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (chipGroupCategories == null) return;
         chipGroupCategories.removeAllViews();
         Chip allChip = new Chip(requireContext());
-        allChip.setText("All");
+        allChip.setText("Tất cả");
         allChip.setCheckable(true);
         allChip.setChecked(true);
         allChip.setChipBackgroundColor(getChipBackgroundStateList());
         allChip.setTextColor(getChipTextStateList());
+        allChip.setChipStrokeColor(getChipStrokeColorStateList());
+        allChip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
         chipGroupCategories.addView(allChip);
         for (CategoryResponse category : categories) {
             Chip chip = new Chip(requireContext());
@@ -289,6 +291,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             chip.setCheckable(true);
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
+            chip.setChipStrokeColor(getChipStrokeColorStateList());
+            chip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
             chip.setOnLongClickListener(v -> {
                 showDeleteCategoryConfirmDialog(category);
                 return true;
@@ -393,6 +397,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             chip.setId(View.generateViewId());
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
+            chip.setChipStrokeColor(getChipStrokeColorStateList());
+            chip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
             if (selectedId != null && selectedId.equals(cat.getId())) {
                 chip.setChecked(true);
                 hasSelected = true;
@@ -407,15 +413,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
     private void showAddNewCategoryDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Add New Category");
+        builder.setTitle("Thêm danh mục mới");
         final EditText input = new EditText(requireContext());
-        input.setHint("Category name");
+        input.setHint("Tên danh mục");
         builder.setView(input);
-        builder.setPositiveButton("Add", (dialog, which) -> {
+        builder.setPositiveButton("Thêm", (dialog, which) -> {
             String name = input.getText().toString().trim();
             if (!TextUtils.isEmpty(name)) addNewCategory(name);
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -469,15 +475,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private ColorStateList getChipBackgroundStateList() {
-        int[][] states = new int[][] { new int[] {android.R.attr.state_checked}, new int[] {-android.R.attr.state_checked} };
-        int[] colors = new int[] { Color.parseColor("#FF5722"), Color.parseColor("#EDF2F7") };
-        return new ColorStateList(states, colors);
+        return androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.chip_bg_color);
     }
 
     private ColorStateList getChipTextStateList() {
-        int[][] states = new int[][] { new int[] {android.R.attr.state_checked}, new int[] {-android.R.attr.state_checked} };
-        int[] colors = new int[] { Color.WHITE, Color.parseColor("#4A5568") };
-        return new ColorStateList(states, colors);
+        return androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.chip_text_color);
+    }
+
+    private ColorStateList getChipStrokeColorStateList() {
+        return androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.chip_stroke_color);
     }
 
     private void updateStatsCounts() {
