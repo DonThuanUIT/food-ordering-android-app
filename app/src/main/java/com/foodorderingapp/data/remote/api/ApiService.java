@@ -136,6 +136,12 @@ public interface ApiService {
             @Body CategoryRequest request
     );
 
+    @DELETE("vendor/shops/{shopId}/categories/{categoryId}")
+    Call<Void> deleteCategory(
+            @Path("shopId") UUID shopId,
+            @Path("categoryId") UUID categoryId
+    );
+
     // --- Vendor Voucher Management ---
     @GET("vendor/shops/{shopId}/vouchers")
     Call<List<VoucherResponse>> getShopVouchers(

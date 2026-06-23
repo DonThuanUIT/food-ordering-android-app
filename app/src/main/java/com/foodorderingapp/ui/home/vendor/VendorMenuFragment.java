@@ -289,6 +289,10 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             chip.setCheckable(true);
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
+            chip.setOnLongClickListener(v -> {
+                showDeleteCategoryConfirmDialog(category);
+                return true;
+            });
             chipGroupCategories.addView(chip);
         }
     }
@@ -633,6 +637,46 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                     loadData(false);
                 } else {
                     Toast.makeText(getContext(), "Không thể xóa món ăn!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showDeleteCategoryConfirmDialog(CategoryResponse category) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Xóa danh mục?")
+                .setMessage("Bạn có chắc chắn muốn xóa danh mục '" + category.getName() + "'? Lưu ý: Chỉ có thể xóa danh mục không chứa món ăn nào.")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteCategoryFromDb(category.getId()))
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void deleteCategoryFromDb(UUID categoryId) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().deleteCategory(currentShopId, categoryId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful() || response.code() == 204) {
+                    ToastUtils.success(getContext(), "Đã xóa danh mục thành công!");
+                    loadData(true);
+                } else {
+                    String errorMsg = "Không thể xóa danh mục. Vui lòng kiểm tra lại!";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errJson = response.errorBody().string();
+                            if (errJson.contains("Cannot delete")) {
+                                errorMsg = "Không thể xóa vì danh mục vẫn còn món ăn!";
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
 
