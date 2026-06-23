@@ -229,4 +229,17 @@ public interface ApiService {
 
     @PATCH("admin/users/{userId}/lock")
     Call<Void> toggleAdminUserLock(@Path("userId") String userId);
+
+    /**
+     * Gửi FCM Token lên Backend mỗi khi người dùng Mở app (hoặc Vừa Đăng Nhập xong)
+     * Body của Map ví dụ: {"fcmToken": "asd...", "deviceInfo": "Android 14"}
+     */
+    @POST("notifications/device-token")
+    Call<Void> registerDeviceToken(@Body Map<String, String> body);
+
+    /**
+     * Gỡ bỏ Token ra khỏi Database của Backend trước khi bấm nút ĐĂNG XUẤT.
+     */
+    @DELETE("notifications/device-token")
+    Call<Void> removeDeviceToken(@Query("fcmToken") String fcmToken);
 }
