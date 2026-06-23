@@ -63,6 +63,7 @@ import java.util.UUID;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import com.foodorderingapp.model.request.ShopCloseRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -95,6 +96,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
     private CheckBox checkboxOrderAlerts;
     private CheckBox checkboxTurboMode;
     private Button btnDeactivate;
+    private Button btnClosePermanently;
 
     private View layoutPrefPromo;
 
@@ -209,6 +211,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
         layoutPrefPromo = view.findViewById(R.id.layout_pref_promo);
         checkboxTurboMode = view.findViewById(R.id.checkbox_turbo_mode);
         btnDeactivate = view.findViewById(R.id.btn_deactivate);
+        btnClosePermanently = view.findViewById(R.id.btn_close_permanently);
 
         btnEditCover = view.findViewById(R.id.btn_edit_cover);
         btnEditLogo = view.findViewById(R.id.btn_edit_logo);
@@ -306,6 +309,17 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
                 .setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss())
                 .show();
         });
+
+        // Close permanently click listener
+        if (btnClosePermanently != null) {
+            btnClosePermanently.setOnClickListener(v -> {
+                if (currentShopId == null) {
+                    Toast.makeText(getContext(), "Đang tải thông tin cửa hàng...", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                showCloseShopConfirmDialog();
+            });
+        }
     }
 
     private void openImagePicker() {
@@ -896,5 +910,144 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
                 Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showCloseShopConfirmDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("CẢNH BÁO: ĐÓNG CỬA HÀNG VĨNH VIỄN?")
+                .setMessage("Hành động này sẽ đóng cửa hàng của bạn vĩnh viễn và ẩn khỏi hệ thống. Tất cả dữ liệu của cửa hàng sẽ không thể truy cập được nữa. Bạn có chắc chắn muốn tiếp tục?")
+                .setPositiveButton("Tiếp tục", (dialog, which) -> {
+                    showVerificationMethodDialog();
+                })
+                .setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void showVerificationMethodDialog() {
+        String[] methods = {"Xác thực bằng Mật khẩu tài khoản", "Xác thực bằng mã OTP gửi qua Email"};
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Chọn phương thức xác thực")
+                .setItems(methods, (dialog, which) -> {
+                    if (which == 0) {
+                        showPasswordVerificationDialog();
+                    } else {
+                        requestCloseShopOtpAndShowDialog();
+                    }
+                })
+                .setNegativeButton("Hủy bỏ", (dialog, id) -> dialog.dismiss())
+                .show();
+    }
+
+    private void showPasswordVerificationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Xác thực mật khẩu");
+        builder.setMessage("Vui lòng nhập mật khẩu tài khoản của bạn để xác nhận đóng cửa hàng:");
+
+        final android.widget.EditText etPassword = new android.widget.EditText(requireContext());
+        etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        etPassword.setHint("Mật khẩu của bạn");
+        
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+        layout.addView(etPassword);
+        builder.setView(layout);
+
+        builder.setPositiveButton("Xác nhận đóng cửa hàng", (dialog, which) -> {
+            String password = etPassword.getText().toString();
+            if (password.isEmpty()) {
+                Toast.makeText(getContext(), "Mật khẩu không được để trống!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            confirmCloseShopOnServer("PASSWORD", password, null);
+        });
+        builder.setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void requestCloseShopOtpAndShowDialog() {
+        Toast.makeText(getContext(), "Đang gửi mã OTP đến email...", Toast.LENGTH_SHORT).show();
+        ApiClient.getApiService().requestCloseShopOtp(currentShopId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Mã OTP đã được gửi đến email đăng ký của bạn!", Toast.LENGTH_LONG).show();
+                    showOtpVerificationDialog();
+                } else {
+                    Toast.makeText(getContext(), "Yêu cầu OTP thất bại: " + getErrorMsg(response), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showOtpVerificationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Xác thực OTP");
+        builder.setMessage("Vui lòng nhập mã OTP được gửi tới email của bạn để xác nhận đóng cửa hàng:");
+
+        final android.widget.EditText etOtp = new android.widget.EditText(requireContext());
+        etOtp.setHint("Nhập mã OTP");
+        etOtp.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+        layout.addView(etOtp);
+        builder.setView(layout);
+
+        builder.setPositiveButton("Xác nhận đóng cửa hàng", (dialog, which) -> {
+            String otp = etOtp.getText().toString().trim();
+            if (otp.isEmpty()) {
+                Toast.makeText(getContext(), "Mã OTP không được để trống!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            confirmCloseShopOnServer("OTP", null, otp);
+        });
+        builder.setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void confirmCloseShopOnServer(String type, String password, String otp) {
+        com.foodorderingapp.model.request.ShopCloseRequest req = new com.foodorderingapp.model.request.ShopCloseRequest(type, password, otp);
+        ApiClient.getApiService().confirmCloseShop(currentShopId, req).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Cửa hàng đã đóng vĩnh viễn thành công!", Toast.LENGTH_LONG).show();
+                    TokenManager.getInstance().clearTokens();
+                    Intent intent = new Intent(requireActivity(), com.foodorderingapp.ui.auth.LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    requireActivity().finish();
+                } else {
+                    Toast.makeText(getContext(), "Đóng cửa hàng thất bại: " + getErrorMsg(response), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi mạng, không thể hoàn thành yêu cầu!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String getErrorMsg(Response<?> response) {
+        try {
+            if (response.errorBody() != null) {
+                String errorJson = response.errorBody().string();
+                if (errorJson.contains("\"message\":")) {
+                    int startIdx = errorJson.indexOf("\"message\":\"") + 11;
+                    int endIdx = errorJson.indexOf("\"", startIdx);
+                    return errorJson.substring(startIdx, endIdx);
+                }
+                return errorJson;
+            }
+        } catch (Exception ignored) {}
+        return "Mã lỗi " + response.code();
     }
 }

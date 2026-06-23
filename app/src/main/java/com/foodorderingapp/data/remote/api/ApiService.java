@@ -85,6 +85,17 @@ public interface ApiService {
             @Body Map<String, Boolean> body
     );
 
+    @POST("vendor/shops/{shopId}/close/otp-request")
+    Call<Void> requestCloseShopOtp(
+            @Path("shopId") UUID shopId
+    );
+
+    @POST("vendor/shops/{shopId}/close")
+    Call<Void> confirmCloseShop(
+            @Path("shopId") UUID shopId,
+            @Body com.foodorderingapp.model.request.ShopCloseRequest request
+    );
+
     // --- Vendor Food Management ---
     @GET("vendor/shops/{shopId}/foods")
     Call<PageResponse<FoodResponse>> getAllFoods(
