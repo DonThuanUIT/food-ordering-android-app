@@ -12,6 +12,7 @@ import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
+import com.foodorderingapp.model.response.AdminOverviewResponse;
 import com.foodorderingapp.model.response.AdminUserResponse;
 import com.foodorderingapp.model.response.AuthResponse;
 import com.foodorderingapp.model.response.BuildingResponse;
@@ -207,6 +208,9 @@ public interface ApiService {
     );
 
     // --- Admin ---
+    @GET("admin/overview")
+    Call<AdminOverviewResponse> getAdminOverview();
+
     @GET("admin/shops")
     Call<PageResponse<ShopResponse>> getAdminShops(
             @Query("status") String status,

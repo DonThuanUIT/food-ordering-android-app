@@ -39,11 +39,9 @@ public class AdminUsersFragment extends Fragment {
     private TextView tvEmpty;
     private Runnable searchRunnable;
     private boolean pendingActiveState;
-    private String selectedRole;
-    private MaterialButton btnRoleAll;
+    private String selectedRole = "VENDOR";
     private MaterialButton btnRoleStudent;
     private MaterialButton btnRoleVendor;
-    private MaterialButton btnRoleAdmin;
     private MaterialButton btnLoadMore;
     private int currentPage;
     private int loadedUserCount;
@@ -68,10 +66,8 @@ public class AdminUsersFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
         edtSearch = view.findViewById(R.id.edtAdminUserSearch);
         tvEmpty = view.findViewById(R.id.tvAdminUsersEmpty);
-        btnRoleAll = view.findViewById(R.id.btnAdminRoleAll);
         btnRoleStudent = view.findViewById(R.id.btnAdminRoleStudent);
         btnRoleVendor = view.findViewById(R.id.btnAdminRoleVendor);
-        btnRoleAdmin = view.findViewById(R.id.btnAdminRoleAdmin);
         btnLoadMore = view.findViewById(R.id.btnAdminUsersLoadMore);
 
         RecyclerView recyclerView = view.findViewById(R.id.rvAdminUsers);
@@ -136,24 +132,23 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void setupRoleFilters() {
-        btnRoleAll.setOnClickListener(v -> selectRole(null));
-        btnRoleStudent.setOnClickListener(v -> selectRole("STUDENT"));
         btnRoleVendor.setOnClickListener(v -> selectRole("VENDOR"));
-        btnRoleAdmin.setOnClickListener(v -> selectRole("ADMIN"));
+        btnRoleStudent.setOnClickListener(v -> selectRole("STUDENT"));
         updateRoleButtonStates();
     }
 
     private void selectRole(String role) {
+        if (role.equals(selectedRole)) {
+            return;
+        }
         selectedRole = role;
         updateRoleButtonStates();
         loadUsers(true);
     }
 
     private void updateRoleButtonStates() {
-        setFilterButtonState(btnRoleAll, selectedRole == null);
-        setFilterButtonState(btnRoleStudent, "STUDENT".equals(selectedRole));
         setFilterButtonState(btnRoleVendor, "VENDOR".equals(selectedRole));
-        setFilterButtonState(btnRoleAdmin, "ADMIN".equals(selectedRole));
+        setFilterButtonState(btnRoleStudent, "STUDENT".equals(selectedRole));
     }
 
     private void setFilterButtonState(MaterialButton button, boolean selected) {
@@ -192,6 +187,7 @@ public class AdminUsersFragment extends Fragment {
 
         isLastPage = page.isLast() || loadedUserCount >= page.getTotalElements();
         tvEmpty.setVisibility(loadedUserCount == 0 ? View.VISIBLE : View.GONE);
+        tvEmpty.setText("STUDENT".equals(selectedRole) ? "Khong co student phu hop" : "Khong co vendor phu hop");
         updateLoadMoreButton();
     }
 
