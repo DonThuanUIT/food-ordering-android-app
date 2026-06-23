@@ -37,6 +37,15 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
         notifyDataSetChanged();
     }
 
+    public void appendList(List<AdminUserResponse> newUsers) {
+        if (newUsers == null || newUsers.isEmpty()) {
+            return;
+        }
+        int start = users.size();
+        users.addAll(newUsers);
+        notifyItemRangeInserted(start, newUsers.size());
+    }
+
     @NonNull
     @Override
     public AdminUserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

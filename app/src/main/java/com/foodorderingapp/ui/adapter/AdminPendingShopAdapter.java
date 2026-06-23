@@ -35,6 +35,15 @@ public class AdminPendingShopAdapter extends RecyclerView.Adapter<AdminPendingSh
         notifyDataSetChanged();
     }
 
+    public void appendList(List<ShopResponse> newShops) {
+        if (newShops == null || newShops.isEmpty()) {
+            return;
+        }
+        int start = shops.size();
+        shops.addAll(newShops);
+        notifyItemRangeInserted(start, newShops.size());
+    }
+
     @NonNull
     @Override
     public PendingShopViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
