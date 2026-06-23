@@ -535,6 +535,7 @@ public class VendorStatsFragment extends Fragment {
         binding.chartStatusBreakdown.setTransparentCircleRadius(45f);
         binding.chartStatusBreakdown.setCenterText("Đơn hàng");
         binding.chartStatusBreakdown.setCenterTextSize(14f);
+        binding.chartStatusBreakdown.setDrawEntryLabels(false);
 
         Legend l = binding.chartStatusBreakdown.getLegend();
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
