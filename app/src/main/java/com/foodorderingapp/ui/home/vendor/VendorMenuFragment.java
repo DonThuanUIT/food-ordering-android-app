@@ -72,6 +72,11 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     
     private UUID currentShopId;
+    private int currentPage = 0;
+    private static final int PAGE_SIZE = 15;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private UUID selectedCategoryId = null;
     private BottomSheetDialog currentAddFoodDialog;
 
     private TextView tvStatTotalCount;
@@ -174,7 +179,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     String idStr = response.body().get(0).getId();
                     currentShopId = idStr != null ? UUID.fromString(idStr) : null;
-                    loadData(false);
+                    loadData(true);
                 }
             }
             @Override public void onFailure(Call<List<ShopResponse>> call, Throwable t) {
@@ -187,6 +192,25 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         adapter = new FoodAdapter(foodList, this);
         rvMenu.setLayoutManager(new LinearLayoutManager(getContext()));
         rvMenu.setAdapter(adapter);
+        rvMenu.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    if (!isLoading && !isLastPage) {
+                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                                && firstVisibleItemPosition >= 0) {
+                            loadData(false);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void setupSearch() {
@@ -210,11 +234,29 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (chipGroupCategories != null) {
             chipGroupCategories.setOnCheckedStateChangeListener((group, checkedIds) -> {
                 if (checkedIds.isEmpty()) {
-                    adapter.setCategoryFilter("All");
+                    selectedCategoryId = null;
+                    adapter.setCategoryFilter("Tất cả");
+                    loadData(true);
                     return;
                 }
                 Chip chip = group.findViewById(checkedIds.get(0));
-                if (chip != null) adapter.setCategoryFilter(chip.getText().toString());
+                if (chip != null) {
+                    String categoryName = chip.getText().toString();
+                    adapter.setCategoryFilter(categoryName);
+
+                    if (categoryName.equals("Tất cả") || categoryName.equals("All")) {
+                        selectedCategoryId = null;
+                    } else {
+                        selectedCategoryId = null;
+                        for (CategoryResponse category : categories) {
+                            if (category.getName().equals(categoryName)) {
+                                selectedCategoryId = category.getId();
+                                break;
+                            }
+                        }
+                    }
+                    loadData(true);
+                }
             });
         }
     }
@@ -232,23 +274,45 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (fabScrollTop != null) fabScrollTop.setOnClickListener(v -> rvMenu.smoothScrollToPosition(0));
     }
 
-    private void loadData(boolean scrollToBottom) {
+    private void loadData(boolean reload) {
         if (currentShopId == null) return;
-        ApiClient.getApiService().getAllFoods(currentShopId, null).enqueue(new Callback<List<FoodResponse>>() {
+        if (reload) {
+            currentPage = 0;
+            isLastPage = false;
+            foodList.clear();
+            adapter.updateData(new ArrayList<>());
+        }
+        if (isLastPage || isLoading) return;
+
+        isLoading = true;
+        ApiClient.getApiService().getAllFoods(currentShopId, selectedCategoryId, currentPage, PAGE_SIZE)
+                .enqueue(new Callback<com.foodorderingapp.model.response.PageResponse<FoodResponse>>() {
             @Override
-            public void onResponse(Call<List<FoodResponse>> call, Response<List<FoodResponse>> response) {
+            public void onResponse(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Response<com.foodorderingapp.model.response.PageResponse<FoodResponse>> response) {
+                isLoading = false;
                 if (response.isSuccessful() && response.body() != null) {
-                    foodList = response.body();
+                    List<FoodResponse> newFoods = response.body().getContent();
+                    foodList.addAll(newFoods);
                     adapter.updateData(foodList);
                     updateStatsCounts();
-                    if (scrollToBottom) {
-                        rvMenu.postDelayed(() -> rvMenu.smoothScrollToPosition(adapter.getItemCount() - 1), 300);
+
+                    isLastPage = response.body().isLast() || newFoods.size() < PAGE_SIZE;
+                    if (!isLastPage) {
+                        currentPage++;
+                    }
+                    if (reload && foodList.size() > 0 && rvMenu != null) {
+                        rvMenu.scrollToPosition(0);
                     }
                 }
             }
-            @Override public void onFailure(Call<List<FoodResponse>> call, Throwable t) {}
+            @Override 
+            public void onFailure(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Throwable t) {
+                isLoading = false;
+            }
         });
-        loadCategories();
+        if (reload) {
+            loadCategories();
+        }
     }
 
     private void loadCategories() {
@@ -307,10 +371,10 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         ApiClient.getApiService().toggleFoodAvailability(currentShopId, food.getId()).enqueue(new Callback<FoodResponse>() {
             @Override
             public void onResponse(Call<FoodResponse> call, Response<FoodResponse> response) {
-                loadData(false);
+                loadData(true);
             }
             @Override public void onFailure(Call<FoodResponse> call, Throwable t) {
-                loadData(false);
+                loadData(true);
             }
         });
     }
@@ -608,7 +672,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 public void onResponse(Call<FoodResponse> call, Response<FoodResponse> response) {
                     if (response.isSuccessful()) {
                         ToastUtils.success(getContext(), "Đã cập nhật món ăn!");
-                        loadData(false);
+                        loadData(true);
                         dialog.dismiss();
                     } else {
                         Toast.makeText(getContext(), "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
@@ -640,7 +704,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful() || response.code() == 204) {
                     ToastUtils.success(getContext(), "Đã xóa món ăn thành công!");
-                    loadData(false);
+                    loadData(true);
                 } else {
                     Toast.makeText(getContext(), "Không thể xóa món ăn!", Toast.LENGTH_SHORT).show();
                 }

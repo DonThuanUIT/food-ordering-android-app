@@ -236,11 +236,11 @@ public class VoucherFormActivity extends AppCompatActivity {
 
     private void fetchShopFoods() {
         if (shopId == null) return;
-        ApiClient.getApiService().getAllFoods(shopId, null).enqueue(new Callback<List<FoodResponse>>() {
+        ApiClient.getApiService().getAllFoods(shopId, null, 0, 1000).enqueue(new Callback<com.foodorderingapp.model.response.PageResponse<FoodResponse>>() {
             @Override
-            public void onResponse(Call<List<FoodResponse>> call, Response<List<FoodResponse>> response) {
+            public void onResponse(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Response<com.foodorderingapp.model.response.PageResponse<FoodResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    allShopFoods = response.body();
+                    allShopFoods = response.body().getContent();
                     isFoodsLoaded = true;
                     // Update preview names if needed
                     updateSelectedFoodsCountText();
@@ -248,7 +248,7 @@ public class VoucherFormActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<FoodResponse>> call, Throwable t) {
+            public void onFailure(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Throwable t) {
                 // Fail silently, retry on select click
                 isFoodsLoaded = false;
             }

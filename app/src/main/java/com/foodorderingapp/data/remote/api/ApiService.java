@@ -87,9 +87,11 @@ public interface ApiService {
 
     // --- Vendor Food Management ---
     @GET("vendor/shops/{shopId}/foods")
-    Call<List<FoodResponse>> getAllFoods(
+    Call<PageResponse<FoodResponse>> getAllFoods(
             @Path("shopId") UUID shopId,
-            @Query("categoryId") UUID categoryId
+            @Query("categoryId") UUID categoryId,
+            @Query("page") Integer page,
+            @Query("size") Integer size
     );
 
     @POST("vendor/shops/{shopId}/foods")
