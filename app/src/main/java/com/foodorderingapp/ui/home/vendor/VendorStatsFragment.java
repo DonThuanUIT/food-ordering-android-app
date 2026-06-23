@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import androidx.core.util.Pair;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,6 +54,9 @@ public class VendorStatsFragment extends Fragment {
     private FragmentVendorStatsBinding binding;
     private UUID currentShopId;
     private TopProductAdapter topProductAdapter;
+    private LocalDateTime customStartDate = null;
+    private LocalDateTime customEndDate = null;
+    private int lastSelectedFilterPosition = 0;
 
     public VendorStatsFragment() {
         // Required empty public constructor
@@ -93,7 +98,7 @@ public class VendorStatsFragment extends Fragment {
     }
 
     private void setupFilterSpinner() {
-        String[] filters = {"30 ngày gần đây", "7 ngày gần đây", "Hôm nay"};
+        String[] filters = {"30 ngày gần đây", "7 ngày gần đây", "Hôm nay", "Chọn khoảng ngày..."};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, filters);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -102,13 +107,55 @@ public class VendorStatsFragment extends Fragment {
         binding.spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (currentShopId != null) {
-                    loadDashboardStats(false);
+                if (position == 3) {
+                    showCustomDateRangePicker();
+                } else {
+                    lastSelectedFilterPosition = position;
+                    if (currentShopId != null) {
+                        loadDashboardStats(false);
+                    }
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void showCustomDateRangePicker() {
+        MaterialDatePicker.Builder<Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker();
+        builder.setTitleText("Chọn khoảng ngày");
+        
+        MaterialDatePicker<Pair<Long, Long>> picker = builder.build();
+        picker.show(getChildFragmentManager(), "date_range_picker");
+        
+        picker.addOnPositiveButtonClickListener(selection -> {
+            if (selection != null && selection.first != null && selection.second != null) {
+                java.time.Instant startInstant = java.time.Instant.ofEpochMilli(selection.first);
+                java.time.Instant endInstant = java.time.Instant.ofEpochMilli(selection.second);
+                
+                customStartDate = LocalDateTime.ofInstant(startInstant, java.time.ZoneId.systemDefault())
+                        .truncatedTo(ChronoUnit.DAYS);
+                customEndDate = LocalDateTime.ofInstant(endInstant, java.time.ZoneId.systemDefault())
+                        .withHour(23).withMinute(59).withSecond(59);
+                
+                lastSelectedFilterPosition = 3;
+                if (currentShopId != null) {
+                    loadDashboardStats(false);
+                }
+            } else {
+                binding.spinnerFilter.setSelection(lastSelectedFilterPosition);
+            }
+        });
+        
+        picker.addOnCancelListener(dialog -> {
+            binding.spinnerFilter.setSelection(lastSelectedFilterPosition);
+        });
+        
+        picker.addOnDismissListener(dialog -> {
+            if (binding.spinnerFilter.getSelectedItemPosition() == 3 && (customStartDate == null || customEndDate == null)) {
+                binding.spinnerFilter.setSelection(lastSelectedFilterPosition);
             }
         });
     }
@@ -165,16 +212,38 @@ public class VendorStatsFragment extends Fragment {
 
         // Calculate date range based on filter
         int selectedIndex = binding.spinnerFilter.getSelectedItemPosition();
-        LocalDateTime end = LocalDateTime.now();
         LocalDateTime start;
+        LocalDateTime end;
 
-        if (selectedIndex == 1) { // 7 days
+        if (selectedIndex == 3) { // Custom date range
+            if (customStartDate != null && customEndDate != null) {
+                start = customStartDate;
+                end = customEndDate;
+            } else {
+                start = LocalDateTime.now().minusDays(30);
+                end = LocalDateTime.now();
+            }
+        } else if (selectedIndex == 1) { // 7 days
             start = LocalDateTime.now().minusDays(7);
+            end = LocalDateTime.now();
+            customStartDate = null;
+            customEndDate = null;
         } else if (selectedIndex == 2) { // Today
             start = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+            end = LocalDateTime.now();
+            customStartDate = null;
+            customEndDate = null;
         } else { // 30 days (default)
             start = LocalDateTime.now().minusDays(30);
+            end = LocalDateTime.now();
+            customStartDate = null;
+            customEndDate = null;
         }
+
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dateRangeText = start.format(displayFormatter) + " - " + end.format(displayFormatter);
+        binding.tvDateRange.setText(dateRangeText);
+        binding.tvDateRange.setVisibility(View.VISIBLE);
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         String startDateStr = start.format(formatter);
