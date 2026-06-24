@@ -19,9 +19,9 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.SendChatMessageRequest;
 import com.foodorderingapp.model.response.ChatMessageResponse;
 import com.foodorderingapp.model.response.ChatRoomResponse;
+import com.foodorderingapp.model.response.UserProfileResponse;
 import com.foodorderingapp.ui.adapter.ChatMessageAdapter;
 import com.foodorderingapp.utils.ToastUtils;
-import com.foodorderingapp.utils.TokenManager;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class ChatActivity extends AppCompatActivity {
     private final Runnable pollingRunnable = new Runnable() {
         @Override
         public void run() {
-            if (roomId != null) {
+            if (!isBlank(roomId)) {
                 loadHistory(false);
                 pollingHandler.postDelayed(this, 4000);
             }
@@ -49,12 +49,15 @@ public class ChatActivity extends AppCompatActivity {
 
     private ChatMessageAdapter adapter;
     private RecyclerView rvMessages;
+    private TextView tvTitle;
+    private TextView tvSubtitle;
     private TextView tvEmpty;
     private EditText edtMessage;
     private ImageButton btnSend;
     private String shopId;
     private String shopName;
     private String roomId;
+    private String peerName;
     private int lastMessageCount;
 
     @Override
@@ -66,15 +69,16 @@ public class ChatActivity extends AppCompatActivity {
         shopName = getIntent().getStringExtra(EXTRA_SHOP_NAME);
         roomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
         if (isBlank(shopId) && isBlank(roomId)) {
-            ToastUtils.error(this, "Khong tim thay shop");
+            ToastUtils.error(this, "Không tìm thấy cửa hàng");
             finish();
             return;
         }
 
         bindViews();
         setupMessages();
-        if (roomId == null) {
-            findExistingRoom();
+        loadCurrentUser();
+        if (isBlank(roomId)) {
+            getOrCreateRoomByShop();
         } else {
             loadHistory(true);
         }
@@ -93,16 +97,19 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void bindViews() {
-        TextView tvTitle = findViewById(R.id.tvChatTitle);
-        TextView tvSubtitle = findViewById(R.id.tvChatSubtitle);
+        tvTitle = findViewById(R.id.tvChatTitle);
+        tvSubtitle = findViewById(R.id.tvChatSubtitle);
         rvMessages = findViewById(R.id.rvChatMessages);
         tvEmpty = findViewById(R.id.tvChatEmpty);
         edtMessage = findViewById(R.id.edtChatMessage);
         btnSend = findViewById(R.id.btnSendChat);
 
-        String peerName = getIntent().getStringExtra(EXTRA_PEER_NAME);
-        tvTitle.setText(!isBlank(peerName) ? peerName : (isBlank(shopName) ? "Chat voi shop" : shopName));
-        tvSubtitle.setText("Nhan tin truc tiep voi shop");
+        peerName = getIntent().getStringExtra(EXTRA_PEER_NAME);
+        if (isBlank(peerName)) {
+            peerName = shopName;
+        }
+        updatePeerName(isBlank(peerName) ? "Tin nhắn" : peerName);
+        tvSubtitle.setText("Nhắn tin trực tiếp");
 
         findViewById(R.id.btnBackChat).setOnClickListener(v -> finish());
         btnSend.setOnClickListener(v -> sendMessage());
@@ -117,7 +124,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void setupMessages() {
         adapter = new ChatMessageAdapter();
-        adapter.setCurrentPhone(TokenManager.getInstance().getPhone());
+        adapter.setPeerName(!isBlank(peerName) ? peerName : "Cửa hàng");
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
@@ -125,42 +132,49 @@ public class ChatActivity extends AppCompatActivity {
         rvMessages.setAdapter(adapter);
     }
 
-    private void findExistingRoom() {
-        ApiClient.getApiService().getChatRooms().enqueue(new Callback<List<ChatRoomResponse>>() {
+    private void loadCurrentUser() {
+        ApiClient.getApiService().getMyProfile().enqueue(new Callback<UserProfileResponse>() {
             @Override
-            public void onResponse(Call<List<ChatRoomResponse>> call, Response<List<ChatRoomResponse>> response) {
-                if (!response.isSuccessful() || response.body() == null) {
+            public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    adapter.setCurrentUserId(response.body().getId());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserProfileResponse> call, Throwable t) {
+            }
+        });
+    }
+
+    private void getOrCreateRoomByShop() {
+        if (isBlank(shopId)) {
+            showEmpty(true);
+            return;
+        }
+
+        ApiClient.getApiService().getChatRoomByShop(shopId).enqueue(new Callback<ChatRoomResponse>() {
+            @Override
+            public void onResponse(Call<ChatRoomResponse> call, Response<ChatRoomResponse> response) {
+                if (!response.isSuccessful() || response.body() == null || isBlank(response.body().getRoomId())) {
                     showEmpty(true);
                     return;
                 }
 
-                ChatRoomResponse room = findRoomForShop(response.body());
-                if (room == null || isBlank(room.getId())) {
-                    showEmpty(true);
-                    return;
+                ChatRoomResponse room = response.body();
+                roomId = room.getRoomId();
+                if (!isBlank(room.getPartnerName())) {
+                    updatePeerName(room.getPartnerName());
                 }
-
-                roomId = room.getId();
                 loadHistory(true);
                 startPolling();
             }
 
             @Override
-            public void onFailure(Call<List<ChatRoomResponse>> call, Throwable t) {
+            public void onFailure(Call<ChatRoomResponse> call, Throwable t) {
                 showEmpty(true);
             }
         });
-    }
-
-    private ChatRoomResponse findRoomForShop(List<ChatRoomResponse> rooms) {
-        for (ChatRoomResponse room : rooms) {
-            if (room != null
-                    && room.getShop() != null
-                    && shopId.equalsIgnoreCase(room.getShop().getId())) {
-                return room;
-            }
-        }
-        return null;
     }
 
     private void loadHistory(boolean scrollToBottom) {
@@ -197,38 +211,38 @@ public class ChatActivity extends AppCompatActivity {
     private void sendMessage() {
         String content = edtMessage.getText().toString().trim();
         if (content.isEmpty()) {
-            ToastUtils.info(this, "Nhap noi dung tin nhan");
+            ToastUtils.info(this, "Nhập nội dung tin nhắn");
             return;
         }
 
         setSending(true);
         SendChatMessageRequest request = new SendChatMessageRequest(
-                roomId == null ? shopId : null,
-                roomId,
+                isBlank(roomId) ? shopId : null,
+                isBlank(roomId) ? null : roomId,
                 content
         );
 
-        ApiClient.getApiService().sendChatMessage(request).enqueue(new Callback<Void>() {
+        ApiClient.getApiService().sendChatMessage(request).enqueue(new Callback<ChatMessageResponse>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<ChatMessageResponse> call, Response<ChatMessageResponse> response) {
                 setSending(false);
                 if (!response.isSuccessful()) {
-                    ToastUtils.error(ChatActivity.this, "Khong gui duoc tin nhan");
+                    ToastUtils.error(ChatActivity.this, "Không gửi được tin nhắn");
                     return;
                 }
 
                 edtMessage.setText("");
-                if (roomId == null) {
-                    findExistingRoom();
-                } else {
-                    loadHistory(true);
+                if (response.body() != null && !isBlank(response.body().getRoomId())) {
+                    roomId = response.body().getRoomId();
                 }
+                loadHistory(true);
+                startPolling();
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<ChatMessageResponse> call, Throwable t) {
                 setSending(false);
-                ToastUtils.error(ChatActivity.this, "Loi ket noi khi gui tin nhan");
+                ToastUtils.error(ChatActivity.this, "Lỗi kết nối khi gửi tin nhắn");
             }
         });
     }
@@ -250,7 +264,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void startPolling() {
         pollingHandler.removeCallbacks(pollingRunnable);
-        if (roomId != null) {
+        if (!isBlank(roomId)) {
             pollingHandler.postDelayed(pollingRunnable, 4000);
         }
     }
@@ -264,6 +278,19 @@ public class ChatActivity extends AppCompatActivity {
         btnSend.setEnabled(!sending);
         edtMessage.setEnabled(!sending);
         btnSend.setAlpha(sending ? 0.55f : 1f);
+    }
+
+    private void updatePeerName(String name) {
+        if (isBlank(name)) {
+            return;
+        }
+        peerName = name.trim();
+        if (tvTitle != null) {
+            tvTitle.setText(peerName);
+        }
+        if (adapter != null) {
+            adapter.setPeerName(peerName);
+        }
     }
 
     private boolean isBlank(String value) {

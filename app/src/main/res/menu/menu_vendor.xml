@@ -15,7 +15,7 @@
     <item
         android:id="@+id/nav_vendor_menu"
         android:icon="@drawable/ic_nav_menu"
-        android:title="Menu" />
+        android:title="Thực đơn" />
     <item
         android:id="@+id/nav_vendor_settings"
         android:icon="@drawable/ic_nav_settings"

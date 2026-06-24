@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.ChatMessageResponse;
-import com.foodorderingapp.model.response.ChatUserResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +21,19 @@ import java.util.List;
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.ChatMessageViewHolder> {
 
     private final List<ChatMessageResponse> messages = new ArrayList<>();
-    private String currentPhone;
+    private String currentUserId;
+    private String peerName = "Cửa hàng";
 
-    public void setCurrentPhone(String currentPhone) {
-        this.currentPhone = currentPhone;
+    public void setCurrentUserId(String currentUserId) {
+        this.currentUserId = currentUserId;
+        notifyDataSetChanged();
+    }
+
+    public void setPeerName(String peerName) {
+        if (peerName != null && !peerName.trim().isEmpty()) {
+            this.peerName = peerName.trim();
+            notifyDataSetChanged();
+        }
     }
 
     public void submitList(List<ChatMessageResponse> newMessages) {
@@ -47,12 +55,11 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     @Override
     public void onBindViewHolder(@NonNull ChatMessageViewHolder holder, int position) {
         ChatMessageResponse message = messages.get(position);
-        ChatUserResponse sender = message.getSender();
-        boolean mine = sender != null
-                && currentPhone != null
-                && currentPhone.equals(sender.getPhone());
+        boolean mine = !isBlank(currentUserId)
+                && !isBlank(message.getSenderId())
+                && currentUserId.equalsIgnoreCase(message.getSenderId());
 
-        holder.tvSender.setText(mine ? "Ban" : nullToDefault(sender == null ? null : sender.getFullName(), "Shop"));
+        holder.tvSender.setText(mine ? "Bạn" : peerName);
         holder.tvContent.setText(nullToDefault(message.getContent(), ""));
         holder.tvTime.setText(formatTime(message.getCreatedAt()));
 
@@ -80,6 +87,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
     private String nullToDefault(String value, String defaultValue) {
         return value == null || value.trim().isEmpty() ? defaultValue : value;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     static class ChatMessageViewHolder extends RecyclerView.ViewHolder {

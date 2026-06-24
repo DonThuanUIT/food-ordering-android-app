@@ -2,30 +2,25 @@ package com.foodorderingapp.model.response;
 
 public class ChatMessageResponse {
     private String id;
-    private ChatRoomResponse room;
-    private ChatUserResponse sender;
+    private String roomId;
+    private String senderId;
     private String content;
-    private Boolean isRead;
     private String createdAt;
 
     public String getId() {
         return id;
     }
 
-    public ChatRoomResponse getRoom() {
-        return room;
+    public String getRoomId() {
+        return roomId;
     }
 
-    public ChatUserResponse getSender() {
-        return sender;
+    public String getSenderId() {
+        return senderId;
     }
 
     public String getContent() {
         return content;
-    }
-
-    public Boolean getIsRead() {
-        return isRead;
     }
 
     public String getCreatedAt() {

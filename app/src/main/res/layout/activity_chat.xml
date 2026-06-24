@@ -20,7 +20,7 @@
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:background="@drawable/home_bg_circle_white"
-            android:contentDescription="Quay lai"
+            android:contentDescription="Quay lại"
             android:padding="11dp"
             android:src="@drawable/ic_arrow_back_clean"
             app:tint="@color/profile_header_dark" />
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Chat voi shop"
+                android:text="Tin nhắn"
                 android:textColor="@color/white"
                 android:textSize="19sp"
                 android:textStyle="bold" />
@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="Hoi shop ve mon an, gio mo cua hoac don hang"
+                android:text="Nhắn tin trực tiếp"
                 android:textColor="#D8DCEE"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -74,7 +74,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:paddingHorizontal="32dp"
-            android:text="Gui tin nhan dau tien de bat dau trao doi voi shop."
+            android:text="Gửi tin nhắn đầu tiên để bắt đầu trao đổi."
             android:textColor="@color/text_secondary"
             android:textSize="15sp" />
     </FrameLayout>
@@ -95,7 +95,7 @@
             android:layout_height="46dp"
             android:layout_weight="1"
             android:background="@drawable/bg_chat_input"
-            android:hint="Nhap tin nhan..."
+            android:hint="Nhập tin nhắn..."
             android:imeOptions="actionSend"
             android:inputType="textCapSentences|textMultiLine"
             android:maxLines="4"
@@ -110,7 +110,7 @@
             android:layout_height="46dp"
             android:layout_marginStart="10dp"
             android:background="@drawable/bg_chat_send"
-            android:contentDescription="Gui tin nhan"
+            android:contentDescription="Gửi tin nhắn"
             android:padding="12dp"
             android:src="@drawable/ic_arrow_forward"
             app:tint="@color/white" />
