@@ -46,6 +46,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.card.MaterialCardView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -83,6 +84,11 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private TextView tvStatInStockCount;
     private TextView tvStatSoldOutCount;
     private TextView tvStatCategoriesCount;
+
+    private MaterialCardView cardStatTotal;
+    private MaterialCardView cardStatInStock;
+    private MaterialCardView cardStatSoldOut;
+    private MaterialCardView cardStatCategories;
 
     // MVVM Integration
     private UploadImageViewModel uploadViewModel;
@@ -127,6 +133,11 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         tvStatInStockCount = view.findViewById(R.id.tv_stat_in_stock_count);
         tvStatSoldOutCount = view.findViewById(R.id.tv_stat_sold_out_count);
         tvStatCategoriesCount = view.findViewById(R.id.tv_stat_categories_count);
+
+        cardStatTotal = view.findViewById(R.id.card_stat_total);
+        cardStatInStock = view.findViewById(R.id.card_stat_in_stock);
+        cardStatSoldOut = view.findViewById(R.id.card_stat_sold_out);
+        cardStatCategories = view.findViewById(R.id.card_stat_categories);
 
         setupRecyclerView();
         setupSearch();
@@ -259,6 +270,55 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 }
             });
         }
+
+        // Stats cards click filters
+        if (cardStatTotal != null) {
+            cardStatTotal.setOnClickListener(v -> {
+                updateStatsHighlight("Tất cả");
+                if (adapter != null) {
+                    adapter.setStatusFilter("Tất cả");
+                }
+            });
+        }
+        if (cardStatInStock != null) {
+            cardStatInStock.setOnClickListener(v -> {
+                updateStatsHighlight("Sẵn có");
+                if (adapter != null) {
+                    adapter.setStatusFilter("Sẵn có");
+                }
+            });
+        }
+        if (cardStatSoldOut != null) {
+            cardStatSoldOut.setOnClickListener(v -> {
+                updateStatsHighlight("Hết món");
+                if (adapter != null) {
+                    adapter.setStatusFilter("Hết món");
+                }
+            });
+        }
+    }
+
+    private void updateStatsHighlight(String selectedStat) {
+        if (cardStatTotal == null || cardStatInStock == null || cardStatSoldOut == null) return;
+        
+        // Reset strokes
+        cardStatTotal.setStrokeWidth(0);
+        cardStatInStock.setStrokeWidth(0);
+        cardStatSoldOut.setStrokeWidth(0);
+        
+        // Highlight active one with orange border
+        int strokeWidthPx = (int) (1.5f * getResources().getDisplayMetrics().density);
+        ColorStateList orangeColor = ColorStateList.valueOf(Color.parseColor("#F46E26"));
+        if ("Tất cả".equals(selectedStat)) {
+            cardStatTotal.setStrokeColor(orangeColor);
+            cardStatTotal.setStrokeWidth(strokeWidthPx);
+        } else if ("Sẵn có".equals(selectedStat)) {
+            cardStatInStock.setStrokeColor(orangeColor);
+            cardStatInStock.setStrokeWidth(strokeWidthPx);
+        } else if ("Hết món".equals(selectedStat)) {
+            cardStatSoldOut.setStrokeColor(orangeColor);
+            cardStatSoldOut.setStrokeWidth(strokeWidthPx);
+        }
     }
 
     private void setupScrollToTop() {
@@ -367,14 +427,66 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
     @Override
     public void onStatusChanged(FoodResponse food, boolean isAvailable) {
-        if (currentShopId == null) return;
+        if (currentShopId == null || food == null || food.getId() == null) return;
+        
+        // Find and update local list first
+        for (FoodResponse f : foodList) {
+            if (f.getId() != null && f.getId().equals(food.getId())) {
+                f.setIsAvailable(isAvailable);
+                break;
+            }
+        }
+        
+        // Instant local update to adapter
+        if (adapter != null) {
+            adapter.updateFoodAvailability(food.getId(), isAvailable);
+            updateStatsCounts();
+        }
+        
         ApiClient.getApiService().toggleFoodAvailability(currentShopId, food.getId()).enqueue(new Callback<FoodResponse>() {
             @Override
             public void onResponse(Call<FoodResponse> call, Response<FoodResponse> response) {
-                loadData(true);
+                if (response.isSuccessful() && response.body() != null) {
+                    FoodResponse updated = response.body();
+                    for (FoodResponse f : foodList) {
+                        if (f.getId() != null && f.getId().equals(food.getId())) {
+                            f.setIsAvailable(updated.getIsAvailable());
+                            break;
+                        }
+                    }
+                    if (adapter != null) {
+                        adapter.updateFoodAvailability(food.getId(), updated.getIsAvailable());
+                        updateStatsCounts();
+                    }
+                } else {
+                    // Rollback on failure
+                    for (FoodResponse f : foodList) {
+                        if (f.getId() != null && f.getId().equals(food.getId())) {
+                            f.setIsAvailable(!isAvailable);
+                            break;
+                        }
+                    }
+                    if (adapter != null) {
+                        adapter.updateFoodAvailability(food.getId(), !isAvailable);
+                        updateStatsCounts();
+                    }
+                    Toast.makeText(getContext(), "Không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                }
             }
-            @Override public void onFailure(Call<FoodResponse> call, Throwable t) {
-                loadData(true);
+            @Override 
+            public void onFailure(Call<FoodResponse> call, Throwable t) {
+                // Rollback on network failure
+                for (FoodResponse f : foodList) {
+                    if (f.getId() != null && f.getId().equals(food.getId())) {
+                        f.setIsAvailable(!isAvailable);
+                        break;
+                    }
+                }
+                if (adapter != null) {
+                    adapter.updateFoodAvailability(food.getId(), !isAvailable);
+                    updateStatsCounts();
+                }
+                Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
             }
         });
     }

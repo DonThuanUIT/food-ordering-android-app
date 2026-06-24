@@ -29,6 +29,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private String currentQuery = "";
     private String currentCategory = "Tất cả";
+    private String currentStatusFilter = "Tất cả";
 
     public interface OnFoodActionProvider {
         void onStatusChanged(FoodResponse food, boolean isAvailable);
@@ -64,6 +65,52 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         applyFilters();
     }
 
+    public void setStatusFilter(String statusFilter) {
+        this.currentStatusFilter = statusFilter != null ? statusFilter : "Tất cả";
+        applyFilters();
+    }
+
+    public void updateFoodAvailability(java.util.UUID foodId, boolean isAvailable) {
+        FoodResponse targetFood = null;
+        for (FoodResponse f : originalList) {
+            if (f.getId() != null && f.getId().equals(foodId)) {
+                f.setIsAvailable(isAvailable);
+                targetFood = f;
+                break;
+            }
+        }
+        if (targetFood == null) return;
+        
+        // Check if it matches filters
+        String cleanCategory = currentCategory.split(" \\(")[0];
+        boolean matchesCategory = cleanCategory.equals("All") || cleanCategory.equals("Tất cả") ||
+                (targetFood.getCategoryName() != null && targetFood.getCategoryName().equalsIgnoreCase(cleanCategory));
+                
+        boolean matchesStatus = true;
+        if ("Sẵn có".equalsIgnoreCase(currentStatusFilter)) {
+            matchesStatus = isAvailable;
+        } else if ("Hết món".equalsIgnoreCase(currentStatusFilter)) {
+            matchesStatus = !isAvailable;
+        }
+        
+        if (matchesCategory && matchesStatus) {
+            int index = -1;
+            for (int i = 0; i < filteredList.size(); i++) {
+                if (filteredList.get(i).getId() != null && filteredList.get(i).getId().equals(foodId)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index != -1) {
+                notifyItemChanged(index);
+            } else {
+                applyFilters();
+            }
+        } else {
+            applyFilters();
+        }
+    }
+
     private void applyFilters() {
         filteredList.clear();
         for (FoodResponse item : originalList) {
@@ -75,7 +122,15 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             boolean matchesCategory = cleanCategory.equals("All") || cleanCategory.equals("Tất cả") ||
                     (item.getCategoryName() != null && item.getCategoryName().equalsIgnoreCase(cleanCategory));
 
-            if (matchesQuery && matchesCategory) {
+            boolean isAvailable = item.getIsAvailable() != null ? item.getIsAvailable() : true;
+            boolean matchesStatus = true;
+            if ("Sẵn có".equalsIgnoreCase(currentStatusFilter)) {
+                matchesStatus = isAvailable;
+            } else if ("Hết món".equalsIgnoreCase(currentStatusFilter)) {
+                matchesStatus = !isAvailable;
+            }
+
+            if (matchesQuery && matchesCategory && matchesStatus) {
                 filteredList.add(item);
             }
         }
@@ -122,6 +177,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         View viewOverlay;
         TextView tvSoldOut, tvName, tvPrice, tvStatus, tvDescription, tvBadge;
         SwitchCompat switchAvailability;
+        View btnAddStock;
 
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -134,12 +190,13 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             tvDescription = itemView.findViewById(R.id.tv_food_description);
             switchAvailability = itemView.findViewById(R.id.switch_available);
             tvBadge = itemView.findViewById(R.id.tv_badge_label);
+            btnAddStock = itemView.findViewById(R.id.btn_add_stock);
         }
 
         void bind(FoodResponse food) {
             tvName.setText(food.getName());
             if (food.getPrice() != null) {
-                tvPrice.setText(String.format(Locale.US, "%,dđ", food.getPrice().longValue()));
+                tvPrice.setText(String.format(new Locale("vi", "VN"), "%,dđ", food.getPrice().longValue()));
             } else {
                 tvPrice.setText("0đ");
             }
@@ -187,8 +244,11 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 tvStatus.setText("● Còn hàng");
                 tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
                 
-                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#81C784"))); // Light green track
-                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#2E7D32")));  // Dark green thumb
+                switchAvailability.setVisibility(View.VISIBLE);
+                if (btnAddStock != null) btnAddStock.setVisibility(View.GONE);
+                
+                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#FFCCBC"))); // Light orange track
+                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#F46E26")));  // Orange thumb
             } else {
                 imgFood.setAlpha(0.3f); 
                 viewOverlay.setVisibility(View.VISIBLE);
@@ -196,8 +256,8 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 tvStatus.setText("● Hết hàng");
                 tvStatus.setTextColor(Color.parseColor("#D32F2F")); // Red
                 
-                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#E0E0E0"))); // Light gray track
-                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#9E9E9E")));  // Gray thumb
+                switchAvailability.setVisibility(View.GONE);
+                if (btnAddStock != null) btnAddStock.setVisibility(View.VISIBLE);
             }
 
             switchAvailability.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -205,6 +265,14 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     actionProvider.onStatusChanged(food, isChecked);
                 }
             });
+
+            if (btnAddStock != null) {
+                btnAddStock.setOnClickListener(v -> {
+                    if (actionProvider != null) {
+                        actionProvider.onStatusChanged(food, true); // toggle to available
+                    }
+                });
+            }
 
             itemView.setOnLongClickListener(v -> {
                 if (actionProvider != null) {
