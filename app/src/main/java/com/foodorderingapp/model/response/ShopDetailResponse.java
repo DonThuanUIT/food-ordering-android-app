@@ -67,6 +67,9 @@ public class ShopDetailResponse {
         private Boolean isAvailable = true;
         private String categoryId;
         private String categoryName;
+        private List<String> tags;
+        private String cuisine;
+        private Integer spicyLevel;
 
         public String getId() { return id; }
         public String getName() { return name; }
@@ -76,5 +79,8 @@ public class ShopDetailResponse {
         public boolean isAvailable() { return isAvailable == null || isAvailable; }
         public String getCategoryId() { return categoryId; }
         public String getCategoryName() { return categoryName; }
+        public List<String> getTags() { return tags; }
+        public String getCuisine() { return cuisine; }
+        public Integer getSpicyLevel() { return spicyLevel; }
     }
 }

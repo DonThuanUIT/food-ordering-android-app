@@ -52,7 +52,21 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         ShopDetailResponse.FoodItem food = foods.get(position);
 
         holder.tvName.setText(nullToDefault(food.getName(), "Chưa có tên món"));
-        holder.tvDescription.setText(nullToDefault(food.getDescription(), "Chưa có mô tả"));
+        
+        StringBuilder descBuilder = new StringBuilder();
+        if (food.getDescription() != null && !food.getDescription().trim().isEmpty()) {
+            descBuilder.append(food.getDescription());
+        }
+        if (food.getCuisine() != null && !food.getCuisine().trim().isEmpty()) {
+            if (descBuilder.length() > 0) descBuilder.append(" | ");
+            descBuilder.append("🌐 ").append(food.getCuisine());
+        }
+        if (food.getTags() != null && !food.getTags().isEmpty()) {
+            if (descBuilder.length() > 0) descBuilder.append(" | ");
+            descBuilder.append("🏷️ ").append(android.text.TextUtils.join(", ", food.getTags()));
+        }
+        holder.tvDescription.setText(descBuilder.length() > 0 ? descBuilder.toString() : "Chưa có mô tả");
+        
         holder.tvPrice.setText(formatPrice(food.getPrice()));
 
         Glide.with(holder.itemView.getContext())
