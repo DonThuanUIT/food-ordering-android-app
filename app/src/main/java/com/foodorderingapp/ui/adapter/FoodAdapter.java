@@ -30,12 +30,18 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String currentQuery = "";
     private String currentCategory = "Tất cả";
     private String currentStatusFilter = "Tất cả";
+    private boolean isLoadingState = false;
 
     public interface OnFoodActionProvider {
         void onStatusChanged(FoodResponse food, boolean isAvailable);
         void onAddNewItemClick();
         void onFoodImageClick(FoodResponse food);
         void onFoodLongClick(FoodResponse food);
+    }
+
+    public void setLoading(boolean loading) {
+        this.isLoadingState = loading;
+        notifyDataSetChanged();
     }
 
     public FoodAdapter(List<FoodResponse> foodList, OnFoodActionProvider actionProvider) {
@@ -169,6 +175,9 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
+        if (isLoadingState && filteredList.isEmpty()) {
+            return 0;
+        }
         return filteredList.size() + 1;
     }
 

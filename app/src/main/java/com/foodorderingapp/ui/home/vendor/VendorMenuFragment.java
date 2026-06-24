@@ -344,7 +344,10 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             currentPage = 0;
             isLastPage = false;
             foodList.clear();
-            adapter.updateData(new ArrayList<>());
+            if (adapter != null) {
+                adapter.updateData(new ArrayList<>());
+                adapter.setLoading(true);
+            }
         }
         if (isLastPage || isLoading) return;
 
@@ -354,10 +357,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             @Override
             public void onResponse(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Response<com.foodorderingapp.model.response.PageResponse<FoodResponse>> response) {
                 isLoading = false;
+                if (adapter != null) {
+                    adapter.setLoading(false);
+                }
                 if (response.isSuccessful() && response.body() != null) {
                     List<FoodResponse> newFoods = response.body().getContent();
                     foodList.addAll(newFoods);
-                    adapter.updateData(foodList);
+                    if (adapter != null) {
+                        adapter.updateData(foodList);
+                    }
                     updateStatsCounts();
 
                     isLastPage = response.body().isLast() || newFoods.size() < PAGE_SIZE;
@@ -372,6 +380,9 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             @Override 
             public void onFailure(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Throwable t) {
                 isLoading = false;
+                if (adapter != null) {
+                    adapter.setLoading(false);
+                }
             }
         });
         if (reload) {
