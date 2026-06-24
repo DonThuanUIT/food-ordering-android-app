@@ -141,7 +141,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                             if (imgPreview != null) {
                                 imgPreview.setPadding(0, 0, 0, 0);
                                 imgPreview.clearColorFilter();
-                                imgPreview.setImageURI(selectedImageUri);
+                                imgPreview.setImageTintList(null);
+                                Glide.with(this).load(selectedImageUri).into(imgPreview);
                                 imgPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                             }
                         }
@@ -207,6 +208,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             if (imgPreview != null) {
                 imgPreview.setPadding(0, 0, 0, 0);
                 imgPreview.clearColorFilter();
+                imgPreview.setImageTintList(null);
                 Glide.with(this).load(url).into(imgPreview);
             }
         });
@@ -574,6 +576,10 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             BottomSheetDialog d = (BottomSheetDialog) dialogInterface;
             FrameLayout bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
             if (bottomSheet != null) {
+                ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                bottomSheet.setLayoutParams(layoutParams);
+
                 BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
                 behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 behavior.setSkipCollapsed(true);
@@ -799,6 +805,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (imgPreview != null && food.getImageUrl() != null && !food.getImageUrl().isEmpty()) {
             imgPreview.setPadding(0, 0, 0, 0);
             imgPreview.clearColorFilter();
+            imgPreview.setImageTintList(null);
             Glide.with(this)
                     .load(food.getImageUrl())
                     .placeholder(R.drawable.logo_food)
@@ -840,6 +847,10 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             BottomSheetDialog d = (BottomSheetDialog) dialogInterface;
             FrameLayout bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
             if (bottomSheet != null) {
+                ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                bottomSheet.setLayoutParams(layoutParams);
+
                 BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
                 behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 behavior.setSkipCollapsed(true);

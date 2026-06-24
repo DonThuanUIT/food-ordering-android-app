@@ -41,7 +41,8 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
