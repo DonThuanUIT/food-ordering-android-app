@@ -59,7 +59,7 @@ public class ShopMenuTabAdapter extends RecyclerView.Adapter<ShopMenuTabAdapter.
         boolean selected = position == selectedPosition;
 
         String name = nullToDefault(category.getName(), "Danh mục");
-        holder.tvTabName.setText(CategoryIconHelper.getEmojiPrefix(name) + name);
+        holder.tvTabName.setText(CategoryIconHelper.getEmojiForDisplay(name));
         holder.tvTabName.setTextColor(selected ? 0xFFFFFFFF : 0xFF563528);
         holder.tvTabName.setBackgroundResource(selected
                 ? R.drawable.bg_shop_menu_tab_selected

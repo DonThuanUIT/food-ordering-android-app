@@ -28,4 +28,22 @@ public class CategoryIconHelper {
         String emoji = getCategoryEmoji(categoryName);
         return emoji.isEmpty() ? "" : emoji + " ";
     }
+
+    public static String getEmojiForDisplay(String fullName) {
+        if (fullName == null) return "🍽️";
+        if (fullName.contains("|")) {
+            String[] parts = fullName.split("\\|");
+            return parts[0].trim();
+        }
+        return getCategoryEmoji(fullName);
+    }
+
+    public static String getNameForDisplay(String fullName) {
+        if (fullName == null) return "";
+        if (fullName.contains("|")) {
+            String[] parts = fullName.split("\\|");
+            return parts.length > 1 ? parts[1].trim() : parts[0].trim();
+        }
+        return fullName;
+    }
 }

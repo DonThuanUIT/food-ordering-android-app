@@ -225,7 +225,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         });
     }
 
-    private void setupSearch() {
+     private void setupSearch() {
         if (searchView != null) {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -253,19 +253,20 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 }
                 Chip chip = group.findViewById(checkedIds.get(0));
                 if (chip != null) {
-                    String categoryName = chip.getText().toString();
-                    adapter.setCategoryFilter(categoryName);
-
-                    if (categoryName.equals("Tất cả") || categoryName.equals("All")) {
-                        selectedCategoryId = null;
-                    } else {
-                        selectedCategoryId = null;
-                        for (CategoryResponse category : categories) {
-                            if (category.getName().equals(categoryName)) {
-                                selectedCategoryId = category.getId();
+                    Object tag = chip.getTag();
+                    if (tag instanceof UUID) {
+                        selectedCategoryId = (UUID) tag;
+                        String categoryName = "";
+                        for (CategoryResponse c : categories) {
+                            if (c.getId().equals(selectedCategoryId)) {
+                                categoryName = c.getName();
                                 break;
                             }
                         }
+                        adapter.setCategoryFilter(categoryName);
+                    } else {
+                        selectedCategoryId = null;
+                        adapter.setCategoryFilter("Tất cả");
                     }
                     loadData(true);
                 }
@@ -402,7 +403,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (chipGroupCategories == null) return;
         chipGroupCategories.removeAllViews();
         Chip allChip = new Chip(requireContext());
-        allChip.setText(CategoryIconHelper.getEmojiPrefix("Tất cả") + "Tất cả");
+        allChip.setText(CategoryIconHelper.getEmojiForDisplay("Tất cả"));
+        allChip.setTag("ALL");
         allChip.setCheckable(true);
         allChip.setChecked(true);
         allChip.setChipBackgroundColor(getChipBackgroundStateList());
@@ -412,7 +414,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         chipGroupCategories.addView(allChip);
         for (CategoryResponse category : categories) {
             Chip chip = new Chip(requireContext());
-            chip.setText(CategoryIconHelper.getEmojiPrefix(category.getName()) + category.getName());
+            chip.setText(CategoryIconHelper.getEmojiForDisplay(category.getName()));
+            chip.setTag(category.getId());
             chip.setCheckable(true);
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
@@ -578,7 +581,9 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         for (int i = 0; i < categories.size(); i++) {
             CategoryResponse cat = categories.get(i);
             Chip chip = new Chip(requireContext());
-            chip.setText(CategoryIconHelper.getEmojiPrefix(cat.getName()) + cat.getName());
+            String displayName = CategoryIconHelper.getEmojiForDisplay(cat.getName()) + " " + CategoryIconHelper.getNameForDisplay(cat.getName());
+            chip.setText(displayName);
+            chip.setTag(cat.getId());
             chip.setCheckable(true);
             chip.setId(View.generateViewId());
             chip.setChipBackgroundColor(getChipBackgroundStateList());
@@ -605,7 +610,29 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         builder.setView(input);
         builder.setPositiveButton("Thêm", (dialog, which) -> {
             String name = input.getText().toString().trim();
-            if (!TextUtils.isEmpty(name)) addNewCategory(name);
+            if (!TextUtils.isEmpty(name)) {
+                android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
+                progressDialog.setMessage("AI đang sinh biểu tượng...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
+                com.foodorderingapp.utils.GeminiEmojiHelper.generateEmojiForCategory(name, new com.foodorderingapp.utils.GeminiEmojiHelper.EmojiCallback() {
+                    @Override
+                    public void onSuccess(String emoji) {
+                        progressDialog.dismiss();
+                        String formattedName = emoji + "|" + name;
+                        addNewCategory(formattedName);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        progressDialog.dismiss();
+                        String emoji = CategoryIconHelper.getCategoryEmoji(name);
+                        String formattedName = emoji + "|" + name;
+                        addNewCategory(formattedName);
+                    }
+                });
+            }
         });
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
         builder.show();
@@ -630,11 +657,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         int id = group.getCheckedChipId();
         if (id != View.NO_ID) {
             Chip chip = group.findViewById(id);
-            if (chip != null) {
-                String name = chip.getText().toString();
-                for (CategoryResponse c : categories) {
-                    if (c.getName().equalsIgnoreCase(name)) return c.getId();
-                }
+            if (chip != null && chip.getTag() instanceof UUID) {
+                return (UUID) chip.getTag();
             }
         }
         return categories.isEmpty() ? UUID.randomUUID() : categories.get(0).getId();
