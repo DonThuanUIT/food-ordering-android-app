@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/vendor_dark_card"
     app:cardUseCompatPadding="true">
 
     <LinearLayout
@@ -26,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:text="Đơn hàng #..."
-                android:textColor="@color/black"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -51,14 +52,14 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:text="12:45"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="12sp" />
         </RelativeLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:background="@color/divider"
+            android:background="@color/vendor_dark_divider"
             android:layout_marginBottom="10dp"/>
 
         <!-- Delivery Info -->
@@ -73,7 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Phòng..."
-                android:textColor="@color/text_primary"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
@@ -82,7 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Giao đến: ..."
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="13sp"
                 android:layout_marginTop="2dp"/>
         </LinearLayout>
@@ -93,7 +94,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Khách: ..."
-            android:textColor="@color/text_muted"
+            android:textColor="@color/vendor_dark_text_secondary"
             android:textSize="12sp"
             android:layout_marginBottom="10dp"/>
 
@@ -103,7 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/bg_item"
+            android:background="@color/vendor_dark_bg"
             android:padding="12dp"
             android:layout_marginBottom="12dp"/>
 
@@ -119,7 +120,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:text="Tổng thanh toán"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="14sp" />
 
             <TextView
@@ -128,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:text="0đ"
-                android:textColor="@color/primary_orange"
+                android:textColor="@color/vendor_dark_orange"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </RelativeLayout>
@@ -138,7 +139,7 @@
             android:id="@+id/tv_cancel_reason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FFF5F5"
+            android:background="#2C1A1A"
             android:padding="8dp"
             android:textColor="@color/status_red"
             android:textSize="12sp"
@@ -162,9 +163,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hủy đơn"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/vendor_dark_text_secondary"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:strokeColor="@color/border_input"
+                app:strokeColor="@color/vendor_dark_border"
                 app:cornerRadius="8dp"
                 android:layout_marginEnd="8dp"/>
 
@@ -184,7 +185,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Giao hàng"
-                android:backgroundTint="@color/brand_orange"
+                android:backgroundTint="@color/vendor_dark_orange"
                 android:textColor="@color/white"
                 app:cornerRadius="8dp"
                 android:visibility="gone"/>

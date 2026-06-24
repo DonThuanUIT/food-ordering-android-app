@@ -3,14 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_page">
+    android:background="@color/vendor_dark_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-
 
         <!-- Status Filter Horizontal Scroll Chips -->
         <HorizontalScrollView
@@ -19,7 +17,7 @@
             android:scrollbars="none"
             android:paddingHorizontal="16dp"
             android:paddingVertical="8dp"
-            android:background="@color/white">
+            android:background="@color/vendor_dark_bg">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_status"
@@ -131,7 +129,7 @@
                         android:layout_width="72dp"
                         android:layout_height="72dp"
                         android:src="@drawable/ic_orders"
-                        app:tint="@color/text_muted"
+                        app:tint="@color/vendor_dark_text_secondary"
                         android:alpha="0.5"/>
 
                     <TextView
@@ -139,7 +137,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Không có đơn hàng nào"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -149,7 +147,7 @@
                         android:layout_marginTop="4dp"
                         android:gravity="center"
                         android:text="Danh sách đơn hàng trống ở trạng thái này."
-                        android:textColor="@color/text_muted"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
