@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDFDFF">
+    android:background="@color/vendor_dark_bg">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/vendor_dark_bg"
         app:liftOnScroll="true"
-        app:elevation="4dp">
+        app:elevation="0dp">
 
         <!-- Scrollable Middle Section (Hides on Scroll Up) -->
         <LinearLayout
@@ -20,7 +20,7 @@
             android:paddingHorizontal="16dp"
             android:paddingTop="12dp"
             android:paddingBottom="4dp"
-            android:background="@color/white"
+            android:background="@color/vendor_dark_bg"
             app:layout_scrollFlags="scroll|enterAlways">
             <TextView
                 android:layout_width="wrap_content"
@@ -28,12 +28,12 @@
                 android:text="Quản lý Thực đơn"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"/>
+                android:textColor="@color/vendor_dark_text_primary"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cập nhật món ăn, quản lý kho hàng và điều chỉnh giá bán."
-                android:textColor="@color/text_gray"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="12sp"
                 android:layout_marginTop="2dp"/>
             <!-- Search Bar -->
@@ -43,7 +43,7 @@
                 android:layout_height="44dp"
                 android:layout_marginTop="12dp"
                 android:visibility="visible"
-                android:background="@drawable/bg_edittext"
+                android:background="@drawable/bg_vendor_input_dark"
                 app:iconifiedByDefault="false"
                 app:queryHint="Tìm kiếm món ăn..."
                 app:queryBackground="@android:color/transparent" />
@@ -65,7 +65,7 @@
                     android:layout_marginEnd="4dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="#F7FAFC">
+                    app:cardBackgroundColor="@color/vendor_dark_card">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="TỔNG SỐ"
-                            android:textColor="#718096"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="10sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -84,7 +84,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:layout_marginTop="2dp"/>
@@ -99,7 +99,7 @@
                     android:layout_marginHorizontal="2dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="#E6FFFA">
+                    app:cardBackgroundColor="#15291E">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="ĐANG BÁN"
-                            android:textColor="#319795"
+                            android:textColor="#22C55E"
                             android:textSize="10sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -118,7 +118,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="#234E52"
+                            android:textColor="#22C55E"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:layout_marginTop="2dp"/>
@@ -133,7 +133,7 @@
                     android:layout_marginHorizontal="2dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="#FFF5F5">
+                    app:cardBackgroundColor="#2C1A1A">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -144,7 +144,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="HẾT MÓN"
-                            android:textColor="#E53E3E"
+                            android:textColor="#EF4444"
                             android:textSize="10sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -152,7 +152,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="#742A2A"
+                            android:textColor="#EF4444"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:layout_marginTop="2dp"/>
@@ -167,7 +167,7 @@
                     android:layout_marginStart="4dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="#FFFAF0">
+                    app:cardBackgroundColor="#2A1E17">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -178,7 +178,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="DANH MỤC"
-                            android:textColor="#DD6B20"
+                            android:textColor="@color/vendor_dark_orange"
                             android:textSize="10sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -186,7 +186,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="#7B341E"
+                            android:textColor="@color/vendor_dark_orange"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:layout_marginTop="2dp"/>
@@ -203,7 +203,7 @@
             android:paddingHorizontal="16dp"
             android:paddingBottom="12dp"
             android:paddingTop="6dp"
-            android:background="@color/white">
+            android:background="@color/vendor_dark_bg">
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_categories"
                 android:layout_width="wrap_content"
@@ -239,8 +239,8 @@
         android:layout_marginBottom="88dp"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_arrow_up"
-        app:backgroundTint="@color/white"
-        app:tint="@color/primary_orange"
+        app:backgroundTint="@color/vendor_dark_card"
+        app:tint="@color/vendor_dark_orange"
         app:fabSize="mini"
         app:elevation="6dp"/>
 
@@ -251,8 +251,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         app:srcCompat="@drawable/ic_add"
-        app:backgroundTint="@color/primary_orange"
-        app:tint="@color/white"
+        app:backgroundTint="@color/vendor_dark_orange"
+        app:tint="@color/vendor_dark_text_primary"
         app:elevation="6dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

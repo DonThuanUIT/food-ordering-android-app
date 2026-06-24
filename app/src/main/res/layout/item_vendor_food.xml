@@ -6,7 +6,7 @@
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     android:layout_marginBottom="16dp"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="@color/vendor_dark_card"
     android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
@@ -32,7 +32,7 @@
                 android:id="@+id/view_sold_out_overlay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#66FFFFFF"
+                android:background="#AA181210"
                 android:visibility="gone" />
 
             <TextView
@@ -41,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="Sold Out"
-                android:textColor="@color/black"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textStyle="bold"
                 android:textSize="14sp"
                 android:paddingHorizontal="12dp"
@@ -88,7 +88,7 @@
                     android:text="Classic Smash Burger"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/black"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:maxLines="1"
                     android:ellipsize="end"/>
 
@@ -97,7 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="$8.99"
-                    android:textColor="#A34E0C"
+                    android:textColor="@color/vendor_dark_orange"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:layout_marginStart="8dp"/>
@@ -108,7 +108,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Double beef patty, American cheese, house sauce, pickles, toasted brioche bun."
-                android:textColor="@color/text_gray"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="13sp"
                 android:layout_marginTop="6dp"
                 android:maxLines="2"
@@ -117,7 +117,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#F0F0F0"
+                android:background="@color/vendor_dark_divider"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"/>
 
