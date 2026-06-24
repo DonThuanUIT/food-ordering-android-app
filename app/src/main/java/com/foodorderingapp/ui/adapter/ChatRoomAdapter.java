@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.ChatRoomResponse;
-import com.foodorderingapp.model.response.ChatUserResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,13 +46,15 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ChatRo
     @Override
     public void onBindViewHolder(@NonNull ChatRoomViewHolder holder, int position) {
         ChatRoomResponse room = rooms.get(position);
-        ChatUserResponse student = room.getStudent();
-        String name = nullToDefault(student == null ? null : student.getFullName(), "Sinh vien");
-        String phone = student == null ? "" : nullToDefault(student.getPhone(), "");
+        String name = nullToDefault(room.getPartnerName(), "Người dùng");
+        String lastMessage = nullToDefault(room.getLastMessage(), "Nhấn để bắt đầu trò chuyện");
+        String subtitle = room.getUnreadCount() > 0
+                ? "Tin mới (" + room.getUnreadCount() + "): " + lastMessage
+                : lastMessage;
 
         holder.tvAvatar.setText(initial(name));
         holder.tvTitle.setText(name);
-        holder.tvSubtitle.setText(phone.isEmpty() ? "Nhan de tra loi student" : phone);
+        holder.tvSubtitle.setText(subtitle);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onRoomClick(room);

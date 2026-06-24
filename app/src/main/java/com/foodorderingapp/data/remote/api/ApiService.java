@@ -298,14 +298,23 @@ public interface ApiService {
     @GET("chat/rooms")
     Call<List<ChatRoomResponse>> getChatRooms();
 
+    @GET("chat/shops/{shopId}/room")
+    Call<ChatRoomResponse> getChatRoomByShop(@Path("shopId") String shopId);
+
     @GET("chat/{roomId}/history")
     Call<List<ChatMessageResponse>> getChatHistory(@Path("roomId") String roomId);
 
     @POST("chat/send")
-    Call<Void> sendChatMessage(@Body SendChatMessageRequest request);
+    Call<ChatMessageResponse> sendChatMessage(@Body SendChatMessageRequest request);
 
     @PUT("chat/{roomId}/read")
     Call<Void> markChatRoomRead(@Path("roomId") String roomId);
+
+    @GET("chat/unread-count")
+    Call<Long> getChatUnreadCount();
+
+    @GET("chat/rooms/{roomId}/unread-count")
+    Call<Long> getChatRoomUnreadCount(@Path("roomId") String roomId);
 
     // --- Admin ---
     @GET("admin/overview")

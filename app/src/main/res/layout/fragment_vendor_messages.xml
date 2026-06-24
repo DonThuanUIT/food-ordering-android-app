@@ -13,7 +13,7 @@
         android:layout_marginHorizontal="24dp"
         android:layout_marginTop="80dp"
         android:gravity="center"
-        android:text="Chua co cuoc tro chuyen nao"
+        android:text="Chưa có cuộc trò chuyện nào"
         android:textColor="@color/text_secondary"
         android:textSize="15sp" />
 

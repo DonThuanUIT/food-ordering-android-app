@@ -1,29 +1,34 @@
 package com.foodorderingapp.model.response;
 
 public class ChatRoomResponse {
-    private String id;
-    private ChatUserResponse student;
-    private ChatShopResponse shop;
-    private String createdAt;
-    private String updatedAt;
+    private String roomId;
+    private String partnerId;
+    private String partnerName;
+    private String lastMessage;
+    private String lastMessageAt;
+    private long unreadCount;
 
-    public String getId() {
-        return id;
+    public String getRoomId() {
+        return roomId;
     }
 
-    public ChatUserResponse getStudent() {
-        return student;
+    public String getPartnerId() {
+        return partnerId;
     }
 
-    public ChatShopResponse getShop() {
-        return shop;
+    public String getPartnerName() {
+        return partnerName;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
+    public String getLastMessage() {
+        return lastMessage;
     }
 
-    public String getUpdatedAt() {
-        return updatedAt;
+    public String getLastMessageAt() {
+        return lastMessageAt;
+    }
+
+    public long getUnreadCount() {
+        return unreadCount;
     }
 }

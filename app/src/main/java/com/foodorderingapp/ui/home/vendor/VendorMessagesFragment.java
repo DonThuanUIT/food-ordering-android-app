@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.foodorderingapp.R;
 import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.response.ChatRoomResponse;
-import com.foodorderingapp.model.response.ChatUserResponse;
 import com.foodorderingapp.ui.adapter.ChatRoomAdapter;
 import com.foodorderingapp.ui.chat.ChatActivity;
 import com.foodorderingapp.utils.ToastUtils;
@@ -70,14 +69,14 @@ public class VendorMessagesFragment extends Fragment {
             public void onResponse(Call<List<ChatRoomResponse>> call,
                                    Response<List<ChatRoomResponse>> response) {
                 if (!response.isSuccessful() || response.body() == null) {
-                    showEmpty("Khong tai duoc tin nhan");
+                    showEmpty("Không tải được tin nhắn");
                     return;
                 }
 
                 List<ChatRoomResponse> rooms = response.body();
                 adapter.submitList(rooms);
                 if (rooms.isEmpty()) {
-                    showEmpty("Chua co cuoc tro chuyen nao");
+                    showEmpty("Chưa có cuộc trò chuyện nào");
                 } else {
                     tvEmpty.setVisibility(View.GONE);
                     rvRooms.setVisibility(View.VISIBLE);
@@ -86,27 +85,22 @@ public class VendorMessagesFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<ChatRoomResponse>> call, Throwable t) {
-                showEmpty("Loi ket noi khi tai tin nhan");
+                showEmpty("Lỗi kết nối khi tải tin nhắn");
             }
         });
     }
 
     private void openRoom(ChatRoomResponse room) {
-        if (room == null || room.getId() == null) {
-            ToastUtils.error(getContext(), "Khong tim thay phong chat");
+        if (room == null || room.getRoomId() == null) {
+            ToastUtils.error(getContext(), "Không tìm thấy phòng chat");
             return;
         }
 
-        ChatUserResponse student = room.getStudent();
-        String studentName = student == null ? "Sinh vien" : student.getFullName();
+        String partnerName = room.getPartnerName();
         Intent intent = new Intent(requireContext(), ChatActivity.class);
-        intent.putExtra(ChatActivity.EXTRA_ROOM_ID, room.getId());
+        intent.putExtra(ChatActivity.EXTRA_ROOM_ID, room.getRoomId());
         intent.putExtra(ChatActivity.EXTRA_PEER_NAME,
-                studentName == null || studentName.trim().isEmpty() ? "Sinh vien" : studentName);
-        if (room.getShop() != null) {
-            intent.putExtra(ChatActivity.EXTRA_SHOP_ID, room.getShop().getId());
-            intent.putExtra(ChatActivity.EXTRA_SHOP_NAME, room.getShop().getName());
-        }
+                partnerName == null || partnerName.trim().isEmpty() ? "Sinh viên" : partnerName);
         startActivity(intent);
     }
 
