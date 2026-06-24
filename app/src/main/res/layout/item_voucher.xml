@@ -6,7 +6,8 @@
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="3dp"
-    app:cardPreventCornerOverlap="true">
+    app:cardPreventCornerOverlap="true"
+    app:cardBackgroundColor="@color/vendor_dark_card">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +19,7 @@
         <LinearLayout
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:background="@color/brand_orange"
+            android:background="@color/vendor_dark_orange"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="8dp">
@@ -66,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/white"
+            android:background="@color/vendor_dark_card"
             android:padding="12dp">
 
             <!-- Title & Status Switch -->
@@ -77,7 +78,7 @@
                 android:layout_toStartOf="@id/switch_active"
                 android:layout_marginEnd="8dp"
                 android:text="Giảm giá chào hè cực đã"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="1"
@@ -90,8 +91,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
                 android:theme="@style/Theme.FoodOrderingApp"
-                app:thumbTint="@color/brand_orange"
-                app:trackTint="#FFCCAA"
+                app:thumbTint="@color/vendor_dark_orange"
+                app:trackTint="#FFCCBC"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
                 android:padding="0dp"/>
@@ -104,7 +105,7 @@
                 android:layout_below="@id/tv_voucher_title"
                 android:layout_marginTop="4dp"
                 android:text="Hạn dùng: 18/06 - 25/06"
-                android:textColor="@color/text_secondary"
+                android:textColor="#8A7D79"
                 android:textSize="11sp"/>
 
             <!-- Condition Details -->
@@ -115,7 +116,7 @@
                 android:layout_below="@id/tv_voucher_dates"
                 android:layout_marginTop="4dp"
                 android:text="Đơn hàng từ: 50,000đ • Giảm tối đa: 20,000đ"
-                android:textColor="@color/text_muted"
+                android:textColor="#8A7D79"
                 android:textSize="11sp"/>
 
             <!-- Application Type Target -->
@@ -126,7 +127,7 @@
                 android:layout_below="@id/tv_voucher_conditions"
                 android:layout_marginTop="4dp"
                 android:text="Áp dụng cho: Món ăn cụ thể (3 món)"
-                android:textColor="@color/brand_orange_dark"
+                android:textColor="@color/vendor_dark_orange"
                 android:textSize="11sp"
                 android:textStyle="bold"/>
 
@@ -135,7 +136,7 @@
                 android:id="@+id/divider_actions"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="@color/divider"
+                android:background="#382C29"
                 android:layout_below="@id/tv_voucher_apply_type"
                 android:layout_marginVertical="8dp"/>
 
@@ -165,14 +166,14 @@
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:src="@android:drawable/ic_menu_edit"
-                        app:tint="@color/brand_brown"/>
+                        app:tint="@color/vendor_dark_orange"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:text="Sửa"
-                        android:textColor="@color/brand_brown"
+                        android:textColor="@color/vendor_dark_orange"
                         android:textSize="12sp"
                         android:textStyle="bold"/>
                 </LinearLayout>

@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_page">
+    android:background="#1B110F">
 
     <!-- Header Section -->
     <RelativeLayout
         android:id="@+id/layout_header"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/brand_dark_bg"
+        android:background="#1B110F"
         android:elevation="4dp"
         android:paddingHorizontal="16dp">
 
@@ -61,7 +61,8 @@
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:layout_marginBottom="16dp"
-                app:cardUseCompatPadding="true">
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/vendor_dark_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -73,7 +74,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Thông tin chung"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
@@ -83,7 +84,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Mã Voucher (*)"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#8A7D79"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="6dp"/>
@@ -94,7 +95,9 @@
                         android:hint="Ví dụ: SUMMER50 (viết hoa, không cách)"
                         android:inputType="textCapCharacters"
                         android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-                        android:background="@drawable/bg_edittext"
+                        android:background="@drawable/bg_vendor_input_dark"
+                        android:textColor="@color/white"
+                        android:textColorHint="#8A7D79"
                         android:paddingHorizontal="12dp"
                         android:textSize="14sp"
                         android:layout_marginBottom="16dp"
@@ -105,7 +108,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tiêu đề hiển thị (*)"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#8A7D79"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="6dp"/>
@@ -115,7 +118,9 @@
                         android:layout_height="48dp"
                         android:hint="Ví dụ: Khuyến mãi mừng hè"
                         android:inputType="text"
-                        android:background="@drawable/bg_edittext"
+                        android:background="@drawable/bg_vendor_input_dark"
+                        android:textColor="@color/white"
+                        android:textColorHint="#8A7D79"
                         android:paddingHorizontal="12dp"
                         android:textSize="14sp"
                         android:layout_marginBottom="8dp"
@@ -131,7 +136,8 @@
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:layout_marginBottom="16dp"
-                app:cardUseCompatPadding="true">
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/vendor_dark_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -143,7 +149,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Thiết lập giảm giá"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
@@ -153,7 +159,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Loại giảm giá (*)"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#8A7D79"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="6dp"/>
@@ -170,7 +176,8 @@
                             android:layout_weight="1"
                             android:text="Theo phần trăm (%)"
                             android:textSize="13sp"
-                            android:buttonTint="@color/brand_orange"
+                            android:textColor="@color/white"
+                            android:buttonTint="@color/vendor_dark_orange"
                             android:checked="true"/>
                         <RadioButton
                             android:id="@+id/rb_fixed_amount"
@@ -179,7 +186,8 @@
                             android:layout_weight="1"
                             android:text="Số tiền cố định (đ)"
                             android:textSize="13sp"
-                            android:buttonTint="@color/brand_orange"/>
+                            android:textColor="@color/white"
+                            android:buttonTint="@color/vendor_dark_orange"/>
                     </RadioGroup>
 
                     <!-- Discount Value Input -->
@@ -188,7 +196,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Giá trị giảm giá (*)"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#8A7D79"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="6dp"/>
@@ -198,7 +206,9 @@
                         android:layout_height="48dp"
                         android:hint="Ví dụ: 10 (cho 10%) hoặc 20000"
                         android:inputType="number"
-                        android:background="@drawable/bg_edittext"
+                        android:background="@drawable/bg_vendor_input_dark"
+                        android:textColor="@color/white"
+                        android:textColorHint="#8A7D79"
                         android:paddingHorizontal="12dp"
                         android:textSize="14sp"
                         android:layout_marginBottom="16dp"
@@ -209,7 +219,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Giá trị đơn hàng tối thiểu"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#8A7D79"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="6dp"/>
@@ -219,7 +229,9 @@
                         android:layout_height="48dp"
                         android:hint="Ví dụ: 50000 (để trống nếu bằng 0)"
                         android:inputType="number"
-                        android:background="@drawable/bg_edittext"
+                        android:background="@drawable/bg_vendor_input_dark"
+                        android:textColor="@color/white"
+                        android:textColorHint="#8A7D79"
                         android:paddingHorizontal="12dp"
                         android:textSize="14sp"
                         android:layout_marginBottom="16dp"
@@ -235,7 +247,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Mức giảm tối đa"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#8A7D79"
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:layout_marginBottom="6dp"/>
@@ -245,7 +257,9 @@
                             android:layout_height="48dp"
                             android:hint="Ví dụ: 30000 (để trống nếu không giới hạn)"
                             android:inputType="number"
-                            android:background="@drawable/bg_edittext"
+                            android:background="@drawable/bg_vendor_input_dark"
+                            android:textColor="@color/white"
+                            android:textColorHint="#8A7D79"
                             android:paddingHorizontal="12dp"
                             android:textSize="14sp"
                             android:layout_marginBottom="8dp"
@@ -262,7 +276,8 @@
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:layout_marginBottom="16dp"
-                app:cardUseCompatPadding="true">
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/vendor_dark_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -274,7 +289,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Thời gian hiệu lực"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
@@ -284,7 +299,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ngày bắt đầu (*)"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#8A7D79"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="6dp"/>
@@ -292,7 +307,7 @@
                         android:id="@+id/btn_pick_start"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_edittext"
+                        android:background="@drawable/bg_vendor_input_dark"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:paddingHorizontal="12dp"
@@ -303,7 +318,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_clock"
-                            app:tint="@color/text_secondary"/>
+                            app:tint="#8A7D79"/>
                         <TextView
                             android:id="@+id/tv_start_date"
                             android:layout_width="0dp"
@@ -311,7 +326,7 @@
                             android:layout_weight="1"
                             android:layout_marginStart="10dp"
                             android:text="Chọn thời gian bắt đầu"
-                            android:textColor="@color/text_muted"
+                            android:textColor="#8A7D79"
                             android:textSize="14sp"/>
                     </LinearLayout>
 
@@ -320,7 +335,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ngày kết thúc (*)"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#8A7D79"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="6dp"/>
@@ -328,7 +343,7 @@
                         android:id="@+id/btn_pick_end"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_edittext"
+                        android:background="@drawable/bg_vendor_input_dark"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:paddingHorizontal="12dp"
@@ -339,7 +354,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_clock"
-                            app:tint="@color/text_secondary"/>
+                            app:tint="#8A7D79"/>
                         <TextView
                             android:id="@+id/tv_end_date"
                             android:layout_width="0dp"
@@ -347,7 +362,7 @@
                             android:layout_weight="1"
                             android:layout_marginStart="10dp"
                             android:text="Chọn thời gian kết thúc"
-                            android:textColor="@color/text_muted"
+                            android:textColor="#8A7D79"
                             android:textSize="14sp"/>
                     </LinearLayout>
 
@@ -361,7 +376,8 @@
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:layout_marginBottom="16dp"
-                app:cardUseCompatPadding="true">
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/vendor_dark_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -373,7 +389,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Phạm vi áp dụng"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/white"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
@@ -392,7 +408,8 @@
                             android:layout_weight="1"
                             android:text="Toàn bộ menu"
                             android:textSize="13sp"
-                            android:buttonTint="@color/brand_orange"
+                            android:textColor="@color/white"
+                            android:buttonTint="@color/vendor_dark_orange"
                             android:checked="true"/>
                         <RadioButton
                             android:id="@+id/rb_specific_foods"
@@ -401,7 +418,8 @@
                             android:layout_weight="1"
                             android:text="Món ăn cụ thể"
                             android:textSize="13sp"
-                            android:buttonTint="@color/brand_orange"/>
+                            android:textColor="@color/white"
+                            android:buttonTint="@color/vendor_dark_orange"/>
                     </RadioGroup>
 
                     <!-- Food Selection Section (Collapsible) -->
@@ -418,7 +436,7 @@
                             android:layout_height="wrap_content"
                             android:text="Chọn món ăn..."
                             android:textColor="@color/white"
-                            android:backgroundTint="@color/brand_brown"
+                            android:backgroundTint="@color/vendor_dark_orange"
                             android:textSize="12sp"
                             android:paddingHorizontal="16dp"
                             android:layout_marginBottom="8dp"/>
@@ -428,7 +446,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Chưa chọn món nào"
-                            android:textColor="@color/brand_orange_dark"
+                            android:textColor="@color/vendor_dark_orange"
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:layout_marginBottom="8dp"/>
@@ -445,7 +463,8 @@
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 android:layout_marginBottom="16dp"
-                app:cardUseCompatPadding="true">
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/vendor_dark_card">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -456,7 +475,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Kích hoạt mã giảm giá"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/white"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:layout_alignParentStart="true"
@@ -470,8 +489,8 @@
                         android:layout_centerVertical="true"
                         android:checked="true"
                         android:theme="@style/Theme.FoodOrderingApp"
-                        app:thumbTint="@color/brand_orange"
-                        app:trackTint="#FFCCAA"/>
+                        app:thumbTint="@color/vendor_dark_orange"
+                        app:trackTint="#FFCCBC"/>
 
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
@@ -489,7 +508,7 @@
         android:textSize="15sp"
         android:textStyle="bold"
         android:textColor="@color/white"
-        android:backgroundTint="@color/brand_orange"
+        android:backgroundTint="@color/vendor_dark_orange"
         android:insetBottom="0dp"
         android:insetTop="0dp"
         app:cornerRadius="0dp"/>
