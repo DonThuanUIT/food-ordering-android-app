@@ -376,6 +376,8 @@ public class VendorStatsFragment extends Fragment {
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
         xAxis.setTextColor(Color.parseColor("#8A7D79"));
+        xAxis.setSpaceMin(0.5f);
+        xAxis.setSpaceMax(0.5f);
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -404,6 +406,8 @@ public class VendorStatsFragment extends Fragment {
         binding.chartRevenueTrend.getAxisLeft().setDrawGridLines(true);
         binding.chartRevenueTrend.getAxisLeft().setGridColor(Color.parseColor("#382C29")); // vendor_dark_divider
         binding.chartRevenueTrend.getAxisLeft().setTextColor(Color.parseColor("#8A7D79"));
+        binding.chartRevenueTrend.getAxisLeft().setXOffset(10f);
+        binding.chartRevenueTrend.setExtraLeftOffset(10f);
         binding.chartRevenueTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -472,6 +476,8 @@ public class VendorStatsFragment extends Fragment {
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
         xAxis.setTextColor(Color.parseColor("#8A7D79"));
+        xAxis.setSpaceMin(0.5f);
+        xAxis.setSpaceMax(0.5f);
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -501,6 +507,8 @@ public class VendorStatsFragment extends Fragment {
         binding.chartOrderTrend.getAxisLeft().setDrawGridLines(true);
         binding.chartOrderTrend.getAxisLeft().setGridColor(Color.parseColor("#382C29")); // vendor_dark_divider
         binding.chartOrderTrend.getAxisLeft().setTextColor(Color.parseColor("#8A7D79"));
+        binding.chartOrderTrend.getAxisLeft().setXOffset(10f);
+        binding.chartOrderTrend.setExtraLeftOffset(10f);
         binding.chartOrderTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
