@@ -124,6 +124,17 @@
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/tv_food_tags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="10sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <!-- Right Action Section -->

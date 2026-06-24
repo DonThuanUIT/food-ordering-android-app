@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.data.remote.api.ApiClient;
@@ -71,6 +72,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private FloatingActionButton fabAddFood;
     
     private ImageView imgPreview;
+    private SwipeRefreshLayout swipeRefresh;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     
     private UUID currentShopId;
@@ -158,6 +160,12 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         rvMenu = view.findViewById(R.id.rv_vendor_menu);
         searchView = view.findViewById(R.id.search_view_menu);
         chipGroupCategories = view.findViewById(R.id.chip_group_categories);
+        swipeRefresh = view.findViewById(R.id.swipe_refresh_menu);
+        if (swipeRefresh != null) {
+            swipeRefresh.setOnRefreshListener(() -> loadData(true));
+            swipeRefresh.setColorSchemeResources(R.color.vendor_dark_orange);
+            swipeRefresh.setProgressBackgroundColorSchemeColor(android.graphics.Color.parseColor("#1B110F"));
+        }
         fabScrollTop = view.findViewById(R.id.fab_scroll_top);
         fabAddFood = view.findViewById(R.id.fab_add_food);
 
@@ -352,7 +360,9 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             foodList.clear();
             if (adapter != null) {
                 adapter.updateData(new ArrayList<>());
-                adapter.setLoading(true);
+                if (swipeRefresh == null || !swipeRefresh.isRefreshing()) {
+                    adapter.setLoading(true);
+                }
             }
         }
         if (isLastPage || isLoading) return;
@@ -363,6 +373,9 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             @Override
             public void onResponse(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Response<com.foodorderingapp.model.response.PageResponse<FoodResponse>> response) {
                 isLoading = false;
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
                 if (adapter != null) {
                     adapter.setLoading(false);
                 }
@@ -386,6 +399,9 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             @Override 
             public void onFailure(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Throwable t) {
                 isLoading = false;
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
                 if (adapter != null) {
                     adapter.setLoading(false);
                 }

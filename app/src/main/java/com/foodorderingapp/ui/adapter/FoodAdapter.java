@@ -184,7 +184,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class FoodViewHolder extends RecyclerView.ViewHolder {
         ImageView imgFood;
         View viewOverlay;
-        TextView tvSoldOut, tvName, tvPrice, tvStatus, tvDescription, tvBadge;
+        TextView tvSoldOut, tvName, tvPrice, tvStatus, tvDescription, tvBadge, tvTags;
         SwitchCompat switchAvailability;
         View btnAddStock;
 
@@ -200,6 +200,7 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             switchAvailability = itemView.findViewById(R.id.switch_available);
             tvBadge = itemView.findViewById(R.id.tv_badge_label);
             btnAddStock = itemView.findViewById(R.id.btn_add_stock);
+            tvTags = itemView.findViewById(R.id.tv_food_tags);
         }
 
         void bind(FoodResponse food) {
@@ -210,24 +211,27 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 tvPrice.setText("0đ");
             }
             if (tvDescription != null) {
-                StringBuilder details = new StringBuilder();
                 if (food.getDescription() != null && !food.getDescription().trim().isEmpty()) {
-                    details.append(food.getDescription());
-                }
-                if (food.getCuisine() != null && !food.getCuisine().trim().isEmpty()) {
-                    if (details.length() > 0) details.append(" | ");
-                    details.append("🌐 ").append(food.getCuisine());
-                }
-                if (food.getTags() != null && !food.getTags().isEmpty()) {
-                    if (details.length() > 0) details.append(" | ");
-                    details.append("🏷️ ").append(android.text.TextUtils.join(", ", food.getTags()));
-                }
-                
-                if (details.length() > 0) {
                     tvDescription.setVisibility(View.VISIBLE);
-                    tvDescription.setText(details.toString());
+                    tvDescription.setText(food.getDescription());
                 } else {
                     tvDescription.setVisibility(View.GONE);
+                }
+            }
+            if (tvTags != null) {
+                StringBuilder tagBuilder = new StringBuilder();
+                if (food.getCuisine() != null && !food.getCuisine().trim().isEmpty()) {
+                    tagBuilder.append("🌐 ").append(food.getCuisine());
+                }
+                if (food.getTags() != null && !food.getTags().isEmpty()) {
+                    if (tagBuilder.length() > 0) tagBuilder.append(" | ");
+                    tagBuilder.append("🏷️ ").append(android.text.TextUtils.join(", ", food.getTags()));
+                }
+                if (tagBuilder.length() > 0) {
+                    tvTags.setVisibility(View.VISIBLE);
+                    tvTags.setText(tagBuilder.toString());
+                } else {
+                    tvTags.setVisibility(View.GONE);
                 }
             }
 
