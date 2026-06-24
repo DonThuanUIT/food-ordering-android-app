@@ -42,4 +42,5 @@ public class FoodResponse {
     public void setId(UUID id) { this.id = id; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    public void setIsAvailable(Boolean isAvailable) { this.isAvailable = isAvailable; }
 }
