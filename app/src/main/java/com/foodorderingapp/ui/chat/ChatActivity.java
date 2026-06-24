@@ -22,12 +22,23 @@ import com.foodorderingapp.model.response.ChatRoomResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
 import com.foodorderingapp.ui.adapter.ChatMessageAdapter;
 import com.foodorderingapp.utils.ToastUtils;
+import com.foodorderingapp.utils.TokenManager;
+import com.foodorderingapp.utils.constants.AppConstants;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import ua.naiksoftware.stomp.Stomp;
+import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.LifecycleEvent;
+import ua.naiksoftware.stomp.dto.StompHeader;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -41,12 +52,16 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (!isBlank(roomId)) {
-                loadHistory(false);
+                if (!realtimeConnected) {
+                    loadHistory(false);
+                }
                 pollingHandler.postDelayed(this, 4000);
             }
         }
     };
 
+    private final Gson gson = new Gson();
+    private final CompositeDisposable stompDisposables = new CompositeDisposable();
     private ChatMessageAdapter adapter;
     private RecyclerView rvMessages;
     private TextView tvTitle;
@@ -58,6 +73,9 @@ public class ChatActivity extends AppCompatActivity {
     private String shopName;
     private String roomId;
     private String peerName;
+    private StompClient stompClient;
+    private String subscribedRoomId;
+    private boolean realtimeConnected;
     private int lastMessageCount;
 
     @Override
@@ -87,12 +105,14 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        connectRealtime();
         startPolling();
     }
 
     @Override
     protected void onPause() {
         pollingHandler.removeCallbacks(pollingRunnable);
+        disconnectRealtime();
         super.onPause();
     }
 
@@ -167,6 +187,7 @@ public class ChatActivity extends AppCompatActivity {
                     updatePeerName(room.getPartnerName());
                 }
                 loadHistory(true);
+                connectRealtime();
                 startPolling();
             }
 
@@ -236,6 +257,7 @@ public class ChatActivity extends AppCompatActivity {
                     roomId = response.body().getRoomId();
                 }
                 loadHistory(true);
+                connectRealtime();
                 startPolling();
             }
 
@@ -266,6 +288,77 @@ public class ChatActivity extends AppCompatActivity {
         pollingHandler.removeCallbacks(pollingRunnable);
         if (!isBlank(roomId)) {
             pollingHandler.postDelayed(pollingRunnable, 4000);
+        }
+    }
+
+    private void connectRealtime() {
+        if (isBlank(roomId) || roomId.equals(subscribedRoomId)) {
+            return;
+        }
+
+        String token = TokenManager.getInstance().getAccessToken();
+        if (isBlank(token)) {
+            realtimeConnected = false;
+            return;
+        }
+
+        disconnectRealtime();
+        subscribedRoomId = roomId;
+        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, AppConstants.getWsChatUrl());
+
+        ArrayList<StompHeader> headers = new ArrayList<>();
+        headers.add(new StompHeader("Authorization", "Bearer " + token));
+
+        Disposable lifecycleDisposable = stompClient.lifecycle()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> {
+                    if (event.getType() == LifecycleEvent.Type.OPENED) {
+                        realtimeConnected = true;
+                    } else if (event.getType() == LifecycleEvent.Type.CLOSED
+                            || event.getType() == LifecycleEvent.Type.ERROR) {
+                        realtimeConnected = false;
+                        startPolling();
+                    }
+                }, throwable -> {
+                    realtimeConnected = false;
+                    startPolling();
+                });
+
+        Disposable topicDisposable = stompClient.topic("/topic/chat/" + roomId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(message -> handleRealtimeMessage(message.getPayload()), throwable -> {
+                    realtimeConnected = false;
+                    startPolling();
+                });
+
+        stompDisposables.add(lifecycleDisposable);
+        stompDisposables.add(topicDisposable);
+        stompClient.connect(headers);
+    }
+
+    private void disconnectRealtime() {
+        stompDisposables.clear();
+        if (stompClient != null) {
+            stompClient.disconnect();
+            stompClient = null;
+        }
+        subscribedRoomId = null;
+        realtimeConnected = false;
+    }
+
+    private void handleRealtimeMessage(String payload) {
+        if (isBlank(payload)) {
+            return;
+        }
+
+        try {
+            ChatMessageResponse message = gson.fromJson(payload, ChatMessageResponse.class);
+            if (message == null || isBlank(message.getRoomId())
+                    || message.getRoomId().equalsIgnoreCase(roomId)) {
+                loadHistory(true);
+            }
+        } catch (Exception ignored) {
+            loadHistory(true);
         }
     }
 
