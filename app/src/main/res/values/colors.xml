@@ -64,5 +64,13 @@
     <color name="profile_logout_red">#C1272D</color>
     <color name="profile_tag_bg">#F2F2F7</color>
     <color name="profile_divider">#E5E5EA</color>
-    <color name="profile_bg_grey">#EBECED</color>
+    <!-- Vendor Dark Mode Theme -->
+    <color name="vendor_dark_bg">#181210</color>
+    <color name="vendor_dark_card">#281F1C</color>
+    <color name="vendor_dark_text_primary">#FFFFFF</color>
+    <color name="vendor_dark_text_secondary">#8A7D79</color>
+    <color name="vendor_dark_orange">#F46E26</color>
+    <color name="vendor_dark_orange_gradient_end">#E35312</color>
+    <color name="vendor_dark_divider">#382C29</color>
+    <color name="vendor_dark_border">#4E3C37</color>
 </resources>

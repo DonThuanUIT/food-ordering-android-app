@@ -100,8 +100,8 @@ public class VendorStatsFragment extends Fragment {
     private void setupFilterSpinner() {
         String[] filters = {"30 ngày gần đây", "7 ngày gần đây", "Hôm nay", "Chọn khoảng ngày..."};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, filters);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.item_vendor_spinner, filters);
+        adapter.setDropDownViewResource(R.layout.item_vendor_spinner_dropdown);
         binding.spinnerFilter.setAdapter(adapter);
 
         binding.spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -341,14 +341,14 @@ public class VendorStatsFragment extends Fragment {
         }
 
         LineDataSet set = new LineDataSet(revenueEntries, "Doanh thu (đ)");
-        set.setColor(Color.parseColor("#FF7A21")); // brand_orange
-        set.setCircleColor(Color.parseColor("#FF7A21"));
+        set.setColor(Color.parseColor("#F46E26")); // vendor_dark_orange
+        set.setCircleColor(Color.parseColor("#F46E26"));
         set.setLineWidth(2.5f);
         set.setCircleRadius(4f);
         set.setDrawCircleHole(false);
         set.setDrawValues(false); // Clean design: hide values on line points
         set.setDrawFilled(true);
-        set.setFillColor(Color.parseColor("#FFE4D1")); // light orange fill
+        set.setFillColor(Color.parseColor("#22F46E26")); // light orange fill (alpha 13%)
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
         LineData lineData = new LineData(set);
@@ -361,7 +361,7 @@ public class VendorStatsFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
-        xAxis.setTextColor(Color.parseColor("#718096"));
+        xAxis.setTextColor(Color.parseColor("#8A7D79"));
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -388,8 +388,8 @@ public class VendorStatsFragment extends Fragment {
         }
 
         binding.chartRevenueTrend.getAxisLeft().setDrawGridLines(true);
-        binding.chartRevenueTrend.getAxisLeft().setGridColor(Color.parseColor("#EDF2F7")); // faint horizontal grid lines
-        binding.chartRevenueTrend.getAxisLeft().setTextColor(Color.parseColor("#718096"));
+        binding.chartRevenueTrend.getAxisLeft().setGridColor(Color.parseColor("#382C29")); // vendor_dark_divider
+        binding.chartRevenueTrend.getAxisLeft().setTextColor(Color.parseColor("#8A7D79"));
         binding.chartRevenueTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -402,7 +402,7 @@ public class VendorStatsFragment extends Fragment {
             }
         });
 
-        binding.chartRevenueTrend.getLegend().setTextColor(Color.parseColor("#4A5568"));
+        binding.chartRevenueTrend.getLegend().setTextColor(Color.parseColor("#FFFFFF"));
         binding.chartRevenueTrend.animateY(800);
         binding.chartRevenueTrend.invalidate();
     }
@@ -429,14 +429,14 @@ public class VendorStatsFragment extends Fragment {
         }
 
         LineDataSet set = new LineDataSet(orderEntries, "Số đơn hàng");
-        set.setColor(Color.parseColor("#3182CE")); // Material Blue
-        set.setCircleColor(Color.parseColor("#3182CE"));
+        set.setColor(Color.parseColor("#5299FF")); // Lighter Blue
+        set.setCircleColor(Color.parseColor("#5299FF"));
         set.setLineWidth(2.5f);
         set.setCircleRadius(4f);
         set.setDrawCircleHole(false);
         set.setDrawValues(false); // Clean design: hide values on line points
         set.setDrawFilled(true);
-        set.setFillColor(Color.parseColor("#EBF8FF")); // light blue fill
+        set.setFillColor(Color.parseColor("#225299FF")); // light blue fill (alpha 13%)
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
         LineData lineData = new LineData(set);
@@ -449,7 +449,7 @@ public class VendorStatsFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
-        xAxis.setTextColor(Color.parseColor("#718096"));
+        xAxis.setTextColor(Color.parseColor("#8A7D79"));
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -477,8 +477,8 @@ public class VendorStatsFragment extends Fragment {
         }
 
         binding.chartOrderTrend.getAxisLeft().setDrawGridLines(true);
-        binding.chartOrderTrend.getAxisLeft().setGridColor(Color.parseColor("#EDF2F7")); // faint horizontal grid lines
-        binding.chartOrderTrend.getAxisLeft().setTextColor(Color.parseColor("#718096"));
+        binding.chartOrderTrend.getAxisLeft().setGridColor(Color.parseColor("#382C29")); // vendor_dark_divider
+        binding.chartOrderTrend.getAxisLeft().setTextColor(Color.parseColor("#8A7D79"));
         binding.chartOrderTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -486,7 +486,7 @@ public class VendorStatsFragment extends Fragment {
             }
         });
 
-        binding.chartOrderTrend.getLegend().setTextColor(Color.parseColor("#4A5568"));
+        binding.chartOrderTrend.getLegend().setTextColor(Color.parseColor("#FFFFFF"));
         binding.chartOrderTrend.animateY(800);
         binding.chartOrderTrend.invalidate();
     }
@@ -553,13 +553,16 @@ public class VendorStatsFragment extends Fragment {
         binding.chartStatusBreakdown.setUsePercentValues(true);
         binding.chartStatusBreakdown.getDescription().setEnabled(false);
         binding.chartStatusBreakdown.setDrawHoleEnabled(true);
+        binding.chartStatusBreakdown.setHoleColor(Color.parseColor("#281F1C")); // vendor_dark_card
         binding.chartStatusBreakdown.setHoleRadius(40f);
         binding.chartStatusBreakdown.setTransparentCircleRadius(45f);
         binding.chartStatusBreakdown.setCenterText("Đơn hàng");
         binding.chartStatusBreakdown.setCenterTextSize(14f);
+        binding.chartStatusBreakdown.setCenterTextColor(Color.WHITE);
         binding.chartStatusBreakdown.setDrawEntryLabels(false);
 
         Legend l = binding.chartStatusBreakdown.getLegend();
+        l.setTextColor(Color.WHITE);
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         l.setOrientation(Legend.LegendOrientation.HORIZONTAL);

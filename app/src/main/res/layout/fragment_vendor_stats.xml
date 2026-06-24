@@ -4,7 +4,7 @@
     android:id="@+id/swipe_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_page">
+    android:background="@color/vendor_dark_bg">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -36,14 +36,14 @@
                         android:text="Thống Kê Quán"
                         android:textSize="24sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/vendor_dark_text_primary"/>
 
                     <TextView
                         android:id="@+id/tv_shop_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Đang tải thông tin quán..."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="14sp"
                         android:layout_marginTop="2dp"/>
 
@@ -52,7 +52,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=""
-                        android:textColor="@color/brand_orange"
+                        android:textColor="@color/vendor_dark_orange"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginTop="4dp"
@@ -65,10 +65,10 @@
                     android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/bg_edittext"
+                    android:background="@drawable/bg_vendor_input_dark"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
-                    android:popupBackground="@color/white" />
+                    android:popupBackground="@color/vendor_dark_card" />
             </RelativeLayout>
 
             <!-- Metrics Cards Grid -->
@@ -86,8 +86,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/white"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginEnd="6dp">
                     <LinearLayout
                         android:padding="16dp"
@@ -98,7 +98,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tổng Doanh Thu"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -108,7 +108,7 @@
                             android:text="0đ"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="@color/brand_orange"
+                            android:textColor="@color/vendor_dark_orange"
                             android:layout_marginTop="6dp"/>
                         <TextView
                             android:id="@+id/tv_revenue_growth"
@@ -127,8 +127,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/white"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginStart="6dp">
                     <LinearLayout
                         android:padding="16dp"
@@ -139,7 +139,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tổng Số Đơn"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -149,7 +149,7 @@
                             android:text="0"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:layout_marginTop="6dp"/>
                         <TextView
                             android:id="@+id/tv_orders_growth"
@@ -177,8 +177,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/white"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginEnd="6dp">
                     <LinearLayout
                         android:padding="16dp"
@@ -189,7 +189,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tỉ Lệ Hoàn Thành"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -218,8 +218,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/white"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginStart="6dp">
                     <LinearLayout
                         android:padding="16dp"
@@ -230,7 +230,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Trung Bình Đơn"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp"
                             android:textStyle="bold"/>
                         <TextView
@@ -240,7 +240,7 @@
                             android:text="0đ"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:layout_marginTop="6dp"/>
                         <TextView
                             android:id="@+id/tv_aov_growth"
@@ -260,8 +260,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
                     android:orientation="vertical"
@@ -274,7 +274,7 @@
                         android:text="Biểu Đồ Doanh Thu"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:layout_marginBottom="12dp"/>
 
                     <com.github.mikephil.charting.charts.LineChart
@@ -290,8 +290,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
                     android:orientation="vertical"
@@ -304,7 +304,7 @@
                         android:text="Biểu Đồ Số Lượng Đơn Hàng"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:layout_marginBottom="12dp"/>
 
                     <com.github.mikephil.charting.charts.LineChart
@@ -320,8 +320,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
                     android:orientation="vertical"
@@ -334,7 +334,7 @@
                         android:text="Phân Tích Trạng Thái Đơn"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:layout_marginBottom="12dp"/>
 
                     <com.github.mikephil.charting.charts.PieChart
@@ -350,8 +350,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
                     android:orientation="vertical"
@@ -364,7 +364,7 @@
                         android:text="Món Ăn Bán Chạy Nhất"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:layout_marginBottom="12dp"/>
 
                     <!-- Table Headers -->
@@ -379,7 +379,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="5"
                             android:text="Tên món"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textStyle="bold"
                             android:textSize="12sp"/>
                         <TextView
@@ -387,7 +387,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="2"
                             android:text="Đã bán"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textStyle="bold"
                             android:textSize="12sp"
                             android:gravity="end"/>
@@ -396,7 +396,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="3"
                             android:text="Doanh thu"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textStyle="bold"
                             android:textSize="12sp"
                             android:gravity="end"/>
@@ -405,7 +405,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/divider"
+                        android:background="@color/vendor_dark_divider"
                         android:layout_marginBottom="8dp"/>
 
                     <androidx.recyclerview.widget.RecyclerView
