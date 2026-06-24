@@ -67,6 +67,11 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".ui.chat.AiRecommendationActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <service
             android:name=".ui.services.MyFirebaseMessagingService"
             android:exported="false">
