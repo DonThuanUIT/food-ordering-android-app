@@ -38,6 +38,7 @@ import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.FoodAdapter;
 import com.foodorderingapp.utils.ToastUtils;
+import com.foodorderingapp.utils.CategoryIconHelper;
 import com.foodorderingapp.viewmodel.UploadImageViewModel;
 import com.foodorderingapp.viewmodel.ViewModelFactory;
 import com.bumptech.glide.Glide;
@@ -401,7 +402,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (chipGroupCategories == null) return;
         chipGroupCategories.removeAllViews();
         Chip allChip = new Chip(requireContext());
-        allChip.setText("Tất cả");
+        allChip.setText(CategoryIconHelper.getEmojiPrefix("Tất cả") + "Tất cả");
         allChip.setCheckable(true);
         allChip.setChecked(true);
         allChip.setChipBackgroundColor(getChipBackgroundStateList());
@@ -411,7 +412,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         chipGroupCategories.addView(allChip);
         for (CategoryResponse category : categories) {
             Chip chip = new Chip(requireContext());
-            chip.setText(category.getName());
+            chip.setText(CategoryIconHelper.getEmojiPrefix(category.getName()) + category.getName());
             chip.setCheckable(true);
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
@@ -577,7 +578,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         for (int i = 0; i < categories.size(); i++) {
             CategoryResponse cat = categories.get(i);
             Chip chip = new Chip(requireContext());
-            chip.setText(cat.getName());
+            chip.setText(CategoryIconHelper.getEmojiPrefix(cat.getName()) + cat.getName());
             chip.setCheckable(true);
             chip.setId(View.generateViewId());
             chip.setChipBackgroundColor(getChipBackgroundStateList());
