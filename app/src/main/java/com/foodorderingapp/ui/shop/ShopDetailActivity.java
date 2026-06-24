@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.ui.chat.ChatActivity;
+import com.foodorderingapp.ui.chat.AiRecommendationActivity;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.viewmodel.ShopViewModel;
@@ -98,6 +99,14 @@ public class ShopDetailActivity extends AppCompatActivity {
             Intent intent = new Intent(this, ChatActivity.class);
             intent.putExtra(ChatActivity.EXTRA_SHOP_ID, shopId);
             intent.putExtra(ChatActivity.EXTRA_SHOP_NAME, tvShopName.getText().toString());
+            startActivity(intent);
+        });
+
+        com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton btnShopAiAssistant = findViewById(R.id.btn_shop_ai_assistant);
+        btnShopAiAssistant.setVisibility(isStudent ? android.view.View.VISIBLE : android.view.View.GONE);
+        btnShopAiAssistant.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AiRecommendationActivity.class);
+            intent.putExtra(AiRecommendationActivity.EXTRA_SHOP_ID, shopId);
             startActivity(intent);
         });
     }

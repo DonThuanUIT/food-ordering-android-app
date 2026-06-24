@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 
 import com.foodorderingapp.model.response.FoodExploreResponse;
+import com.foodorderingapp.ui.chat.AiRecommendationActivity;
 import com.foodorderingapp.ui.adapter.ShopAdapter;
 import com.foodorderingapp.viewmodel.CartViewModel;
 import com.foodorderingapp.viewmodel.ShopViewModel;
@@ -122,6 +123,11 @@ public class StudentHomeFragment extends Fragment {
         setupTabListeners();
         selectTab(true);
         loadShopsForCurrentSearch();
+
+        binding.btnHomeAiAssistant.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), AiRecommendationActivity.class);
+            startActivity(intent);
+        });
 
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
         foodAdapter.setOnAddToCartClickListener(food -> {
