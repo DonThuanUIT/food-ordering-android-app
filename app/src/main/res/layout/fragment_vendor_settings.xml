@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_light">
+    android:background="@color/vendor_dark_bg">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -62,12 +62,12 @@
                                 android:layout_width="12dp"
                                 android:layout_height="12dp"
                                 android:src="@drawable/ic_camera_add"
-                                app:tint="@color/black" />
+                                app:tint="@color/vendor_dark_text_primary" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text=" Sửa ảnh bìa"
-                                android:textColor="@color/black"
+                                android:textColor="@color/vendor_dark_text_primary"
                                 android:textSize="11sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -82,7 +82,7 @@
                             android:layout_marginBottom="5dp"
                             app:cardCornerRadius="12dp"
                             app:cardElevation="2dp"
-                            app:cardBackgroundColor="@color/white">
+                            app:cardBackgroundColor="@color/vendor_dark_card">
 
                             <RelativeLayout
                                 android:layout_width="match_parent"
@@ -129,7 +129,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="The Burger Loft"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -138,7 +138,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Campus Corner, West Wing"
-                            android:textColor="@color/text_gray"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="13sp"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
@@ -151,7 +151,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -168,14 +168,14 @@
                         android:layout_height="40dp"
                         app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
-                        app:cardBackgroundColor="#E6FFFA">
+                        app:cardBackgroundColor="#15291E">
                         <ImageView
                             android:id="@+id/iv_status_icon"
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_store"
-                            app:tint="#319795" />
+                            app:tint="#22C55E" />
                     </androidx.cardview.widget.CardView>
 
                     <!-- Info text -->
@@ -191,7 +191,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Trạng thái hoạt động"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -199,7 +199,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Bật/tắt nhanh hiển thị cửa hàng"
-                            android:textColor="@color/text_gray"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
@@ -216,7 +216,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Đang mở cửa"
-                        android:textColor="#319795"
+                        android:textColor="#22C55E"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -228,7 +228,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -253,12 +253,12 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:src="@drawable/ic_clock"
-                                app:tint="#DD6B20" />
+                                app:tint="@color/vendor_dark_orange" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Giờ hoạt động"
-                                android:textColor="@color/black"
+                                android:textColor="@color/vendor_dark_text_primary"
                                 android:textSize="15sp"
                                 android:textStyle="bold"
                                 android:layout_marginStart="8dp" />
@@ -269,7 +269,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Cập nhật"
-                            android:textColor="#DD6B20"
+                            android:textColor="@color/vendor_dark_orange"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_alignParentEnd="true"
@@ -280,7 +280,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/vendor_dark_divider"
                         android:layout_marginBottom="12dp" />
 
                     <!-- Schedule List -->
@@ -298,7 +298,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Thứ 2 - Thứ 6"
-                                android:textColor="@color/black"
+                                android:textColor="@color/vendor_dark_text_primary"
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
                             <TextView
@@ -306,7 +306,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="08:00 AM - 11:30 PM"
-                                android:textColor="#4A5568"
+                                android:textColor="@color/vendor_dark_text_secondary"
                                 android:textSize="13sp"
                                 android:layout_alignParentEnd="true" />
                         </RelativeLayout>
@@ -320,7 +320,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Thứ Bảy"
-                                android:textColor="@color/black"
+                                android:textColor="@color/vendor_dark_text_primary"
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
                             <TextView
@@ -328,7 +328,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="10:00 AM - 01:00 AM"
-                                android:textColor="#4A5568"
+                                android:textColor="@color/vendor_dark_text_secondary"
                                 android:textSize="13sp"
                                 android:layout_alignParentEnd="true" />
                         </RelativeLayout>
@@ -342,7 +342,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Chủ Nhật"
-                                android:textColor="@color/black"
+                                android:textColor="@color/vendor_dark_text_primary"
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
                             <TextView
@@ -350,7 +350,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="10:00 AM - 10:00 PM"
-                                android:textColor="#4A5568"
+                                android:textColor="@color/vendor_dark_text_secondary"
                                 android:textSize="13sp"
                                 android:layout_alignParentEnd="true" />
                         </RelativeLayout>
@@ -363,18 +363,18 @@
                         android:orientation="horizontal"
                         android:padding="10dp"
                         android:background="@drawable/bg_header_pill"
-                        android:backgroundTint="#FFF5F5"
+                        android:backgroundTint="#2C1A1A"
                         android:gravity="center_vertical">
                         <ImageView
                             android:layout_width="14dp"
                             android:layout_height="14dp"
                             android:src="@drawable/ic_clock"
-                            app:tint="#E53E3E" />
+                            app:tint="#EF4444" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Giờ hoạt động ngày lễ có thể thay đổi. Vui lòng kiểm tra."
-                            android:textColor="#C53030"
+                            android:textColor="#EF4444"
                             android:textSize="11sp"
                             android:layout_marginStart="8dp" />
                     </LinearLayout>
@@ -387,7 +387,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -407,12 +407,12 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_contact"
-                            app:tint="#3182CE" />
+                            app:tint="#5299FF" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Liên hệ"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="15sp"
                             android:textStyle="bold"
                             android:layout_marginStart="8dp" />
@@ -421,7 +421,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/vendor_dark_divider"
                         android:layout_marginBottom="12dp" />
 
                     <!-- Details fields -->
@@ -429,7 +429,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="EMAIL"
-                        android:textColor="@color/text_gray"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="10sp"
                         android:textStyle="bold" />
 
@@ -438,7 +438,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="contact@burgerloft.com"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="14sp"
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="12dp" />
@@ -447,7 +447,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="SUPPORT LINE"
-                        android:textColor="@color/text_gray"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="10sp"
                         android:textStyle="bold" />
 
@@ -456,7 +456,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="+1 (555) 098-7654"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="14sp"
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="16dp" />
@@ -468,8 +468,8 @@
                         android:layout_height="48dp"
                         android:text="Sửa thông tin liên hệ"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:textColor="#2B6CB0"
-                        app:strokeColor="#CBD5E0"
+                        android:textColor="#5299FF"
+                        app:strokeColor="@color/vendor_dark_border"
                         app:cornerRadius="8dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -480,7 +480,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -493,7 +493,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Thanh toán"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp" />
@@ -501,7 +501,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/vendor_dark_divider"
                         android:layout_marginBottom="12dp" />
 
                     <!-- Bank Row -->
@@ -517,13 +517,13 @@
                             android:layout_height="40dp"
                             app:cardCornerRadius="8dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#EDF2F7">
+                            app:cardBackgroundColor="@color/vendor_dark_bg">
                             <ImageView
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_bank"
-                                app:tint="#4A5568" />
+                                app:tint="@color/vendor_dark_text_secondary" />
                         </androidx.cardview.widget.CardView>
 
                         <LinearLayout
@@ -536,7 +536,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Chase Business"
-                                android:textColor="@color/black"
+                                android:textColor="@color/vendor_dark_text_primary"
                                 android:textStyle="bold"
                                 android:textSize="13sp" />
                             <TextView
@@ -544,7 +544,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Ending in •••• 4402"
-                                android:textColor="@color/text_gray"
+                                android:textColor="@color/vendor_dark_text_secondary"
                                 android:textSize="12sp"
                                 android:layout_marginTop="2dp" />
                         </LinearLayout>
@@ -556,8 +556,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:text="Sửa tài khoản ngân hàng"
-                        android:backgroundTint="#FFFAF0"
-                        android:textColor="#DD6B20"
+                        android:backgroundTint="@color/vendor_dark_border"
+                        android:textColor="@color/vendor_dark_orange"
                         app:elevation="0dp"
                         app:cornerRadius="8dp" />
                 </LinearLayout>
@@ -569,7 +569,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -582,7 +582,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Cài đặt nhanh"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp" />
@@ -590,7 +590,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/vendor_dark_divider"
                         android:layout_marginBottom="12dp" />
 
                     <!-- Item 1: Order Alerts -->
@@ -602,14 +602,14 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_bell"
-                            app:tint="#4A5568"
+                            app:tint="@color/vendor_dark_text_secondary"
                             android:layout_centerVertical="true"
                             android:layout_alignParentStart="true"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Thông báo đơn mới"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_centerVertical="true"
@@ -621,7 +621,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
-                            android:buttonTint="#DD6B20" />
+                            android:buttonTint="@color/vendor_dark_orange" />
                     </RelativeLayout>
 
                     <!-- Item 2: Promotions -->
@@ -637,14 +637,14 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_promo"
-                            app:tint="#4A5568"
+                            app:tint="@color/vendor_dark_text_secondary"
                             android:layout_centerVertical="true"
                             android:layout_alignParentStart="true"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Quản lý Khuyến mãi (Voucher)"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_centerVertical="true"
@@ -656,7 +656,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:src="@drawable/ic_chevron_right"
-                            app:tint="#A0AEC0" />
+                            app:tint="@color/vendor_dark_text_secondary" />
                     </RelativeLayout>
 
                     <!-- Item 3: Turbo Mode -->
@@ -668,14 +668,14 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_turbo"
-                            app:tint="#4A5568"
+                            app:tint="@color/vendor_dark_text_secondary"
                             android:layout_centerVertical="true"
                             android:layout_alignParentStart="true"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Chế độ đặt trước (Turbo Mode)"
-                            android:textColor="@color/black"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_centerVertical="true"
@@ -687,7 +687,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
-                            android:buttonTint="#DD6B20" />
+                            android:buttonTint="@color/vendor_dark_orange" />
                     </RelativeLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -699,7 +699,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone">
 
@@ -713,7 +713,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Khuyến mãi đang hoạt động"
-                        android:textColor="@color/black"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp" />
@@ -721,7 +721,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/vendor_dark_divider"
                         android:layout_marginBottom="12dp" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -738,7 +738,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#FFF5F5"
+                app:cardBackgroundColor="#2C1A1A"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -753,7 +753,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_alert"
-                        app:tint="#E53E3E" />
+                        app:tint="#EF4444" />
 
                     <!-- Text details -->
                     <LinearLayout
@@ -768,7 +768,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tạm ngưng hoạt động cửa hàng"
-                            android:textColor="#C53030"
+                            android:textColor="#EF4444"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -776,7 +776,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Ẩn tạm thời cửa hàng của bạn khỏi kết quả tìm kiếm."
-                            android:textColor="#E53E3E"
+                            android:textColor="#EF4444"
                             android:textSize="11sp"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
@@ -801,7 +801,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -822,7 +822,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Đóng cửa hàng vĩnh viễn"
-                            android:textColor="#C53030"
+                            android:textColor="#EF4444"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -830,7 +830,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Xóa cửa hàng vĩnh viễn khỏi hệ thống. Không thể hoàn tác."
-                            android:textColor="#E53E3E"
+                            android:textColor="#EF4444"
                             android:textSize="11sp"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
@@ -854,7 +854,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 android:layout_marginBottom="32dp">
 
                 <LinearLayout
@@ -872,13 +872,13 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_logout"
-                        app:tint="#E53E3E" />
+                        app:tint="#EF4444" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Đăng xuất"
-                        android:textColor="#C53030"
+                        android:textColor="#EF4444"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:layout_marginStart="12dp" />
