@@ -75,6 +75,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
         private final Button btnActionAccept;
         private final Button btnActionDeliver;
         private final Button btnActionComplete;
+        private final TextView tvOrderItemsCount;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -91,85 +92,75 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             btnActionAccept = itemView.findViewById(R.id.btn_action_accept);
             btnActionDeliver = itemView.findViewById(R.id.btn_action_deliver);
             btnActionComplete = itemView.findViewById(R.id.btn_action_complete);
+            tvOrderItemsCount = itemView.findViewById(R.id.tv_order_items_count);
         }
 
         public void bind(OrderResponse order) {
-            // 1. Order ID Display
+            // 1. Order ID Display (Hidden in layout, but set for safety)
             String shortId = order.getId();
             if (shortId != null && shortId.length() > 6) {
                 shortId = shortId.substring(shortId.length() - 6);
             }
-            tvOrderId.setText("Đơn hàng #" + shortId);
+            if (tvOrderId != null) tvOrderId.setText("Đơn hàng #" + shortId);
 
             // 2. Status Badge Styling
             String status = order.getStatus();
             String readableStatus = status;
-            if ("PENDING".equalsIgnoreCase(status)) readableStatus = "Chờ xử lý";
-            else if ("CONFIRMED".equalsIgnoreCase(status)) readableStatus = "Đã xác nhận";
-            else if ("DELIVERING".equalsIgnoreCase(status)) readableStatus = "Đang giao";
-            else if ("COMPLETED".equalsIgnoreCase(status)) readableStatus = "Hoàn thành";
-            else if ("CANCELLED".equalsIgnoreCase(status)) readableStatus = "Đã hủy";
-            tvOrderStatus.setText(readableStatus);
-            int badgeColor = Color.parseColor("#E53935"); // Default Red
+            int badgeColor = Color.parseColor("#718096"); // Default Grey
             if ("PENDING".equalsIgnoreCase(status)) {
-                badgeColor = Color.parseColor("#E53935"); // Red
+                readableStatus = "MỚI";
+                badgeColor = Color.parseColor("#F46E26"); // Orange
             } else if ("CONFIRMED".equalsIgnoreCase(status)) {
-                badgeColor = Color.parseColor("#3182CE"); // Blue
+                readableStatus = "ĐÃ XÁC NHẬN";
+                badgeColor = Color.parseColor("#F46E26"); // Orange
             } else if ("DELIVERING".equalsIgnoreCase(status)) {
-                badgeColor = Color.parseColor("#DD6B20"); // Orange
+                readableStatus = "ĐANG GIAO";
+                badgeColor = Color.parseColor("#382C29"); // Dark Cacao Grey
             } else if ("COMPLETED".equalsIgnoreCase(status)) {
+                readableStatus = "HOÀN THÀNH";
                 badgeColor = Color.parseColor("#38A169"); // Green
             } else if ("CANCELLED".equalsIgnoreCase(status)) {
+                readableStatus = "ĐÃ HỦY";
                 badgeColor = Color.parseColor("#718096"); // Grey
             }
+            tvOrderStatus.setText(readableStatus);
             tvOrderStatus.setBackgroundTintList(ColorStateList.valueOf(badgeColor));
 
-            // 3. Time Display
-            tvOrderTime.setText(formatDateTimeShort(order.getCreatedAt()));
+            // 3. Relative Time Display
+            tvOrderTime.setText(getRelativeTime(order.getCreatedAt()));
 
-            // 4. Delivery Details
-            tvOrderRoom.setText(order.getDropOff() != null ? order.getDropOff() : "Phòng chưa rõ");
-            tvOrderDelivery.setText("Giao đến: " + (order.getBuilding() != null ? order.getBuilding() : "Tòa nhà chưa rõ"));
-            tvOrderCustomer.setText("Khách: " + (order.getCustomerName() != null ? order.getCustomerName() : "Không tên") 
-                    + " (" + (order.getCustomerPhone() != null ? order.getCustomerPhone() : "") + ")");
-
-            // 5. Build Items List dynamically
-            layoutOrderItems.removeAllViews();
-            if (order.getDetails() != null) {
-                for (OrderDetailResponse detail : order.getDetails()) {
-                    RelativeLayout itemRow = new RelativeLayout(itemView.getContext());
-                    itemRow.setLayoutParams(new RelativeLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    itemRow.setPadding(0, 6, 0, 6);
-
-                    TextView tvName = new TextView(itemView.getContext());
-                    tvName.setText(detail.getQuantity() + "x " + detail.getFoodName());
-                    tvName.setTextColor(Color.parseColor("#FFFFFF"));
-                    tvName.setTextSize(13);
-                    RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    lpLeft.addRule(RelativeLayout.ALIGN_PARENT_START);
-                    tvName.setLayoutParams(lpLeft);
-
-                    TextView tvPrice = new TextView(itemView.getContext());
-                    tvPrice.setText(formatCurrency(detail.getPrice() * detail.getQuantity()));
-                    tvPrice.setTextColor(Color.parseColor("#8A7D79"));
-                    tvPrice.setTextSize(13);
-                    RelativeLayout.LayoutParams lpRight = new RelativeLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    lpRight.addRule(RelativeLayout.ALIGN_PARENT_END);
-                    tvPrice.setLayoutParams(lpRight);
-
-                    itemRow.addView(tvName);
-                    itemRow.addView(tvPrice);
-                    layoutOrderItems.addView(itemRow);
-                }
+            // 4. Details Info
+            tvOrderCustomer.setText(order.getCustomerName() != null ? order.getCustomerName() : "Không tên");
+            tvOrderDelivery.setText("Tòa nhà: " + (order.getBuilding() != null ? order.getBuilding() : "Zone B, Tầng 4"));
+            
+            String dropOff = order.getDropOff();
+            if (dropOff != null && !dropOff.trim().isEmpty()) {
+                tvOrderRoom.setVisibility(View.VISIBLE);
+                tvOrderRoom.setText("Điểm trả: " + dropOff);
+            } else {
+                tvOrderRoom.setVisibility(View.GONE);
             }
 
-            // 6. Total Payment
+            // 5. Total Items Count
+            int totalItems = 0;
+            if (order.getDetails() != null) {
+                for (OrderDetailResponse detail : order.getDetails()) {
+                    totalItems += detail.getQuantity();
+                }
+            }
+            if (tvOrderItemsCount != null) {
+                tvOrderItemsCount.setText(String.format(Locale.US, "Món: %02d món", totalItems));
+            }
+
+            // 6. Build Items List (Hidden on main card list)
+            if (layoutOrderItems != null) {
+                layoutOrderItems.setVisibility(View.GONE);
+            }
+
+            // 7. Total Payment
             tvOrderTotal.setText(formatCurrency(order.getTotalPrice()));
 
-            // 7. Cancel Reason Display
+            // 8. Cancel Reason Display
             if ("CANCELLED".equalsIgnoreCase(status)) {
                 tvCancelReason.setVisibility(View.VISIBLE);
                 tvCancelReason.setText("Lý do hủy: " + (order.getCancelReason() != null ? order.getCancelReason() : "Không có lý do"));
@@ -177,7 +168,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
                 tvCancelReason.setVisibility(View.GONE);
             }
 
-            // 8. Action Buttons Flow
+            // 9. Action Buttons Flow
             btnActionCancel.setVisibility(View.GONE);
             btnActionAccept.setVisibility(View.GONE);
             btnActionDeliver.setVisibility(View.GONE);
@@ -190,11 +181,11 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
                 btnActionCancel.setVisibility(View.VISIBLE);
                 btnActionDeliver.setVisibility(View.VISIBLE);
             } else if ("DELIVERING".equalsIgnoreCase(status)) {
-                btnActionCancel.setVisibility(View.VISIBLE);
+                // In delivering state, hide Cancel button so HOÀN TẤT button is full-width
                 btnActionComplete.setVisibility(View.VISIBLE);
             }
 
-            // 9. Click Listeners
+            // 10. Click Listeners
             btnActionAccept.setOnClickListener(v -> {
                 if (actionHandler != null) actionHandler.onAcceptClicked(order);
             });
@@ -216,7 +207,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             });
         }
 
-        private String formatDateTimeShort(String isoDateTime) {
+        private String getRelativeTime(String isoDateTime) {
             if (isoDateTime == null || isoDateTime.isEmpty()) return "";
             try {
                 String clean = isoDateTime;
@@ -224,9 +215,15 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
                     clean = clean.substring(0, clean.indexOf("."));
                 }
                 SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
-                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM HH:mm", Locale.US);
                 Date date = parser.parse(clean);
-                return formatter.format(date);
+                long diffMs = System.currentTimeMillis() - date.getTime();
+                long diffMins = diffMs / (60 * 1000);
+                if (diffMins < 1) return "Vừa xong";
+                if (diffMins < 60) return diffMins + " phút trước";
+                long diffHours = diffMins / 60;
+                if (diffHours < 24) return diffHours + " giờ trước";
+                long diffDays = diffHours / 24;
+                return diffDays + " ngày trước";
             } catch (Exception e) {
                 return isoDateTime;
             }
