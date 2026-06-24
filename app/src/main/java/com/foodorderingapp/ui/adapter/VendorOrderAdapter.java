@@ -144,7 +144,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
 
                     TextView tvName = new TextView(itemView.getContext());
                     tvName.setText(detail.getQuantity() + "x " + detail.getFoodName());
-                    tvName.setTextColor(Color.parseColor("#1A202C"));
+                    tvName.setTextColor(Color.parseColor("#FFFFFF"));
                     tvName.setTextSize(13);
                     RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -153,7 +153,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
 
                     TextView tvPrice = new TextView(itemView.getContext());
                     tvPrice.setText(formatCurrency(detail.getPrice() * detail.getQuantity()));
-                    tvPrice.setTextColor(Color.parseColor("#718096"));
+                    tvPrice.setTextColor(Color.parseColor("#8A7D79"));
                     tvPrice.setTextSize(13);
                     RelativeLayout.LayoutParams lpRight = new RelativeLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
