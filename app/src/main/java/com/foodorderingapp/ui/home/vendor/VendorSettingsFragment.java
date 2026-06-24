@@ -304,7 +304,7 @@ public class VendorSettingsFragment extends Fragment implements VoucherAdapter.V
                 .setTitle("Vô hiệu hóa Cửa hàng?")
                 .setMessage("Bạn có chắc chắn muốn tạm thời vô hiệu hóa cửa hàng? Cửa hàng của bạn sẽ bị ẩn khỏi mọi kết quả tìm kiếm trên DormDash.")
                 .setPositiveButton("Vô hiệu hóa", (dialog, which) -> {
-                    Toast.makeText(getContext(), "Cửa hàng đã bị vô hiệu hóa tạm thời!", Toast.LENGTH_LONG).show();
+                    toggleShopStatusOnServer(false);
                 })
                 .setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss())
                 .show();
