@@ -2,6 +2,7 @@ package com.foodorderingapp.data.remote.api;
 
 import com.foodorderingapp.model.request.CategoryRequest;
 import com.foodorderingapp.model.request.FoodRequest;
+import com.foodorderingapp.model.request.AIRecommendationRequest;
 import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.LoginRequest;
@@ -37,6 +38,7 @@ import com.foodorderingapp.model.response.VoucherResponse;
 import com.foodorderingapp.model.response.VendorDashboardResponse;
 import com.foodorderingapp.model.response.UploadImageResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
+import com.foodorderingapp.model.response.AIRecommendationResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -223,6 +225,12 @@ public interface ApiService {
     Call<PageResponse<FoodExploreResponse>> getExploreFoods(
             @Query("page") int page,
             @Query("size") int size
+    );
+
+    @POST("ai/recommend")
+    Call<List<AIRecommendationResponse>> getAIRecommendations(
+            @Body AIRecommendationRequest request,
+            @Query("shopId") UUID shopId
     );
 
     @GET("buildings")
