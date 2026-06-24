@@ -201,7 +201,25 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 tvPrice.setText("0đ");
             }
             if (tvDescription != null) {
-                tvDescription.setText(food.getDescription());
+                StringBuilder details = new StringBuilder();
+                if (food.getDescription() != null && !food.getDescription().trim().isEmpty()) {
+                    details.append(food.getDescription());
+                }
+                if (food.getCuisine() != null && !food.getCuisine().trim().isEmpty()) {
+                    if (details.length() > 0) details.append(" | ");
+                    details.append("🌐 ").append(food.getCuisine());
+                }
+                if (food.getTags() != null && !food.getTags().isEmpty()) {
+                    if (details.length() > 0) details.append(" | ");
+                    details.append("🏷️ ").append(android.text.TextUtils.join(", ", food.getTags()));
+                }
+                
+                if (details.length() > 0) {
+                    tvDescription.setVisibility(View.VISIBLE);
+                    tvDescription.setText(details.toString());
+                } else {
+                    tvDescription.setVisibility(View.GONE);
+                }
             }
 
             Glide.with(itemView.getContext())
