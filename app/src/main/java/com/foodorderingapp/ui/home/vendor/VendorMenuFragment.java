@@ -701,7 +701,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         TextView tvTitle = view.findViewById(R.id.tv_image_title);
         View btnClose = view.findViewById(R.id.btn_close_image);
         if (tvTitle != null) tvTitle.setText(name);
-        Glide.with(this).load(imageUrl).placeholder(R.drawable.logo_food).error(R.drawable.logo_food).into(imgFull);
+        Glide.with(this).load(imageUrl).error(R.drawable.logo_food).into(imgFull);
         AlertDialog dialog = builder.setView(view).create();
         if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
         view.setOnClickListener(v -> dialog.dismiss());
