@@ -71,7 +71,7 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="78dp"
+        android:layout_marginBottom="60dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -80,9 +80,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@drawable/bg_bottom_navigation"
-        android:minHeight="78dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
+        android:minHeight="60dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
         app:elevation="16dp"
         app:itemActiveIndicatorStyle="@null"
         app:itemIconTint="@color/nav_item_color"
