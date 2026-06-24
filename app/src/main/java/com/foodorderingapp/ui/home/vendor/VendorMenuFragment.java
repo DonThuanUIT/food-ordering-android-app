@@ -538,6 +538,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         }
 
         currentAddFoodDialog.setContentView(dialogView);
+        currentAddFoodDialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog d = (BottomSheetDialog) dialogInterface;
+            FrameLayout bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+            }
+        });
         currentAddFoodDialog.show();
     }
 
@@ -772,6 +781,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         }
 
         currentAddFoodDialog.setContentView(dialogView);
+        currentAddFoodDialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog d = (BottomSheetDialog) dialogInterface;
+            FrameLayout bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+            }
+        });
         currentAddFoodDialog.show();
     }
 
