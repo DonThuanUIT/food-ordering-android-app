@@ -39,6 +39,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:clipToPadding="false">
 
@@ -48,7 +49,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="20dp"
             android:paddingTop="20dp"
-            android:paddingBottom="130dp"> <!-- Leaves enough empty space at bottom so Price field rolls above the bottom button -->
+            android:paddingBottom="24dp"> <!-- Leaves enough empty space at bottom so Price field rolls above the bottom button -->
 
             <FrameLayout
                 android:layout_width="match_parent"
