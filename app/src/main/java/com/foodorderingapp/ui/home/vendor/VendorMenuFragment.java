@@ -95,6 +95,34 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private UploadImageViewModel uploadViewModel;
     private String currentUploadedUrl = null; // Biến cục bộ lưu URL Cloudinary
 
+    private final ChipGroup.OnCheckedStateChangeListener categoryCheckedListener = (group, checkedIds) -> {
+        if (checkedIds.isEmpty()) {
+            selectedCategoryId = null;
+            adapter.setCategoryFilter("Tất cả");
+            loadData(true);
+            return;
+        }
+        Chip chip = group.findViewById(checkedIds.get(0));
+        if (chip != null) {
+            Object tag = chip.getTag();
+            if (tag instanceof UUID) {
+                selectedCategoryId = (UUID) tag;
+                String categoryName = "";
+                for (CategoryResponse c : categories) {
+                    if (c.getId().equals(selectedCategoryId)) {
+                        categoryName = c.getName();
+                        break;
+                    }
+                }
+                adapter.setCategoryFilter(categoryName);
+            } else {
+                selectedCategoryId = null;
+                adapter.setCategoryFilter("Tất cả");
+            }
+            loadData(true);
+        }
+    };
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -244,33 +272,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
     private void setupFilters() {
         if (chipGroupCategories != null) {
-            chipGroupCategories.setOnCheckedStateChangeListener((group, checkedIds) -> {
-                if (checkedIds.isEmpty()) {
-                    selectedCategoryId = null;
-                    adapter.setCategoryFilter("Tất cả");
-                    loadData(true);
-                    return;
-                }
-                Chip chip = group.findViewById(checkedIds.get(0));
-                if (chip != null) {
-                    Object tag = chip.getTag();
-                    if (tag instanceof UUID) {
-                        selectedCategoryId = (UUID) tag;
-                        String categoryName = "";
-                        for (CategoryResponse c : categories) {
-                            if (c.getId().equals(selectedCategoryId)) {
-                                categoryName = c.getName();
-                                break;
-                            }
-                        }
-                        adapter.setCategoryFilter(categoryName);
-                    } else {
-                        selectedCategoryId = null;
-                        adapter.setCategoryFilter("Tất cả");
-                    }
-                    loadData(true);
-                }
-            });
+            chipGroupCategories.setOnCheckedStateChangeListener(categoryCheckedListener);
         }
 
         // Stats cards click filters
@@ -401,22 +403,32 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
     private void updateCategoryChips() {
         if (chipGroupCategories == null) return;
+        chipGroupCategories.setOnCheckedStateChangeListener(null);
         chipGroupCategories.removeAllViews();
+        
         Chip allChip = new Chip(requireContext());
         allChip.setText(CategoryIconHelper.getEmojiForDisplay("Tất cả"));
         allChip.setTag("ALL");
         allChip.setCheckable(true);
-        allChip.setChecked(true);
+        allChip.setId(View.generateViewId());
+        if (selectedCategoryId == null) {
+            allChip.setChecked(true);
+        }
         allChip.setChipBackgroundColor(getChipBackgroundStateList());
         allChip.setTextColor(getChipTextStateList());
         allChip.setChipStrokeColor(getChipStrokeColorStateList());
         allChip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
         chipGroupCategories.addView(allChip);
+        
         for (CategoryResponse category : categories) {
             Chip chip = new Chip(requireContext());
             chip.setText(CategoryIconHelper.getEmojiForDisplay(category.getName()));
             chip.setTag(category.getId());
             chip.setCheckable(true);
+            chip.setId(View.generateViewId());
+            if (selectedCategoryId != null && selectedCategoryId.equals(category.getId())) {
+                chip.setChecked(true);
+            }
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
             chip.setChipStrokeColor(getChipStrokeColorStateList());
@@ -427,6 +439,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             });
             chipGroupCategories.addView(chip);
         }
+        chipGroupCategories.setOnCheckedStateChangeListener(categoryCheckedListener);
     }
 
     @Override
