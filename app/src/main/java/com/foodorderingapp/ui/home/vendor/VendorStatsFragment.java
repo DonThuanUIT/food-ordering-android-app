@@ -346,7 +346,21 @@ public class VendorStatsFragment extends Fragment {
         set.setLineWidth(2.5f);
         set.setCircleRadius(4f);
         set.setDrawCircleHole(false);
-        set.setDrawValues(false); // Clean design: hide values on line points
+        set.setDrawValues(true); // Draw values on line points
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(9f);
+        set.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getPointLabel(Entry entry) {
+                float val = entry.getY();
+                if (val >= 1000000) {
+                    return String.format(Locale.US, "%.1fM", val / 1000000.0);
+                } else if (val >= 1000) {
+                    return String.format(Locale.US, "%.0fk", val / 1000.0);
+                }
+                return String.format(Locale.US, "%.0f", val);
+            }
+        });
         set.setDrawFilled(true);
         set.setFillColor(Color.parseColor("#22F46E26")); // light orange fill (alpha 13%)
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
@@ -434,7 +448,15 @@ public class VendorStatsFragment extends Fragment {
         set.setLineWidth(2.5f);
         set.setCircleRadius(4f);
         set.setDrawCircleHole(false);
-        set.setDrawValues(false); // Clean design: hide values on line points
+        set.setDrawValues(true); // Draw values on line points
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(9f);
+        set.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getPointLabel(Entry entry) {
+                return String.format(Locale.US, "%.0f", entry.getY());
+            }
+        });
         set.setDrawFilled(true);
         set.setFillColor(Color.parseColor("#225299FF")); // light blue fill (alpha 13%)
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
