@@ -139,6 +139,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                             uploadViewModel.uploadImage(selectedImageUri);
                             
                             if (imgPreview != null) {
+                                imgPreview.setPadding(0, 0, 0, 0);
+                                imgPreview.clearColorFilter();
                                 imgPreview.setImageURI(selectedImageUri);
                                 imgPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                             }
@@ -203,6 +205,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         uploadViewModel.getUploadSuccessUrl().observe(getViewLifecycleOwner(), url -> {
             this.currentUploadedUrl = url;
             if (imgPreview != null) {
+                imgPreview.setPadding(0, 0, 0, 0);
+                imgPreview.clearColorFilter();
                 Glide.with(this).load(url).into(imgPreview);
             }
         });
@@ -793,6 +797,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (etDesc != null) etDesc.setText(food.getDescription() != null ? food.getDescription() : "");
         
         if (imgPreview != null && food.getImageUrl() != null && !food.getImageUrl().isEmpty()) {
+            imgPreview.setPadding(0, 0, 0, 0);
+            imgPreview.clearColorFilter();
             Glide.with(this)
                     .load(food.getImageUrl())
                     .placeholder(R.drawable.logo_food)
