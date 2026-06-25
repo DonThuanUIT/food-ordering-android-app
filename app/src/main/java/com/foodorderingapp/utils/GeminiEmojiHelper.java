@@ -17,7 +17,7 @@ import okhttp3.Response;
 public class GeminiEmojiHelper {
 
     private static final String API_KEY = com.foodorderingapp.BuildConfig.GEMINI_API_KEY;
-    private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
+    private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
     private static final OkHttpClient client = new OkHttpClient();
     private static final Gson gson = new Gson();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -28,7 +28,7 @@ public class GeminiEmojiHelper {
     }
 
     public static void generateEmojiForCategory(String categoryName, EmojiCallback callback) {
-        String prompt = "Bạn là trợ lý AI phân loại thực phẩm. Hãy trả về DUY NHẤT từ 1 đến 2 biểu tượng cảm xúc (emoji) đại diện tốt nhất cho danh mục đồ ăn hoặc đồ uống sau đây. Tuyệt đối không được viết thêm bất kỳ chữ giải thích, dấu câu hay ký tự nào khác ngoài emoji.\n"
+        String prompt = "Bạn là trợ lý AI phân loại thực phẩm. Hãy trả về DUY NHẤT từ 1 đến 2 biểu tượng cảm xúc (emoji) đại diện tốt nhất cho danh mục đồ ăn hoặc đồ uống sau đây. Nếu không tìm thấy biểu tượng cụ thể và phù hợp cho danh mục này (ví dụ như bánh xèo hoặc các món không có biểu tượng đặc trưng riêng), hãy trả về duy nhất biểu tượng mặc định là 🍽️. Tuyệt đối không được viết thêm bất kỳ chữ giải thích, dấu câu hay ký tự nào khác ngoài emoji.\n"
                 + "Danh mục: " + categoryName;
 
         GeminiRequest requestPayload = new GeminiRequest(prompt);

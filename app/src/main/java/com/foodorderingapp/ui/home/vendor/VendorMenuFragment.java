@@ -467,7 +467,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             chip.setChipStrokeColor(getChipStrokeColorStateList());
             chip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
             chip.setOnLongClickListener(v -> {
-                showDeleteCategoryConfirmDialog(category);
+                showCategoryOptionsDialog(category);
                 return true;
             });
             chipGroupCategories.addView(chip);
@@ -670,16 +670,14 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                     @Override
                     public void onSuccess(String emoji) {
                         progressDialog.dismiss();
-                        String formattedName = emoji + "|" + name;
-                        addNewCategory(formattedName);
+                        handleNewCategoryEmoji(emoji, name);
                     }
 
                     @Override
                     public void onFailure(Exception e) {
                         progressDialog.dismiss();
                         String emoji = CategoryIconHelper.getCategoryEmoji(name);
-                        String formattedName = emoji + "|" + name;
-                        addNewCategory(formattedName);
+                        handleNewCategoryEmoji(emoji, name);
                     }
                 });
             }
@@ -696,9 +694,26 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(getContext(), "Category added!", Toast.LENGTH_SHORT).show();
                     loadCategories(response.body().getId());
+                } else {
+                    String errorMessage = "Đã xảy ra lỗi!";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            org.json.JSONObject obj = new org.json.JSONObject(errorJson);
+                            if (obj.has("message")) {
+                                errorMessage = obj.getString("message");
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
                 }
             }
-            @Override public void onFailure(Call<CategoryResponse> call, Throwable t) {}
+            @Override 
+            public void onFailure(Call<CategoryResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Kết nối thất bại: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
         });
     }
 
@@ -964,6 +979,170 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void handleNewCategoryEmoji(String emoji, String categoryName) {
+        String cleanNewName = categoryName.trim().toLowerCase();
+        
+        // 1. Check if name already exists locally (case-insensitive, trimmed, ignoring emoji)
+        for (CategoryResponse cat : categories) {
+            String existingCleanName = CategoryIconHelper.getNameForDisplay(cat.getName()).trim().toLowerCase();
+            if (existingCleanName.equals(cleanNewName)) {
+                Toast.makeText(getContext(), "Tên danh mục này đã tồn tại trong cửa hàng!", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+
+        // 2. Check generic emoji duplicate
+        if (emoji.equals("🍽️")) {
+            boolean genericExists = false;
+            for (CategoryResponse cat : categories) {
+                String existingEmoji = CategoryIconHelper.getEmojiForDisplay(cat.getName());
+                if (existingEmoji.equals("🍽️")) {
+                    genericExists = true;
+                    break;
+                }
+            }
+
+            if (genericExists) {
+                Toast.makeText(getContext(), "Đã tồn tại danh mục Khác rồi!", Toast.LENGTH_LONG).show();
+            } else {
+                if (!cleanNewName.equals("khác") && !cleanNewName.equals("other")) {
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Gợi ý tạo danh mục")
+                            .setMessage("Bạn nên tạo danh mục này là 'Khác' vì món ăn này không có biểu tượng cụ thể.")
+                            .setPositiveButton("Đồng ý", (dialog, which) -> {
+                                addNewCategory("🍽️|Khác");
+                            })
+                            .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                            .show();
+                } else {
+                    addNewCategory("🍽️|" + categoryName);
+                }
+            }
+        } else {
+            addNewCategory(emoji + "|" + categoryName);
+        }
+    }
+
+    private void showCategoryOptionsDialog(CategoryResponse category) {
+        String[] options = {"Sửa tên danh mục", "Xóa danh mục"};
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Tùy chọn danh mục")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        showEditCategoryDialog(category);
+                    } else if (which == 1) {
+                        showDeleteCategoryConfirmDialog(category);
+                    }
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void showEditCategoryDialog(CategoryResponse category) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Sửa tên danh mục");
+        final EditText input = new EditText(requireContext());
+        String plainName = CategoryIconHelper.getNameForDisplay(category.getName());
+        input.setText(plainName);
+        input.setSelection(plainName.length());
+        builder.setView(input);
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String newName = input.getText().toString().trim();
+            if (!TextUtils.isEmpty(newName)) {
+                // Check if duplicate name (ignoring self)
+                String cleanNewName = newName.toLowerCase();
+                for (CategoryResponse cat : categories) {
+                    if (!cat.getId().equals(category.getId())) {
+                        String existingCleanName = CategoryIconHelper.getNameForDisplay(cat.getName()).trim().toLowerCase();
+                        if (existingCleanName.equals(cleanNewName)) {
+                            Toast.makeText(getContext(), "Tên danh mục này đã tồn tại trong cửa hàng!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                }
+
+                android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
+                progressDialog.setMessage("AI đang sinh biểu tượng mới...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
+                com.foodorderingapp.utils.GeminiEmojiHelper.generateEmojiForCategory(newName, new com.foodorderingapp.utils.GeminiEmojiHelper.EmojiCallback() {
+                    @Override
+                    public void onSuccess(String emoji) {
+                        progressDialog.dismiss();
+                        handleEditCategoryEmoji(category.getId(), emoji, newName);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        progressDialog.dismiss();
+                        String emoji = CategoryIconHelper.getCategoryEmoji(newName);
+                        handleEditCategoryEmoji(category.getId(), emoji, newName);
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void handleEditCategoryEmoji(UUID categoryId, String emoji, String newName) {
+        String cleanNewName = newName.trim().toLowerCase();
+        
+        // Check generic emoji duplicate (excluding the category itself)
+        if (emoji.equals("🍽️")) {
+            boolean genericExists = false;
+            for (CategoryResponse cat : categories) {
+                if (!cat.getId().equals(categoryId)) {
+                    String existingEmoji = CategoryIconHelper.getEmojiForDisplay(cat.getName());
+                    if (existingEmoji.equals("🍽️")) {
+                        genericExists = true;
+                        break;
+                    }
+                }
+            }
+
+            if (genericExists) {
+                Toast.makeText(getContext(), "Đã tồn tại danh mục Khác rồi!", Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                if (!cleanNewName.equals("khác") && !cleanNewName.equals("other")) {
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Gợi ý sửa danh mục")
+                            .setMessage("Bạn nên sửa danh mục này thành 'Khác' vì món ăn này không có biểu tượng cụ thể.")
+                            .setPositiveButton("Đồng ý", (dialog, which) -> {
+                                updateCategoryInDb(categoryId, "🍽️|Khác");
+                            })
+                            .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                            .show();
+                    return;
+                }
+            }
+        }
+        
+        updateCategoryInDb(categoryId, emoji + "|" + newName);
+    }
+
+    private void updateCategoryInDb(UUID categoryId, String name) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().updateCategory(currentShopId, categoryId, new CategoryRequest(name)).enqueue(new Callback<CategoryResponse>() {
+            @Override
+            public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(), "Đã cập nhật danh mục thành công!", Toast.LENGTH_SHORT).show();
+                    loadData(true);
+                } else {
+                    Toast.makeText(getContext(), "Cập nhật danh mục thất bại!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CategoryResponse> call, Throwable t) {
                 Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
             }
         });
