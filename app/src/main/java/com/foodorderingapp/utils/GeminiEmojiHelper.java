@@ -64,9 +64,12 @@ public class GeminiEmojiHelper {
                         Candidate candidate = geminiResponse.candidates.get(0);
                         if (candidate.content != null && candidate.content.parts != null && !candidate.content.parts.isEmpty()) {
                             String emojiResult = candidate.content.parts.get(0).text.trim();
-                            // Loại bỏ khoảng trắng hoặc xuống dòng ngẫu nhiên từ LLM
-                            emojiResult = emojiResult.replaceAll("\\s+", "");
-                            String finalEmoji = emojiResult;
+                            // Loại bỏ chữ cái, số, khoảng trắng, và dấu câu ở mọi ngôn ngữ
+                            String onlyEmojis = emojiResult.replaceAll("[\\p{L}\\p{N}\\p{Z}\\p{P}]", "");
+                            
+                            final String finalEmoji = onlyEmojis.isEmpty()
+                                    ? CategoryIconHelper.getCategoryEmoji(categoryName)
+                                    : onlyEmojis;
                             mainHandler.post(() -> callback.onSuccess(finalEmoji));
                             return;
                         }

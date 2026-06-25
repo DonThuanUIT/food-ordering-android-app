@@ -21,6 +21,7 @@ public class CategoryIconHelper {
         if (lower.contains("lẩu") || lower.contains("hotpot")) return "🍲";
         if (lower.contains("súp") || lower.contains("soup") || lower.contains("canh")) return "🥣";
         if (lower.contains("tất cả") || lower.contains("all")) return "✨";
+        if (lower.contains("khác") || lower.contains("other")) return "🍴";
         return "🍽️"; // Default
     }
 
