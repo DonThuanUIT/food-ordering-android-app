@@ -101,4 +101,7 @@ dependencies {
     // 3. RxJava (Thư viện StompProtocolAndroid yêu cầu RxJava để chạy đa luồng)
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
+
+    // Thư viện bản đồ OpenStreetMap (osmdroid)
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 }
