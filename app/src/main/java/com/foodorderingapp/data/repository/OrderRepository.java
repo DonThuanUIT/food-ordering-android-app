@@ -20,18 +20,23 @@ import retrofit2.Response;
 public class OrderRepository {
     private final ApiService apiService = ApiClient.getApiService();
 
-    public void checkout(String building, String dropOff, MutableLiveData<Boolean> result) {
-        checkout(building, dropOff, null, null, null, result, null);
-    }
-
-    public void checkout(String building, String dropOff, String buildingId, String dropOffPointId,
+    public void checkout(String shopId, List<String> cartItemIds, String paymentMethod,
+                         String buildingId, String dropOffPointId,
                          String voucherCode, MutableLiveData<Boolean> result,
                          MutableLiveData<String> message) {
-        CheckoutRequest request = new CheckoutRequest(building, dropOff, buildingId, dropOffPointId, voucherCode);
+        CheckoutRequest request = new CheckoutRequest(
+                shopId,
+                cartItemIds,
+                paymentMethod,
+                buildingId,
+                dropOffPointId,
+                voucherCode,
+                null
+        );
 
-        apiService.checkout(request).enqueue(new Callback<List<OrderResponse>>() {
+        apiService.checkout(request).enqueue(new Callback<OrderResponse>() {
             @Override
-            public void onResponse(Call<List<OrderResponse>> call, Response<List<OrderResponse>> response) {
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
                 boolean success = response.isSuccessful();
                 result.postValue(success);
                 if (!success) {
@@ -40,7 +45,7 @@ public class OrderRepository {
             }
 
             @Override
-            public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
+            public void onFailure(Call<OrderResponse> call, Throwable t) {
                 result.postValue(false);
                 postMessage(message, "Loi ket noi khi dat hang");
             }

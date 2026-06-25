@@ -27,7 +27,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
     private CartFoodAdapter.OnDeleteClickListener deleteClickListener;
 
     public interface OnCheckoutClickListener {
-        void onCheckoutClick();
+        void onCheckoutClick(ShopCartResponse shop);
     }
 
     public interface OnClearShopCartListener {
@@ -94,7 +94,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         holder.tvShopTotal.setText(formatPrice(totalPrice));
         holder.btnCheckoutShop.setOnClickListener(v -> {
             if (checkoutClickListener != null) {
-                checkoutClickListener.onCheckoutClick();
+                checkoutClickListener.onCheckoutClick(shop);
             }
         });
         holder.btnDeleteShopCart.setOnClickListener(v -> {

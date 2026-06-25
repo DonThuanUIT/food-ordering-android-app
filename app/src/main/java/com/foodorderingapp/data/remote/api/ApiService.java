@@ -273,7 +273,7 @@ public interface ApiService {
     Call<Void> clearShopCart(@Path("shopId") String shopId);
 
     @POST("orders/checkout")
-    Call<List<OrderResponse>> checkout(@Body CheckoutRequest request);
+    Call<OrderResponse> checkout(@Body CheckoutRequest request);
 
     @GET("orders/active")
     Call<List<OrderResponse>> getActiveOrders();
