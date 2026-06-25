@@ -170,7 +170,13 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
                     if (isAdded() && getContext() != null) {
                         try {
                             loadOrders(false);
-                            Toast.makeText(getContext(), "Có cập nhật đơn hàng mới!", Toast.LENGTH_SHORT).show();
+                            android.content.SharedPreferences prefs = getContext().getSharedPreferences("vendor_settings_pref", android.content.Context.MODE_PRIVATE);
+                            boolean alertsEnabled = prefs.getBoolean("order_alerts", true);
+                            if (alertsEnabled) {
+                                showInAppOrderNotification();
+                            } else {
+                                Toast.makeText(getContext(), "Có cập nhật đơn hàng mới!", Toast.LENGTH_SHORT).show();
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -447,5 +453,63 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
     private String formatCurrency(double value) {
         DecimalFormat formatter = new DecimalFormat("#,###");
         return formatter.format(value) + "đ";
+    }
+
+    private void showInAppOrderNotification() {
+        android.content.Context context = getContext();
+        if (context == null) return;
+
+        // Vibrate gently
+        android.os.Vibrator vibrator = (android.os.Vibrator) context.getSystemService(android.content.Context.VIBRATOR_SERVICE);
+        if (vibrator != null) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                vibrator.vibrate(android.os.VibrationEffect.createOneShot(200, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(200);
+            }
+        }
+
+        // Show Heads-Up Notification
+        String channelId = "food_ordering_notifications";
+        
+        // Ensure channel is created locally
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            android.app.NotificationChannel channel = new android.app.NotificationChannel(
+                    channelId,
+                    "Food ordering notifications",
+                    android.app.NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Order, shop, and account updates");
+            android.app.NotificationManager manager = (android.app.NotificationManager) context.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
+
+        android.app.PendingIntent pendingIntent = android.app.PendingIntent.getActivity(
+                context,
+                (int) System.currentTimeMillis(),
+                new android.content.Intent(context, com.foodorderingapp.MainActivity.class)
+                        .putExtra("USER_ROLE", "VENDOR")
+                        .putExtra("OPEN_TAB", "ORDERS")
+                        .addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE
+        );
+
+        androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.ic_toast_info)
+                .setContentTitle("Đơn hàng mới!")
+                .setContentText("Bạn có một đơn hàng mới vừa được cập nhật.")
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
+
+        androidx.core.app.NotificationManagerCompat notificationManager = androidx.core.app.NotificationManagerCompat.from(context);
+        try {
+            notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+        } catch (SecurityException exception) {
+            android.util.Log.e("ORDER_NOTIF", "Permission error showing notification", exception);
+        }
     }
 }
