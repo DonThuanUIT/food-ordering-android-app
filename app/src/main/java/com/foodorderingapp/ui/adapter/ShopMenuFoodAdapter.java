@@ -7,16 +7,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.model.response.ReviewResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapter.FoodViewHolder> {
 
@@ -86,6 +94,78 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
                 listener.onFoodClick(food);
             }
         });
+
+        // Set average star rating of food item
+        holder.tvRating.setText("★ ...");
+        if (food.getId() != null) {
+            ApiClient.getApiService().getFoodRating(food.getId()).enqueue(new Callback<Double>() {
+                @Override
+                public void onResponse(Call<Double> call, Response<Double> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        double rating = response.body();
+                        holder.tvRating.setText(String.format(Locale.getDefault(), "★ %.1f", rating));
+                    } else {
+                        holder.tvRating.setText("★ N/A");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Double> call, Throwable t) {
+                    holder.tvRating.setText("★ N/A");
+                }
+            });
+
+            holder.tvRating.setOnClickListener(v -> {
+                android.content.Context ctx = holder.itemView.getContext();
+                View content = LayoutInflater.from(ctx).inflate(R.layout.dialog_student_reviews, null);
+                TextView tvTitle = content.findViewById(R.id.tvReviewsTitle);
+                if (tvTitle != null) {
+                    tvTitle.setText("Đánh giá món: " + food.getName());
+                }
+
+                RecyclerView rvReviews = content.findViewById(R.id.rvStudentReviews);
+                TextView tvEmpty = content.findViewById(R.id.tvStudentReviewsEmpty);
+
+                rvReviews.setLayoutManager(new LinearLayoutManager(ctx));
+                ReviewAdapter reviewAdapter = new ReviewAdapter();
+                rvReviews.setAdapter(reviewAdapter);
+
+                BottomSheetDialog dialog = new BottomSheetDialog(ctx);
+                dialog.setContentView(content);
+                dialog.show();
+
+                ApiClient.getApiService().getFoodReviews(food.getId()).enqueue(new Callback<List<ReviewResponse>>() {
+                    @Override
+                    public void onResponse(Call<List<ReviewResponse>> call, Response<List<ReviewResponse>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<ReviewResponse> list = response.body();
+                            reviewAdapter.submitList(list);
+                            boolean isEmpty = list.isEmpty();
+                            if (tvEmpty != null) {
+                                tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                                if (isEmpty) {
+                                    tvEmpty.setText("Chưa có đánh giá nào");
+                                }
+                            }
+                        } else {
+                            if (tvEmpty != null) {
+                                tvEmpty.setText("Không tải được đánh giá");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<ReviewResponse>> call, Throwable t) {
+                        if (tvEmpty != null) {
+                            tvEmpty.setText("Lỗi mạng: " + t.getMessage());
+                        }
+                    }
+                });
+            });
+        } else {
+            holder.tvRating.setText("★ N/A");
+            holder.tvRating.setOnClickListener(null);
+        }
     }
 
     @Override
@@ -111,6 +191,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         TextView tvDescription;
         TextView tvPrice;
         TextView tvTags;
+        TextView tvRating;
         ImageView btnAddFood;
 
         FoodViewHolder(@NonNull View itemView) {
@@ -120,6 +201,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
             tvDescription = itemView.findViewById(R.id.tvMenuFoodDescription);
             tvPrice = itemView.findViewById(R.id.tvMenuFoodPrice);
             tvTags = itemView.findViewById(R.id.tvMenuFoodTags);
+            tvRating = itemView.findViewById(R.id.tvMenuFoodRating);
             btnAddFood = itemView.findViewById(R.id.btnAddFood);
         }
     }

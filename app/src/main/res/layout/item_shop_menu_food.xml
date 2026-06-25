@@ -58,6 +58,16 @@
                 android:textSize="12sp" />
 
             <TextView
+                android:id="@+id/tvMenuFoodRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="★ N/A"
+                android:textColor="#FF9800"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/tvMenuFoodPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

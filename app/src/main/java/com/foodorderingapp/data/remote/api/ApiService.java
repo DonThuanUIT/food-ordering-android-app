@@ -7,6 +7,7 @@ import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.LoginRequest;
 import com.foodorderingapp.model.request.ReviewRequest;
+import com.foodorderingapp.model.request.ReviewSubmitRequest;
 import com.foodorderingapp.model.request.SendChatMessageRequest;
 import com.foodorderingapp.model.request.StudentRegisterRequest;
 import com.foodorderingapp.model.request.UpdateCartQuantityRequest;
@@ -29,6 +30,7 @@ import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.StudentReviewResponse;
+import com.foodorderingapp.model.response.ReviewResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
@@ -284,8 +286,23 @@ public interface ApiService {
     @POST("orders/{orderId}/reviews")
     Call<Void> createReview(
             @Path("orderId") String orderId,
-            @Body ReviewRequest request
+            @Body ReviewSubmitRequest request
     );
+
+    @GET("orders/shop/{shopId}/reviews")
+    Call<List<ReviewResponse>> getShopReviews(@Path("shopId") String shopId);
+
+    @GET("orders/shop/{shopId}/delivery-reviews")
+    Call<List<ReviewResponse>> getDeliveryReviews(@Path("shopId") String shopId);
+
+    @GET("orders/shop/{shopId}/rating")
+    Call<Double> getShopRating(@Path("shopId") String shopId);
+
+    @GET("orders/food/{foodId}/reviews")
+    Call<List<ReviewResponse>> getFoodReviews(@Path("foodId") String foodId);
+
+    @GET("orders/food/{foodId}/rating")
+    Call<Double> getFoodRating(@Path("foodId") String foodId);
 
     @GET("orders/{shopId}/dashboard")
     Call<VendorDashboardResponse> getDashboardStats(

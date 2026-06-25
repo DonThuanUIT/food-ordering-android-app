@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="@color/vendor_dark_card"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#281F1C">
+
+                <ImageView
+                    android:id="@+id/img_food"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_chef_cook"
+                    app:tint="#8A7D79" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/tv_food_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Tên món ăn"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+        </LinearLayout>
+
+        <RatingBar
+            android:id="@+id/rating_bar_food"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:numStars="5"
+            android:stepSize="1"
+            android:rating="5"
+            android:progressTint="@color/brand_orange"
+            android:progressBackgroundTint="#382C29"
+            android:layout_marginBottom="12dp"
+            style="?android:attr/ratingBarStyle"
+            android:isIndicator="false"/>
+
+        <EditText
+            android:id="@+id/et_comment_food"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_vendor_input_dark"
+            android:hint="Nhận xét về món ăn (không bắt buộc)..."
+            android:textColor="@color/white"
+            android:textColorHint="#8A7D79"
+            android:textSize="13sp"
+            android:gravity="top"
+            android:padding="10dp"
+            android:inputType="textMultiLine"
+            android:importantForAutofill="no"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

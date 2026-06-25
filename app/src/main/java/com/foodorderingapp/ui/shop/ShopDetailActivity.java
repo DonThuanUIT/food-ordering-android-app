@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -21,6 +22,19 @@ import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.viewmodel.ShopViewModel;
 
+import android.view.LayoutInflater;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.model.response.ReviewResponse;
+import com.foodorderingapp.ui.adapter.ReviewAdapter;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import java.util.List;
+import java.util.Locale;
+
 public class ShopDetailActivity extends AppCompatActivity {
 
     private TextView tvShopName;
@@ -33,6 +47,8 @@ public class ShopDetailActivity extends AppCompatActivity {
     private LinearLayout layoutShopStatus;
     private Button btnViewMenu;
     private Button btnChatShop;
+    private TextView tvShopRating;
+    private LinearLayout layoutShopRating;
 
     private ShopViewModel shopViewModel;
     private String shopId;
@@ -52,6 +68,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         bindViews();
         bindClickListeners();
         showInitialShopInfo();
+        loadShopRating();
 
         shopViewModel = new ViewModelProvider(this).get(ShopViewModel.class);
         observeShopDetail();
@@ -69,6 +86,8 @@ public class ShopDetailActivity extends AppCompatActivity {
         layoutShopStatus = findViewById(R.id.layoutShopStatus);
         btnViewMenu = findViewById(R.id.btnViewMenu);
         btnChatShop = findViewById(R.id.btnChatShop);
+        tvShopRating = findViewById(R.id.tvShopRating);
+        layoutShopRating = findViewById(R.id.layoutShopRating);
     }
 
     private void bindClickListeners() {
@@ -109,6 +128,8 @@ public class ShopDetailActivity extends AppCompatActivity {
             intent.putExtra(AiRecommendationActivity.EXTRA_SHOP_ID, shopId);
             startActivity(intent);
         });
+
+        layoutShopRating.setOnClickListener(v -> showReviewsDialog());
     }
 
     private void showInitialShopInfo() {
@@ -138,6 +159,76 @@ public class ShopDetailActivity extends AppCompatActivity {
             tvShopDescription.setText(nullToDefault(detail.getDescription(), tvShopDescription.getText().toString()));
             bindStatus(detail.getIsOpen());
             bindHeroImage(detail.getCoverUrl(), detail.getLogoUrl());
+        });
+    }
+
+    private void loadShopRating() {
+        ApiClient.getApiService().getShopRating(shopId).enqueue(new Callback<Double>() {
+            @Override
+            public void onResponse(Call<Double> call, Response<Double> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    double rating = response.body();
+                    tvShopRating.setText(String.format(Locale.getDefault(), "%.1f", rating));
+                } else {
+                    tvShopRating.setText("N/A");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Double> call, Throwable t) {
+                tvShopRating.setText("N/A");
+            }
+        });
+    }
+
+    private void showReviewsDialog() {
+        if (shopId == null || shopId.isEmpty()) {
+            return;
+        }
+
+        View content = LayoutInflater.from(this).inflate(R.layout.dialog_student_reviews, null);
+        TextView tvTitle = content.findViewById(R.id.tvReviewsTitle);
+        if (tvTitle != null) {
+            tvTitle.setText("Đánh giá của quán");
+        }
+
+        RecyclerView rvReviews = content.findViewById(R.id.rvStudentReviews);
+        TextView tvEmpty = content.findViewById(R.id.tvStudentReviewsEmpty);
+
+        rvReviews.setLayoutManager(new LinearLayoutManager(this));
+        ReviewAdapter reviewAdapter = new ReviewAdapter();
+        rvReviews.setAdapter(reviewAdapter);
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        dialog.setContentView(content);
+        dialog.show();
+
+        ApiClient.getApiService().getShopReviews(shopId).enqueue(new Callback<List<ReviewResponse>>() {
+            @Override
+            public void onResponse(Call<List<ReviewResponse>> call, Response<List<ReviewResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ReviewResponse> list = response.body();
+                    reviewAdapter.submitList(list);
+                    boolean isEmpty = list.isEmpty();
+                    if (tvEmpty != null) {
+                        tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                        if (isEmpty) {
+                            tvEmpty.setText("Chưa có đánh giá nào");
+                        }
+                    }
+                } else {
+                    if (tvEmpty != null) {
+                        tvEmpty.setText("Không tải được đánh giá");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ReviewResponse>> call, Throwable t) {
+                if (tvEmpty != null) {
+                    tvEmpty.setText("Lỗi mạng: " + t.getMessage());
+                }
+            }
         });
     }
 

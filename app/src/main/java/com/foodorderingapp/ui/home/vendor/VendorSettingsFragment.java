@@ -40,6 +40,7 @@ import com.foodorderingapp.model.response.UploadImageResponse;
 import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.ui.voucher.VoucherManagementActivity;
 import com.foodorderingapp.ui.voucher.VoucherFormActivity;
+import com.foodorderingapp.ui.review.VendorReviewsActivity;
 import com.foodorderingapp.utils.TokenManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -99,6 +100,7 @@ public class VendorSettingsFragment extends Fragment {
     private Button btnClosePermanently;
 
     private View layoutPrefPromo;
+    private View layoutPrefReviews;
 
     private View btnLogout;
 
@@ -206,6 +208,7 @@ public class VendorSettingsFragment extends Fragment {
 
         checkboxOrderAlerts = view.findViewById(R.id.checkbox_order_alerts);
         layoutPrefPromo = view.findViewById(R.id.layout_pref_promo);
+        layoutPrefReviews = view.findViewById(R.id.layout_pref_reviews);
         checkboxTurboMode = view.findViewById(R.id.checkbox_turbo_mode);
         btnDeactivate = view.findViewById(R.id.btn_deactivate);
         btnClosePermanently = view.findViewById(R.id.btn_close_permanently);
@@ -281,6 +284,19 @@ public class VendorSettingsFragment extends Fragment {
             layoutPrefPromo.setOnClickListener(v -> {
                 Intent intent = new Intent(getContext(), VoucherManagementActivity.class);
                 startActivity(intent);
+            });
+        }
+
+        // Navigation to Reviews
+        if (layoutPrefReviews != null) {
+            layoutPrefReviews.setOnClickListener(v -> {
+                if (currentShopId != null) {
+                    Intent intent = new Intent(getContext(), VendorReviewsActivity.class);
+                    intent.putExtra("SHOP_ID", currentShopId.toString());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getContext(), "Không tìm thấy thông tin cửa hàng", Toast.LENGTH_SHORT).show();
+                }
             });
         }
 

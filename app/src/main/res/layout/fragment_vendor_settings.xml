@@ -659,6 +659,41 @@
                             app:tint="@color/vendor_dark_text_secondary" />
                     </RelativeLayout>
 
+                    <!-- Item 2.5: Reviews -->
+                    <RelativeLayout
+                        android:id="@+id/layout_pref_reviews"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+                        <ImageView
+                            android:id="@+id/iv_pref_reviews"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_star_filled"
+                            app:tint="@color/vendor_dark_text_secondary"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentStart="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Phản hồi &amp; Đánh giá"
+                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:layout_centerVertical="true"
+                            android:layout_toEndOf="@id/iv_pref_reviews"
+                            android:layout_marginStart="12dp"/>
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/vendor_dark_text_secondary" />
+                    </RelativeLayout>
+
                     <!-- Item 3: Turbo Mode -->
                     <RelativeLayout
                         android:layout_width="match_parent"
