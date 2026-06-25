@@ -1,5 +1,6 @@
 package com.foodorderingapp.ui.adapter;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,8 +56,14 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         holder.tvShopAddress.setText("Địa chỉ: " + nullToDefault(shop.getAddress(), "Chưa cập nhật"));
         String imageUrl = firstNonBlank(shop.getLogoUrl(), shop.getCoverUrl());
         if (imageUrl == null) {
+            holder.ivShopImage.setPadding(dp(holder.itemView, 22), dp(holder.itemView, 22), dp(holder.itemView, 22), dp(holder.itemView, 22));
+            holder.ivShopImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            holder.ivShopImage.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF7A21")));
             holder.ivShopImage.setImageResource(R.drawable.ic_store_outline);
         } else {
+            holder.ivShopImage.setPadding(0, 0, 0, 0);
+            holder.ivShopImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            holder.ivShopImage.setImageTintList(null);
             Glide.with(holder.itemView)
                     .load(imageUrl)
                     .placeholder(R.drawable.ic_store_outline)
@@ -106,6 +113,10 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             return second;
         }
         return null;
+    }
+
+    private int dp(View view, int value) {
+        return (int) (value * view.getResources().getDisplayMetrics().density + 0.5f);
     }
 
     static class ShopViewHolder extends RecyclerView.ViewHolder {
