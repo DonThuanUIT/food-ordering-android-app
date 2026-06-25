@@ -16,7 +16,7 @@ import okhttp3.Response;
 
 public class GeminiEmojiHelper {
 
-    private static final String API_KEY = ""; // TODO: Insert your Gemini API Key here for local testing
+    private static final String API_KEY = com.foodorderingapp.BuildConfig.GEMINI_API_KEY;
     private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
     private static final OkHttpClient client = new OkHttpClient();
     private static final Gson gson = new Gson();
