@@ -43,11 +43,13 @@ public class StudentCartFragment extends Fragment {
     private AutoCompleteTextView acBuilding;
     private AutoCompleteTextView acDropOff;
     private AutoCompleteTextView acVoucherCode;
+    private final List<ShopCartResponse> cartShops = new ArrayList<>();
     private final List<BuildingResponse> buildingOptions = new ArrayList<>();
     private final List<DropOffPointResponse> dropOffOptions = new ArrayList<>();
     private final List<VoucherResponse> voucherOptions = new ArrayList<>();
     private BuildingResponse selectedBuilding;
     private DropOffPointResponse selectedDropOffPoint;
+    private String voucherShopId;
     private boolean hasCartItems = false;
 
     public StudentCartFragment() {}
@@ -143,13 +145,26 @@ public class StudentCartFragment extends Fragment {
                 return;
             }
 
-            hasCartItems = cart.getShops() != null && !cart.getShops().isEmpty();
-            cartShopAdapter.submitList(cart.getShops());
+            cartShops.clear();
+            if (cart.getShops() != null) {
+                cartShops.addAll(cart.getShops());
+            }
+
+            hasCartItems = !cartShops.isEmpty();
+            cartShopAdapter.submitList(cartShops);
             if (hasCartItems) {
                 showList();
-                loadVouchersForFirstShop(cart.getShops());
+                if (cartShops.size() == 1) {
+                    loadVouchersForShop(cartShops.get(0));
+                } else {
+                    voucherShopId = null;
+                    acVoucherCode.setText("");
+                    bindVouchers(null);
+                }
             } else {
                 showEmpty("Gio hang dang trong");
+                voucherShopId = null;
+                acVoucherCode.setText("");
                 bindVouchers(null);
             }
         });
@@ -243,12 +258,14 @@ public class StudentCartFragment extends Fragment {
         acVoucherCode.setAdapter(adapter);
     }
 
-    private void loadVouchersForFirstShop(List<ShopCartResponse> shops) {
-        if (shops == null || shops.isEmpty() || shops.get(0).getShopId() == null) {
+    private void loadVouchersForShop(ShopCartResponse shop) {
+        if (shop == null || shop.getShopId() == null) {
+            voucherShopId = null;
             bindVouchers(null);
             return;
         }
-        orderViewModel.loadVouchers(shops.get(0).getShopId());
+        voucherShopId = shop.getShopId();
+        orderViewModel.loadVouchers(shop.getShopId());
     }
 
     private void checkout() {
@@ -257,30 +274,81 @@ public class StudentCartFragment extends Fragment {
             return;
         }
 
+        if (cartShops.size() != 1) {
+            ToastUtils.info(getContext(), "Vui long thanh toan tung quan trong gio hang");
+            return;
+        }
+
+        checkout(cartShops.get(0));
+    }
+
+    private void checkout(ShopCartResponse shop) {
+        if (shop == null || shop.getShopId() == null || shop.getShopId().trim().isEmpty()) {
+            ToastUtils.error(getContext(), "Khong xac dinh duoc quan can thanh toan");
+            return;
+        }
+
+        List<String> cartItemIds = collectCartItemIds(shop);
+        if (cartItemIds.isEmpty()) {
+            ToastUtils.info(getContext(), "Gio cua quan nay dang trong");
+            return;
+        }
+
         String building = acBuilding.getText().toString().trim();
         String dropOff = acDropOff.getText().toString().trim();
 
         if (building.isEmpty()) {
-            ToastUtils.error(getContext(), "Vui long chon hoac nhap toa nha");
+            ToastUtils.error(getContext(), "Vui long chon toa nha");
             return;
         }
 
         if (dropOff.isEmpty()) {
-            ToastUtils.error(getContext(), "Vui long chon hoac nhap diem nhan hang");
+            ToastUtils.error(getContext(), "Vui long chon diem nhan hang");
             return;
         }
 
         BuildingResponse buildingMatch = findBuilding(building);
         DropOffPointResponse dropOffMatch = findDropOffPoint(dropOff);
-        String voucherCode = resolveVoucherCode(acVoucherCode.getText().toString().trim());
+
+        if (buildingMatch == null || buildingMatch.getId() == null) {
+            ToastUtils.error(getContext(), "Vui long chon toa nha trong danh sach");
+            return;
+        }
+
+        if (dropOffMatch == null || dropOffMatch.getId() == null) {
+            ToastUtils.error(getContext(), "Vui long chon diem nhan hang trong danh sach");
+            return;
+        }
+
+        String voucherCode = null;
+        String voucherText = acVoucherCode.getText().toString().trim();
+        if (sameText(voucherShopId, shop.getShopId())) {
+            voucherCode = resolveVoucherCode(voucherText);
+        } else if (!voucherText.isEmpty()) {
+            ToastUtils.info(getContext(), "Ma giam gia khong ap dung cho quan dang thanh toan");
+        }
 
         orderViewModel.checkout(
-                building,
-                dropOff,
-                buildingMatch != null ? buildingMatch.getId() : null,
-                dropOffMatch != null ? dropOffMatch.getId() : null,
+                shop.getShopId(),
+                cartItemIds,
+                "CASH",
+                buildingMatch.getId(),
+                dropOffMatch.getId(),
                 voucherCode
         );
+    }
+
+    private List<String> collectCartItemIds(ShopCartResponse shop) {
+        List<String> ids = new ArrayList<>();
+        if (shop.getItems() == null) {
+            return ids;
+        }
+        for (CartItemResponse item : shop.getItems()) {
+            if (item != null && item.getId() != null && !item.getId().trim().isEmpty()) {
+                ids.add(item.getId());
+            }
+        }
+        return ids;
     }
 
     private BuildingResponse findBuilding(String name) {

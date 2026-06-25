@@ -55,13 +55,10 @@ public class OrderViewModel extends ViewModel {
         return message;
     }
 
-    public void checkout(String building, String dropOff) {
-        orderRepository.checkout(building, dropOff, checkoutResult);
-    }
-
-    public void checkout(String building, String dropOff, String buildingId,
+    public void checkout(String shopId, List<String> cartItemIds, String paymentMethod,
+                         String buildingId,
                          String dropOffPointId, String voucherCode) {
-        orderRepository.checkout(building, dropOff, buildingId, dropOffPointId,
+        orderRepository.checkout(shopId, cartItemIds, paymentMethod, buildingId, dropOffPointId,
                 voucherCode, checkoutResult, message);
     }
 
