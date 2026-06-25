@@ -62,7 +62,8 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/bg_edittext"
-            android:paddingHorizontal="12dp" />
+            android:paddingHorizontal="12dp"
+            android:popupBackground="@color/white" />
 
         <TextView
             style="@style/LabelStyle"

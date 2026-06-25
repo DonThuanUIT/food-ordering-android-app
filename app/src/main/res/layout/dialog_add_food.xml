@@ -4,33 +4,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="#1B110F">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="#1B110F"
         app:elevation="0dp">
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/white">
+            android:background="#1B110F">
             <ImageView
                 android:id="@+id/btn_back_dialog"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back"
-                app:tint="#2D3748"
+                app:tint="@color/white"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackgroundBorderless"/>
             <TextView
+                android:id="@+id/tv_dialog_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add New Item"
+                android:text="Thêm món ăn"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#1A202C"
+                android:textColor="@color/white"
                 android:layout_marginStart="24dp"/>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -38,8 +39,10 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,7 +50,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="20dp"
             android:paddingTop="20dp"
-            android:paddingBottom="130dp"> <!-- Leaves enough empty space at bottom so Price field rolls above the bottom button -->
+            android:paddingBottom="24dp"> <!-- Leaves enough empty space at bottom so Price field rolls above the bottom button -->
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -62,14 +65,14 @@
                     android:orientation="vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:backgroundTint="#F7FAFC">
+                    android:backgroundTint="#2B1D1A">
                     <ImageView
                         android:id="@+id/img_upload_preview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_camera_add"
-                        app:tint="#A0AEC0"
+                        app:tint="#8A7D79"
                         android:padding="32dp"/>
                 </LinearLayout>
 
@@ -79,24 +82,26 @@
                     android:layout_height="48dp"
                     android:layout_gravity="center"
                     android:visibility="gone"
-                    android:indeterminateTint="@color/primary_orange"/>
+                    android:indeterminateTint="@color/vendor_dark_orange"/>
             </FrameLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="High-quality photos help increase sales."
+                android:text="Ảnh chất lượng cao giúp tăng doanh thu."
                 android:textSize="12sp"
-                android:textColor="@color/text_gray"
+                android:textColor="#8A7D79"
                 android:layout_marginTop="12dp"
                 android:textAlignment="center"/>
 
-            <TextView style="@style/LabelStyle" android:text="Item Name" android:textColor="#4A5568" android:layout_marginTop="20dp"/>
+            <TextView style="@style/LabelStyle" android:text="Tên món ăn" android:textColor="#8A7D79" android:layout_marginTop="20dp"/>
             <EditText
                 android:id="@+id/et_food_name"
                 style="@style/InputStyle"
-                android:hint="e.g., Spicy Buffalo Wings"
-                android:background="@drawable/bg_edittext"
+                android:hint="Ví dụ: Cánh gà sốt cay"
+                android:background="@drawable/bg_vendor_input_dark"
+                android:textColor="@color/white"
+                android:textColorHint="#8A7D79"
                 android:importantForAutofill="no"/>
 
             <RelativeLayout
@@ -106,8 +111,8 @@
                 android:layout_marginBottom="8dp">
                 <TextView
                     style="@style/LabelStyle"
-                    android:text="Category"
-                    android:textColor="#4A5568"
+                    android:text="Danh mục"
+                    android:textColor="#8A7D79"
                     android:layout_marginTop="0dp"
                     android:layout_marginBottom="0dp"
                     android:layout_centerVertical="true"/>
@@ -121,8 +126,8 @@
                         android:id="@+id/btn_edit_category"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Edit"
-                        android:textColor="@color/primary_orange"
+                        android:text="Sửa"
+                        android:textColor="@color/vendor_dark_orange"
                         android:textStyle="bold"
                         android:textSize="14sp"
                         android:padding="8dp"
@@ -135,8 +140,8 @@
                         android:id="@+id/btn_add_category"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+ New"
-                        android:textColor="@color/primary_orange"
+                        android:text="+ Mới"
+                        android:textColor="@color/vendor_dark_orange"
                         android:textStyle="bold"
                         android:textSize="14sp"
                         android:padding="8dp"
@@ -156,24 +161,28 @@
                 <!-- Categories will be added dynamically -->
             </com.google.android.material.chip.ChipGroup>
 
-            <TextView style="@style/LabelStyle" android:text="Item Details" android:textColor="#4A5568"/>
+            <TextView style="@style/LabelStyle" android:text="Mô tả chi tiết" android:textColor="#8A7D79"/>
             <EditText
                 android:id="@+id/et_food_description"
                 style="@style/InputStyle"
                 android:layout_height="100dp"
                 android:gravity="top|start"
                 android:paddingVertical="12dp"
-                android:hint="Describe ingredients..."
-                android:background="@drawable/bg_edittext"
+                android:hint="Mô tả nguyên liệu, hương vị..."
+                android:background="@drawable/bg_vendor_input_dark"
+                android:textColor="@color/white"
+                android:textColorHint="#8A7D79"
                 android:importantForAutofill="no"/>
 
-            <TextView style="@style/LabelStyle" android:text="Price ($)" android:textColor="#4A5568"/>
+            <TextView style="@style/LabelStyle" android:text="Giá tiền (đ)" android:textColor="#8A7D79"/>
             <EditText
                 android:id="@+id/et_food_price"
                 style="@style/InputStyle"
-                android:hint="0.00"
+                android:hint="0"
                 android:inputType="numberDecimal"
-                android:background="@drawable/bg_edittext"
+                android:background="@drawable/bg_vendor_input_dark"
+                android:textColor="@color/white"
+                android:textColorHint="#8A7D79"
                 android:importantForAutofill="no"/>
 
         </LinearLayout>
@@ -184,17 +193,17 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="@color/white">
+        app:cardBackgroundColor="#1B110F">
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_add_to_menu"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_margin="16dp"
-            android:text="Add to Menu"
+            android:text="Thêm vào thực đơn"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/white"
-            android:backgroundTint="@color/button_orange"
+            android:backgroundTint="@color/vendor_dark_orange"
             app:cornerRadius="12dp"/>
     </androidx.cardview.widget.CardView>
 

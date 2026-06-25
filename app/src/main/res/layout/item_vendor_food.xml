@@ -5,19 +5,21 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    android:layout_marginBottom="16dp"
-    app:cardBackgroundColor="@color/white"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/vendor_dark_card"
     android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp">
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
+        <!-- Left Image Section -->
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="180dp">
+            android:layout_width="86dp"
+            android:layout_height="86dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/img_food"
@@ -32,7 +34,7 @@
                 android:id="@+id/view_sold_out_overlay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#66FFFFFF"
+                android:background="#AA181210"
                 android:visibility="gone" />
 
             <TextView
@@ -40,13 +42,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="Sold Out"
-                android:textColor="@color/black"
+                android:text="HẾT HÀNG"
+                android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textSize="14sp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
+                android:textSize="9sp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="4dp"
                 android:background="@drawable/bg_white_rounded_border"
+                android:backgroundTint="#77382C29"
+                app:backgroundTint="#77382C29"
                 android:visibility="gone" />
 
             <!-- Badge Overlay (Popular / Bestseller) -->
@@ -56,95 +60,110 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_margin="12dp"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
+                android:layout_margin="4dp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
                 android:background="@drawable/bg_badge_orange"
                 android:text="Popular"
                 android:textColor="@color/white"
-                android:textSize="11sp"
+                android:textSize="8sp"
                 android:textStyle="bold"
                 android:visibility="gone"/>
         </RelativeLayout>
 
+        <!-- Center Information Section -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="8dp">
 
-            <!-- Title & Price Side-by-Side -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/tv_food_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:text="Cơm Gà Xối Mỡ Đặc Biệt"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/vendor_dark_text_primary"
+                android:maxLines="2"
+                android:ellipsize="end"/>
 
-                <TextView
-                    android:id="@+id/tv_food_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Classic Smash Burger"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
+            <!-- Status Subtitle or Description -->
+            <TextView
+                android:id="@+id/tv_status_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● Còn hàng"
+                android:textColor="#2E7D32"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp"
+                android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/tv_food_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$8.99"
-                    android:textColor="#A34E0C"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
+            <!-- Unused but required by FoodViewHolder bind method -->
             <TextView
                 android:id="@+id/tv_food_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Double beef patty, American cheese, house sauce, pickles, toasted brioche bun."
-                android:textColor="@color/text_gray"
-                android:textSize="13sp"
-                android:layout_marginTop="6dp"
-                android:maxLines="2"
-                android:ellipsize="end"/>
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginTop="2dp"
+                android:visibility="gone" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#F0F0F0"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"/>
+            <TextView
+                android:id="@+id/tv_food_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="35.000đ"
+                android:textColor="@color/vendor_dark_orange"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
 
-            <!-- Simplified Status Row -->
-            <RelativeLayout
+            <TextView
+                android:id="@+id/tv_food_tags"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tv_status_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:text="● In Stock"
-                    android:textColor="#2E7D32"
-                    android:textSize="14sp"
-                    android:textStyle="bold"/>
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switch_available"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"/>
-            </RelativeLayout>
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="10sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"/>
         </LinearLayout>
+
+        <!-- Right Action Section -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="2dp">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_available"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true" />
+
+            <!-- Circular Orange Plus Button for when food is out of stock -->
+            <ImageView
+                android:id="@+id/btn_add_stock"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_circle_orange"
+                android:src="@drawable/ic_add"
+                android:scaleType="center"
+                android:padding="8dp"
+                app:tint="@color/white"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone" />
+        </FrameLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

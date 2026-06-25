@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.data.remote.api.ApiClient;
@@ -38,6 +39,7 @@ import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.FoodAdapter;
 import com.foodorderingapp.utils.ToastUtils;
+import com.foodorderingapp.utils.CategoryIconHelper;
 import com.foodorderingapp.viewmodel.UploadImageViewModel;
 import com.foodorderingapp.viewmodel.ViewModelFactory;
 import com.bumptech.glide.Glide;
@@ -46,6 +48,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.card.MaterialCardView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -69,9 +72,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private FloatingActionButton fabAddFood;
     
     private ImageView imgPreview;
+    private SwipeRefreshLayout swipeRefresh;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     
     private UUID currentShopId;
+    private int currentPage = 0;
+    private static final int PAGE_SIZE = 15;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private UUID selectedCategoryId = null;
     private BottomSheetDialog currentAddFoodDialog;
 
     private TextView tvStatTotalCount;
@@ -79,9 +88,42 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private TextView tvStatSoldOutCount;
     private TextView tvStatCategoriesCount;
 
+    private MaterialCardView cardStatTotal;
+    private MaterialCardView cardStatInStock;
+    private MaterialCardView cardStatSoldOut;
+    private MaterialCardView cardStatCategories;
+
     // MVVM Integration
     private UploadImageViewModel uploadViewModel;
     private String currentUploadedUrl = null; // Biến cục bộ lưu URL Cloudinary
+
+    private final ChipGroup.OnCheckedStateChangeListener categoryCheckedListener = (group, checkedIds) -> {
+        if (checkedIds.isEmpty()) {
+            selectedCategoryId = null;
+            adapter.setCategoryFilter("Tất cả");
+            loadData(true);
+            return;
+        }
+        Chip chip = group.findViewById(checkedIds.get(0));
+        if (chip != null) {
+            Object tag = chip.getTag();
+            if (tag instanceof UUID) {
+                selectedCategoryId = (UUID) tag;
+                String categoryName = "";
+                for (CategoryResponse c : categories) {
+                    if (c.getId().equals(selectedCategoryId)) {
+                        categoryName = c.getName();
+                        break;
+                    }
+                }
+                adapter.setCategoryFilter(categoryName);
+            } else {
+                selectedCategoryId = null;
+                adapter.setCategoryFilter("Tất cả");
+            }
+            loadData(true);
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,7 +141,10 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                             uploadViewModel.uploadImage(selectedImageUri);
                             
                             if (imgPreview != null) {
-                                imgPreview.setImageURI(selectedImageUri);
+                                imgPreview.setPadding(0, 0, 0, 0);
+                                imgPreview.clearColorFilter();
+                                imgPreview.setImageTintList(null);
+                                Glide.with(this).load(selectedImageUri).into(imgPreview);
                                 imgPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                             }
                         }
@@ -115,6 +160,12 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         rvMenu = view.findViewById(R.id.rv_vendor_menu);
         searchView = view.findViewById(R.id.search_view_menu);
         chipGroupCategories = view.findViewById(R.id.chip_group_categories);
+        swipeRefresh = view.findViewById(R.id.swipe_refresh_menu);
+        if (swipeRefresh != null) {
+            swipeRefresh.setOnRefreshListener(() -> loadData(true));
+            swipeRefresh.setColorSchemeResources(R.color.vendor_dark_orange);
+            swipeRefresh.setProgressBackgroundColorSchemeColor(android.graphics.Color.parseColor("#1B110F"));
+        }
         fabScrollTop = view.findViewById(R.id.fab_scroll_top);
         fabAddFood = view.findViewById(R.id.fab_add_food);
 
@@ -122,6 +173,11 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         tvStatInStockCount = view.findViewById(R.id.tv_stat_in_stock_count);
         tvStatSoldOutCount = view.findViewById(R.id.tv_stat_sold_out_count);
         tvStatCategoriesCount = view.findViewById(R.id.tv_stat_categories_count);
+
+        cardStatTotal = view.findViewById(R.id.card_stat_total);
+        cardStatInStock = view.findViewById(R.id.card_stat_in_stock);
+        cardStatSoldOut = view.findViewById(R.id.card_stat_sold_out);
+        cardStatCategories = view.findViewById(R.id.card_stat_categories);
 
         setupRecyclerView();
         setupSearch();
@@ -158,6 +214,9 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         uploadViewModel.getUploadSuccessUrl().observe(getViewLifecycleOwner(), url -> {
             this.currentUploadedUrl = url;
             if (imgPreview != null) {
+                imgPreview.setPadding(0, 0, 0, 0);
+                imgPreview.clearColorFilter();
+                imgPreview.setImageTintList(null);
                 Glide.with(this).load(url).into(imgPreview);
             }
         });
@@ -174,7 +233,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     String idStr = response.body().get(0).getId();
                     currentShopId = idStr != null ? UUID.fromString(idStr) : null;
-                    loadData(false);
+                    loadData(true);
                 }
             }
             @Override public void onFailure(Call<List<ShopResponse>> call, Throwable t) {
@@ -187,9 +246,28 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         adapter = new FoodAdapter(foodList, this);
         rvMenu.setLayoutManager(new LinearLayoutManager(getContext()));
         rvMenu.setAdapter(adapter);
+        rvMenu.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    if (!isLoading && !isLastPage) {
+                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                                && firstVisibleItemPosition >= 0) {
+                            loadData(false);
+                        }
+                    }
+                }
+            }
+        });
     }
 
-    private void setupSearch() {
+     private void setupSearch() {
         if (searchView != null) {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -208,14 +286,56 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
     private void setupFilters() {
         if (chipGroupCategories != null) {
-            chipGroupCategories.setOnCheckedStateChangeListener((group, checkedIds) -> {
-                if (checkedIds.isEmpty()) {
-                    adapter.setCategoryFilter("All");
-                    return;
+            chipGroupCategories.setOnCheckedStateChangeListener(categoryCheckedListener);
+        }
+
+        // Stats cards click filters
+        if (cardStatTotal != null) {
+            cardStatTotal.setOnClickListener(v -> {
+                updateStatsHighlight("Tất cả");
+                if (adapter != null) {
+                    adapter.setStatusFilter("Tất cả");
                 }
-                Chip chip = group.findViewById(checkedIds.get(0));
-                if (chip != null) adapter.setCategoryFilter(chip.getText().toString());
             });
+        }
+        if (cardStatInStock != null) {
+            cardStatInStock.setOnClickListener(v -> {
+                updateStatsHighlight("Sẵn có");
+                if (adapter != null) {
+                    adapter.setStatusFilter("Sẵn có");
+                }
+            });
+        }
+        if (cardStatSoldOut != null) {
+            cardStatSoldOut.setOnClickListener(v -> {
+                updateStatsHighlight("Hết món");
+                if (adapter != null) {
+                    adapter.setStatusFilter("Hết món");
+                }
+            });
+        }
+    }
+
+    private void updateStatsHighlight(String selectedStat) {
+        if (cardStatTotal == null || cardStatInStock == null || cardStatSoldOut == null) return;
+        
+        // Reset strokes
+        cardStatTotal.setStrokeWidth(0);
+        cardStatInStock.setStrokeWidth(0);
+        cardStatSoldOut.setStrokeWidth(0);
+        
+        // Highlight active one with orange border
+        int strokeWidthPx = (int) (1.5f * getResources().getDisplayMetrics().density);
+        ColorStateList orangeColor = ColorStateList.valueOf(Color.parseColor("#F46E26"));
+        if ("Tất cả".equals(selectedStat)) {
+            cardStatTotal.setStrokeColor(orangeColor);
+            cardStatTotal.setStrokeWidth(strokeWidthPx);
+        } else if ("Sẵn có".equals(selectedStat)) {
+            cardStatInStock.setStrokeColor(orangeColor);
+            cardStatInStock.setStrokeWidth(strokeWidthPx);
+        } else if ("Hết món".equals(selectedStat)) {
+            cardStatSoldOut.setStrokeColor(orangeColor);
+            cardStatSoldOut.setStrokeWidth(strokeWidthPx);
         }
     }
 
@@ -232,23 +352,64 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (fabScrollTop != null) fabScrollTop.setOnClickListener(v -> rvMenu.smoothScrollToPosition(0));
     }
 
-    private void loadData(boolean scrollToBottom) {
+    private void loadData(boolean reload) {
         if (currentShopId == null) return;
-        ApiClient.getApiService().getAllFoods(currentShopId, null).enqueue(new Callback<List<FoodResponse>>() {
+        if (reload) {
+            currentPage = 0;
+            isLastPage = false;
+            foodList.clear();
+            if (adapter != null) {
+                adapter.updateData(new ArrayList<>());
+                if (swipeRefresh == null || !swipeRefresh.isRefreshing()) {
+                    adapter.setLoading(true);
+                }
+            }
+        }
+        if (isLastPage || isLoading) return;
+
+        isLoading = true;
+        ApiClient.getApiService().getAllFoods(currentShopId, selectedCategoryId, currentPage, PAGE_SIZE)
+                .enqueue(new Callback<com.foodorderingapp.model.response.PageResponse<FoodResponse>>() {
             @Override
-            public void onResponse(Call<List<FoodResponse>> call, Response<List<FoodResponse>> response) {
+            public void onResponse(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Response<com.foodorderingapp.model.response.PageResponse<FoodResponse>> response) {
+                isLoading = false;
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
+                if (adapter != null) {
+                    adapter.setLoading(false);
+                }
                 if (response.isSuccessful() && response.body() != null) {
-                    foodList = response.body();
-                    adapter.updateData(foodList);
+                    List<FoodResponse> newFoods = response.body().getContent();
+                    foodList.addAll(newFoods);
+                    if (adapter != null) {
+                        adapter.updateData(foodList);
+                    }
                     updateStatsCounts();
-                    if (scrollToBottom) {
-                        rvMenu.postDelayed(() -> rvMenu.smoothScrollToPosition(adapter.getItemCount() - 1), 300);
+
+                    isLastPage = response.body().isLast() || newFoods.size() < PAGE_SIZE;
+                    if (!isLastPage) {
+                        currentPage++;
+                    }
+                    if (reload && foodList.size() > 0 && rvMenu != null) {
+                        rvMenu.scrollToPosition(0);
                     }
                 }
             }
-            @Override public void onFailure(Call<List<FoodResponse>> call, Throwable t) {}
+            @Override 
+            public void onFailure(Call<com.foodorderingapp.model.response.PageResponse<FoodResponse>> call, Throwable t) {
+                isLoading = false;
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
+                if (adapter != null) {
+                    adapter.setLoading(false);
+                }
+            }
         });
-        loadCategories();
+        if (reload) {
+            loadCategories();
+        }
     }
 
     private void loadCategories() {
@@ -275,34 +436,107 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
     private void updateCategoryChips() {
         if (chipGroupCategories == null) return;
+        chipGroupCategories.setOnCheckedStateChangeListener(null);
         chipGroupCategories.removeAllViews();
+        
         Chip allChip = new Chip(requireContext());
-        allChip.setText("All");
+        allChip.setText(CategoryIconHelper.getEmojiForDisplay("Tất cả"));
+        allChip.setTag("ALL");
         allChip.setCheckable(true);
-        allChip.setChecked(true);
+        allChip.setId(View.generateViewId());
+        if (selectedCategoryId == null) {
+            allChip.setChecked(true);
+        }
         allChip.setChipBackgroundColor(getChipBackgroundStateList());
         allChip.setTextColor(getChipTextStateList());
+        allChip.setChipStrokeColor(getChipStrokeColorStateList());
+        allChip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
         chipGroupCategories.addView(allChip);
+        
         for (CategoryResponse category : categories) {
             Chip chip = new Chip(requireContext());
-            chip.setText(category.getName());
+            chip.setText(CategoryIconHelper.getEmojiForDisplay(category.getName()));
+            chip.setTag(category.getId());
             chip.setCheckable(true);
+            chip.setId(View.generateViewId());
+            if (selectedCategoryId != null && selectedCategoryId.equals(category.getId())) {
+                chip.setChecked(true);
+            }
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
+            chip.setChipStrokeColor(getChipStrokeColorStateList());
+            chip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
+            chip.setOnLongClickListener(v -> {
+                showDeleteCategoryConfirmDialog(category);
+                return true;
+            });
             chipGroupCategories.addView(chip);
         }
+        chipGroupCategories.setOnCheckedStateChangeListener(categoryCheckedListener);
     }
 
     @Override
     public void onStatusChanged(FoodResponse food, boolean isAvailable) {
-        if (currentShopId == null) return;
+        if (currentShopId == null || food == null || food.getId() == null) return;
+        
+        // Find and update local list first
+        for (FoodResponse f : foodList) {
+            if (f.getId() != null && f.getId().equals(food.getId())) {
+                f.setIsAvailable(isAvailable);
+                break;
+            }
+        }
+        
+        // Instant local update to adapter
+        if (adapter != null) {
+            adapter.updateFoodAvailability(food.getId(), isAvailable);
+            updateStatsCounts();
+        }
+        
         ApiClient.getApiService().toggleFoodAvailability(currentShopId, food.getId()).enqueue(new Callback<FoodResponse>() {
             @Override
             public void onResponse(Call<FoodResponse> call, Response<FoodResponse> response) {
-                loadData(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    FoodResponse updated = response.body();
+                    for (FoodResponse f : foodList) {
+                        if (f.getId() != null && f.getId().equals(food.getId())) {
+                            f.setIsAvailable(updated.getIsAvailable());
+                            break;
+                        }
+                    }
+                    if (adapter != null) {
+                        adapter.updateFoodAvailability(food.getId(), updated.getIsAvailable());
+                        updateStatsCounts();
+                    }
+                } else {
+                    // Rollback on failure
+                    for (FoodResponse f : foodList) {
+                        if (f.getId() != null && f.getId().equals(food.getId())) {
+                            f.setIsAvailable(!isAvailable);
+                            break;
+                        }
+                    }
+                    if (adapter != null) {
+                        adapter.updateFoodAvailability(food.getId(), !isAvailable);
+                        updateStatsCounts();
+                    }
+                    Toast.makeText(getContext(), "Không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                }
             }
-            @Override public void onFailure(Call<FoodResponse> call, Throwable t) {
-                loadData(false);
+            @Override 
+            public void onFailure(Call<FoodResponse> call, Throwable t) {
+                // Rollback on network failure
+                for (FoodResponse f : foodList) {
+                    if (f.getId() != null && f.getId().equals(food.getId())) {
+                        f.setIsAvailable(!isAvailable);
+                        break;
+                    }
+                }
+                if (adapter != null) {
+                    adapter.updateFoodAvailability(food.getId(), !isAvailable);
+                    updateStatsCounts();
+                }
+                Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -354,6 +588,19 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         }
 
         currentAddFoodDialog.setContentView(dialogView);
+        currentAddFoodDialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog d = (BottomSheetDialog) dialogInterface;
+            FrameLayout bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                bottomSheet.setLayoutParams(layoutParams);
+
+                BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+            }
+        });
         currentAddFoodDialog.show();
     }
 
@@ -384,11 +631,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         for (int i = 0; i < categories.size(); i++) {
             CategoryResponse cat = categories.get(i);
             Chip chip = new Chip(requireContext());
-            chip.setText(cat.getName());
+            String displayName = CategoryIconHelper.getEmojiForDisplay(cat.getName()) + " " + CategoryIconHelper.getNameForDisplay(cat.getName());
+            chip.setText(displayName);
+            chip.setTag(cat.getId());
             chip.setCheckable(true);
             chip.setId(View.generateViewId());
             chip.setChipBackgroundColor(getChipBackgroundStateList());
             chip.setTextColor(getChipTextStateList());
+            chip.setChipStrokeColor(getChipStrokeColorStateList());
+            chip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
             if (selectedId != null && selectedId.equals(cat.getId())) {
                 chip.setChecked(true);
                 hasSelected = true;
@@ -403,15 +654,37 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
 
     private void showAddNewCategoryDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Add New Category");
+        builder.setTitle("Thêm danh mục mới");
         final EditText input = new EditText(requireContext());
-        input.setHint("Category name");
+        input.setHint("Tên danh mục");
         builder.setView(input);
-        builder.setPositiveButton("Add", (dialog, which) -> {
+        builder.setPositiveButton("Thêm", (dialog, which) -> {
             String name = input.getText().toString().trim();
-            if (!TextUtils.isEmpty(name)) addNewCategory(name);
+            if (!TextUtils.isEmpty(name)) {
+                android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
+                progressDialog.setMessage("AI đang sinh biểu tượng...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
+                com.foodorderingapp.utils.GeminiEmojiHelper.generateEmojiForCategory(name, new com.foodorderingapp.utils.GeminiEmojiHelper.EmojiCallback() {
+                    @Override
+                    public void onSuccess(String emoji) {
+                        progressDialog.dismiss();
+                        String formattedName = emoji + "|" + name;
+                        addNewCategory(formattedName);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        progressDialog.dismiss();
+                        String emoji = CategoryIconHelper.getCategoryEmoji(name);
+                        String formattedName = emoji + "|" + name;
+                        addNewCategory(formattedName);
+                    }
+                });
+            }
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -434,11 +707,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         int id = group.getCheckedChipId();
         if (id != View.NO_ID) {
             Chip chip = group.findViewById(id);
-            if (chip != null) {
-                String name = chip.getText().toString();
-                for (CategoryResponse c : categories) {
-                    if (c.getName().equalsIgnoreCase(name)) return c.getId();
-                }
+            if (chip != null && chip.getTag() instanceof UUID) {
+                return (UUID) chip.getTag();
             }
         }
         return categories.isEmpty() ? UUID.randomUUID() : categories.get(0).getId();
@@ -457,7 +727,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         TextView tvTitle = view.findViewById(R.id.tv_image_title);
         View btnClose = view.findViewById(R.id.btn_close_image);
         if (tvTitle != null) tvTitle.setText(name);
-        Glide.with(this).load(imageUrl).placeholder(R.drawable.logo_food).error(R.drawable.logo_food).into(imgFull);
+        Glide.with(this).load(imageUrl).error(R.drawable.logo_food).into(imgFull);
         AlertDialog dialog = builder.setView(view).create();
         if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
         view.setOnClickListener(v -> dialog.dismiss());
@@ -465,15 +735,15 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private ColorStateList getChipBackgroundStateList() {
-        int[][] states = new int[][] { new int[] {android.R.attr.state_checked}, new int[] {-android.R.attr.state_checked} };
-        int[] colors = new int[] { Color.parseColor("#FF5722"), Color.parseColor("#EDF2F7") };
-        return new ColorStateList(states, colors);
+        return androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.chip_bg_color);
     }
 
     private ColorStateList getChipTextStateList() {
-        int[][] states = new int[][] { new int[] {android.R.attr.state_checked}, new int[] {-android.R.attr.state_checked} };
-        int[] colors = new int[] { Color.WHITE, Color.parseColor("#4A5568") };
-        return new ColorStateList(states, colors);
+        return androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.chip_text_color);
+    }
+
+    private ColorStateList getChipStrokeColorStateList() {
+        return androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.chip_stroke_color);
     }
 
     private void updateStatsCounts() {
@@ -489,5 +759,213 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         tvStatInStockCount.setText(String.valueOf(inStockCount));
         tvStatSoldOutCount.setText(String.valueOf(soldOutCount));
         tvStatCategoriesCount.setText(String.valueOf(categories.size()));
+    }
+
+    @Override
+    public void onFoodLongClick(FoodResponse food) {
+        showFoodOptionsDialog(food);
+    }
+
+    private void showFoodOptionsDialog(FoodResponse food) {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        View view = getLayoutInflater().inflate(R.layout.dialog_food_options, null);
+
+        TextView tvTitle = view.findViewById(R.id.tv_food_title);
+        View btnEdit = view.findViewById(R.id.layout_option_edit);
+        View btnDelete = view.findViewById(R.id.layout_option_delete);
+
+        if (tvTitle != null) tvTitle.setText(food.getName());
+
+        if (btnEdit != null) {
+            btnEdit.setOnClickListener(v -> {
+                dialog.dismiss();
+                showEditFoodDialog(food);
+            });
+        }
+
+        if (btnDelete != null) {
+            btnDelete.setOnClickListener(v -> {
+                dialog.dismiss();
+                showDeleteConfirmDialog(food);
+            });
+        }
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private void showEditFoodDialog(FoodResponse food) {
+        currentUploadedUrl = food.getImageUrl();
+        currentAddFoodDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_food, null);
+
+        TextView tvDialogTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        if (tvDialogTitle != null) {
+            tvDialogTitle.setText("Chỉnh sửa món ăn");
+        }
+
+        imgPreview = dialogView.findViewById(R.id.img_upload_preview);
+        EditText etName = dialogView.findViewById(R.id.et_food_name);
+        EditText etPrice = dialogView.findViewById(R.id.et_food_price);
+        EditText etDesc = dialogView.findViewById(R.id.et_food_description);
+        ChipGroup dialogChips = dialogView.findViewById(R.id.chip_group_category);
+        Button btnSave = dialogView.findViewById(R.id.btn_add_to_menu);
+        ImageView btnBack = dialogView.findViewById(R.id.btn_back_dialog);
+        View btnAddNewCategory = dialogView.findViewById(R.id.btn_add_category);
+
+        // Prepopulate fields
+        if (etName != null) etName.setText(food.getName());
+        if (etPrice != null && food.getPrice() != null) etPrice.setText(food.getPrice().toPlainString());
+        if (etDesc != null) etDesc.setText(food.getDescription() != null ? food.getDescription() : "");
+        
+        if (imgPreview != null && food.getImageUrl() != null && !food.getImageUrl().isEmpty()) {
+            imgPreview.setPadding(0, 0, 0, 0);
+            imgPreview.clearColorFilter();
+            imgPreview.setImageTintList(null);
+            Glide.with(this)
+                    .load(food.getImageUrl())
+                    .placeholder(R.drawable.logo_food)
+                    .error(R.drawable.logo_food)
+                    .into(imgPreview);
+            imgPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        }
+
+        updateDialogCategories(dialogChips, food.getCategoryId());
+
+        if (btnAddNewCategory != null) btnAddNewCategory.setOnClickListener(v -> showAddNewCategoryDialog());
+        if (btnBack != null) btnBack.setOnClickListener(v -> currentAddFoodDialog.dismiss());
+
+        View uploadArea = dialogView.findViewById(R.id.upload_area);
+        if (uploadArea != null) {
+            uploadArea.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
+                imagePickerLauncher.launch(intent);
+            });
+        }
+
+        if (btnSave != null) {
+            btnSave.setText("Lưu thay đổi");
+            btnSave.setOnClickListener(v -> {
+                String name = etName != null ? etName.getText().toString().trim() : "";
+                String priceStr = etPrice != null ? etPrice.getText().toString().trim() : "";
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(priceStr)) {
+                    Toast.makeText(getContext(), "Vui lòng nhập tên và giá", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                UUID catId = getSelectedCategoryId(dialogChips);
+                saveEditedFoodToDb(currentAddFoodDialog, food.getId(), name, priceStr, etDesc != null ? etDesc.getText().toString() : "", catId, currentUploadedUrl);
+            });
+        }
+
+        currentAddFoodDialog.setContentView(dialogView);
+        currentAddFoodDialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog d = (BottomSheetDialog) dialogInterface;
+            FrameLayout bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                bottomSheet.setLayoutParams(layoutParams);
+
+                BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+            }
+        });
+        currentAddFoodDialog.show();
+    }
+
+    private void saveEditedFoodToDb(BottomSheetDialog dialog, UUID foodId, String name, String price, String desc, UUID catId, String url) {
+        if (currentShopId == null) return;
+        try {
+            FoodRequest request = new FoodRequest(catId, name, desc, new BigDecimal(price), url);
+            ApiClient.getApiService().updateFood(currentShopId, foodId, request).enqueue(new Callback<FoodResponse>() {
+                @Override
+                public void onResponse(Call<FoodResponse> call, Response<FoodResponse> response) {
+                    if (response.isSuccessful()) {
+                        ToastUtils.success(getContext(), "Đã cập nhật món ăn!");
+                        loadData(true);
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(getContext(), "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                @Override
+                public void onFailure(Call<FoodResponse> call, Throwable t) {
+                    Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Giá không hợp lệ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showDeleteConfirmDialog(FoodResponse food) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Xóa món ăn?")
+                .setMessage("Bạn có chắc chắn muốn xóa món '" + food.getName() + "' khỏi thực đơn?")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteFoodFromDb(food.getId()))
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void deleteFoodFromDb(UUID foodId) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().deleteFood(currentShopId, foodId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful() || response.code() == 204) {
+                    ToastUtils.success(getContext(), "Đã xóa món ăn thành công!");
+                    loadData(true);
+                } else {
+                    Toast.makeText(getContext(), "Không thể xóa món ăn!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showDeleteCategoryConfirmDialog(CategoryResponse category) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Xóa danh mục?")
+                .setMessage("Bạn có chắc chắn muốn xóa danh mục '" + category.getName() + "'? Lưu ý: Chỉ có thể xóa danh mục không chứa món ăn nào.")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteCategoryFromDb(category.getId()))
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void deleteCategoryFromDb(UUID categoryId) {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().deleteCategory(currentShopId, categoryId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful() || response.code() == 204) {
+                    ToastUtils.success(getContext(), "Đã xóa danh mục thành công!");
+                    loadData(true);
+                } else {
+                    String errorMsg = "Không thể xóa danh mục. Vui lòng kiểm tra lại!";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errJson = response.errorBody().string();
+                            if (errJson.contains("Cannot delete")) {
+                                errorMsg = "Không thể xóa vì danh mục vẫn còn món ăn!";
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

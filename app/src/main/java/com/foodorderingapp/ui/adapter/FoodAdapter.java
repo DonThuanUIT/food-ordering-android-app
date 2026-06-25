@@ -28,12 +28,20 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final OnFoodActionProvider actionProvider;
 
     private String currentQuery = "";
-    private String currentCategory = "All";
+    private String currentCategory = "Tất cả";
+    private String currentStatusFilter = "Tất cả";
+    private boolean isLoadingState = false;
 
     public interface OnFoodActionProvider {
         void onStatusChanged(FoodResponse food, boolean isAvailable);
         void onAddNewItemClick();
         void onFoodImageClick(FoodResponse food);
+        void onFoodLongClick(FoodResponse food);
+    }
+
+    public void setLoading(boolean loading) {
+        this.isLoadingState = loading;
+        notifyDataSetChanged();
     }
 
     public FoodAdapter(List<FoodResponse> foodList, OnFoodActionProvider actionProvider) {
@@ -59,8 +67,54 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void setCategoryFilter(String category) {
-        this.currentCategory = category != null ? category : "All";
+        this.currentCategory = category != null ? category : "Tất cả";
         applyFilters();
+    }
+
+    public void setStatusFilter(String statusFilter) {
+        this.currentStatusFilter = statusFilter != null ? statusFilter : "Tất cả";
+        applyFilters();
+    }
+
+    public void updateFoodAvailability(java.util.UUID foodId, boolean isAvailable) {
+        FoodResponse targetFood = null;
+        for (FoodResponse f : originalList) {
+            if (f.getId() != null && f.getId().equals(foodId)) {
+                f.setIsAvailable(isAvailable);
+                targetFood = f;
+                break;
+            }
+        }
+        if (targetFood == null) return;
+        
+        // Check if it matches filters
+        String cleanCategory = currentCategory.split(" \\(")[0];
+        boolean matchesCategory = cleanCategory.equals("All") || cleanCategory.equals("Tất cả") ||
+                (targetFood.getCategoryName() != null && targetFood.getCategoryName().equalsIgnoreCase(cleanCategory));
+                
+        boolean matchesStatus = true;
+        if ("Sẵn có".equalsIgnoreCase(currentStatusFilter)) {
+            matchesStatus = isAvailable;
+        } else if ("Hết món".equalsIgnoreCase(currentStatusFilter)) {
+            matchesStatus = !isAvailable;
+        }
+        
+        if (matchesCategory && matchesStatus) {
+            int index = -1;
+            for (int i = 0; i < filteredList.size(); i++) {
+                if (filteredList.get(i).getId() != null && filteredList.get(i).getId().equals(foodId)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index != -1) {
+                notifyItemChanged(index);
+            } else {
+                applyFilters();
+            }
+        } else {
+            applyFilters();
+        }
     }
 
     private void applyFilters() {
@@ -71,10 +125,18 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             
             // Lọc theo text hiển thị trên Tab (ví dụ: "Burgers (8)" -> "Burgers")
             String cleanCategory = currentCategory.split(" \\(")[0];
-            boolean matchesCategory = cleanCategory.equals("All") ||
+            boolean matchesCategory = cleanCategory.equals("All") || cleanCategory.equals("Tất cả") ||
                     (item.getCategoryName() != null && item.getCategoryName().equalsIgnoreCase(cleanCategory));
 
-            if (matchesQuery && matchesCategory) {
+            boolean isAvailable = item.getIsAvailable() != null ? item.getIsAvailable() : true;
+            boolean matchesStatus = true;
+            if ("Sẵn có".equalsIgnoreCase(currentStatusFilter)) {
+                matchesStatus = isAvailable;
+            } else if ("Hết món".equalsIgnoreCase(currentStatusFilter)) {
+                matchesStatus = !isAvailable;
+            }
+
+            if (matchesQuery && matchesCategory && matchesStatus) {
                 filteredList.add(item);
             }
         }
@@ -113,14 +175,18 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
+        if (isLoadingState && filteredList.isEmpty()) {
+            return 0;
+        }
         return filteredList.size() + 1;
     }
 
     class FoodViewHolder extends RecyclerView.ViewHolder {
         ImageView imgFood;
         View viewOverlay;
-        TextView tvSoldOut, tvName, tvPrice, tvStatus, tvDescription, tvBadge;
+        TextView tvSoldOut, tvName, tvPrice, tvStatus, tvDescription, tvBadge, tvTags;
         SwitchCompat switchAvailability;
+        View btnAddStock;
 
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -133,13 +199,40 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             tvDescription = itemView.findViewById(R.id.tv_food_description);
             switchAvailability = itemView.findViewById(R.id.switch_available);
             tvBadge = itemView.findViewById(R.id.tv_badge_label);
+            btnAddStock = itemView.findViewById(R.id.btn_add_stock);
+            tvTags = itemView.findViewById(R.id.tv_food_tags);
         }
 
         void bind(FoodResponse food) {
             tvName.setText(food.getName());
-            tvPrice.setText(String.format(Locale.US, "$%.2f", food.getPrice()));
+            if (food.getPrice() != null) {
+                tvPrice.setText(String.format(new Locale("vi", "VN"), "%,dđ", food.getPrice().longValue()));
+            } else {
+                tvPrice.setText("0đ");
+            }
             if (tvDescription != null) {
-                tvDescription.setText(food.getDescription());
+                if (food.getDescription() != null && !food.getDescription().trim().isEmpty()) {
+                    tvDescription.setVisibility(View.VISIBLE);
+                    tvDescription.setText(food.getDescription());
+                } else {
+                    tvDescription.setVisibility(View.GONE);
+                }
+            }
+            if (tvTags != null) {
+                StringBuilder tagBuilder = new StringBuilder();
+                if (food.getCuisine() != null && !food.getCuisine().trim().isEmpty()) {
+                    tagBuilder.append("🌐 ").append(food.getCuisine());
+                }
+                if (food.getTags() != null && !food.getTags().isEmpty()) {
+                    if (tagBuilder.length() > 0) tagBuilder.append(" | ");
+                    tagBuilder.append("🏷️ ").append(android.text.TextUtils.join(", ", food.getTags()));
+                }
+                if (tagBuilder.length() > 0) {
+                    tvTags.setVisibility(View.VISIBLE);
+                    tvTags.setText(tagBuilder.toString());
+                } else {
+                    tvTags.setVisibility(View.GONE);
+                }
             }
 
             Glide.with(itemView.getContext())
@@ -164,11 +257,11 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 int hash = food.getName() != null ? Math.abs(food.getName().hashCode()) : 0;
                 if (hash % 3 == 0) {
                     tvBadge.setVisibility(View.VISIBLE);
-                    tvBadge.setText("Popular");
+                    tvBadge.setText("Yêu thích");
                     tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
                 } else if (hash % 3 == 1) {
                     tvBadge.setVisibility(View.VISIBLE);
-                    tvBadge.setText("Bestseller");
+                    tvBadge.setText("Bán chạy");
                     tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
                 } else {
                     tvBadge.setVisibility(View.GONE);
@@ -179,26 +272,44 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 imgFood.setAlpha(1.0f);
                 viewOverlay.setVisibility(View.GONE);
                 tvSoldOut.setVisibility(View.GONE);
-                tvStatus.setText("● In Stock");
+                tvStatus.setText("● Còn hàng");
                 tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
                 
-                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#81C784"))); // Light green track
-                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#2E7D32")));  // Dark green thumb
+                switchAvailability.setVisibility(View.VISIBLE);
+                if (btnAddStock != null) btnAddStock.setVisibility(View.GONE);
+                
+                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#FFCCBC"))); // Light orange track
+                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#F46E26")));  // Orange thumb
             } else {
                 imgFood.setAlpha(0.3f); 
                 viewOverlay.setVisibility(View.VISIBLE);
                 tvSoldOut.setVisibility(View.VISIBLE);
-                tvStatus.setText("● Out of Stock");
+                tvStatus.setText("● Hết hàng");
                 tvStatus.setTextColor(Color.parseColor("#D32F2F")); // Red
                 
-                switchAvailability.setTrackTintList(ColorStateList.valueOf(Color.parseColor("#E0E0E0"))); // Light gray track
-                switchAvailability.setThumbTintList(ColorStateList.valueOf(Color.parseColor("#9E9E9E")));  // Gray thumb
+                switchAvailability.setVisibility(View.GONE);
+                if (btnAddStock != null) btnAddStock.setVisibility(View.VISIBLE);
             }
 
             switchAvailability.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (buttonView.isPressed() && actionProvider != null) {
                     actionProvider.onStatusChanged(food, isChecked);
                 }
+            });
+
+            if (btnAddStock != null) {
+                btnAddStock.setOnClickListener(v -> {
+                    if (actionProvider != null) {
+                        actionProvider.onStatusChanged(food, true); // toggle to available
+                    }
+                });
+            }
+
+            itemView.setOnLongClickListener(v -> {
+                if (actionProvider != null) {
+                    actionProvider.onFoodLongClick(food);
+                }
+                return true;
             });
         }
     }

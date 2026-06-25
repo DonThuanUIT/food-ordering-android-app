@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.ShopDetailResponse;
+import com.foodorderingapp.utils.CategoryIconHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,8 @@ public class ShopMenuTabAdapter extends RecyclerView.Adapter<ShopMenuTabAdapter.
         ShopDetailResponse.CategoryMenu category = categories.get(position);
         boolean selected = position == selectedPosition;
 
-        holder.tvTabName.setText(nullToDefault(category.getName(), "Danh mục"));
+        String name = nullToDefault(category.getName(), "Danh mục");
+        holder.tvTabName.setText(CategoryIconHelper.getEmojiForDisplay(name));
         holder.tvTabName.setTextColor(selected ? 0xFFFFFFFF : 0xFF563528);
         holder.tvTabName.setBackgroundResource(selected
                 ? R.drawable.bg_shop_menu_tab_selected

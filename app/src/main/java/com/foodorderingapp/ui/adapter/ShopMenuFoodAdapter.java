@@ -52,7 +52,24 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         ShopDetailResponse.FoodItem food = foods.get(position);
 
         holder.tvName.setText(nullToDefault(food.getName(), "Chưa có tên món"));
+        
         holder.tvDescription.setText(nullToDefault(food.getDescription(), "Chưa có mô tả"));
+
+        StringBuilder tagBuilder = new StringBuilder();
+        if (food.getCuisine() != null && !food.getCuisine().trim().isEmpty()) {
+            tagBuilder.append("🌐 ").append(food.getCuisine());
+        }
+        if (food.getTags() != null && !food.getTags().isEmpty()) {
+            if (tagBuilder.length() > 0) tagBuilder.append(" | ");
+            tagBuilder.append("🏷️ ").append(android.text.TextUtils.join(", ", food.getTags()));
+        }
+        if (tagBuilder.length() > 0) {
+            holder.tvTags.setVisibility(View.VISIBLE);
+            holder.tvTags.setText(tagBuilder.toString());
+        } else {
+            holder.tvTags.setVisibility(View.GONE);
+        }
+        
         holder.tvPrice.setText(formatPrice(food.getPrice()));
 
         Glide.with(holder.itemView.getContext())
@@ -93,6 +110,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         TextView tvName;
         TextView tvDescription;
         TextView tvPrice;
+        TextView tvTags;
         ImageView btnAddFood;
 
         FoodViewHolder(@NonNull View itemView) {
@@ -101,6 +119,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
             tvName = itemView.findViewById(R.id.tvMenuFoodName);
             tvDescription = itemView.findViewById(R.id.tvMenuFoodDescription);
             tvPrice = itemView.findViewById(R.id.tvMenuFoodPrice);
+            tvTags = itemView.findViewById(R.id.tvMenuFoodTags);
             btnAddFood = itemView.findViewById(R.id.btnAddFood);
         }
     }

@@ -2,6 +2,7 @@ package com.foodorderingapp.data.remote.api;
 
 import com.foodorderingapp.model.request.CategoryRequest;
 import com.foodorderingapp.model.request.FoodRequest;
+import com.foodorderingapp.model.request.AIRecommendationRequest;
 import com.foodorderingapp.model.request.CartItemRequest;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.LoginRequest;
@@ -13,6 +14,8 @@ import com.foodorderingapp.model.request.UpdateProfileRequest;
 import com.foodorderingapp.model.request.VendorRegisterRequest;
 import com.foodorderingapp.model.request.VerifyOtpRequest;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
+import com.foodorderingapp.model.request.UpdateStatusRequest;
+import com.foodorderingapp.model.request.VoucherCreateRequest;
 import com.foodorderingapp.model.response.AdminOverviewResponse;
 import com.foodorderingapp.model.response.AdminUserResponse;
 import com.foodorderingapp.model.response.AuthResponse;
@@ -31,9 +34,11 @@ import com.foodorderingapp.model.response.PageResponse;
 import com.foodorderingapp.model.response.ShopDetailResponse;
 import com.foodorderingapp.model.response.FoodExploreResponse;
 import com.foodorderingapp.model.response.CartResponse;
+import com.foodorderingapp.model.response.VoucherResponse;
+import com.foodorderingapp.model.response.VendorDashboardResponse;
 import com.foodorderingapp.model.response.UploadImageResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
-import com.foodorderingapp.model.response.VoucherResponse;
+import com.foodorderingapp.model.response.AIRecommendationResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -87,11 +92,24 @@ public interface ApiService {
             @Body Map<String, Boolean> body
     );
 
+    @POST("vendor/shops/{shopId}/close/otp-request")
+    Call<Void> requestCloseShopOtp(
+            @Path("shopId") UUID shopId
+    );
+
+    @POST("vendor/shops/{shopId}/close")
+    Call<Void> confirmCloseShop(
+            @Path("shopId") UUID shopId,
+            @Body com.foodorderingapp.model.request.ShopCloseRequest request
+    );
+
     // --- Vendor Food Management ---
     @GET("vendor/shops/{shopId}/foods")
-    Call<List<FoodResponse>> getAllFoods(
+    Call<PageResponse<FoodResponse>> getAllFoods(
             @Path("shopId") UUID shopId,
-            @Query("categoryId") UUID categoryId
+            @Query("categoryId") UUID categoryId,
+            @Query("page") Integer page,
+            @Query("size") Integer size
     );
 
     @POST("vendor/shops/{shopId}/foods")
@@ -138,6 +156,58 @@ public interface ApiService {
             @Body CategoryRequest request
     );
 
+    @DELETE("vendor/shops/{shopId}/categories/{categoryId}")
+    Call<Void> deleteCategory(
+            @Path("shopId") UUID shopId,
+            @Path("categoryId") UUID categoryId
+    );
+
+    // --- Vendor Voucher Management ---
+    @GET("vendor/shops/{shopId}/vouchers")
+    Call<List<VoucherResponse>> getShopVouchers(
+            @Path("shopId") UUID shopId
+    );
+
+    @POST("vendor/shops/{shopId}/vouchers")
+    Call<VoucherResponse> createVoucher(
+            @Path("shopId") UUID shopId,
+            @Body VoucherCreateRequest request
+    );
+
+    @PUT("vendor/shops/{shopId}/vouchers/{voucherId}")
+    Call<VoucherResponse> updateVoucher(
+            @Path("shopId") UUID shopId,
+            @Path("voucherId") UUID voucherId,
+            @Body VoucherCreateRequest request
+    );
+
+    @DELETE("vendor/shops/{shopId}/vouchers/{voucherId}")
+    Call<Void> deleteVoucher(
+            @Path("shopId") UUID shopId,
+            @Path("voucherId") UUID voucherId
+    );
+
+    @PATCH("vendor/shops/{shopId}/vouchers/{voucherId}/status")
+    Call<VoucherResponse> toggleVoucherStatus(
+            @Path("shopId") UUID shopId,
+            @Path("voucherId") UUID voucherId,
+            @Body Map<String, Boolean> body
+    );
+
+    // --- Vendor Order Management ---
+    @GET("vendor/shops/{shopId}/orders")
+    Call<List<OrderResponse>> getShopOrders(
+            @Path("shopId") UUID shopId,
+            @Query("status") String status
+    );
+
+    @PATCH("vendor/shops/{shopId}/orders/{orderId}/status")
+    Call<OrderResponse> updateOrderStatus(
+            @Path("shopId") UUID shopId,
+            @Path("orderId") UUID orderId,
+            @Body UpdateStatusRequest request
+    );
+
     @GET("shops")
     Call<PageResponse<ShopResponse>> getShops(
             @Query("page") int page,
@@ -155,6 +225,12 @@ public interface ApiService {
     Call<PageResponse<FoodExploreResponse>> getExploreFoods(
             @Query("page") int page,
             @Query("size") int size
+    );
+
+    @POST("ai/recommend")
+    Call<List<AIRecommendationResponse>> getAIRecommendations(
+            @Body AIRecommendationRequest request,
+            @Query("shopId") UUID shopId
     );
 
     @GET("buildings")
@@ -209,6 +285,13 @@ public interface ApiService {
     Call<Void> createReview(
             @Path("orderId") String orderId,
             @Body ReviewRequest request
+    );
+
+    @GET("orders/{shopId}/dashboard")
+    Call<VendorDashboardResponse> getDashboardStats(
+            @Path("shopId") UUID shopId,
+            @Query("startDate") String startDate,
+            @Query("endDate") String endDate
     );
 
     // --- Chat ---

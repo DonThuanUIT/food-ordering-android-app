@@ -2,11 +2,15 @@ package com.foodorderingapp;
 
 import android.Manifest;
 import android.content.Intent;
+import android.os.Bundle;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,6 +61,13 @@ public class MainActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_layout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             bottomNav.setPadding(0, 0, 0, systemBars.bottom);
+            
+            // Adjust ViewPager2 margin dynamically to avoid navigation overlap on all devices
+            android.view.ViewGroup.MarginLayoutParams params = (android.view.ViewGroup.MarginLayoutParams) viewPager.getLayoutParams();
+            int baseHeight = (int) (60 * getResources().getDisplayMetrics().density); // 60dp base height
+            params.bottomMargin = baseHeight + systemBars.bottom;
+            viewPager.setLayoutParams(params);
+            
             return insets;
         });
 
@@ -64,6 +75,35 @@ public class MainActivity extends AppCompatActivity {
         if (userRole == null) userRole = "STUDENT";
 
         setupMenuAndNavigation(userRole);
+
+        if ("VENDOR".equalsIgnoreCase(userRole)) {
+            if (findViewById(R.id.appBarLayout) != null) {
+                findViewById(R.id.appBarLayout).setBackgroundColor(Color.parseColor("#1B110F"));
+            }
+            if (findViewById(R.id.toolbar) != null) {
+                findViewById(R.id.toolbar).setBackgroundColor(Color.parseColor("#1B110F"));
+            }
+            if (bottomNav != null) {
+                bottomNav.setBackgroundColor(Color.parseColor("#1B110F"));
+            }
+            if (tvAppTitle != null) {
+                tvAppTitle.setTextColor(Color.parseColor("#FFFFFF"));
+            }
+            ImageView ivMenu = findViewById(R.id.ivMenu);
+            if (ivMenu != null) {
+                ivMenu.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
+            }
+            ImageView ivProfile = findViewById(R.id.ivProfile);
+            if (ivProfile != null) {
+                ivProfile.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
+                ivProfile.setBackground(null);
+            }
+            if (getWindow() != null) {
+                getWindow().setStatusBarColor(Color.parseColor("#1B110F"));
+                getWindow().getDecorView().setSystemUiVisibility(0); // clear light status bar so status text is white
+            }
+        }
+
         setupHeaderActions();
         requestNotificationPermissionIfNeeded();
         handleStartTab(getIntent());

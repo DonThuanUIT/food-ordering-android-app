@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDFDFF">
+    android:background="@color/vendor_dark_bg">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/vendor_dark_bg"
         app:liftOnScroll="true"
-        app:elevation="4dp">
+        app:elevation="0dp">
 
         <!-- Scrollable Middle Section (Hides on Scroll Up) -->
         <LinearLayout
@@ -20,20 +20,20 @@
             android:paddingHorizontal="16dp"
             android:paddingTop="12dp"
             android:paddingBottom="4dp"
-            android:background="@color/white"
+            android:background="@color/vendor_dark_bg"
             app:layout_scrollFlags="scroll|enterAlways">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Inventory Management"
+                android:text="Quản lý Thực đơn"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"/>
+                android:textColor="@color/vendor_dark_text_primary"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Update your offerings, manage inventory, and adjust pricing."
-                android:textColor="@color/text_gray"
+                android:text="Cập nhật món ăn, quản lý kho hàng và điều chỉnh giá bán."
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="12sp"
                 android:layout_marginTop="2dp"/>
             <!-- Search Bar -->
@@ -43,9 +43,9 @@
                 android:layout_height="44dp"
                 android:layout_marginTop="12dp"
                 android:visibility="visible"
-                android:background="@drawable/bg_search_light_blue"
+                android:background="@drawable/bg_vendor_input_dark"
                 app:iconifiedByDefault="false"
-                app:queryHint="Search menu items..."
+                app:queryHint="Tìm món trong thực đơn..."
                 app:queryBackground="@android:color/transparent" />
 
             <!-- Stats Dashboard Cards Row -->
@@ -57,141 +57,150 @@
                 android:layout_marginBottom="8dp"
                 android:weightSum="4">
 
-                <!-- Total Items Card -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#F7FAFC">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp"
-                        android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="TOTAL"
-                            android:textColor="#718096"
-                            android:textSize="10sp"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/tv_stat_total_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- In Stock Card -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginHorizontal="2dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#E6FFFA">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp"
-                        android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ACTIVE"
-                            android:textColor="#319795"
-                            android:textSize="10sp"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/tv_stat_in_stock_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#234E52"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Sold Out Card -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginHorizontal="2dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#FFF5F5">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp"
-                        android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="SOLD OUT"
-                            android:textColor="#E53E3E"
-                            android:textSize="10sp"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/tv_stat_sold_out_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#742A2A"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Categories Card -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#FFFAF0">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="8dp"
-                        android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="GROUPS"
-                            android:textColor="#DD6B20"
-                            android:textSize="10sp"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/tv_stat_categories_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#7B341E"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="2dp"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                 <!-- Total Items Card -->
+                 <com.google.android.material.card.MaterialCardView
+                     android:id="@+id/card_stat_total"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     android:layout_weight="1"
+                     android:layout_marginEnd="4dp"
+                     app:cardCornerRadius="12dp"
+                     app:cardElevation="0dp"
+                     app:cardBackgroundColor="@color/vendor_dark_card"
+                     app:strokeColor="@color/vendor_dark_orange"
+                     app:strokeWidth="1.5dp">
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="vertical"
+                         android:padding="8dp"
+                         android:gravity="center">
+                         <TextView
+                             android:id="@+id/tv_stat_total_count"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="0"
+                             android:textColor="@color/white"
+                             android:textSize="18sp"
+                             android:textStyle="bold" />
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Tất cả"
+                             android:textColor="@color/vendor_dark_text_secondary"
+                             android:textSize="11sp"
+                             android:textStyle="bold"
+                             android:layout_marginTop="2dp"/>
+                     </LinearLayout>
+                 </com.google.android.material.card.MaterialCardView>
+ 
+                 <!-- In Stock Card -->
+                 <com.google.android.material.card.MaterialCardView
+                     android:id="@+id/card_stat_in_stock"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     android:layout_weight="1"
+                     android:layout_marginHorizontal="2dp"
+                     app:cardCornerRadius="12dp"
+                     app:cardElevation="0dp"
+                     app:cardBackgroundColor="@color/vendor_dark_card"
+                     app:strokeWidth="0dp">
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="vertical"
+                         android:padding="8dp"
+                         android:gravity="center">
+                         <TextView
+                             android:id="@+id/tv_stat_in_stock_count"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="0"
+                             android:textColor="@color/white"
+                             android:textSize="18sp"
+                             android:textStyle="bold" />
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Sẵn có"
+                             android:textColor="@color/vendor_dark_text_secondary"
+                             android:textSize="11sp"
+                             android:textStyle="bold"
+                             android:layout_marginTop="2dp"/>
+                     </LinearLayout>
+                 </com.google.android.material.card.MaterialCardView>
+ 
+                 <!-- Out of Stock Card -->
+                 <com.google.android.material.card.MaterialCardView
+                     android:id="@+id/card_stat_sold_out"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     android:layout_weight="1"
+                     android:layout_marginHorizontal="2dp"
+                     app:cardCornerRadius="12dp"
+                     app:cardElevation="0dp"
+                     app:cardBackgroundColor="@color/vendor_dark_card"
+                     app:strokeWidth="0dp">
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="vertical"
+                         android:padding="8dp"
+                         android:gravity="center">
+                         <TextView
+                             android:id="@+id/tv_stat_sold_out_count"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="0"
+                             android:textColor="@color/white"
+                             android:textSize="18sp"
+                             android:textStyle="bold" />
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Hết món"
+                             android:textColor="@color/vendor_dark_text_secondary"
+                             android:textSize="11sp"
+                             android:textStyle="bold"
+                             android:layout_marginTop="2dp"/>
+                     </LinearLayout>
+                 </com.google.android.material.card.MaterialCardView>
+ 
+                 <!-- Categories Card -->
+                 <com.google.android.material.card.MaterialCardView
+                     android:id="@+id/card_stat_categories"
+                     android:layout_width="0dp"
+                     android:layout_height="wrap_content"
+                     android:layout_weight="1"
+                     android:layout_marginStart="4dp"
+                     app:cardCornerRadius="12dp"
+                     app:cardElevation="0dp"
+                     app:cardBackgroundColor="@color/vendor_dark_card"
+                     app:strokeWidth="0dp">
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="vertical"
+                         android:padding="8dp"
+                         android:gravity="center">
+                         <TextView
+                             android:id="@+id/tv_stat_categories_count"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="0"
+                             android:textColor="@color/white"
+                             android:textSize="18sp"
+                             android:textStyle="bold" />
+                         <TextView
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Nhóm"
+                             android:textColor="@color/vendor_dark_text_secondary"
+                             android:textSize="11sp"
+                             android:textStyle="bold"
+                             android:layout_marginTop="2dp"/>
+                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
 
@@ -203,7 +212,7 @@
             android:paddingHorizontal="16dp"
             android:paddingBottom="12dp"
             android:paddingTop="6dp"
-            android:background="@color/white">
+            android:background="@color/vendor_dark_bg">
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_categories"
                 android:layout_width="wrap_content"
@@ -221,14 +230,20 @@
         </HorizontalScrollView>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_vendor_menu"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:paddingHorizontal="16dp"
-        android:clipToPadding="false"
-        android:paddingBottom="100dp"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_vendor_menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="16dp"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_scroll_top"
@@ -236,11 +251,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="88dp"
+        android:layout_marginBottom="148dp"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_arrow_up"
-        app:backgroundTint="@color/white"
-        app:tint="@color/primary_orange"
+        app:backgroundTint="@color/vendor_dark_card"
+        app:tint="@color/vendor_dark_orange"
         app:fabSize="mini"
         app:elevation="6dp"/>
 
@@ -249,10 +264,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="88dp"
         app:srcCompat="@drawable/ic_add"
-        app:backgroundTint="@color/primary_orange"
-        app:tint="@color/white"
+        app:backgroundTint="@color/vendor_dark_orange"
+        app:tint="@color/vendor_dark_text_primary"
         app:elevation="6dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

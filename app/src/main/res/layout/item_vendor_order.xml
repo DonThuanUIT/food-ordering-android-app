@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/vendor_dark_card"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header Row (Status & Time) -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/tv_order_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/bg_badge_orange"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="MỚI"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <!-- Hidden order ID but kept in XML for compatibility -->
+            <TextView
+                android:id="@+id/tv_order_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_order_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="2 phút trước"
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="12sp" />
+        </RelativeLayout>
+
+        <!-- Customer Name -->
+        <TextView
+            android:id="@+id/tv_order_customer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lê Hữu Trung"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp"/>
+
+        <!-- Details Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_order_delivery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tòa nhà: Zone B, Tầng 4"
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Drop off / Room Location -->
+            <TextView
+                android:id="@+id/tv_order_room"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Điểm trả: Sảnh trước Căng tin"
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp"/>
+
+            <!-- Total Items Count -->
+            <TextView
+                android:id="@+id/tv_order_items_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Món: 03 món"
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Hidden Items List but kept for compatibility -->
+        <LinearLayout
+            android:id="@+id/layout_order_items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Total Price -->
+        <TextView
+            android:id="@+id/tv_order_total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="124.000đ"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Cancel Reason -->
+        <TextView
+            android:id="@+id/tv_cancel_reason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#2C1A1A"
+            android:padding="8dp"
+            android:textColor="@color/status_red"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="Lý do hủy: ..."
+            android:layout_marginBottom="12dp"
+            android:visibility="gone"/>
+
+        <!-- Actions Row -->
+        <LinearLayout
+            android:id="@+id/layout_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginTop="4dp">
+
+            <!-- Cancel Button -->
+            <Button
+                android:id="@+id/btn_action_cancel"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="HỦY"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_btn_gray"
+                app:backgroundTint="@null"
+                android:layout_marginEnd="8dp"/>
+
+            <!-- Next State Buttons -->
+            <Button
+                android:id="@+id/btn_action_accept"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="XÁC NHẬN"
+                android:textColor="#1F1614"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_btn_orange"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn_action_deliver"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="GIAO HÀNG"
+                android:textColor="#1F1614"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_btn_orange"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn_action_complete"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:text="HOÀN TẤT"
+                android:textColor="@color/vendor_dark_orange"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_btn_outline_orange"
+                app:backgroundTint="@null"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

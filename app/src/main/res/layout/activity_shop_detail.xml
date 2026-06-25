@@ -277,4 +277,21 @@
             app:iconTint="#FFFFFF"
             app:rippleColor="#E86714" />
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btn_shop_ai_assistant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="120dp"
+        android:text="✨ Hỏi AI"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:backgroundTint="#FF7A21"
+        app:icon="@drawable/ic_arrow_forward"
+        app:iconTint="#FFFFFF"
+        android:elevation="6dp" />
+
 </FrameLayout>

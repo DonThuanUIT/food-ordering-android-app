@@ -69,6 +69,17 @@
                 android:textColor="#05070B"
                 android:textSize="16sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvMenuFoodTags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#8A7D79"
+                android:textSize="10sp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:visibility="gone" />
         </LinearLayout>
 
         <ImageButton
