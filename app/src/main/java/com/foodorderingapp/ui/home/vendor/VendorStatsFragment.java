@@ -1,6 +1,7 @@
 package com.foodorderingapp.ui.home.vendor;
 
 import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,6 +81,16 @@ public class VendorStatsFragment extends Fragment {
         setupRecyclerView();
         setupFilterSpinner();
         setupSwipeRefresh();
+
+        binding.btnViewReviews.setOnClickListener(v -> {
+            if (currentShopId != null) {
+                Intent intent = new Intent(getContext(), com.foodorderingapp.ui.review.VendorReviewsActivity.class);
+                intent.putExtra("SHOP_ID", currentShopId.toString());
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Không tìm thấy thông tin cửa hàng", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Load data
         fetchShopInfoAndLoadStats();

@@ -13,6 +13,7 @@ import com.foodorderingapp.model.response.VoucherResponse;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -50,13 +51,42 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
         return vouchers.size();
     }
 
+    public static boolean isExpired(VoucherResponse voucher) {
+        if (voucher == null || voucher.getEndDate() == null || voucher.getEndDate().isEmpty()) {
+            return false;
+        }
+        try {
+            String clean = voucher.getEndDate();
+            if (clean.contains(".")) {
+                clean = clean.substring(0, clean.indexOf("."));
+            }
+            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+            Date endDate = parser.parse(clean);
+            return endDate != null && endDate.before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public void updateData(List<VoucherResponse> newVouchers) {
         vouchers.clear();
         vouchers.addAll(newVouchers);
+        Collections.sort(vouchers, (v1, v2) -> {
+            boolean e1 = isExpired(v1);
+            boolean e2 = isExpired(v2);
+            if (e1 != e2) {
+                return e1 ? 1 : -1;
+            }
+            if (v1.getEndDate() != null && v2.getEndDate() != null) {
+                return v2.getEndDate().compareTo(v1.getEndDate());
+            }
+            return 0;
+        });
         notifyDataSetChanged();
     }
 
     class VoucherViewHolder extends RecyclerView.ViewHolder {
+        private final View layoutLeftPortion;
         private final TextView tvDiscountBadge;
         private final TextView tvDiscountTypeLabel;
         private final TextView tvVoucherCode;
@@ -70,6 +100,7 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
 
         public VoucherViewHolder(@NonNull View itemView) {
             super(itemView);
+            layoutLeftPortion = itemView.findViewById(R.id.layout_left_portion);
             tvDiscountBadge = itemView.findViewById(R.id.tv_discount_badge);
             tvDiscountTypeLabel = itemView.findViewById(R.id.tv_discount_type_label);
             tvVoucherCode = itemView.findViewById(R.id.tv_voucher_code);
@@ -83,6 +114,8 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
         }
 
         public void bind(VoucherResponse voucher) {
+            boolean expired = isExpired(voucher);
+
             // 1. Discount Display
             if ("PERCENTAGE".equalsIgnoreCase(voucher.getDiscountType())) {
                 tvDiscountBadge.setText(voucher.getDiscountValue().stripTrailingZeros().toPlainString() + "%");
@@ -99,6 +132,7 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             // 3. Status Switch (Avoid trigger handler during binding)
             switchActive.setOnCheckedChangeListener(null);
             switchActive.setChecked(voucher.getActive() != null ? voucher.getActive() : false);
+            switchActive.setEnabled(!expired);
             switchActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (actionHandler != null) {
                     actionHandler.onStatusToggled(voucher, isChecked);
@@ -108,7 +142,13 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             // 4. Validity dates
             String start = formatDateTimeShort(voucher.getStartDate());
             String end = formatDateTimeShort(voucher.getEndDate());
-            tvVoucherDates.setText("Hiệu lực: " + start + " - " + end);
+            if (expired) {
+                tvVoucherDates.setText("Hiệu lực: " + start + " - " + end + " (Hết hạn)");
+                tvVoucherDates.setTextColor(itemView.getContext().getResources().getColor(R.color.status_red));
+            } else {
+                tvVoucherDates.setText("Hiệu lực: " + start + " - " + end);
+                tvVoucherDates.setTextColor(itemView.getContext().getResources().getColor(R.color.vendor_dark_text_secondary));
+            }
 
             // 5. Conditions
             String minOrder = formatCurrency(voucher.getMinOrderValue());
@@ -121,11 +161,24 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             // 6. Application Range
             if ("ALL_MENU".equalsIgnoreCase(voucher.getApplyType())) {
                 tvVoucherApplyType.setText("Áp dụng: Toàn bộ thực đơn");
-                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(R.color.status_success));
+                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(expired ? R.color.vendor_dark_text_secondary : R.color.status_success));
             } else {
                 int foodCount = voucher.getFoodIds() != null ? voucher.getFoodIds().size() : 0;
                 tvVoucherApplyType.setText("Áp dụng: " + foodCount + " món ăn cụ thể");
-                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(R.color.brand_orange_dark));
+                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(expired ? R.color.vendor_dark_text_secondary : R.color.brand_orange_dark));
+            }
+
+            // Expired styling (grey out portion & alpha reduction)
+            if (expired) {
+                if (layoutLeftPortion != null) {
+                    layoutLeftPortion.setBackgroundColor(0xFF524643); // Dark grey tint
+                }
+                itemView.setAlpha(0.6f);
+            } else {
+                if (layoutLeftPortion != null) {
+                    layoutLeftPortion.setBackgroundColor(itemView.getContext().getResources().getColor(R.color.vendor_dark_orange));
+                }
+                itemView.setAlpha(1.0f);
             }
 
             // 7. Click Handlers

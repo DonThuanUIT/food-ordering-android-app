@@ -24,6 +24,11 @@ import com.foodorderingapp.ui.adapter.OrderAdapter;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.OrderViewModel;
 
+import android.content.Intent;
+import java.util.ArrayList;
+import com.foodorderingapp.model.response.OrderDetailResponse;
+import com.foodorderingapp.ui.order.RateOrderActivity;
+
 public class StudentHistoryFragment extends Fragment {
 
     private OrderViewModel orderViewModel;
@@ -47,7 +52,7 @@ public class StudentHistoryFragment extends Fragment {
 
         orderAdapter = new OrderAdapter();
         orderAdapter.setShowReviewAction(true);
-        orderAdapter.setOnReviewClickListener(this::showReviewDialog);
+        orderAdapter.setOnReviewClickListener(this::startRateOrderActivity);
         rvOrderHistory.setLayoutManager(new LinearLayoutManager(getContext()));
         rvOrderHistory.setAdapter(orderAdapter);
         rvOrderHistory.setNestedScrollingEnabled(false);
@@ -69,44 +74,41 @@ public class StudentHistoryFragment extends Fragment {
                 ToastUtils.info(getContext(), message);
             }
         });
-
-        orderViewModel.loadOrderHistory();
     }
 
-    private void showReviewDialog(OrderResponse order) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (orderViewModel != null) {
+            orderViewModel.loadOrderHistory();
+        }
+    }
+
+    private void startRateOrderActivity(OrderResponse order) {
         if (getContext() == null) {
             return;
         }
+        Intent intent = new Intent(getContext(), RateOrderActivity.class);
+        intent.putExtra("ORDER_ID", order.getId());
 
-        LinearLayout container = new LinearLayout(getContext());
-        container.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        container.setPadding(padding, 10, padding, 0);
+        ArrayList<String> foodIds = new ArrayList<>();
+        ArrayList<String> foodNames = new ArrayList<>();
+        ArrayList<String> imageUrls = new ArrayList<>();
 
-        RatingBar ratingBar = new RatingBar(getContext());
-        ratingBar.setNumStars(5);
-        ratingBar.setStepSize(1f);
-        ratingBar.setRating(5f);
-        container.addView(ratingBar);
+        if (order.getDetails() != null) {
+            for (OrderDetailResponse detail : order.getDetails()) {
+                if (detail.getFoodId() != null) {
+                    foodIds.add(detail.getFoodId());
+                    foodNames.add(detail.getFoodName() != null ? detail.getFoodName() : "");
+                    imageUrls.add(detail.getImageUrl() != null ? detail.getImageUrl() : "");
+                }
+            }
+        }
 
-        EditText commentInput = new EditText(getContext());
-        commentInput.setHint("Nhận xét của bạn");
-        commentInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        commentInput.setMinLines(3);
-        container.addView(commentInput);
+        intent.putStringArrayListExtra("FOOD_IDS", foodIds);
+        intent.putStringArrayListExtra("FOOD_NAMES", foodNames);
+        intent.putStringArrayListExtra("FOOD_IMAGES", imageUrls);
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("Đánh giá " + order.getShopName())
-                .setView(container)
-                .setNegativeButton("Hủy", null)
-                .setPositiveButton("Gửi", (dialog, which) -> {
-                    int rating = Math.round(ratingBar.getRating());
-                    if (rating <= 0) {
-                        ToastUtils.error(getContext(), "Vui lòng chọn số sao");
-                        return;
-                    }
-                    orderViewModel.createReview(order.getId(), rating, commentInput.getText().toString().trim());
-                })
-                .show();
+        startActivity(intent);
     }
 }

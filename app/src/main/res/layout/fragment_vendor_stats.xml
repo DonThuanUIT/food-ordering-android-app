@@ -30,13 +30,30 @@
                     android:layout_alignParentStart="true"
                     android:layout_toStartOf="@+id/spinner_filter">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Thống Kê Quán"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/vendor_dark_text_primary"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Thống Kê Quán"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/vendor_dark_text_primary"/>
+
+                        <ImageButton
+                            android:id="@+id/btn_view_reviews"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_star_filled"
+                            app:tint="@color/vendor_dark_orange"
+                            android:contentDescription="Xem phản hồi" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tv_shop_name"

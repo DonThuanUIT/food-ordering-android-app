@@ -17,6 +17,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.foodorderingapp.model.request.ReviewSubmitRequest;
+import java.util.ArrayList;
+
 public class OrderRepository {
     private final ApiService apiService = ApiClient.getApiService();
 
@@ -169,7 +172,12 @@ public class OrderRepository {
     public void createReview(String orderId, int rating, String comment,
                              MutableLiveData<Boolean> reviewResult,
                              MutableLiveData<String> message) {
-        ReviewRequest request = new ReviewRequest(rating, comment);
+        ReviewSubmitRequest request = new ReviewSubmitRequest();
+        request.setOrderRating(rating);
+        request.setOrderComment(comment);
+        request.setShopRating(5);
+        request.setShopComment("");
+        request.setFoodReviews(new ArrayList<>());
 
         apiService.createReview(orderId, request).enqueue(new Callback<Void>() {
             @Override

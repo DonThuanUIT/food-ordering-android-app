@@ -17,6 +17,7 @@
 
         <!-- Left Portion (Coupon Badge) -->
         <LinearLayout
+            android:id="@+id/layout_left_portion"
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:background="@color/vendor_dark_orange"
