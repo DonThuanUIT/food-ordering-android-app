@@ -5,23 +5,39 @@ public class CategoryIconHelper {
         if (categoryName == null) return "";
         String lower = categoryName.toLowerCase(java.util.Locale.ROOT).trim();
         if (lower.contains("mì cay")) return "🌶️🍜";
-        if (lower.contains("mì") || lower.contains("noodle") || lower.contains("ramen") || lower.contains("hủ tiếu") || lower.contains("phở")) return "🍜";
+        if (lower.contains("bún") || lower.contains("phở") || lower.contains("hủ tiếu") || lower.contains("mì") || lower.contains("noodle") || lower.contains("ramen")) return "🍜";
         if (lower.contains("kimbap") || lower.contains("sushi") || lower.contains("cơm cuộn")) return "🍣";
         if (lower.contains("cơm") || lower.contains("rice")) return "🍚";
+        if (lower.contains("lẩu") || lower.contains("hotpot")) return "🍲";
+        if (lower.contains("súp") || lower.contains("soup") || lower.contains("canh")) return "🥣";
         if (lower.contains("gà") || lower.contains("chicken")) return "🍗";
         if (lower.contains("burger") || lower.contains("hamburger")) return "🍔";
         if (lower.contains("pizza")) return "🍕";
         if (lower.contains("ăn vặt") || lower.contains("snack") || lower.contains("chiên") || lower.contains("khoai tây")) return "🍟";
+        
+        // Cần đặt các loại bánh cụ thể trước chữ "bánh" chung chung để tránh nhận nhầm bánh ngọt (🍰)
+        if (lower.contains("bánh mì") || lower.contains("bánh mỳ") || lower.contains("banh mi")) return "🥖";
+        if (lower.contains("bánh bao") || lower.contains("banh bao")) return "🥟";
+        if (lower.contains("bánh tráng") || lower.contains("banh trang")) return "🍘";
+        if (lower.contains("bánh cuốn") || lower.contains("banh cuon")) return "🌯";
+        if (lower.contains("bánh canh") || lower.contains("banh canh")) return "🍜";
+        
+        if (lower.contains("nem") || lower.contains("chả") || lower.contains("giò") || lower.contains("xiên")) return "🍢";
+        if (lower.contains("gỏi") || lower.contains("salad")) return "🥗";
+        if (lower.contains("nướng") || lower.contains("bbq") || lower.contains("thịt") || lower.contains("beef") || lower.contains("pork")) return "🥩";
+        if (lower.contains("hải sản") || lower.contains("tôm") || lower.contains("cua") || lower.contains("cá") || lower.contains("seafood") || lower.contains("fish")) return "🍤";
+        
         if (lower.contains("trà sữa") || lower.contains("boba") || lower.contains("bubble")) return "🧋";
         if (lower.contains("trà") || lower.contains("tea")) return "🍵";
         if (lower.contains("uống") || lower.contains("nước") || lower.contains("drink") || lower.contains("coke") || lower.contains("coca") || lower.contains("pepsi") || lower.contains("soda") || lower.contains("juice") || lower.contains("sinh tố")) return "🥤";
         if (lower.contains("cà phê") || lower.contains("coffee") || lower.contains("cafe")) return "☕";
-        if (lower.contains("bánh") || lower.contains("cake") || lower.contains("bread")) return "🍰";
+        
+        if (lower.contains("bánh ngọt") || lower.contains("bánh kem") || lower.contains("bánh sinh nhật") || lower.contains("bánh gato") || lower.contains("bánh quy") || lower.contains("bánh bông lan") || lower.contains("cake") || lower.contains("bread") || lower.equals("bánh") || lower.contains("cookie") || lower.contains("muffin") || lower.contains("cupcake")) return "🍰";
         if (lower.contains("kem") || lower.contains("ice cream")) return "🍦";
-        if (lower.contains("lẩu") || lower.contains("hotpot")) return "🍲";
-        if (lower.contains("súp") || lower.contains("soup") || lower.contains("canh")) return "🥣";
+        if (lower.contains("chè") || lower.contains("ngọt") || lower.contains("dessert")) return "🍧";
+        if (lower.contains("trái cây") || lower.contains("hoa quả") || lower.contains("fruit")) return "🍉";
+        
         if (lower.contains("tất cả") || lower.contains("all")) return "✨";
-        if (lower.contains("khác") || lower.contains("other")) return "🍴";
         return "🍽️"; // Default
     }
 
