@@ -18,6 +18,9 @@
     <string name="profile_my_reviews">Đánh giá của tôi</string>
     <string name="profile_support">Hỗ trợ</string>
     <string name="profile_logout">Đăng xuất</string>
+    <string name="logout_confirm_title">Đăng xuất?</string>
+    <string name="logout_confirm_message">Bạn muốn đăng xuất khỏi tài khoản này?</string>
+    <string name="action_cancel">Hủy</string>
     <string name="profile_week_1">Tuần 1</string>
     <string name="profile_week_2">Tuần 2</string>
     <string name="profile_week_3">Tuần 3</string>

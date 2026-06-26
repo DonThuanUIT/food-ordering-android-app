@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.res.ColorStateList;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -37,6 +38,22 @@ import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.StudentProfileViewModel;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 
@@ -100,7 +117,7 @@ public class StudentProfileFragment extends Fragment {
         tvUserName.setText(isBlank(fullName) ? defaultDisplayName(role) : fullName);
         tvUserEmail.setText(isBlank(phone) ? "Chua co so dien thoai" : phone);
         tvUserTag.setText("Vai tro: " + formatRole(role));
-        tvMonthlySpending.setText("0d");
+        tvMonthlySpending.setText("0đ");
     }
 
     private void loadRemoteProfile(View view) {
@@ -117,8 +134,8 @@ public class StudentProfileFragment extends Fragment {
         });
         viewModel.getSpendingSummary().observe(getViewLifecycleOwner(), summary -> {
             if (summary != null) {
-                bindSpending(view, summary);
-            }
+        bindSpending(view, summary);
+    }
         });
         viewModel.getBuildings().observe(getViewLifecycleOwner(), buildings -> {
             buildingOptions.clear();
@@ -180,6 +197,8 @@ public class StudentProfileFragment extends Fragment {
         tvMonthlySpending.setText(formatPrice(summary.getTotalSpent()));
         bindSpendingSummaryStats(view, summary);
         bindSpendingChart(view, summary.getBreakdown());
+        bindSpendingBarChart(view, summary.getBreakdown());
+        bindSpendingPieChart(view, summary.getBreakdown());
         bindSpendingBreakdown(view, summary.getBreakdown());
     }
 
@@ -236,13 +255,13 @@ public class StudentProfileFragment extends Fragment {
     }
 
     private void setQuickButtonState(MaterialButton button, boolean selected) {
-        int backgroundColor = requireContext().getColor(selected ? R.color.profile_spending_accent : R.color.white);
-        int strokeColor = requireContext().getColor(selected ? R.color.profile_spending_accent : R.color.profile_spending_border);
-        int textColor = requireContext().getColor(selected ? R.color.white : R.color.profile_spending_accent_dark);
+        int backgroundColor = requireContext().getColor(selected ? R.color.vendor_dark_orange : R.color.vendor_dark_card);
+        int strokeColor = requireContext().getColor(selected ? R.color.vendor_dark_orange : R.color.vendor_dark_border);
+        int textColor = requireContext().getColor(selected ? R.color.white : R.color.vendor_dark_text_secondary);
 
         button.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
         button.setStrokeColor(ColorStateList.valueOf(strokeColor));
-        button.setStrokeWidth(dp(selected ? 0 : 1));
+        button.setStrokeWidth(dp(1));
         button.setTextColor(textColor);
     }
 
@@ -297,8 +316,8 @@ public class StudentProfileFragment extends Fragment {
 
         if (tvBreakdownTitle != null) {
             tvBreakdownTitle.setText(isSelectedRangeWithinOneWeek()
-                    ? "Chi tiết tuần đã chọn"
-                    : "Chi tiết theo tuần");
+                    ? "Chi Tiết Tuần Đã Chọn"
+                    : "Chi Tiết Theo Tuần");
         }
         updateQuickRangeState(view);
     }
@@ -334,51 +353,231 @@ public class StudentProfileFragment extends Fragment {
     }
 
     private void bindSpendingChart(View view, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
-        LinearLayout chart = view.findViewById(R.id.llSpendingChart);
-        chart.removeAllViews();
-
-        int dataSize = breakdown == null ? 0 : breakdown.size();
-        int visibleBars = dataSize == 0 ? 4 : Math.min(6, dataSize);
-        int startIndex = Math.max(0, dataSize - visibleBars);
-        double maxValue = 0;
-        for (int i = startIndex; i < dataSize; i++) {
-            maxValue = Math.max(maxValue, breakdown.get(i).getTotal());
+        LineChart chart = view.findViewById(R.id.chartSpendingTrend);
+        if (chart == null) {
+            return;
         }
 
-        for (int i = 0; i < visibleBars; i++) {
-            int sourceIndex = startIndex + i;
-            boolean hasData = sourceIndex < dataSize;
-            double value = hasData ? breakdown.get(sourceIndex).getTotal() : 0;
-            int height = maxValue <= 0 ? 16 : (int) Math.max(16, Math.round(80 * (value / maxValue)));
-
-            LinearLayout column = new LinearLayout(requireContext());
-            column.setGravity(android.view.Gravity.CENTER_HORIZONTAL | android.view.Gravity.BOTTOM);
-            column.setOrientation(LinearLayout.VERTICAL);
-
-            View bar = new View(requireContext());
-            bar.setBackground(topRoundedBackground(requireContext().getColor(
-                    value > 0 ? R.color.profile_chart_bar_main : R.color.profile_chart_bar_empty
-            ), 6));
-
-            TextView label = new TextView(requireContext());
-            label.setText(hasData ? shortPeriod(breakdown.get(sourceIndex).getPeriod(), i + 1) : "--");
-            label.setTextColor(requireContext().getColor(value > 0 ? R.color.profile_spending_accent_dark : R.color.text_gray));
-            label.setTextSize(11);
-            label.setGravity(android.view.Gravity.CENTER);
-            label.setMaxLines(1);
-
-            LinearLayout.LayoutParams barParams = new LinearLayout.LayoutParams(dp(28), dp(height));
-            column.addView(bar, barParams);
-
-            LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-            labelParams.topMargin = dp(8);
-            column.addView(label, labelParams);
-
-            chart.addView(column, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        if (breakdown == null || breakdown.isEmpty()) {
+            chart.clear();
+            chart.setNoDataText("Chưa có chi tiêu trong khoảng này");
+            chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
+            return;
         }
+
+        List<Entry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < breakdown.size(); i++) {
+            SpendingSummaryResponse.SpendingBreakdown item = breakdown.get(i);
+            entries.add(new Entry(i, (float) item.getTotal()));
+            labels.add(shortPeriod(item.getPeriod(), i + 1));
+        }
+
+        LineDataSet dataSet = new LineDataSet(entries, "Chi tiêu (đ)");
+        dataSet.setColor(Color.parseColor("#F46E26"));
+        dataSet.setCircleColor(Color.parseColor("#F46E26"));
+        dataSet.setLineWidth(2.5f);
+        dataSet.setCircleRadius(4f);
+        dataSet.setDrawCircleHole(false);
+        dataSet.setDrawFilled(true);
+        dataSet.setFillColor(Color.parseColor("#22F46E26"));
+        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSet.setDrawValues(true);
+        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueTextSize(9f);
+        dataSet.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getPointLabel(Entry entry) {
+                return formatCompactPrice(entry.getY());
+            }
+        });
+
+        chart.setData(new LineData(dataSet));
+        chart.getDescription().setEnabled(false);
+        chart.getAxisRight().setEnabled(false);
+        chart.setExtraLeftOffset(10f);
+        chart.setExtraRightOffset(8f);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(Color.parseColor("#8A7D79"));
+        xAxis.setSpaceMin(0.5f);
+        xAxis.setSpaceMax(0.5f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int index = (int) value;
+                if (index >= 0 && index < labels.size()) {
+                    return labels.get(index);
+                }
+                return "";
+            }
+        });
+
+        chart.getAxisLeft().setAxisMinimum(0f);
+        chart.getAxisLeft().setDrawGridLines(true);
+        chart.getAxisLeft().setGridColor(Color.parseColor("#382C29"));
+        chart.getAxisLeft().setTextColor(Color.parseColor("#8A7D79"));
+        chart.getAxisLeft().setXOffset(10f);
+        chart.getAxisLeft().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return formatCompactPrice(value);
+            }
+        });
+
+        chart.getLegend().setTextColor(Color.WHITE);
+        chart.animateY(800);
+        chart.invalidate();
+    }
+
+    private void bindSpendingBarChart(View view, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
+        BarChart chart = view.findViewById(R.id.chartSpendingPeriod);
+        if (chart == null) {
+            return;
+        }
+
+        if (breakdown == null || breakdown.isEmpty()) {
+            chart.clear();
+            chart.setNoDataText("Chưa có chi tiêu trong khoảng này");
+            chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
+            return;
+        }
+
+        List<BarEntry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < breakdown.size(); i++) {
+            SpendingSummaryResponse.SpendingBreakdown item = breakdown.get(i);
+            entries.add(new BarEntry(i, (float) item.getTotal()));
+            labels.add(shortPeriod(item.getPeriod(), i + 1));
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "Chi tiêu theo kỳ");
+        dataSet.setColor(Color.parseColor("#F46E26"));
+        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueTextSize(9f);
+        dataSet.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getBarLabel(BarEntry barEntry) {
+                return formatCompactPrice(barEntry.getY());
+            }
+        });
+
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.48f);
+        chart.setData(barData);
+        chart.getDescription().setEnabled(false);
+        chart.getAxisRight().setEnabled(false);
+        chart.setFitBars(true);
+        chart.setExtraLeftOffset(10f);
+        chart.setExtraRightOffset(8f);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(Color.parseColor("#8A7D79"));
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int index = (int) value;
+                if (index >= 0 && index < labels.size()) {
+                    return labels.get(index);
+                }
+                return "";
+            }
+        });
+
+        chart.getAxisLeft().setAxisMinimum(0f);
+        chart.getAxisLeft().setDrawGridLines(true);
+        chart.getAxisLeft().setGridColor(Color.parseColor("#382C29"));
+        chart.getAxisLeft().setTextColor(Color.parseColor("#8A7D79"));
+        chart.getAxisLeft().setXOffset(10f);
+        chart.getAxisLeft().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return formatCompactPrice(value);
+            }
+        });
+
+        chart.getLegend().setTextColor(Color.WHITE);
+        chart.animateY(800);
+        chart.invalidate();
+    }
+
+    private void bindSpendingPieChart(View view, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
+        PieChart chart = view.findViewById(R.id.chartSpendingBreakdown);
+        if (chart == null) {
+            return;
+        }
+
+        if (breakdown == null || breakdown.isEmpty()) {
+            chart.clear();
+            chart.setNoDataText("Chưa có chi tiêu trong khoảng này");
+            chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
+            return;
+        }
+
+        int[] palette = {
+                Color.parseColor("#F46E26"),
+                Color.parseColor("#5299FF"),
+                Color.parseColor("#34C759"),
+                Color.parseColor("#FF9500"),
+                Color.parseColor("#A855F7"),
+                Color.parseColor("#EF4444")
+        };
+        List<PieEntry> entries = new ArrayList<>();
+        List<Integer> colors = new ArrayList<>();
+        int colorIndex = 0;
+
+        for (int i = 0; i < breakdown.size(); i++) {
+            SpendingSummaryResponse.SpendingBreakdown item = breakdown.get(i);
+            if (item.getTotal() <= 0) {
+                continue;
+            }
+            entries.add(new PieEntry((float) item.getTotal(), shortPeriod(item.getPeriod(), i + 1)));
+            colors.add(palette[colorIndex % palette.length]);
+            colorIndex++;
+        }
+
+        if (entries.isEmpty()) {
+            chart.clear();
+            chart.setNoDataText("Chưa có chi tiêu trong khoảng này");
+            chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
+            return;
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "");
+        dataSet.setColors(colors);
+        dataSet.setSliceSpace(3f);
+        dataSet.setValueTextSize(12f);
+        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueFormatter(new PercentFormatter(chart));
+
+        chart.setData(new PieData(dataSet));
+        chart.setUsePercentValues(true);
+        chart.getDescription().setEnabled(false);
+        chart.setDrawHoleEnabled(true);
+        chart.setHoleColor(Color.parseColor("#281F1C"));
+        chart.setHoleRadius(40f);
+        chart.setTransparentCircleRadius(45f);
+        chart.setCenterText("Chi tiêu");
+        chart.setCenterTextSize(14f);
+        chart.setCenterTextColor(Color.WHITE);
+        chart.setDrawEntryLabels(false);
+
+        Legend legend = chart.getLegend();
+        legend.setTextColor(Color.WHITE);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        legend.setDrawInside(false);
+        legend.setWordWrapEnabled(true);
+
+        chart.animateY(800);
+        chart.invalidate();
     }
 
     private void bindSpendingBreakdown(View view, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
@@ -388,7 +587,7 @@ public class StudentProfileFragment extends Fragment {
         if (breakdown == null || breakdown.isEmpty()) {
             TextView empty = new TextView(requireContext());
             empty.setText("Chưa có chi tiêu trong khoảng này");
-            empty.setTextColor(requireContext().getColor(R.color.text_secondary));
+            empty.setTextColor(requireContext().getColor(R.color.vendor_dark_text_secondary));
             empty.setTextSize(13);
             empty.setPadding(0, dp(8), 0, dp(8));
             container.addView(empty);
@@ -396,8 +595,10 @@ public class StudentProfileFragment extends Fragment {
         }
 
         double maxValue = 0;
+        double totalSpent = 0;
         for (SpendingSummaryResponse.SpendingBreakdown item : breakdown) {
             maxValue = Math.max(maxValue, item.getTotal());
+            totalSpent += item.getTotal();
         }
 
         for (SpendingSummaryResponse.SpendingBreakdown item : breakdown) {
@@ -411,35 +612,45 @@ public class StudentProfileFragment extends Fragment {
 
             // Add bullet point indicator
             View bullet = new View(requireContext());
-            bullet.setBackground(roundedBackground(requireContext().getColor(R.color.profile_spending_accent), 4));
+            bullet.setBackground(roundedBackground(requireContext().getColor(R.color.vendor_dark_orange), 4));
             LinearLayout.LayoutParams bulletParams = new LinearLayout.LayoutParams(dp(8), dp(8));
             bulletParams.rightMargin = dp(8);
             row.addView(bullet, bulletParams);
 
             TextView period = new TextView(requireContext());
             period.setText(formatPeriod(item.getPeriod()));
-            period.setTextColor(requireContext().getColor(R.color.text_secondary));
+            period.setTextColor(requireContext().getColor(R.color.vendor_dark_text_secondary));
             period.setTextSize(13);
 
             TextView total = new TextView(requireContext());
             total.setText(formatPrice(item.getTotal()));
-            total.setTextColor(requireContext().getColor(R.color.text_primary));
+            total.setTextColor(requireContext().getColor(R.color.vendor_dark_text_primary));
             total.setTextSize(13);
             total.setTypeface(total.getTypeface(), android.graphics.Typeface.BOLD);
             total.setGravity(android.view.Gravity.END);
 
-            row.addView(period, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-            row.addView(total, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            TextView share = new TextView(requireContext());
+            share.setText(totalSpent <= 0
+                    ? "0%"
+                    : String.format(Locale.US, "%.1f%%", item.getTotal() * 100D / totalSpent));
+            share.setTextColor(requireContext().getColor(R.color.vendor_dark_orange));
+            share.setTextSize(13);
+            share.setTypeface(share.getTypeface(), android.graphics.Typeface.BOLD);
+            share.setGravity(android.view.Gravity.END);
+
+            row.addView(period, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 5));
+            row.addView(total, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 3));
+            row.addView(share, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 2));
             itemContainer.addView(row);
 
             LinearLayout track = new LinearLayout(requireContext());
             track.setOrientation(LinearLayout.HORIZONTAL);
-            track.setBackground(roundedBackground(requireContext().getColor(R.color.profile_chart_bar_empty), 8));
+            track.setBackground(roundedBackground(requireContext().getColor(R.color.vendor_dark_divider), 8));
 
             float percent = maxValue <= 0 ? 0f : (float) (item.getTotal() / maxValue);
             if (percent > 0f) {
                 View fill = new View(requireContext());
-                fill.setBackground(roundedBackground(requireContext().getColor(R.color.profile_chart_bar_main), 8));
+                fill.setBackground(roundedBackground(requireContext().getColor(R.color.vendor_dark_orange), 8));
                 track.addView(fill, new LinearLayout.LayoutParams(0, dp(8), Math.max(0.08f, percent)));
             }
             View spacer = new View(requireContext());
@@ -761,14 +972,6 @@ public class StudentProfileFragment extends Fragment {
         return drawable;
     }
 
-    private GradientDrawable topRoundedBackground(int color, int radiusDp) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(color);
-        float r = dp(radiusDp);
-        drawable.setCornerRadii(new float[]{r, r, r, r, 0f, 0f, 0f, 0f});
-        return drawable;
-    }
-
     private String formatCompactPrice(double price) {
         if (price >= 1_000_000_000D) {
             return formatOneDecimal(price / 1_000_000_000D) + "Bđ";
@@ -791,6 +994,6 @@ public class StudentProfileFragment extends Fragment {
 
     private String formatPrice(double price) {
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
-        return formatter.format(price) + "d";
+        return formatter.format(price) + "đ";
     }
 }
