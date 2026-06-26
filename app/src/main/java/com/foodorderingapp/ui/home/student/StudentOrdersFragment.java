@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.ui.adapter.ActiveOrderAdapter;
+import com.foodorderingapp.ui.chat.ChatActivity;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.OrderViewModel;
 
@@ -42,24 +43,7 @@ public class StudentOrdersFragment extends Fragment {
         rvActiveOrders = view.findViewById(R.id.rvActiveOrders);
         tvActiveOrdersEmpty = view.findViewById(R.id.tvActiveOrdersEmpty);
 
-        activeOrderAdapter = new ActiveOrderAdapter(order -> {
-            if (order != null && order.getId() != null) {
-                Intent intent = new Intent(getContext(), com.foodorderingapp.ui.order.OrderTrackingActivity.class);
-                intent.putExtra("ORDER_ID", order.getId());
-                intent.putExtra("SHOP_NAME", order.getShopName());
-                intent.putExtra("SHOP_ADDRESS", order.getShopAddress());
-                intent.putExtra("SHOP_LATITUDE", order.getShopLatitude() != null ? order.getShopLatitude() : 0.0);
-                intent.putExtra("SHOP_LONGITUDE", order.getShopLongitude() != null ? order.getShopLongitude() : 0.0);
-                intent.putExtra("BUILDING_NAME", order.getBuilding());
-                intent.putExtra("BUILDING_LATITUDE", order.getBuildingLatitude() != null ? order.getBuildingLatitude() : 0.0);
-                intent.putExtra("BUILDING_LONGITUDE", order.getBuildingLongitude() != null ? order.getBuildingLongitude() : 0.0);
-                intent.putExtra("DROP_OFF", order.getDropOff());
-                intent.putExtra("ORDER_STATUS", order.getStatus());
-                intent.putExtra("SHIPPER_NAME", order.getShipperName());
-                intent.putExtra("SHIPPER_PHONE", order.getShipperPhone());
-                startActivity(intent);
-            }
-        });
+        activeOrderAdapter = new ActiveOrderAdapter(this::openOrderTracking, this::openShopChat);
         rvActiveOrders.setLayoutManager(new LinearLayoutManager(getContext()));
         rvActiveOrders.setAdapter(activeOrderAdapter);
         rvActiveOrders.setNestedScrollingEnabled(false);
@@ -84,8 +68,14 @@ public class StudentOrdersFragment extends Fragment {
                 ToastUtils.info(getContext(), message);
             }
         });
+    }
 
-        orderViewModel.loadActiveOrders();
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (orderViewModel != null) {
+            orderViewModel.loadActiveOrders();
+        }
     }
 
     private void showActiveOrdersList() {
@@ -97,5 +87,42 @@ public class StudentOrdersFragment extends Fragment {
         rvActiveOrders.setVisibility(View.GONE);
         tvActiveOrdersEmpty.setVisibility(View.VISIBLE);
         tvActiveOrdersEmpty.setText(message);
+    }
+
+    private void openOrderTracking(com.foodorderingapp.model.response.OrderResponse order) {
+        if (order == null || order.getId() == null) {
+            return;
+        }
+
+        Intent intent = new Intent(getContext(), com.foodorderingapp.ui.order.OrderTrackingActivity.class);
+        intent.putExtra("ORDER_ID", order.getId());
+        intent.putExtra("SHOP_NAME", order.getShopName());
+        intent.putExtra("SHOP_ADDRESS", order.getShopAddress());
+        intent.putExtra("SHOP_LATITUDE", order.getShopLatitude() != null ? order.getShopLatitude() : 0.0);
+        intent.putExtra("SHOP_LONGITUDE", order.getShopLongitude() != null ? order.getShopLongitude() : 0.0);
+        intent.putExtra("BUILDING_NAME", order.getBuilding());
+        intent.putExtra("BUILDING_LATITUDE", order.getBuildingLatitude() != null ? order.getBuildingLatitude() : 0.0);
+        intent.putExtra("BUILDING_LONGITUDE", order.getBuildingLongitude() != null ? order.getBuildingLongitude() : 0.0);
+        intent.putExtra("DROP_OFF", order.getDropOff());
+        intent.putExtra("ORDER_STATUS", order.getStatus());
+        intent.putExtra("SHIPPER_NAME", order.getShipperName());
+        intent.putExtra("SHIPPER_PHONE", order.getShipperPhone());
+        startActivity(intent);
+    }
+
+    private void openShopChat(com.foodorderingapp.model.response.OrderResponse order) {
+        if (order == null || isBlank(order.getShopId())) {
+            ToastUtils.error(getContext(), "Không tìm thấy quán để nhắn tin");
+            return;
+        }
+
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
+        intent.putExtra(ChatActivity.EXTRA_SHOP_ID, order.getShopId());
+        intent.putExtra(ChatActivity.EXTRA_SHOP_NAME, order.getShopName());
+        startActivity(intent);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

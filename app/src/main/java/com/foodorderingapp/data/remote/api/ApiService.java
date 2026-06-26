@@ -343,6 +343,9 @@ public interface ApiService {
     @GET("chat/shops/{shopId}/room")
     Call<ChatRoomResponse> getChatRoomByShop(@Path("shopId") String shopId);
 
+    @GET("chat/orders/{orderId}/room")
+    Call<ChatRoomResponse> getChatRoomByOrder(@Path("orderId") String orderId);
+
     @GET("chat/{roomId}/history")
     Call<List<ChatMessageResponse>> getChatHistory(@Path("roomId") String roomId);
 
