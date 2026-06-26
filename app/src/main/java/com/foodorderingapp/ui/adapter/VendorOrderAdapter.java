@@ -180,9 +180,6 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             } else if ("CONFIRMED".equalsIgnoreCase(status)) {
                 btnActionCancel.setVisibility(View.VISIBLE);
                 btnActionDeliver.setVisibility(View.VISIBLE);
-            } else if ("DELIVERING".equalsIgnoreCase(status)) {
-                // In delivering state, hide Cancel button so HOÀN TẤT button is full-width
-                btnActionComplete.setVisibility(View.VISIBLE);
             }
 
             // 10. Click Listeners

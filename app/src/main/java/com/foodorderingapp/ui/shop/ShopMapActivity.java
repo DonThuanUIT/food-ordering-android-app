@@ -84,7 +84,8 @@ public class ShopMapActivity extends AppCompatActivity {
 
     private final Handler reverseGeocodeHandler = new Handler(Looper.getMainLooper());
     private Runnable reverseGeocodeRunnable;
-    private boolean isProgrammaticMove = false;
+    private boolean isProgrammaticTextChange = false;
+    private boolean isProgrammaticMapMove = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -153,8 +154,8 @@ public class ShopMapActivity extends AppCompatActivity {
         mapView.addMapListener(new DelayedMapListener(new MapListener() {
             @Override
             public boolean onScroll(ScrollEvent event) {
-                if (isProgrammaticMove) {
-                    isProgrammaticMove = false;
+                if (isProgrammaticMapMove) {
+                    isProgrammaticMapMove = false;
                     return true;
                 }
                 triggerReverseGeocoding();
@@ -170,16 +171,20 @@ public class ShopMapActivity extends AppCompatActivity {
 
     private void setupSearch() {
         suggestionAdapter = new SuggestionAdapter(suggestionList, suggestion -> {
-            isProgrammaticMove = true;
             selectedLat = suggestion.lat;
             selectedLng = suggestion.lon;
             selectedAddress = suggestion.displayName;
 
             tvSelectedAddress.setText(selectedAddress);
+            
+            isProgrammaticTextChange = true;
             etSearch.setText(selectedAddress);
+            isProgrammaticTextChange = false;
+            
             cardSuggestionsContainer.setVisibility(View.GONE);
 
             GeoPoint target = new GeoPoint(selectedLat, selectedLng);
+            isProgrammaticMapMove = true;
             mapController.animateTo(target);
         });
 
@@ -198,7 +203,7 @@ public class ShopMapActivity extends AppCompatActivity {
                     btnClearSearch.setVisibility(View.GONE);
                 }
 
-                if (isProgrammaticMove) {
+                if (isProgrammaticTextChange) {
                     return;
                 }
 
@@ -304,8 +309,9 @@ public class ShopMapActivity extends AppCompatActivity {
                         selectedAddress = displayName;
                         tvSelectedAddress.setText(selectedAddress);
                         
-                        isProgrammaticMove = true;
+                        isProgrammaticTextChange = true;
                         etSearch.setText(selectedAddress);
+                        isProgrammaticTextChange = false;
                         btnClearSearch.setVisibility(View.VISIBLE);
                     });
                 }
@@ -396,7 +402,7 @@ public class ShopMapActivity extends AppCompatActivity {
                     selectedLng = lastKnown.getLongitude();
                     GeoPoint currentPoint = new GeoPoint(selectedLat, selectedLng);
                     
-                    isProgrammaticMove = true;
+                    isProgrammaticMapMove = true;
                     mapController.setCenter(currentPoint);
                     triggerReverseGeocoding();
                 }

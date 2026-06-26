@@ -36,6 +36,12 @@ import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -76,6 +82,8 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
     private Marker buildingMarker;
     private Marker shipperMarker;
     private Polyline routeLine;
+    private long lastRouteFetchTime = 0;
+    private GeoPoint lastFetchedShipperLocation = null;
 
     private final Handler updateHandler = new Handler(Looper.getMainLooper());
     private final Runnable updateRunnable = new Runnable() {
@@ -213,17 +221,8 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
             mapView.getOverlays().add(buildingMarker);
         }
 
-        // Draw initial polyline between shop and building
-        if (shopLat != 0.0 && buildingLat != 0.0) {
-            routeLine = new Polyline();
-            List<GeoPoint> pts = new ArrayList<>();
-            pts.add(new GeoPoint(shopLat, shopLng));
-            pts.add(new GeoPoint(buildingLat, buildingLng));
-            routeLine.setPoints(pts);
-            routeLine.setColor(Color.parseColor("#4F46E5")); // Indigo line
-            routeLine.setWidth(6f);
-            mapView.getOverlays().add(routeLine);
-        }
+        // Draw initial route
+        updateRoute();
 
         // Center on Shop
         if (shopLat != 0.0 && shopLng != 0.0) {
@@ -320,15 +319,8 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         shipperMarker.setPosition(pt);
         mapView.invalidate();
 
-        // Update route line to connect Shipper -> Shop -> Destination Building
-        if (routeLine != null) {
-            List<GeoPoint> pts = new ArrayList<>();
-            pts.add(pt);
-            pts.add(new GeoPoint(shopLat, shopLng));
-            pts.add(new GeoPoint(buildingLat, buildingLng));
-            routeLine.setPoints(pts);
-            mapView.invalidate();
-        }
+        // Update route line dynamically
+        updateRoute();
     }
 
     private void sendShipperLocationToServer() {
@@ -350,6 +342,101 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
                 Log.e(TAG, "Lỗi mạng khi đồng bộ tọa độ: ", t);
             }
         });
+    }
+
+    private void updateRoute() {
+        List<GeoPoint> waypoints = new ArrayList<>();
+        if (currentLat != null && currentLng != null) {
+            GeoPoint shipperPt = new GeoPoint(currentLat, currentLng);
+            
+            // Check if we fetched recently (less than 10 seconds ago) AND shipper location didn't change much
+            long now = System.currentTimeMillis();
+            if (lastFetchedShipperLocation != null && now - lastRouteFetchTime < 10000) {
+                double dist = lastFetchedShipperLocation.distanceToAsDouble(shipperPt);
+                if (dist < 15.0) {
+                    // Location changed by less than 15 meters and it's been less than 10s, skip OSRM request
+                    return;
+                }
+            }
+            
+            lastRouteFetchTime = now;
+            lastFetchedShipperLocation = shipperPt;
+            
+            waypoints.add(shipperPt);
+        }
+        
+        if (shopLat != 0.0 && shopLng != 0.0) {
+            waypoints.add(new GeoPoint(shopLat, shopLng));
+        }
+        if (buildingLat != 0.0 && buildingLng != 0.0) {
+            waypoints.add(new GeoPoint(buildingLat, buildingLng));
+        }
+        
+        if (waypoints.size() >= 2) {
+            fetchRouteAndDraw(waypoints);
+        }
+    }
+
+    private void fetchRouteAndDraw(List<GeoPoint> waypoints) {
+        if (waypoints == null || waypoints.size() < 2) return;
+
+        new Thread(() -> {
+            try {
+                StringBuilder urlBuilder = new StringBuilder("https://router.project-osrm.org/route/v1/driving/");
+                for (int i = 0; i < waypoints.size(); i++) {
+                    GeoPoint pt = waypoints.get(i);
+                    urlBuilder.append(pt.getLongitude()).append(",").append(pt.getLatitude());
+                    if (i < waypoints.size() - 1) {
+                        urlBuilder.append(";");
+                    }
+                }
+                urlBuilder.append("?overview=full&geometries=geojson");
+
+                URL url = new URL(urlBuilder.toString());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", getPackageName());
+
+                if (conn.getResponseCode() == 200) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    JSONObject jsonObj = new JSONObject(response.toString());
+                    JSONArray routesArray = jsonObj.getJSONArray("routes");
+                    if (routesArray.length() > 0) {
+                        JSONObject routeObj = routesArray.getJSONObject(0);
+                        JSONObject geometryObj = routeObj.getJSONObject("geometry");
+                        JSONArray coordinatesArray = geometryObj.getJSONArray("coordinates");
+
+                        List<GeoPoint> routePoints = new ArrayList<>();
+                        for (int i = 0; i < coordinatesArray.length(); i++) {
+                            JSONArray coord = coordinatesArray.getJSONArray(i);
+                            double lon = coord.getDouble(0);
+                            double lat = coord.getDouble(1);
+                            routePoints.add(new GeoPoint(lat, lon));
+                        }
+
+                        runOnUiThread(() -> {
+                            if (routeLine == null) {
+                                routeLine = new Polyline();
+                                routeLine.setColor(Color.parseColor("#4F46E5")); // Indigo line
+                                routeLine.setWidth(8f);
+                                mapView.getOverlays().add(routeLine);
+                            }
+                            routeLine.setPoints(routePoints);
+                            mapView.invalidate();
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Routing fetch error: ", e);
+            }
+        }).start();
     }
 
     @Override
