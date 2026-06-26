@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.AdminOverviewResponse;
-import com.foodorderingapp.ui.widget.AdminOrderChartView;
+import com.foodorderingapp.ui.widget.AdminShopStatusChartView;
 import com.foodorderingapp.viewmodel.AdminViewModel;
 
 import java.text.NumberFormat;
@@ -27,7 +27,7 @@ public class AdminOverviewFragment extends Fragment {
     private TextView tvShopsValue;
     private TextView tvPendingValue;
     private TextView tvRevenueValue;
-    private AdminOrderChartView dailyChart;
+    private AdminShopStatusChartView shopStatusChart;
 
     public AdminOverviewFragment() {
     }
@@ -49,7 +49,7 @@ public class AdminOverviewFragment extends Fragment {
         tvShopsValue = view.findViewById(R.id.tvAdminShopsValue);
         tvPendingValue = view.findViewById(R.id.tvAdminPendingValue);
         tvRevenueValue = view.findViewById(R.id.tvAdminRevenueValue);
-        dailyChart = view.findViewById(R.id.adminDailyChart);
+        shopStatusChart = view.findViewById(R.id.adminShopStatusChart);
 
         viewModel.getOverview().observe(getViewLifecycleOwner(), this::bindOverview);
         viewModel.loadOverview();
@@ -69,7 +69,7 @@ public class AdminOverviewFragment extends Fragment {
             tvShopsValue.setText("--");
             tvPendingValue.setText("--");
             tvRevenueValue.setText("--");
-            dailyChart.setData(null);
+            shopStatusChart.setData(0, 0, 0, 0);
             return;
         }
 
@@ -77,7 +77,12 @@ public class AdminOverviewFragment extends Fragment {
         tvShopsValue.setText(formatNumber(overview.getTotalShops()));
         tvPendingValue.setText(formatNumber(overview.getPendingShops()));
         tvRevenueValue.setText(formatNumber(overview.getApprovedShops()));
-        dailyChart.setData(overview.getDailyOrders());
+        shopStatusChart.setData(
+                overview.getPendingShops(),
+                overview.getApprovedShops(),
+                overview.getRejectedShops(),
+                overview.getBannedShops()
+        );
     }
 
     private String formatNumber(long value) {
