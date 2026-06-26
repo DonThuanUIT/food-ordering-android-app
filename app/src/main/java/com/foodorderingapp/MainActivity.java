@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupMenuAndNavigation(userRole);
 
-        if ("VENDOR".equalsIgnoreCase(userRole)) {
+        if ("VENDOR".equalsIgnoreCase(userRole) || "SHIPPER".equalsIgnoreCase(userRole)) {
             if (findViewById(R.id.appBarLayout) != null) {
                 findViewById(R.id.appBarLayout).setBackgroundColor(Color.parseColor("#1B110F"));
             }
