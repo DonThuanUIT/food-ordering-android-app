@@ -34,6 +34,7 @@ import com.foodorderingapp.ui.home.vendor.VendorMessagesFragment;
 import com.foodorderingapp.ui.home.student.StudentOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentProfileFragment;
 import com.foodorderingapp.ui.home.student.StudentCartFragment;
+import com.foodorderingapp.ui.home.student.StudentMessagesFragment;
 import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
 import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
 import com.foodorderingapp.ui.home.vendor.VendorSettingsFragment;
@@ -42,11 +43,17 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2;
+import com.bumptech.glide.Glide;
+import com.foodorderingapp.model.response.UserProfileResponse;
+import com.foodorderingapp.utils.ImageUrlUtils;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int STUDENT_MESSAGES_PAGE = 5;
+    private static final int SHIPPER_MESSAGES_PAGE = 2;
+
     private BottomNavigationView bottomNav;
     private ViewPager2 viewPager;
     private TextView tvAppTitle;
@@ -113,10 +120,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setupHeaderActions();
+        loadHeaderAvatar();
         requestNotificationPermissionIfNeeded();
         handleStartTab(getIntent());
         bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
         bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadHeaderAvatar();
     }
 
     @Override
@@ -236,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (position) {
                     case 0: return new ShipperOrdersFragment();
                     case 1: return new StudentProfileFragment();
+                    case 2: return new StudentMessagesFragment();
                 }
             } else {
                 switch (position) {
@@ -244,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
                     case 2: return new StudentCartFragment();
                     case 3: return new StudentHistoryFragment();
                     case 4: return new StudentProfileFragment();
+                    case 5: return new StudentMessagesFragment();
                 }
             }
             return new Fragment();
@@ -255,9 +271,9 @@ public class MainActivity extends AppCompatActivity {
                 return 3;
             }
             if (isShipperRole(role)) {
-                return 2;
+                return 3;
             }
-            return 5;
+            return 6;
         }
     }
 
@@ -276,10 +292,61 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        View ivMenu = findViewById(R.id.ivMenu);
+        ImageView ivMenu = findViewById(R.id.ivMenu);
         if (ivMenu != null) {
-            ivMenu.setOnClickListener(v -> showQuickMenu());
+            if (isAdminRole(userRole)) {
+                ivMenu.setVisibility(View.GONE);
+            } else {
+                ivMenu.setVisibility(View.VISIBLE);
+                ivMenu.setImageResource(R.drawable.ic_contact);
+                ivMenu.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+                ivMenu.setContentDescription("Mo tin nhan");
+                ivMenu.setOnClickListener(v -> openMessagesShortcut());
+            }
         }
+    }
+
+    private void loadHeaderAvatar() {
+        if (isAdminRole(userRole)) {
+            return;
+        }
+
+        ImageView ivProfile = findViewById(R.id.ivProfile);
+        if (ivProfile == null) {
+            return;
+        }
+
+        ApiClient.getApiService().getMyProfile().enqueue(new Callback<UserProfileResponse>() {
+            @Override
+            public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    bindHeaderAvatar(response.body().getAvatarUrl());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserProfileResponse> call, Throwable t) {
+                Log.w("MainActivity", "Cannot load header avatar", t);
+            }
+        });
+    }
+
+    private void bindHeaderAvatar(String avatarUrl) {
+        ImageView ivProfile = findViewById(R.id.ivProfile);
+        String resolvedUrl = ImageUrlUtils.resolveImageUrl(avatarUrl);
+        if (ivProfile == null || isBlank(resolvedUrl)) {
+            return;
+        }
+
+        ivProfile.setImageTintList(null);
+        ivProfile.setPadding(0, 0, 0, 0);
+        ivProfile.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(this)
+                .load(resolvedUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_profile)
+                .error(R.drawable.ic_profile)
+                .into(ivProfile);
     }
 
     private void requestNotificationPermissionIfNeeded() {
@@ -304,6 +371,18 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_vendor_settings);
         } else {
             bottomNav.setSelectedItemId(R.id.nav_profile);
+        }
+    }
+
+    private void openMessagesShortcut() {
+        if (isVendorRole(userRole)) {
+            bottomNav.setSelectedItemId(R.id.nav_vendor_messages);
+        } else if (isShipperRole(userRole)) {
+            viewPager.setCurrentItem(SHIPPER_MESSAGES_PAGE, false);
+            updateHeader("Tin nhan");
+        } else {
+            viewPager.setCurrentItem(STUDENT_MESSAGES_PAGE, false);
+            updateHeader("Tin nhan");
         }
     }
 
@@ -389,8 +468,8 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_admin_approvals);
         } else if (isAdminRole(userRole) && "USERS".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_admin_users);
-        } else if (isVendorRole(userRole) && "MESSAGES".equalsIgnoreCase(openTab)) {
-            bottomNav.setSelectedItemId(R.id.nav_vendor_messages);
+        } else if ("MESSAGES".equalsIgnoreCase(openTab)) {
+            openMessagesShortcut();
         } else if ("ORDERS".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(isVendorRole(userRole) ? R.id.nav_vendor_orders : R.id.nav_orders);
         } else if ("HISTORY".equalsIgnoreCase(openTab)) {

@@ -61,7 +61,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="0dp"
@@ -93,6 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:hint="Tòa nhà nhận hàng"
+                    android:visibility="gone"
                     app:endIconMode="dropdown_menu"
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxBackgroundMode="outline"
@@ -119,6 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Điểm nhận hàng (tùy chọn)"
+                    android:visibility="gone"
                     app:endIconMode="dropdown_menu"
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxBackgroundMode="outline"
@@ -143,7 +146,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="0dp"
                     android:hint="Mã giảm giá"
                     app:endIconMode="none"
                     app:boxBackgroundColor="#FFFFFF"
