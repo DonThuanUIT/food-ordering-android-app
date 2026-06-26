@@ -44,6 +44,25 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
         notifyDataSetChanged();
     }
 
+    public void appendMessage(ChatMessageResponse message) {
+        if (message == null) {
+            return;
+        }
+        if (!isBlank(message.getId())) {
+            for (ChatMessageResponse existing : messages) {
+                if (message.getId().equalsIgnoreCase(existing.getId())) {
+                    return;
+                }
+            }
+        }
+        messages.add(message);
+        notifyItemInserted(messages.size() - 1);
+    }
+
+    public int getMessageCount() {
+        return messages.size();
+    }
+
     @NonNull
     @Override
     public ChatMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
