@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,6 +24,7 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.utils.ToastUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +37,8 @@ import retrofit2.Response;
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText edtPhone, edtPassword, edtConfirmPassword, edtFullName, edtEmail;
-    private EditText edtBuildingId, edtShopName, edtDescription, edtOpenTime, edtCloseTime;
+    private AutoCompleteTextView edtBuildingId;
+    private EditText edtShopName, edtDescription, edtOpenTime, edtCloseTime;
     private RadioGroup rgRole;
     private RadioButton rbStudent, rbOwner, rbShipper;
     private LinearLayout layoutStudentFields, layoutVendorFields;
@@ -59,7 +63,6 @@ public class RegisterActivity extends AppCompatActivity {
     private final Pattern passwordPattern =
             Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$");
     private final Map<String, String> buildingMap = new HashMap<>();
-    private String defaultBuildingId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +116,6 @@ public class RegisterActivity extends AppCompatActivity {
                 findViewById(R.id.dotStepPassword)
         };
 
-        edtBuildingId.setHint("Nhập tên hoặc UUID tòa nhà");
         layoutStudentFields.setVisibility(View.VISIBLE);
         layoutVendorFields.setVisibility(View.GONE);
         updateStepUi();
@@ -320,7 +322,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String resolveBuildingId() {
         String input = edtBuildingId.getText().toString().trim().toLowerCase();
         if (input.isEmpty()) {
-            return defaultBuildingId;
+            return null;
         }
         return buildingMap.get(input);
     }
@@ -332,23 +334,31 @@ public class RegisterActivity extends AppCompatActivity {
                 if (!response.isSuccessful() || response.body() == null) {
                     return;
                 }
+                List<BuildingResponse> buildings = response.body();
                 buildingMap.clear();
-                defaultBuildingId = null;
-                for (BuildingResponse building : response.body()) {
-                    if (building == null || isBlank(building.getId())) {
+                List<String> buildingNames = new ArrayList<>();
+                for (BuildingResponse building : buildings) {
+                    if (building == null || isBlank(building.getId()) || isBlank(building.getName())) {
                         continue;
                     }
-                    if (defaultBuildingId == null) {
-                        defaultBuildingId = building.getId();
-                    }
-                    buildingMap.put(building.getId().toLowerCase(), building.getId());
-                    if (!isBlank(building.getName())) {
-                        buildingMap.put(building.getName().trim().toLowerCase(), building.getId());
-                    }
+                    String name = building.getName().trim();
+                    buildingNames.add(name);
+                    buildingMap.put(name.toLowerCase(), building.getId());
                 }
-                if (defaultBuildingId != null && edtBuildingId.getText().toString().trim().isEmpty()) {
-                    edtBuildingId.setHint("VD: " + firstBuildingLabel(response.body()));
-                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                        RegisterActivity.this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        buildingNames
+                );
+                edtBuildingId.setAdapter(adapter);
+                edtBuildingId.setThreshold(0);
+                edtBuildingId.setOnItemClickListener((parent, view, position, id) -> edtBuildingId.setError(null));
+                edtBuildingId.setOnClickListener(v -> edtBuildingId.showDropDown());
+                edtBuildingId.setOnFocusChangeListener((v, hasFocus) -> {
+                    if (hasFocus) {
+                        edtBuildingId.showDropDown();
+                    }
+                });
             }
 
             @Override
@@ -421,15 +431,6 @@ public class RegisterActivity extends AppCompatActivity {
                 ? InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         edtConfirmPassword.setSelection(edtConfirmPassword.length());
-    }
-
-    private String firstBuildingLabel(List<BuildingResponse> values) {
-        for (BuildingResponse building : values) {
-            if (building != null && !isBlank(building.getName())) {
-                return building.getName();
-            }
-        }
-        return "toa nha";
     }
 
     private boolean isBlank(String value) {
