@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,6 +89,8 @@ public class ShopMapActivity extends AppCompatActivity {
     private boolean isProgrammaticMapMove = false;
     private Double userCurrentLat = null;
     private Double userCurrentLng = null;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -239,12 +242,12 @@ public class ShopMapActivity extends AppCompatActivity {
 
         double biasLat = 10.8756; // Default HCMC UT
         double biasLng = 106.8006;
-        if (mapView != null && mapView.getMapCenter() != null) {
-            biasLat = mapView.getMapCenter().getLatitude();
-            biasLng = mapView.getMapCenter().getLongitude();
-        } else if (userCurrentLat != null && userCurrentLng != null) {
+        if (userCurrentLat != null && userCurrentLng != null) {
             biasLat = userCurrentLat;
             biasLng = userCurrentLng;
+        } else if (mapView != null && mapView.getMapCenter() != null) {
+            biasLat = mapView.getMapCenter().getLatitude();
+            biasLng = mapView.getMapCenter().getLongitude();
         }
 
         final double finalLat = biasLat;
@@ -384,7 +387,7 @@ public class ShopMapActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
-            zoomToCurrentLocation();
+            startLocationUpdates();
         }
     }
 
@@ -393,41 +396,54 @@ public class ShopMapActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                zoomToCurrentLocation();
+                startLocationUpdates();
             }
         }
     }
 
-    private void zoomToCurrentLocation() {
+    private void startLocationUpdates() {
         try {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (locationManager != null) {
-                boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                
-                Location lastKnown = null;
-                if (isNetworkEnabled && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                }
-                if (isGpsEnabled && lastKnown == null && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                }
+                locationListener = new LocationListener() {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        userCurrentLat = location.getLatitude();
+                        userCurrentLng = location.getLongitude();
+                    }
 
-                if (lastKnown != null) {
-                    userCurrentLat = lastKnown.getLatitude();
-                    userCurrentLng = lastKnown.getLongitude();
-                    if (getIntent().getDoubleExtra("LATITUDE", 0.0) == 0.0) {
-                        selectedLat = lastKnown.getLatitude();
-                        selectedLng = lastKnown.getLongitude();
-                        GeoPoint currentPoint = new GeoPoint(selectedLat, selectedLng);
-                        
-                        isProgrammaticMapMove = true;
-                        mapController.setCenter(currentPoint);
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {}
+                    @Override
+                    public void onProviderEnabled(@NonNull String provider) {}
+                    @Override
+                    public void onProviderDisabled(@NonNull String provider) {}
+                };
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, locationListener);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5f, locationListener);
+
+                    Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (lastKnown == null) {
+                        lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    }
+                    if (lastKnown != null) {
+                        userCurrentLat = lastKnown.getLatitude();
+                        userCurrentLng = lastKnown.getLongitude();
+                        if (getIntent().getDoubleExtra("LATITUDE", 0.0) == 0.0) {
+                            selectedLat = lastKnown.getLatitude();
+                            selectedLng = lastKnown.getLongitude();
+                            GeoPoint currentPoint = new GeoPoint(selectedLat, selectedLng);
+                            
+                            isProgrammaticMapMove = true;
+                            mapController.setCenter(currentPoint);
+                        }
                     }
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to get current location: ", e);
+            Log.e(TAG, "Failed to start location updates: ", e);
         }
     }
 
@@ -444,6 +460,14 @@ public class ShopMapActivity extends AppCompatActivity {
         super.onPause();
         if (mapView != null) {
             mapView.onPause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (locationManager != null && locationListener != null) {
+            locationManager.removeUpdates(locationListener);
         }
     }
 
