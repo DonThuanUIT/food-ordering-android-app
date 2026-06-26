@@ -38,6 +38,11 @@ public class UploadImageViewModel extends AndroidViewModel{
     public LiveData<String> getUploadSuccessUrl() { return uploadSuccessUrl; }
     public LiveData<String> getUploadError() { return uploadError; }
 
+    public void clearUploadResult() {
+        uploadSuccessUrl.setValue(null);
+        uploadError.setValue(null);
+    }
+
 
     public void uploadImage(Uri uri) {
         isLoading.setValue(true);

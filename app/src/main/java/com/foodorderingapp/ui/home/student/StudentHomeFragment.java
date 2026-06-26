@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.foodorderingapp.databinding.FragmentStudentHomeBinding;
@@ -109,10 +110,10 @@ public class StudentHomeFragment extends Fragment {
             }
         });
 
-        foodViewModel.getFoodData().observe(getViewLifecycleOwner(), response -> {
+        foodViewModel.getFoodData().observe(getViewLifecycleOwner(), foods -> {
             exploreFoods.clear();
-            if (response != null && response.getContent() != null) {
-                exploreFoods.addAll(response.getContent());
+            if (foods != null) {
+                exploreFoods.addAll(foods);
             }
 
             if (!showingRestaurants) {
@@ -121,6 +122,7 @@ public class StudentHomeFragment extends Fragment {
         });
         setupSearchListener();
         setupTabListeners();
+        setupExplorePagination();
         selectTab(true);
         loadShopsForCurrentSearch();
 
@@ -158,6 +160,25 @@ public class StudentHomeFragment extends Fragment {
                 foodViewModel.loadExploreFoods();
             } else {
                 filterExploreFoods();
+            }
+        });
+    }
+
+    private void setupExplorePagination() {
+        NestedScrollView scrollView = (NestedScrollView) binding.getRoot();
+        scrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (showingRestaurants || foodViewModel == null || !foodViewModel.canLoadMore()) {
+                return;
+            }
+
+            View content = v.getChildAt(0);
+            if (content == null) {
+                return;
+            }
+
+            int distanceToBottom = content.getMeasuredHeight() - v.getMeasuredHeight() - scrollY;
+            if (distanceToBottom <= 240) {
+                foodViewModel.loadMoreExploreFoods();
             }
         });
     }

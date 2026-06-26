@@ -69,13 +69,30 @@
             style="@style/LabelStyle"
             android:text="Ảnh đại diện" />
 
-        <EditText
-            android:id="@+id/etProfileAvatarUrl"
-            style="@style/InputStyle"
-            android:hint="URL ảnh đại diện"
-            android:imeOptions="actionDone"
-            android:inputType="textUri"
-            android:singleLine="true" />
+        <ImageView
+            android:id="@+id/imgProfileAvatarPreview"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_admin_avatar"
+            android:padding="18dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_profile" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChooseProfileAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:text="Chọn ảnh từ thư viện"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            app:backgroundTint="@color/white"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/profile_divider"
+            app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSaveProfile"
