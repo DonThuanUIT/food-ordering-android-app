@@ -39,6 +39,7 @@ import com.foodorderingapp.model.response.StudentReviewResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
 import com.foodorderingapp.ui.adapter.StudentReviewAdapter;
 import com.foodorderingapp.ui.auth.LoginActivity;
+import com.foodorderingapp.utils.ImageUrlUtils;
 import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.StudentProfileViewModel;
@@ -216,12 +217,17 @@ public class StudentProfileFragment extends Fragment {
         String building = isBlank(profile.getBuildingName()) ? "Chua chon toa nha" : profile.getBuildingName();
         tvUserTag.setText(formatRole(profile.getRole()) + " - " + building);
 
-        if (!isBlank(profile.getAvatarUrl()) && getContext() != null) {
+        String avatarUrl = ImageUrlUtils.resolveImageUrl(profile.getAvatarUrl());
+        if (!isBlank(avatarUrl) && getContext() != null) {
+            ivAvatar.setPadding(0, 0, 0, 0);
             Glide.with(this)
-                    .load(profile.getAvatarUrl())
+                    .load(avatarUrl)
                     .placeholder(R.drawable.ic_profile)
                     .error(R.drawable.ic_profile)
                     .into(ivAvatar);
+        } else {
+            ivAvatar.setPadding(dp(18), dp(18), dp(18), dp(18));
+            ivAvatar.setImageResource(R.drawable.ic_profile);
         }
     }
 
@@ -276,9 +282,10 @@ public class StudentProfileFragment extends Fragment {
                 return;
             }
             selectedAvatarUrl = url;
+            String previewUrl = ImageUrlUtils.resolveImageUrl(url);
             if (editAvatarPreview != null && getContext() != null) {
                 Glide.with(this)
-                        .load(url)
+                        .load(previewUrl)
                         .placeholder(R.drawable.ic_profile)
                         .error(R.drawable.ic_profile)
                         .into(editAvatarPreview);
@@ -867,7 +874,7 @@ public class StudentProfileFragment extends Fragment {
         if (!isBlank(selectedAvatarUrl) && getContext() != null) {
             editAvatarPreview.setPadding(0, 0, 0, 0);
             Glide.with(this)
-                    .load(selectedAvatarUrl)
+                    .load(ImageUrlUtils.resolveImageUrl(selectedAvatarUrl))
                     .placeholder(R.drawable.ic_profile)
                     .error(R.drawable.ic_profile)
                     .into(editAvatarPreview);
