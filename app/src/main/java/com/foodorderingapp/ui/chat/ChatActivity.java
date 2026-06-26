@@ -44,6 +44,7 @@ public class ChatActivity extends AppCompatActivity {
 
     public static final String EXTRA_SHOP_ID = "SHOP_ID";
     public static final String EXTRA_SHOP_NAME = "SHOP_NAME";
+    public static final String EXTRA_ORDER_ID = "ORDER_ID";
     public static final String EXTRA_ROOM_ID = "ROOM_ID";
     public static final String EXTRA_PEER_NAME = "PEER_NAME";
 
@@ -71,6 +72,7 @@ public class ChatActivity extends AppCompatActivity {
     private ImageButton btnSend;
     private String shopId;
     private String shopName;
+    private String orderId;
     private String roomId;
     private String peerName;
     private StompClient stompClient;
@@ -85,8 +87,9 @@ public class ChatActivity extends AppCompatActivity {
 
         shopId = getIntent().getStringExtra(EXTRA_SHOP_ID);
         shopName = getIntent().getStringExtra(EXTRA_SHOP_NAME);
+        orderId = getIntent().getStringExtra(EXTRA_ORDER_ID);
         roomId = getIntent().getStringExtra(EXTRA_ROOM_ID);
-        if (isBlank(shopId) && isBlank(roomId)) {
+        if (isBlank(shopId) && isBlank(orderId) && isBlank(roomId)) {
             ToastUtils.error(this, "Không tìm thấy cửa hàng");
             finish();
             return;
@@ -96,7 +99,11 @@ public class ChatActivity extends AppCompatActivity {
         setupMessages();
         loadCurrentUser();
         if (isBlank(roomId)) {
-            getOrCreateRoomByShop();
+            if (!isBlank(orderId)) {
+                getOrCreateRoomByOrder();
+            } else {
+                getOrCreateRoomByShop();
+            }
         } else {
             loadHistory(true);
         }
@@ -198,6 +205,37 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    private void getOrCreateRoomByOrder() {
+        if (isBlank(orderId)) {
+            showEmpty(true);
+            return;
+        }
+
+        ApiClient.getApiService().getChatRoomByOrder(orderId).enqueue(new Callback<ChatRoomResponse>() {
+            @Override
+            public void onResponse(Call<ChatRoomResponse> call, Response<ChatRoomResponse> response) {
+                if (!response.isSuccessful() || response.body() == null || isBlank(response.body().getRoomId())) {
+                    showEmpty(true);
+                    return;
+                }
+
+                ChatRoomResponse room = response.body();
+                roomId = room.getRoomId();
+                if (!isBlank(room.getPartnerName())) {
+                    updatePeerName(room.getPartnerName());
+                }
+                loadHistory(true);
+                connectRealtime();
+                startPolling();
+            }
+
+            @Override
+            public void onFailure(Call<ChatRoomResponse> call, Throwable t) {
+                showEmpty(true);
+            }
+        });
+    }
+
     private void loadHistory(boolean scrollToBottom) {
         if (isBlank(roomId)) {
             showEmpty(true);
@@ -233,6 +271,12 @@ public class ChatActivity extends AppCompatActivity {
         String content = edtMessage.getText().toString().trim();
         if (content.isEmpty()) {
             ToastUtils.info(this, "Nhập nội dung tin nhắn");
+            return;
+        }
+
+        if (isBlank(roomId) && !isBlank(orderId)) {
+            ToastUtils.info(this, "Đang mở phòng chat, vui lòng thử lại sau");
+            getOrCreateRoomByOrder();
             return;
         }
 

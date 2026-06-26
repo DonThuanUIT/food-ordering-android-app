@@ -83,8 +83,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_toEndOf="@id/iv_customer_icon"
-            android:layout_toStartOf="@+id/btn_call_customer"
+            android:layout_toStartOf="@+id/btn_chat_customer"
             android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
             android:layout_centerVertical="true">
             <TextView
                 android:id="@+id/tv_detail_customer_name"
@@ -103,6 +104,19 @@
                 android:textSize="13sp"
                 android:layout_marginTop="2dp"/>
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_chat_customer"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_contact"
+            app:tint="@color/vendor_dark_orange"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="6dp"
+            android:layout_toStartOf="@id/btn_call_customer"
+            android:layout_centerVertical="true" />
 
         <ImageView
             android:id="@+id/btn_call_customer"
