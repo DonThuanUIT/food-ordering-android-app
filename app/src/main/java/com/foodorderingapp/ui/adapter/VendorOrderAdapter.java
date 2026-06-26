@@ -179,7 +179,6 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
                 btnActionAccept.setVisibility(View.VISIBLE);
             } else if ("CONFIRMED".equalsIgnoreCase(status)) {
                 btnActionCancel.setVisibility(View.VISIBLE);
-                btnActionDeliver.setVisibility(View.VISIBLE);
             }
 
             // 10. Click Listeners
