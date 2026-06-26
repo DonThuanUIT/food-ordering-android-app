@@ -457,7 +457,6 @@ public class StudentCartFragment extends Fragment {
         orderViewModel.checkout(
                 shop.getShopId(),
                 cartItemIds,
-                "CASH",
                 buildingMatch.getId(),
                 dropOffMatch != null ? dropOffMatch.getId() : null,
                 voucherCode

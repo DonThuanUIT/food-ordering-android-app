@@ -15,7 +15,6 @@
     <!-- Profile Screen -->
     <string name="profile_title">Tài khoản</string>
     <string name="profile_spending_title">Chi tiêu tháng này</string>
-    <string name="profile_payment_method">Phương thức thanh toán</string>
     <string name="profile_my_reviews">Đánh giá của tôi</string>
     <string name="profile_support">Hỗ trợ</string>
     <string name="profile_logout">Đăng xuất</string>

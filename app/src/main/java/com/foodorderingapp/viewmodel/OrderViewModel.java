@@ -55,10 +55,9 @@ public class OrderViewModel extends ViewModel {
         return message;
     }
 
-    public void checkout(String shopId, List<String> cartItemIds, String paymentMethod,
-                         String buildingId,
+    public void checkout(String shopId, List<String> cartItemIds, String buildingId,
                          String dropOffPointId, String voucherCode) {
-        orderRepository.checkout(shopId, cartItemIds, paymentMethod, buildingId, dropOffPointId,
+        orderRepository.checkout(shopId, cartItemIds, buildingId, dropOffPointId,
                 voucherCode, checkoutResult, message);
     }
 
