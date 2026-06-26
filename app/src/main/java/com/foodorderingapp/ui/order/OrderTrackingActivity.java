@@ -120,33 +120,26 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }
     }
 
-    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase CARTO_VOYAGER = 
-        new org.osmdroid.tileprovider.tilesource.XYTileSource(
-            "CartoVoyager",
-            0, 20, 256, ".png",
+    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase ESRI_STREETS = 
+        new org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase(
+            "EsriStreets",
+            0, 20, 256, "",
             new String[] {
-                "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/"
             },
-            "© OpenStreetMap contributors, © CARTO"
-        );
+            "Tiles © Esri"
+        ) {
+            @Override
+            public String getTileURLString(long pMapTileIndex) {
+                return getBaseUrl() + 
+                       org.osmdroid.util.MapTileIndex.getZoom(pMapTileIndex) + "/" + 
+                       org.osmdroid.util.MapTileIndex.getY(pMapTileIndex) + "/" + 
+                       org.osmdroid.util.MapTileIndex.getX(pMapTileIndex);
+            }
+        };
 
     private void setupMap() {
-        String mapKey = AppConstants.GOONG_MAP_KEY;
-        if (mapKey != null && !mapKey.isEmpty() && !mapKey.startsWith("YOUR_")) {
-            org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase goongTiles = 
-                new org.osmdroid.tileprovider.tilesource.XYTileSource(
-                    "GoongMaps",
-                    0, 20, 256, ".png?api_key=" + mapKey,
-                    new String[] { "https://tiles.goong.io/assets/goong_map_web/" },
-                    "© Goong Maps, © OpenStreetMap contributors"
-                );
-            mapView.setTileSource(goongTiles);
-        } else {
-            mapView.setTileSource(CARTO_VOYAGER);
-        }
+        mapView.setTileSource(ESRI_STREETS);
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 

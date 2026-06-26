@@ -6,9 +6,6 @@ public class AppConstants {
     // Lưu ý: Tuyệt đối không dùng 127.0.0.1 hoặc localhost
     public static final String BASE_URL = "http://192.168.1.105:8080/api/";
 
-    // Đăng ký tài khoản miễn phí tại account.goong.io để lấy key
-    public static final String GOONG_MAP_KEY = "YOUR_GOONG_MAP_KEY";
-    public static final String GOONG_API_KEY = "YOUR_GOONG_API_KEY";
 
     public static String getWsChatUrl() {
         return BASE_URL.replaceFirst("^http", "ws") + "ws-chat";
