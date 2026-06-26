@@ -119,6 +119,20 @@ public class VendorSettingsFragment extends Fragment {
     private final CompoundButton.OnCheckedChangeListener switchListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked) {
+                if (currentShopData == null) {
+                    Toast.makeText(getContext(), "Đang tải dữ liệu cửa hàng, vui lòng thử lại sau!", Toast.LENGTH_SHORT).show();
+                    revertSwitchUI(false);
+                    return;
+                }
+                if (currentShopData.getAddress() == null || currentShopData.getAddress().trim().isEmpty()
+                        || currentShopData.getLatitude() == null || currentShopData.getLatitude() == 0.0
+                        || currentShopData.getLongitude() == null || currentShopData.getLongitude() == 0.0) {
+                    Toast.makeText(getContext(), "Vui lòng thiết lập vị trí cửa hàng trước khi mở cửa!", Toast.LENGTH_LONG).show();
+                    revertSwitchUI(false);
+                    return;
+                }
+            }
             toggleShopStatusOnServer(isChecked);
         }
     };
