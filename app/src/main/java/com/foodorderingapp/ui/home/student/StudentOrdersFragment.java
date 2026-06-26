@@ -84,8 +84,14 @@ public class StudentOrdersFragment extends Fragment {
                 ToastUtils.info(getContext(), message);
             }
         });
+    }
 
-        orderViewModel.loadActiveOrders();
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (orderViewModel != null) {
+            orderViewModel.loadActiveOrders();
+        }
     }
 
     private void showActiveOrdersList() {
