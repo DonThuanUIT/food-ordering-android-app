@@ -95,7 +95,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="20dp"
             android:backgroundTint="#FF7A21"
-            android:text="Thanh toán đơn này"
+            android:text="Đặt hàng"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
