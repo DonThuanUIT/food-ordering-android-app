@@ -58,8 +58,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
                 android:layout_marginBottom="16dp"
                 app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
@@ -133,8 +133,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
                 android:layout_marginBottom="16dp"
                 app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
@@ -273,8 +273,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
                 android:layout_marginBottom="16dp"
                 app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
@@ -373,8 +373,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
                 android:layout_marginBottom="16dp"
                 app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
@@ -460,8 +460,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
                 android:layout_marginBottom="16dp"
                 app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
@@ -502,15 +502,14 @@
     <Button
         android:id="@+id/btn_save_voucher"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="48dp"
         android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
         android:text="LƯU VOUCHER"
         android:textSize="15sp"
         android:textStyle="bold"
         android:textColor="@color/white"
         android:backgroundTint="@color/vendor_dark_orange"
-        android:insetBottom="0dp"
-        android:insetTop="0dp"
-        app:cornerRadius="0dp"/>
+        app:cornerRadius="12dp"/>
 
 </RelativeLayout>

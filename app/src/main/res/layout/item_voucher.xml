@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="16dp"
     app:cardElevation="3dp"
     app:cardPreventCornerOverlap="true"
     app:cardBackgroundColor="@color/vendor_dark_card">
@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:text="10%"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -71,7 +71,8 @@
             android:background="@color/vendor_dark_card"
             android:padding="12dp">
 
-            <!-- Title & Status Switch -->             <TextView
+            <!-- Title & Status Switch -->
+            <TextView
                 android:id="@+id/tv_voucher_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -79,7 +80,7 @@
                 android:layout_marginEnd="8dp"
                 android:text="Giảm giá chào hè cực đã"
                 android:textColor="@color/vendor_dark_text_primary"
-                android:textSize="14sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:maxLines="1"
                 android:ellipsize="end"/>

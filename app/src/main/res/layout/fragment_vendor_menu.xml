@@ -62,17 +62,16 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginEnd="4dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginEnd="6dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
-                     app:strokeColor="@color/vendor_dark_orange"
-                     app:strokeWidth="1.5dp">
+                     app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_total_count"
@@ -99,16 +98,16 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginHorizontal="2dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginHorizontal="4dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
                      app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_in_stock_count"
@@ -135,16 +134,16 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginHorizontal="2dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginHorizontal="4dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
                      app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_sold_out_count"
@@ -171,16 +170,16 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginStart="4dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginStart="6dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
                      app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_categories_count"
