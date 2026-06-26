@@ -26,6 +26,7 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.UpdateStatusRequest;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.google.android.material.button.MaterialButton;
+import com.foodorderingapp.utils.constants.AppConstants;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -206,7 +207,19 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         );
 
     private void setupMap() {
-        mapView.setTileSource(CARTO_VOYAGER);
+        String mapKey = AppConstants.GOONG_MAP_KEY;
+        if (mapKey != null && !mapKey.isEmpty() && !mapKey.startsWith("YOUR_")) {
+            org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase goongTiles = 
+                new org.osmdroid.tileprovider.tilesource.XYTileSource(
+                    "GoongMaps",
+                    0, 20, 256, ".png?api_key=" + mapKey,
+                    new String[] { "https://tiles.goong.io/assets/goong_map_web/" },
+                    "© Goong Maps, © OpenStreetMap contributors"
+                );
+            mapView.setTileSource(goongTiles);
+        } else {
+            mapView.setTileSource(CARTO_VOYAGER);
+        }
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 

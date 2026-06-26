@@ -134,7 +134,19 @@ public class OrderTrackingActivity extends AppCompatActivity {
         );
 
     private void setupMap() {
-        mapView.setTileSource(CARTO_VOYAGER);
+        String mapKey = AppConstants.GOONG_MAP_KEY;
+        if (mapKey != null && !mapKey.isEmpty() && !mapKey.startsWith("YOUR_")) {
+            org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase goongTiles = 
+                new org.osmdroid.tileprovider.tilesource.XYTileSource(
+                    "GoongMaps",
+                    0, 20, 256, ".png?api_key=" + mapKey,
+                    new String[] { "https://tiles.goong.io/assets/goong_map_web/" },
+                    "© Goong Maps, © OpenStreetMap contributors"
+                );
+            mapView.setTileSource(goongTiles);
+        } else {
+            mapView.setTileSource(CARTO_VOYAGER);
+        }
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
