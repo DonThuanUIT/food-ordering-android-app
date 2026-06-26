@@ -192,13 +192,26 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         });
     }
 
+    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase CARTO_VOYAGER = 
+        new org.osmdroid.tileprovider.tilesource.XYTileSource(
+            "CartoVoyager",
+            0, 20, 256, ".png",
+            new String[] {
+                "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+            },
+            "© OpenStreetMap contributors, © CARTO"
+        );
+
     private void setupMap() {
-        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
+        mapView.setTileSource(CARTO_VOYAGER);
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
         mapController = mapView.getController();
-        mapController.setZoom(16.5);
+        mapController.setZoom(17.0);
 
         // Put markers for Shop & Building
         if (shopLat != 0.0 && shopLng != 0.0) {

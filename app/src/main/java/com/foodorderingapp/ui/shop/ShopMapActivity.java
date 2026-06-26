@@ -60,6 +60,19 @@ import retrofit2.Response;
 
 public class ShopMapActivity extends AppCompatActivity {
 
+    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase CARTO_VOYAGER = 
+        new org.osmdroid.tileprovider.tilesource.XYTileSource(
+            "CartoVoyager",
+            0, 20, 256, ".png",
+            new String[] {
+                "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+            },
+            "© OpenStreetMap contributors, © CARTO"
+        );
+
     private static final String TAG = "ShopMapActivity";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
@@ -145,12 +158,12 @@ public class ShopMapActivity extends AppCompatActivity {
     }
 
     private void setupMap() {
-        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
+        mapView.setTileSource(CARTO_VOYAGER);
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false); // Hide default ugly +/- buttons
 
         mapController = mapView.getController();
-        mapController.setZoom(17.0);
+        mapController.setZoom(18.5);
         
         GeoPoint startPoint = new GeoPoint(selectedLat, selectedLng);
         mapController.setCenter(startPoint);
