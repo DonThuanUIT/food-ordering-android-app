@@ -89,6 +89,14 @@
             android:name=".ui.review.VendorReviewsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.home.shipper.ShipperDeliveryMapActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.OrderTrackingActivity"
+            android:exported="false" />
+
         <service
             android:name=".ui.services.MyFirebaseMessagingService"
             android:exported="false">

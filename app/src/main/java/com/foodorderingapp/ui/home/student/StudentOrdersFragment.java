@@ -1,5 +1,6 @@
 package com.foodorderingapp.ui.home.student;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +42,24 @@ public class StudentOrdersFragment extends Fragment {
         rvActiveOrders = view.findViewById(R.id.rvActiveOrders);
         tvActiveOrdersEmpty = view.findViewById(R.id.tvActiveOrdersEmpty);
 
-        activeOrderAdapter = new ActiveOrderAdapter();
+        activeOrderAdapter = new ActiveOrderAdapter(order -> {
+            if (order != null && order.getId() != null) {
+                Intent intent = new Intent(getContext(), com.foodorderingapp.ui.order.OrderTrackingActivity.class);
+                intent.putExtra("ORDER_ID", order.getId());
+                intent.putExtra("SHOP_NAME", order.getShopName());
+                intent.putExtra("SHOP_ADDRESS", order.getShopAddress());
+                intent.putExtra("SHOP_LATITUDE", order.getShopLatitude() != null ? order.getShopLatitude() : 0.0);
+                intent.putExtra("SHOP_LONGITUDE", order.getShopLongitude() != null ? order.getShopLongitude() : 0.0);
+                intent.putExtra("BUILDING_NAME", order.getBuilding());
+                intent.putExtra("BUILDING_LATITUDE", order.getBuildingLatitude() != null ? order.getBuildingLatitude() : 0.0);
+                intent.putExtra("BUILDING_LONGITUDE", order.getBuildingLongitude() != null ? order.getBuildingLongitude() : 0.0);
+                intent.putExtra("DROP_OFF", order.getDropOff());
+                intent.putExtra("ORDER_STATUS", order.getStatus());
+                intent.putExtra("SHIPPER_NAME", order.getShipperName());
+                intent.putExtra("SHIPPER_PHONE", order.getShipperPhone());
+                startActivity(intent);
+            }
+        });
         rvActiveOrders.setLayoutManager(new LinearLayoutManager(getContext()));
         rvActiveOrders.setAdapter(activeOrderAdapter);
         rvActiveOrders.setNestedScrollingEnabled(false);

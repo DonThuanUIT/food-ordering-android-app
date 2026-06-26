@@ -296,6 +296,12 @@ public interface ApiService {
             @Query("longitude") Double longitude
     );
 
+    @PUT("orders/{orderId}/status")
+    Call<OrderResponse> updateDeliveryOrderStatus(
+            @Path("orderId") String orderId,
+            @Body UpdateStatusRequest request
+    );
+
     @GET("orders/shipper/active")
     Call<List<OrderResponse>> getShipperActiveOrders();
 

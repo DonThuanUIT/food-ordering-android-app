@@ -154,13 +154,18 @@ public class ShipperOrdersFragment extends Fragment implements ShipperOrderAdapt
     @Override
     public void onDeliver(OrderResponse order) {
         if (order != null && order.getId() != null) {
-            // Sẽ định nghĩa trong Phase 6
             Intent intent = new Intent(getContext(), com.foodorderingapp.ui.home.shipper.ShipperDeliveryMapActivity.class);
             intent.putExtra("ORDER_ID", order.getId());
             intent.putExtra("SHOP_NAME", order.getShopName());
+            intent.putExtra("SHOP_ADDRESS", order.getShopAddress());
+            intent.putExtra("SHOP_LATITUDE", order.getShopLatitude() != null ? order.getShopLatitude() : 0.0);
+            intent.putExtra("SHOP_LONGITUDE", order.getShopLongitude() != null ? order.getShopLongitude() : 0.0);
             intent.putExtra("CUSTOMER_NAME", order.getCustomerName());
             intent.putExtra("BUILDING_NAME", order.getBuilding());
+            intent.putExtra("BUILDING_LATITUDE", order.getBuildingLatitude() != null ? order.getBuildingLatitude() : 0.0);
+            intent.putExtra("BUILDING_LONGITUDE", order.getBuildingLongitude() != null ? order.getBuildingLongitude() : 0.0);
             intent.putExtra("DROP_OFF", order.getDropOff());
+            intent.putExtra("ORDER_STATUS", order.getStatus());
             startActivity(intent);
         }
     }

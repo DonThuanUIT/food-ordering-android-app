@@ -23,6 +23,13 @@ public class OrderResponse {
     private Double shipperLatitude;
     private Double shipperLongitude;
 
+    private String shopId;
+    private String shopAddress;
+    private Double shopLatitude;
+    private Double shopLongitude;
+    private Double buildingLatitude;
+    private Double buildingLongitude;
+
     public String getId() { return id; }
     public String getShopName() { return shopName; }
     public String getCustomerName() { return customerName; }
@@ -42,4 +49,11 @@ public class OrderResponse {
     public String getShipperPhone() { return shipperPhone; }
     public Double getShipperLatitude() { return shipperLatitude; }
     public Double getShipperLongitude() { return shipperLongitude; }
+
+    public String getShopId() { return shopId; }
+    public String getShopAddress() { return shopAddress; }
+    public Double getShopLatitude() { return shopLatitude; }
+    public Double getShopLongitude() { return shopLongitude; }
+    public Double getBuildingLatitude() { return buildingLatitude; }
+    public Double getBuildingLongitude() { return buildingLongitude; }
 }
