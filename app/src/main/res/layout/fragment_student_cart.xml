@@ -57,14 +57,36 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:includeFontPadding="false"
-                    android:text="Thông tin nhận hàng"
-                    android:textColor="#1A1D26"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:includeFontPadding="false"
+                        android:text="Thông tin nhận hàng"
+                        android:textColor="#1A1D26"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnEditDeliveryInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:paddingHorizontal="12dp"
+                        android:text="Sửa"
+                        android:textColor="#FF7118"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -96,7 +118,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Điểm nhận hàng"
+                    android:hint="Điểm nhận hàng (tùy chọn)"
                     app:endIconMode="dropdown_menu"
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxBackgroundMode="outline"
@@ -123,7 +145,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Mã giảm giá"
-                    app:endIconMode="dropdown_menu"
+                    app:endIconMode="none"
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusBottomEnd="14dp"
@@ -137,6 +159,7 @@
                         android:id="@+id/etVoucherCode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
                         android:inputType="textCapCharacters"
                         android:minHeight="54dp"
                         android:singleLine="true"
@@ -144,12 +167,56 @@
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <LinearLayout
+                    android:id="@+id/layoutVoucherPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="#FFF4E6"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvVoucherApplied"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#1A1D26"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvOrderSubtotal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="#5B6370"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvOrderDiscount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="#00A843"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvOrderTotalAfterDiscount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="#FF7118"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCheckout"
                     android:layout_width="match_parent"
                     android:layout_height="58dp"
                     android:layout_marginTop="18dp"
-                    android:text="Thanh toán giỏ hàng"
+                    android:text="Xác nhận đặt hàng"
                     android:textAllCaps="false"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"

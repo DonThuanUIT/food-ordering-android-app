@@ -103,10 +103,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:background="@drawable/bg_spending_card"
-                android:elevation="3dp"
+                android:background="@drawable/bg_student_stats_panel"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <!-- Header Row -->
                 <LinearLayout
@@ -119,16 +118,16 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/ic_stats"
-                        app:tint="@color/profile_spending_accent" />
+                        app:tint="@color/vendor_dark_orange" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:text="Thống kê chi tiêu"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
+                        android:text="Thống Kê Chi Tiêu"
+                        android:textColor="@color/vendor_dark_text_primary"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <ImageButton
@@ -138,7 +137,7 @@
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="Tải lại thống kê"
                         android:src="@drawable/ic_turbo"
-                        app:tint="@color/profile_spending_accent_dark" />
+                        app:tint="@color/vendor_dark_orange" />
                 </LinearLayout>
 
                 <!-- Filter Controls Row -->
@@ -159,7 +158,7 @@
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        app:backgroundTint="@color/profile_spending_accent"
+                        app:backgroundTint="@color/vendor_dark_orange"
                         app:cornerRadius="10dp" />
 
                     <com.google.android.material.button.MaterialButton
@@ -173,7 +172,7 @@
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        app:backgroundTint="@color/profile_spending_accent"
+                        app:backgroundTint="@color/vendor_dark_orange"
                         app:cornerRadius="10dp" />
                 </LinearLayout>
 
@@ -182,7 +181,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_spending_date_picker"
+                    android:background="@drawable/bg_student_stats_date"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="12dp"
@@ -192,7 +191,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_clock"
-                        app:tint="@color/profile_spending_accent_dark" />
+                        app:tint="@color/vendor_dark_orange" />
 
                     <TextView
                         android:id="@+id/btnSpendingFrom"
@@ -206,14 +205,14 @@
                         android:gravity="center"
                         android:padding="6dp"
                         android:text="Từ ngày"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="12sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="→"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="14sp" />
 
                     <TextView
@@ -227,7 +226,7 @@
                         android:gravity="center"
                         android:padding="6dp"
                         android:text="Đến ngày"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -236,7 +235,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_total_spending_card"
+                    android:background="@drawable/bg_student_stats_card"
                     android:orientation="vertical"
                     android:padding="16dp">
 
@@ -245,7 +244,7 @@
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.05"
                         android:text="TỔNG CHI TIÊU"
-                        android:textColor="@color/profile_spending_accent_dark"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="11sp"
                         android:textStyle="bold" />
 
@@ -255,7 +254,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="0đ"
-                        android:textColor="@color/profile_spending_accent_dark"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="26sp"
                         android:textStyle="bold" />
 
@@ -265,7 +264,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Từ --/--/---- đến --/--/----"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/vendor_dark_orange"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -281,7 +280,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_spending_mini_card"
+                        android:background="@drawable/bg_student_stats_card"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="6dp"
@@ -292,7 +291,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textColor="@color/profile_spending_accent_dark"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -301,7 +300,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Số tuần"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="10sp" />
                     </LinearLayout>
 
@@ -311,7 +310,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_spending_mini_card"
+                        android:background="@drawable/bg_student_stats_card"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="6dp"
@@ -322,7 +321,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0đ"
-                            android:textColor="@color/profile_spending_accent_dark"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -331,7 +330,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Trung bình"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="10sp" />
                     </LinearLayout>
 
@@ -341,7 +340,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/bg_spending_mini_card"
+                        android:background="@drawable/bg_student_stats_card"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="6dp"
@@ -352,7 +351,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0đ"
-                            android:textColor="@color/profile_spending_accent_dark"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -361,41 +360,179 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Cao nhất"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="10sp" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Chart container -->
-                <LinearLayout
-                    android:id="@+id/llSpendingChart"
+                <!-- Spending Trend Chart -->
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
-                    android:layout_height="128dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_spending_chart_surface"
-                    android:gravity="bottom"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="8dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="6dp" />
+                    app:cardBackgroundColor="@color/vendor_dark_card"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
 
-                <!-- Breakdown List -->
-                <TextView
-                    android:id="@+id/tvSpendingBreakdownTitle"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:text="Biểu Đồ Chi Tiêu"
+                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/chartSpendingTrend"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Spending Bar Chart -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/vendor_dark_card"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:text="Biểu Đồ Theo Kỳ"
+                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.github.mikephil.charting.charts.BarChart
+                            android:id="@+id/chartSpendingPeriod"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Spending Breakdown Pie Chart -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/vendor_dark_card"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:text="Tỷ Trọng Chi Tiêu"
+                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/chartSpendingBreakdown"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Breakdown Detail Table -->
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
-                    android:text="Chi tiết theo tuần"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    app:cardBackgroundColor="@color/vendor_dark_card"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
 
-                <LinearLayout
-                    android:id="@+id/llSpendingBreakdown"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/tvSpendingBreakdownTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Chi Tiết Theo Tuần"
+                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal"
+                            android:paddingBottom="8dp"
+                            android:weightSum="10">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="5"
+                                android:text="Kỳ"
+                                android:textColor="@color/vendor_dark_text_secondary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="3"
+                                android:gravity="end"
+                                android:text="Tổng"
+                                android:textColor="@color/vendor_dark_text_secondary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2"
+                                android:gravity="end"
+                                android:text="Tỷ trọng"
+                                android:textColor="@color/vendor_dark_text_secondary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/vendor_dark_divider" />
+
+                        <LinearLayout
+                            android:id="@+id/llSpendingBreakdown"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
 
             <LinearLayout
@@ -431,46 +568,6 @@
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
                         android:text="Chỉnh sửa hồ sơ"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right"
-                        app:tint="#C7C7CC" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/profile_divider" />
-
-                <LinearLayout
-                    android:id="@+id/rowPaymentMethod"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="16dp">
-
-                    <ImageView
-                        android:layout_width="42dp"
-                        android:layout_height="42dp"
-                        android:background="@drawable/bg_profile_tag"
-                        android:padding="10dp"
-                        android:src="@drawable/ic_orders"
-                        app:tint="@color/text_primary" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_weight="1"
-                        android:text="@string/profile_payment_method"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
