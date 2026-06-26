@@ -12,6 +12,7 @@ public class TokenManager {
     private static final String KEY_ROLE = "role";
     private static final String KEY_FULL_NAME = "full_name";
     private static final String KEY_FCM_TOKEN = "fcm_token";
+    private static final String KEY_PASSWORD = "password";
 
     private static TokenManager instance;
     private final SharedPreferences sharedPreferences;
@@ -105,7 +106,24 @@ public class TokenManager {
                 .remove(KEY_PHONE)
                 .remove(KEY_ROLE)
                 .remove(KEY_FULL_NAME)
+                .remove(KEY_PASSWORD)
                 .apply();
+    }
+
+    public void savePassword(String password) {
+        sharedPreferences.edit()
+                .putString(KEY_PASSWORD, password)
+                .apply();
+    }
+
+    public void savePhone(String phone) {
+        sharedPreferences.edit()
+                .putString(KEY_PHONE, phone)
+                .apply();
+    }
+
+    public String getPassword() {
+        return sharedPreferences.getString(KEY_PASSWORD, null);
     }
 
     private boolean isBlank(String value) {

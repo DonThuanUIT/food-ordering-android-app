@@ -71,15 +71,14 @@
             android:background="@color/vendor_dark_card"
             android:padding="12dp">
 
-            <!-- Title & Status Switch -->
-            <TextView
+            <!-- Title & Status Switch -->             <TextView
                 android:id="@+id/tv_voucher_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@id/switch_active"
                 android:layout_marginEnd="8dp"
                 android:text="Giảm giá chào hè cực đã"
-                android:textColor="@color/white"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="1"
@@ -94,9 +93,9 @@
                 android:theme="@style/Theme.FoodOrderingApp"
                 app:thumbTint="@color/vendor_dark_orange"
                 app:trackTint="#FFCCBC"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-                android:padding="0dp"/>
+                android:minHeight="48dp"
+                android:minWidth="48dp"
+                android:padding="8dp"/>
 
             <!-- Usage Date -->
             <TextView
@@ -106,7 +105,7 @@
                 android:layout_below="@id/tv_voucher_title"
                 android:layout_marginTop="4dp"
                 android:text="Hạn dùng: 18/06 - 25/06"
-                android:textColor="#8A7D79"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="11sp"/>
 
             <!-- Condition Details -->
@@ -117,7 +116,7 @@
                 android:layout_below="@id/tv_voucher_dates"
                 android:layout_marginTop="4dp"
                 android:text="Đơn hàng từ: 50,000đ • Giảm tối đa: 20,000đ"
-                android:textColor="#8A7D79"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="11sp"/>
 
             <!-- Application Type Target -->
@@ -137,7 +136,7 @@
                 android:id="@+id/divider_actions"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="#382C29"
+                android:background="@color/vendor_dark_divider"
                 android:layout_below="@id/tv_voucher_apply_type"
                 android:layout_marginVertical="8dp"/>
 
@@ -158,7 +157,7 @@
                     android:orientation="horizontal"
                     android:gravity="center"
                     android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp"
+                    android:paddingVertical="14dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true">
@@ -192,7 +191,7 @@
                     android:orientation="horizontal"
                     android:gravity="center"
                     android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp"
+                    android:paddingVertical="14dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true">

@@ -33,7 +33,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back"
-                app:tint="@color/white"
+                app:tint="@color/vendor_dark_text_primary"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"/>
@@ -45,7 +45,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="16dp"
                 android:text="Lộ trình giao hàng"
-                android:textColor="@color/white"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -85,7 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Thông tin giao hàng"
-                android:textColor="@color/white"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"/>
@@ -116,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Cửa hàng: --"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold"/>
 
@@ -163,7 +163,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Khách hàng: --"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold"/>
 

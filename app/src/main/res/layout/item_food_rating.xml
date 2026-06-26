@@ -26,7 +26,7 @@
                 android:layout_height="48dp"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#281F1C">
+                app:cardBackgroundColor="@color/vendor_dark_divider">
 
                 <ImageView
                     android:id="@+id/img_food"
@@ -44,7 +44,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="12dp"
                 android:text="Tên món ăn"
-                android:textColor="@color/white"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="2"
@@ -71,7 +71,7 @@
             android:layout_height="60dp"
             android:background="@drawable/bg_vendor_input_dark"
             android:hint="Nhận xét về món ăn (không bắt buộc)..."
-            android:textColor="@color/white"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textColorHint="#8A7D79"
             android:textSize="13sp"
             android:gravity="top"

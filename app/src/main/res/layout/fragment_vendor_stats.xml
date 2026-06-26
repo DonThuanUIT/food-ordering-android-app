@@ -82,9 +82,9 @@
                     android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/bg_vendor_input_dark"
+                    android:background="@drawable/bg_vendor_spinner"
                     android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
+                    android:paddingEnd="28dp"
                     android:popupBackground="@color/vendor_dark_card" />
             </RelativeLayout>
 
@@ -149,7 +149,7 @@
                             android:layout_alignParentTop="true"
                             app:cardCornerRadius="8dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#2A1E17">
+                            app:cardBackgroundColor="@color/vendor_light_orange_soft">
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -212,7 +212,7 @@
                             android:layout_alignParentTop="true"
                             app:cardCornerRadius="8dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#2A1E17">
+                            app:cardBackgroundColor="@color/vendor_light_orange_soft">
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -284,7 +284,7 @@
                             android:layout_alignParentTop="true"
                             app:cardCornerRadius="8dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#15291E">
+                            app:cardBackgroundColor="@color/vendor_light_green_soft">
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
@@ -347,7 +347,7 @@
                             android:layout_alignParentTop="true"
                             app:cardCornerRadius="8dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#2A1E17">
+                            app:cardBackgroundColor="@color/vendor_light_orange_soft">
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"

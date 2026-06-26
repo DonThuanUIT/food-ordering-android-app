@@ -153,12 +153,12 @@
             <!-- Circular Orange Plus Button for when food is out of stock -->
             <ImageView
                 android:id="@+id/btn_add_stock"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/bg_circle_orange"
                 android:src="@drawable/ic_add"
                 android:scaleType="center"
-                android:padding="8dp"
+                android:padding="13dp"
                 app:tint="@color/white"
                 android:clickable="true"
                 android:focusable="true"
