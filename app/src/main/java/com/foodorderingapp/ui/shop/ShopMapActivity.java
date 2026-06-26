@@ -406,6 +406,22 @@ public class ShopMapActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mapView != null) {
+            mapView.onResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mapView != null) {
+            mapView.onPause();
+        }
+    }
+
     // Static structures and RecyclerView Adapters
     private static class AddressSuggestion {
         String displayName;

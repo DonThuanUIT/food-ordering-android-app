@@ -162,10 +162,13 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }
 
         // Center map
-        if (shopLat != 0.0) {
+        if (shopLat != 0.0 && shopLng != 0.0) {
             mapController.setCenter(new GeoPoint(shopLat, shopLng));
-        } else if (buildingLat != 0.0) {
+        } else if (buildingLat != 0.0 && buildingLng != 0.0) {
             mapController.setCenter(new GeoPoint(buildingLat, buildingLng));
+        } else {
+            // Default center: HCMC University Village
+            mapController.setCenter(new GeoPoint(10.8756, 106.8006));
         }
     }
 
@@ -265,6 +268,22 @@ public class OrderTrackingActivity extends AppCompatActivity {
             pts.add(new GeoPoint(buildingLat, buildingLng));
             routeLine.setPoints(pts);
             mapView.invalidate();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mapView != null) {
+            mapView.onResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mapView != null) {
+            mapView.onPause();
         }
     }
 

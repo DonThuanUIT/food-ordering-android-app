@@ -226,10 +226,13 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         }
 
         // Center on Shop
-        if (shopLat != 0.0) {
+        if (shopLat != 0.0 && shopLng != 0.0) {
             mapController.setCenter(new GeoPoint(shopLat, shopLng));
-        } else if (buildingLat != 0.0) {
+        } else if (buildingLat != 0.0 && buildingLng != 0.0) {
             mapController.setCenter(new GeoPoint(buildingLat, buildingLng));
+        } else {
+            // Default center: HCMC University Village
+            mapController.setCenter(new GeoPoint(10.8756, 106.8006));
         }
     }
 
@@ -347,6 +350,22 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
                 Log.e(TAG, "Lỗi mạng khi đồng bộ tọa độ: ", t);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mapView != null) {
+            mapView.onResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mapView != null) {
+            mapView.onPause();
+        }
     }
 
     @Override
