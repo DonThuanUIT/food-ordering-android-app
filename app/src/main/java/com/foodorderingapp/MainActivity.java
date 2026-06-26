@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -20,6 +21,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.ui.home.admin.AdminApprovalsFragment;
 import com.foodorderingapp.ui.home.admin.AdminOverviewFragment;
 import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
@@ -33,10 +36,14 @@ import com.foodorderingapp.ui.home.student.StudentCartFragment;
 import com.foodorderingapp.ui.home.vendor.VendorStatsFragment;
 import com.foodorderingapp.ui.home.vendor.VendorMenuFragment;
 import com.foodorderingapp.ui.home.vendor.VendorSettingsFragment;
+import com.foodorderingapp.utils.TokenManager;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNav;
@@ -157,6 +164,9 @@ public class MainActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(2, false);
                 updateHeader("UniEats Admin");
                 return true;
+            } else if (id == R.id.nav_admin_logout) {
+                confirmLogout();
+                return false;
             } else if (id == R.id.nav_home || id == R.id.nav_vendor_orders) {
                 viewPager.setCurrentItem(0, false);
                 updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Đơn hàng" : "UniEats");
@@ -239,8 +249,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupHeaderActions() {
-        findViewById(R.id.ivProfile).setOnClickListener(v -> openProfileShortcut());
-        findViewById(R.id.ivMenu).setOnClickListener(v -> showQuickMenu());
+        ImageView ivProfile = findViewById(R.id.ivProfile);
+        if (ivProfile != null) {
+            if (isAdminRole(userRole)) {
+                ivProfile.setImageResource(R.drawable.ic_logout);
+                ivProfile.setImageTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(this, R.color.profile_logout_red)
+                ));
+                ivProfile.setContentDescription(getString(R.string.profile_logout));
+                ivProfile.setOnClickListener(v -> confirmLogout());
+            } else {
+                ivProfile.setOnClickListener(v -> openProfileShortcut());
+            }
+        }
+
+        View ivMenu = findViewById(R.id.ivMenu);
+        if (ivMenu != null) {
+            ivMenu.setOnClickListener(v -> showQuickMenu());
+        }
     }
 
     private void requestNotificationPermissionIfNeeded() {
@@ -277,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
             menu.add(Menu.NONE, R.id.nav_admin_overview, Menu.NONE, "Overview");
             menu.add(Menu.NONE, R.id.nav_admin_approvals, Menu.NONE, "Approvals");
             menu.add(Menu.NONE, R.id.nav_admin_users, Menu.NONE, "Users");
+            menu.add(Menu.NONE, R.id.nav_admin_logout, Menu.NONE, getString(R.string.profile_logout));
         } else if (isVendorRole(userRole)) {
             menu.add(Menu.NONE, R.id.nav_vendor_orders, Menu.NONE, "Đơn hàng");
             menu.add(Menu.NONE, R.id.nav_vendor_messages, Menu.NONE, "Tin nhắn");
@@ -292,10 +319,51 @@ public class MainActivity extends AppCompatActivity {
         }
 
         popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.nav_admin_logout) {
+                confirmLogout();
+                return true;
+            }
             bottomNav.setSelectedItemId(item.getItemId());
             return true;
         });
         popupMenu.show();
+    }
+
+    private void confirmLogout() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.logout_confirm_title)
+                .setMessage(R.string.logout_confirm_message)
+                .setNegativeButton(R.string.action_cancel, null)
+                .setPositiveButton(R.string.profile_logout, (dialog, which) -> logout())
+                .show();
+    }
+
+    private void logout() {
+        String fcmToken = TokenManager.getInstance().getFcmToken();
+        if (isBlank(fcmToken)) {
+            finishLogout();
+            return;
+        }
+
+        ApiClient.getApiService().removeDeviceToken(fcmToken).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                finishLogout();
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                finishLogout();
+            }
+        });
+    }
+
+    private void finishLogout() {
+        TokenManager.getInstance().clearTokens();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void handleStartTab(Intent intent) {
@@ -325,5 +393,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static boolean isAdminRole(String role) {
         return "ADMIN".equalsIgnoreCase(role);
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }
