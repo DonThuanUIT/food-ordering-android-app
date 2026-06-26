@@ -283,6 +283,31 @@ public interface ApiService {
     @GET("orders/history")
     Call<List<OrderResponse>> getOrderHistory();
 
+    @GET("orders/available-for-delivery")
+    Call<List<OrderResponse>> getAvailableOrdersForDelivery();
+
+    @POST("orders/{orderId}/claim")
+    Call<OrderResponse> claimOrder(@Path("orderId") String orderId);
+
+    @POST("orders/{orderId}/location")
+    Call<OrderResponse> updateShipperLocation(
+            @Path("orderId") String orderId,
+            @Query("latitude") Double latitude,
+            @Query("longitude") Double longitude
+    );
+
+    @PUT("orders/{orderId}/status")
+    Call<OrderResponse> updateDeliveryOrderStatus(
+            @Path("orderId") String orderId,
+            @Body UpdateStatusRequest request
+    );
+
+    @GET("orders/shipper/active")
+    Call<List<OrderResponse>> getShipperActiveOrders();
+
+    @GET("orders/shipper/history")
+    Call<List<OrderResponse>> getShipperOrderHistory();
+
     @POST("orders/{orderId}/reviews")
     Call<Void> createReview(
             @Path("orderId") String orderId,

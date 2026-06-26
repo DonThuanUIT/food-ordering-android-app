@@ -12,7 +12,17 @@ public class ShopDetailResponse {
     private String coverUrl;
     private String logoUrl;
     private Boolean isOpen;
+    private Double latitude;
+    private Double longitude;
     private List<CategoryMenu> menu;
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
 
     public String getId() {
         return id;

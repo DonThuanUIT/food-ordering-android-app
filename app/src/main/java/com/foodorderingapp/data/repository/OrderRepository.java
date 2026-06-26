@@ -194,6 +194,106 @@ public class OrderRepository {
         });
     }
 
+    public void getAvailableOrdersForDelivery(MutableLiveData<List<OrderResponse>> orders,
+                                             MutableLiveData<String> message) {
+        apiService.getAvailableOrdersForDelivery().enqueue(new Callback<List<OrderResponse>>() {
+            @Override
+            public void onResponse(Call<List<OrderResponse>> call, Response<List<OrderResponse>> response) {
+                if (response.isSuccessful()) {
+                    orders.postValue(response.body());
+                } else {
+                    orders.postValue(null);
+                    postMessage(message, "Không tải được đơn giao hàng mới");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
+                orders.postValue(null);
+                postMessage(message, "Lỗi mạng khi tải đơn hàng mới");
+            }
+        });
+    }
+
+    public void claimOrder(String orderId, MutableLiveData<Boolean> result,
+                           MutableLiveData<String> message) {
+        apiService.claimOrder(orderId).enqueue(new Callback<OrderResponse>() {
+            @Override
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
+                if (response.isSuccessful()) {
+                    result.postValue(true);
+                    postMessage(message, "Nhận đơn giao hàng thành công!");
+                } else {
+                    result.postValue(false);
+                    postMessage(message, "Không thể nhận đơn: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderResponse> call, Throwable t) {
+                result.postValue(false);
+                postMessage(message, "Lỗi mạng khi nhận đơn");
+            }
+        });
+    }
+
+    public void getShipperActiveOrders(MutableLiveData<List<OrderResponse>> orders,
+                                      MutableLiveData<String> message) {
+        apiService.getShipperActiveOrders().enqueue(new Callback<List<OrderResponse>>() {
+            @Override
+            public void onResponse(Call<List<OrderResponse>> call, Response<List<OrderResponse>> response) {
+                if (response.isSuccessful()) {
+                    orders.postValue(response.body());
+                } else {
+                    orders.postValue(null);
+                    postMessage(message, "Không tải được đơn đang giao");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
+                orders.postValue(null);
+                postMessage(message, "Lỗi mạng khi tải đơn đang giao");
+            }
+        });
+    }
+
+    public void getShipperOrderHistory(MutableLiveData<List<OrderResponse>> orders,
+                                       MutableLiveData<String> message) {
+        apiService.getShipperOrderHistory().enqueue(new Callback<List<OrderResponse>>() {
+            @Override
+            public void onResponse(Call<List<OrderResponse>> call, Response<List<OrderResponse>> response) {
+                if (response.isSuccessful()) {
+                    orders.postValue(response.body());
+                } else {
+                    orders.postValue(null);
+                    postMessage(message, "Không tải được lịch sử giao");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
+                orders.postValue(null);
+                postMessage(message, "Lỗi mạng khi tải lịch sử giao");
+            }
+        });
+    }
+
+    public void updateShipperLocation(String orderId, Double latitude, Double longitude,
+                                      MutableLiveData<Boolean> result) {
+        apiService.updateShipperLocation(orderId, latitude, longitude).enqueue(new Callback<OrderResponse>() {
+            @Override
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
+                result.postValue(response.isSuccessful());
+            }
+
+            @Override
+            public void onFailure(Call<OrderResponse> call, Throwable t) {
+                result.postValue(false);
+            }
+        });
+    }
+
     private void postMessage(MutableLiveData<String> message, String value) {
         if (message != null) {
             message.postValue(value);

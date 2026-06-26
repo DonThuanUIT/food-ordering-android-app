@@ -205,6 +205,22 @@
                                 android:textColor="#1A1D26"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
+
+                            <RadioButton
+                                android:id="@+id/rbShipper"
+                                android:layout_width="match_parent"
+                                android:layout_height="74dp"
+                                android:layout_marginTop="12dp"
+                                android:background="@drawable/bg_radio_selector"
+                                android:button="@null"
+                                android:drawableStart="@drawable/ic_shipper"
+                                android:drawablePadding="12dp"
+                                android:gravity="center_vertical"
+                                android:paddingHorizontal="18dp"
+                                android:text="Shipper"
+                                android:textColor="#1A1D26"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
                         </RadioGroup>
                     </LinearLayout>
 

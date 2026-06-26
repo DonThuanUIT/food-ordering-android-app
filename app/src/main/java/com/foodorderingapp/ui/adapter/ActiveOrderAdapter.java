@@ -22,6 +22,10 @@ import java.util.Locale;
 
 public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.OrderViewHolder> {
 
+    public interface OnTrackClickListener {
+        void onTrackClick(OrderResponse order);
+    }
+
     private static final int COLOR_DARK = Color.parseColor("#1A1D26");
     private static final int COLOR_ORANGE = Color.parseColor("#FF7118");
     private static final int COLOR_BROWN = Color.parseColor("#9D3900");
@@ -29,6 +33,11 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
     private static final int COLOR_TEXT_MUTED = Color.parseColor("#55607A");
 
     private final List<OrderResponse> orders = new ArrayList<>();
+    private final OnTrackClickListener trackClickListener;
+
+    public ActiveOrderAdapter(OnTrackClickListener trackClickListener) {
+        this.trackClickListener = trackClickListener;
+    }
 
     public void submitList(List<OrderResponse> newOrders) {
         orders.clear();
@@ -57,6 +66,17 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         holder.tvOrderSummaryItems.setText(formatSummaryItems(order.getDetails()));
         bindDiscount(holder.tvOrderDiscount, order);
         holder.tvOrderTotal.setText(formatPrice(order.getTotalPrice()));
+
+        if ("DELIVERING".equals(order.getStatus())) {
+            holder.btnTrackDelivery.setVisibility(View.VISIBLE);
+            holder.btnTrackDelivery.setOnClickListener(v -> {
+                if (trackClickListener != null) {
+                    trackClickListener.onTrackClick(order);
+                }
+            });
+        } else {
+            holder.btnTrackDelivery.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -195,6 +215,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         TextView tvOrderSummaryItems;
         TextView tvOrderDiscount;
         TextView tvOrderTotal;
+        View btnTrackDelivery;
 
         OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -213,6 +234,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
             tvOrderSummaryItems = itemView.findViewById(R.id.tvOrderSummaryItems);
             tvOrderDiscount = itemView.findViewById(R.id.tvOrderDiscount);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
+            btnTrackDelivery = itemView.findViewById(R.id.btnTrackDelivery);
         }
     }
 }

@@ -26,6 +26,7 @@ import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.ui.home.admin.AdminApprovalsFragment;
 import com.foodorderingapp.ui.home.admin.AdminOverviewFragment;
 import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
+import com.foodorderingapp.ui.home.shipper.ShipperOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
 import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
@@ -132,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.inflateMenu(R.menu.menu_admin);
         } else if (isVendorRole(role)) {
             bottomNav.inflateMenu(R.menu.menu_vendor);
+        } else if (isShipperRole(role)) {
+            bottomNav.inflateMenu(R.menu.menu_shipper);
         } else {
             bottomNav.inflateMenu(R.menu.menu_student);
         }
@@ -140,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
             updateHeader("UniEats Admin");
         } else if (isVendorRole(role)) {
             updateHeader("Đơn hàng");
+        } else if (isShipperRole(role)) {
+            updateHeader("Đơn hàng Shipper");
         } else {
             updateHeader("UniEats");
         }
@@ -167,9 +172,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_admin_logout) {
                 confirmLogout();
                 return false;
-            } else if (id == R.id.nav_home || id == R.id.nav_vendor_orders) {
+            } else if (id == R.id.nav_home || id == R.id.nav_vendor_orders || id == R.id.nav_shipper_orders) {
                 viewPager.setCurrentItem(0, false);
-                updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Đơn hàng" : "UniEats");
+                updateHeader("SHIPPER".equalsIgnoreCase(userRole) ? "Đơn hàng Shipper" : ("VENDOR".equalsIgnoreCase(userRole) ? "Đơn hàng" : "UniEats"));
                 return true;
             } else if (id == R.id.nav_vendor_messages) {
                 viewPager.setCurrentItem(1, false);
@@ -187,8 +192,8 @@ public class MainActivity extends AppCompatActivity {
                 viewPager.setCurrentItem("VENDOR".equalsIgnoreCase(userRole) ? 4 : 3, false);
                 updateHeader("VENDOR".equalsIgnoreCase(userRole) ? "Cài đặt" : "Lịch sử");
                 return true;
-            } else if (id == R.id.nav_profile) {
-                viewPager.setCurrentItem(4, false);
+            } else if (id == R.id.nav_profile || id == R.id.nav_shipper_profile) {
+                viewPager.setCurrentItem("SHIPPER".equalsIgnoreCase(userRole) ? 1 : 4, false);
                 updateHeader("Cá nhân");
                 return true;
             }
@@ -227,6 +232,11 @@ public class MainActivity extends AppCompatActivity {
                     case 3: return new VendorMenuFragment();
                     case 4: return new VendorSettingsFragment();
                 }
+            } else if (isShipperRole(role)) {
+                switch (position) {
+                    case 0: return new ShipperOrdersFragment();
+                    case 1: return new StudentProfileFragment();
+                }
             } else {
                 switch (position) {
                     case 0: return new StudentHomeFragment();
@@ -243,6 +253,9 @@ public class MainActivity extends AppCompatActivity {
         public int getItemCount() {
             if (isAdminRole(role)) {
                 return 3;
+            }
+            if (isShipperRole(role)) {
+                return 2;
             }
             return 5;
         }
@@ -393,6 +406,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static boolean isAdminRole(String role) {
         return "ADMIN".equalsIgnoreCase(role);
+    }
+
+    private static boolean isShipperRole(String role) {
+        return "SHIPPER".equalsIgnoreCase(role);
     }
 
     private static boolean isBlank(String value) {

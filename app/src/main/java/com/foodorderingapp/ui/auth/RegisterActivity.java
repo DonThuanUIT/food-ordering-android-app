@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText edtPhone, edtPassword, edtConfirmPassword, edtFullName, edtEmail;
     private EditText edtBuildingId, edtShopName, edtDescription, edtOpenTime, edtCloseTime;
     private RadioGroup rgRole;
-    private RadioButton rbStudent, rbOwner;
+    private RadioButton rbStudent, rbOwner, rbShipper;
     private LinearLayout layoutStudentFields, layoutVendorFields;
     private Button btnRegister, btnStepBack, btnStepNext;
     private ImageView imgEyePassword, imgEyeConfirmPassword;
@@ -88,6 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
         rgRole = findViewById(R.id.rgRole);
         rbStudent = findViewById(R.id.rbStudent);
         rbOwner = findViewById(R.id.rbOwner);
+        rbShipper = findViewById(R.id.rbShipper);
         layoutStudentFields = findViewById(R.id.layoutStudentFields);
         layoutVendorFields = findViewById(R.id.layoutVendorFields);
         btnRegister = findViewById(R.id.btnRegister);
@@ -140,9 +141,16 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setupListeners() {
         rgRole.setOnCheckedChangeListener((group, checkedId) -> {
-            boolean isStudent = (checkedId == R.id.rbStudent);
-            layoutStudentFields.setVisibility(isStudent ? View.VISIBLE : View.GONE);
-            layoutVendorFields.setVisibility(isStudent ? View.GONE : View.VISIBLE);
+            if (checkedId == R.id.rbStudent) {
+                layoutStudentFields.setVisibility(View.VISIBLE);
+                layoutVendorFields.setVisibility(View.GONE);
+            } else if (checkedId == R.id.rbOwner) {
+                layoutStudentFields.setVisibility(View.GONE);
+                layoutVendorFields.setVisibility(View.VISIBLE);
+            } else {
+                layoutStudentFields.setVisibility(View.GONE);
+                layoutVendorFields.setVisibility(View.GONE);
+            }
             if (currentStep == STEP_ROLE) {
                 showStep(STEP_ACCOUNT, true);
             }
@@ -154,6 +162,11 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
         rbOwner.setOnClickListener(v -> {
+            if (currentStep == STEP_ROLE) {
+                showStep(STEP_ACCOUNT, true);
+            }
+        });
+        rbShipper.setOnClickListener(v -> {
             if (currentStep == STEP_ROLE) {
                 showStep(STEP_ACCOUNT, true);
             }
@@ -218,7 +231,7 @@ public class RegisterActivity extends AppCompatActivity {
                 "Nhập thông tin liên hệ để nhận mã xác thực OTP.",
                 rbStudent.isChecked()
                         ? "Chọn tòa nhà bạn thường nhận món."
-                        : "Thêm thông tin cơ bản cho quán của bạn.",
+                        : (rbShipper.isChecked() ? "Không yêu cầu thông tin bổ sung cho Shipper." : "Thêm thông tin cơ bản cho quán của bạn."),
                 "Tạo mật khẩu đủ mạnh để bảo vệ tài khoản."
         };
 
@@ -275,6 +288,10 @@ public class RegisterActivity extends AppCompatActivity {
                 edtBuildingId.setError("Chọn tòa nhà có trong hệ thống");
                 return false;
             }
+            return true;
+        }
+
+        if (rbShipper.isChecked()) {
             return true;
         }
 
@@ -362,10 +379,32 @@ public class RegisterActivity extends AppCompatActivity {
 
         btnRegister.setEnabled(false);
         btnRegister.setText("Đang xử lý...");
+        String buildingId = "";
+        String shopName = "";
+        String role = "SHIPPER";
 
-        String buildingId = rbStudent.isChecked() ? resolveBuildingId() : "";
-        String shopName = rbStudent.isChecked() ? "" : edtShopName.getText().toString().trim();
-        viewModel.register(fullName, phone, email, password, rbStudent.isChecked(), buildingId, shopName);
+        int checkedId = rgRole.getCheckedRadioButtonId();
+        if (checkedId == R.id.rbStudent) {
+            role = "STUDENT";
+            buildingId = resolveBuildingId();
+            if (isBlank(buildingId)) {
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Đăng ký");
+                edtBuildingId.setError("Chọn tòa nhà có trong hệ thống");
+                return;
+            }
+        } else if (checkedId == R.id.rbOwner) {
+            role = "VENDOR";
+            shopName = edtShopName.getText().toString().trim();
+            if (shopName.isEmpty()) {
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Đăng ký");
+                edtShopName.setError("Nhập tên quán");
+                return;
+            }
+        }
+
+        viewModel.register(fullName, phone, email, password, role, buildingId, shopName);
     }
 
     private void togglePasswordVisibility() {

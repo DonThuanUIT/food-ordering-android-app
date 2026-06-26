@@ -17,6 +17,19 @@ public class OrderResponse {
     private String voucherCode;
     private double discountAmount;
 
+    private String shipperId;
+    private String shipperName;
+    private String shipperPhone;
+    private Double shipperLatitude;
+    private Double shipperLongitude;
+
+    private String shopId;
+    private String shopAddress;
+    private Double shopLatitude;
+    private Double shopLongitude;
+    private Double buildingLatitude;
+    private Double buildingLongitude;
+
     public String getId() { return id; }
     public String getShopName() { return shopName; }
     public String getCustomerName() { return customerName; }
@@ -30,4 +43,17 @@ public class OrderResponse {
     public List<OrderDetailResponse> getDetails() { return details; }
     public String getVoucherCode() { return voucherCode; }
     public double getDiscountAmount() { return discountAmount; }
+
+    public String getShipperId() { return shipperId; }
+    public String getShipperName() { return shipperName; }
+    public String getShipperPhone() { return shipperPhone; }
+    public Double getShipperLatitude() { return shipperLatitude; }
+    public Double getShipperLongitude() { return shipperLongitude; }
+
+    public String getShopId() { return shopId; }
+    public String getShopAddress() { return shopAddress; }
+    public Double getShopLatitude() { return shopLatitude; }
+    public Double getShopLongitude() { return shopLongitude; }
+    public Double getBuildingLatitude() { return buildingLatitude; }
+    public Double getBuildingLongitude() { return buildingLongitude; }
 }

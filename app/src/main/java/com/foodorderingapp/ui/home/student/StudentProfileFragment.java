@@ -879,10 +879,13 @@ public class StudentProfileFragment extends Fragment {
 
     private String formatRole(String role) {
         if ("STUDENT".equalsIgnoreCase(role)) {
-            return "Sinh vien";
+            return "Sinh viên";
+        }
+        if ("SHIPPER".equalsIgnoreCase(role)) {
+            return "Shipper";
         }
         if (isBlank(role)) {
-            return "Sinh vien";
+            return "Sinh viên";
         }
         return role;
     }
