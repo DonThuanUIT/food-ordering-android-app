@@ -88,6 +88,197 @@
                     android:popupBackground="@color/vendor_dark_card" />
             </RelativeLayout>
 
+            <!-- Quick Actions Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/vendor_dark_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thao Tác Nhanh"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/vendor_dark_text_primary"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="4">
+
+                        <!-- Item 1: Voucher -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_voucher"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_orange_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_promo"
+                                    app:tint="@color/vendor_dark_orange" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tạo Voucher"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                        <!-- Item 2: Shop Map -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_map"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_green_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_location"
+                                    app:tint="#22C55E" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Vị Trí Quán"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                        <!-- Item 3: Menu management -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_menu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_orange_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_store"
+                                    app:tint="@color/vendor_dark_orange" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Thực Đơn"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                        <!-- Item 4: Customer Feedback (Reviews) -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_reviews"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_green_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_star_filled"
+                                    app:tint="#22C55E" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Đánh Giá"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- Metrics Cards Grid -->
             <!-- Row 1 -->
             <LinearLayout
@@ -487,6 +678,16 @@
                         android:orientation="horizontal"
                         android:paddingBottom="8dp"
                         android:weightSum="10">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:text="#"
+                            android:textColor="@color/vendor_dark_text_secondary"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:gravity="center"
+                            android:minWidth="16dp" />
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"

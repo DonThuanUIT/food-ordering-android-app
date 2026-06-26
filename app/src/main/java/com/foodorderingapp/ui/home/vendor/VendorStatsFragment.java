@@ -58,6 +58,7 @@ public class VendorStatsFragment extends Fragment {
     private LocalDateTime customStartDate = null;
     private LocalDateTime customEndDate = null;
     private int lastSelectedFilterPosition = 0;
+    private ShopResponse currentShopData;
 
     public VendorStatsFragment() {
         // Required empty public constructor
@@ -83,6 +84,45 @@ public class VendorStatsFragment extends Fragment {
         setupSwipeRefresh();
 
         binding.btnViewReviews.setOnClickListener(v -> {
+            if (currentShopId != null) {
+                Intent intent = new Intent(getContext(), com.foodorderingapp.ui.review.VendorReviewsActivity.class);
+                intent.putExtra("SHOP_ID", currentShopId.toString());
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Không tìm thấy thông tin cửa hàng", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Bind Quick Actions
+        binding.btnQuickVoucher.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), com.foodorderingapp.ui.voucher.VoucherManagementActivity.class);
+            startActivity(intent);
+        });
+
+        binding.btnQuickMap.setOnClickListener(v -> {
+            if (currentShopData != null) {
+                Intent intent = new Intent(requireContext(), com.foodorderingapp.ui.shop.ShopMapActivity.class);
+                intent.putExtra("SHOP_ID", currentShopData.getId());
+                intent.putExtra("LATITUDE", currentShopData.getLatitude());
+                intent.putExtra("LONGITUDE", currentShopData.getLongitude());
+                intent.putExtra("ADDRESS", currentShopData.getAddress());
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Đang tải dữ liệu quán...", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnQuickMenu.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                com.google.android.material.bottomnavigation.BottomNavigationView bottomNav =
+                        getActivity().findViewById(R.id.bottom_navigation);
+                if (bottomNav != null) {
+                    bottomNav.setSelectedItemId(R.id.nav_vendor_menu);
+                }
+            }
+        });
+
+        binding.btnQuickReviews.setOnClickListener(v -> {
             if (currentShopId != null) {
                 Intent intent = new Intent(getContext(), com.foodorderingapp.ui.review.VendorReviewsActivity.class);
                 intent.putExtra("SHOP_ID", currentShopId.toString());
@@ -188,6 +228,7 @@ public class VendorStatsFragment extends Fragment {
             public void onResponse(Call<List<ShopResponse>> call, Response<List<ShopResponse>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     ShopResponse shop = response.body().get(0);
+                    currentShopData = shop;
                     binding.tvShopName.setText(shop.getName());
                     String idStr = shop.getId();
                     if (idStr != null) {
@@ -637,6 +678,7 @@ public class VendorStatsFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             TopProductData item = list.get(position);
+            holder.tvRank.setText(String.valueOf(position + 1));
             holder.tvFoodName.setText(item.getFoodName());
             holder.tvQuantitySold.setText(String.valueOf(item.getQuantitySold()));
             holder.tvRevenue.setText(String.format(Locale.US, "%,dđ", item.getRevenue()));
@@ -648,12 +690,14 @@ public class VendorStatsFragment extends Fragment {
         }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
+            android.widget.TextView tvRank;
             android.widget.TextView tvFoodName;
             android.widget.TextView tvQuantitySold;
             android.widget.TextView tvRevenue;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
+                tvRank = itemView.findViewById(R.id.tv_rank);
                 tvFoodName = itemView.findViewById(R.id.tv_food_name);
                 tvQuantitySold = itemView.findViewById(R.id.tv_quantity_sold);
                 tvRevenue = itemView.findViewById(R.id.tv_revenue);
