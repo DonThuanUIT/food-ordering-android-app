@@ -23,6 +23,32 @@ public class OrderViewModel extends ViewModel {
     private final MutableLiveData<Boolean> reviewResult = new MutableLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
 
+    private final MutableLiveData<List<OrderResponse>> shipperAvailableOrders = new MutableLiveData<>();
+    private final MutableLiveData<List<OrderResponse>> shipperActiveOrders = new MutableLiveData<>();
+    private final MutableLiveData<List<OrderResponse>> shipperOrderHistory = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> claimResult = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> locationUpdateResult = new MutableLiveData<>();
+
+    public LiveData<List<OrderResponse>> getShipperAvailableOrders() {
+        return shipperAvailableOrders;
+    }
+
+    public LiveData<List<OrderResponse>> getShipperActiveOrders() {
+        return shipperActiveOrders;
+    }
+
+    public LiveData<List<OrderResponse>> getShipperOrderHistory() {
+        return shipperOrderHistory;
+    }
+
+    public LiveData<Boolean> getClaimResult() {
+        return claimResult;
+    }
+
+    public LiveData<Boolean> getLocationUpdateResult() {
+        return locationUpdateResult;
+    }
+
     public LiveData<Boolean> getCheckoutResult() {
         return checkoutResult;
     }
@@ -84,5 +110,25 @@ public class OrderViewModel extends ViewModel {
 
     public void createReview(String orderId, int rating, String comment) {
         orderRepository.createReview(orderId, rating, comment, reviewResult, message);
+    }
+
+    public void loadShipperAvailableOrders() {
+        orderRepository.getAvailableOrdersForDelivery(shipperAvailableOrders, message);
+    }
+
+    public void claimOrder(String orderId) {
+        orderRepository.claimOrder(orderId, claimResult, message);
+    }
+
+    public void loadShipperActiveOrders() {
+        orderRepository.getShipperActiveOrders(shipperActiveOrders, message);
+    }
+
+    public void loadShipperOrderHistory() {
+        orderRepository.getShipperOrderHistory(shipperOrderHistory, message);
+    }
+
+    public void updateShipperLocation(String orderId, Double latitude, Double longitude) {
+        orderRepository.updateShipperLocation(orderId, latitude, longitude, locationUpdateResult);
     }
 }
