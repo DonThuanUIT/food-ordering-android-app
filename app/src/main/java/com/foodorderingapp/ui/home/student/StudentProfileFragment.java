@@ -201,7 +201,6 @@ public class StudentProfileFragment extends Fragment {
             loadSpendingForSelectedRange();
         });
         view.findViewById(R.id.rowEditProfile).setOnClickListener(v -> showEditProfileSheet());
-        view.findViewById(R.id.rowPaymentMethod).setOnClickListener(v -> showPaymentInfo());
         view.findViewById(R.id.rowMyReviews).setOnClickListener(v -> showMyReviewsSheet());
         view.findViewById(R.id.rowSupport).setOnClickListener(v -> showSupportInfo());
         view.findViewById(R.id.btnEditAvatar).setOnClickListener(v -> showEditProfileSheet());
@@ -454,10 +453,6 @@ public class StudentProfileFragment extends Fragment {
             itemContainer.addView(track, trackParams);
             container.addView(itemContainer);
         }
-    }
-
-    private void showPaymentInfo() {
-        ToastUtils.info(getContext(), "Thanh toan khi nhan hang");
     }
 
     private void showSupportInfo() {

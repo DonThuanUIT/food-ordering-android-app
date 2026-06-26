@@ -23,14 +23,13 @@ import java.util.ArrayList;
 public class OrderRepository {
     private final ApiService apiService = ApiClient.getApiService();
 
-    public void checkout(String shopId, List<String> cartItemIds, String paymentMethod,
+    public void checkout(String shopId, List<String> cartItemIds,
                          String buildingId, String dropOffPointId,
                          String voucherCode, MutableLiveData<Boolean> result,
                          MutableLiveData<String> message) {
         CheckoutRequest request = new CheckoutRequest(
                 shopId,
                 cartItemIds,
-                paymentMethod,
                 buildingId,
                 dropOffPointId,
                 voucherCode,
