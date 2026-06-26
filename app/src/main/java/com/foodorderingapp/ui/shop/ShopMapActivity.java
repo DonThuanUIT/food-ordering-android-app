@@ -238,13 +238,13 @@ public class ShopMapActivity extends AppCompatActivity {
         }
 
         double biasLat = 10.8756; // Default HCMC UT
-        double biasLng = 106.8034;
-        if (userCurrentLat != null && userCurrentLng != null) {
-            biasLat = userCurrentLat;
-            biasLng = userCurrentLng;
-        } else if (mapView != null && mapView.getMapCenter() != null) {
+        double biasLng = 106.8006;
+        if (mapView != null && mapView.getMapCenter() != null) {
             biasLat = mapView.getMapCenter().getLatitude();
             biasLng = mapView.getMapCenter().getLongitude();
+        } else if (userCurrentLat != null && userCurrentLng != null) {
+            biasLat = userCurrentLat;
+            biasLng = userCurrentLng;
         }
 
         final double finalLat = biasLat;
@@ -253,9 +253,13 @@ public class ShopMapActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 String encodedQuery = URLEncoder.encode(query, "UTF-8");
-                String urlStr = "https://nominatim.openstreetmap.org/search?q=" + encodedQuery 
-                        + "&format=json&limit=10&countrycodes=vn&accept-language=vi"
-                        + "&lat=" + finalLat + "&lon=" + finalLng;
+                double left = finalLng - 0.25;
+                double right = finalLng + 0.25;
+                double top = finalLat + 0.25;
+                double bottom = finalLat - 0.25;
+                String urlStr = String.format(java.util.Locale.US,
+                        "https://nominatim.openstreetmap.org/search?q=%s&format=json&limit=15&countrycodes=vn&accept-language=vi&lat=%.6f&lon=%.6f&viewbox=%.4f,%.4f,%.4f,%.4f&bounded=0",
+                        encodedQuery, finalLat, finalLng, left, top, right, bottom);
                 
                 URL url = new URL(urlStr);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -322,13 +326,9 @@ public class ShopMapActivity extends AppCompatActivity {
                     String displayName = jsonObj.getString("display_name");
 
                     runOnUiThread(() -> {
+                        // Only update selectedAddress and tvSelectedAddress, do not overwrite etSearch
                         selectedAddress = displayName;
                         tvSelectedAddress.setText(selectedAddress);
-                        
-                        isProgrammaticTextChange = true;
-                        etSearch.setText(selectedAddress);
-                        isProgrammaticTextChange = false;
-                        btnClearSearch.setVisibility(View.VISIBLE);
                     });
                 }
             } catch (Exception e) {
