@@ -122,6 +122,19 @@
                         android:textColor="#333333"
                         android:textSize="14sp"
                         android:textStyle="bold" />
+
+                    <RadioButton
+                        android:id="@+id/rbShipper"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_radio_selector"
+                        android:button="@null"
+                        android:gravity="center"
+                        android:text="Shipper"
+                        android:textColor="#333333"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
                 </RadioGroup>
 
                 <!-- COMMON FIELDS -->

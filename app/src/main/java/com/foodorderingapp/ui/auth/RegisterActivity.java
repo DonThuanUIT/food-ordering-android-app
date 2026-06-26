@@ -34,7 +34,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText edtPhone, edtPassword, edtConfirmPassword, edtFullName, edtEmail;
     private EditText edtBuildingId, edtShopName, edtDescription, edtOpenTime, edtCloseTime;
     private RadioGroup rgRole;
-    private RadioButton rbStudent;
+    private RadioButton rbStudent, rbShipper;
     private LinearLayout layoutStudentFields, layoutVendorFields;
     private Button btnRegister;
     private ImageView imgEyePassword, imgEyeConfirmPassword;
@@ -74,6 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
         edtCloseTime = findViewById(R.id.edtCloseTime);
         rgRole = findViewById(R.id.rgRole);
         rbStudent = findViewById(R.id.rbStudent);
+        rbShipper = findViewById(R.id.rbShipper);
         layoutStudentFields = findViewById(R.id.layoutStudentFields);
         layoutVendorFields = findViewById(R.id.layoutVendorFields);
         btnRegister = findViewById(R.id.btnRegister);
@@ -107,9 +108,16 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setupListeners() {
         rgRole.setOnCheckedChangeListener((group, checkedId) -> {
-            boolean isStudent = (checkedId == R.id.rbStudent);
-            layoutStudentFields.setVisibility(isStudent ? View.VISIBLE : View.GONE);
-            layoutVendorFields.setVisibility(isStudent ? View.GONE : View.VISIBLE);
+            if (checkedId == R.id.rbStudent) {
+                layoutStudentFields.setVisibility(View.VISIBLE);
+                layoutVendorFields.setVisibility(View.GONE);
+            } else if (checkedId == R.id.rbOwner) {
+                layoutStudentFields.setVisibility(View.GONE);
+                layoutVendorFields.setVisibility(View.VISIBLE);
+            } else {
+                layoutStudentFields.setVisibility(View.GONE);
+                layoutVendorFields.setVisibility(View.GONE);
+            }
         });
 
         imgEyePassword.setOnClickListener(v -> togglePasswordVisibility());
@@ -163,30 +171,34 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         btnRegister.setEnabled(false);
-        btnRegister.setText("Dang xu ly...");
+        btnRegister.setText("Đang xử lý...");
         String buildingId = "";
         String shopName = "";
+        String role = "SHIPPER";
 
-        if (rbStudent.isChecked()) {
+        int checkedId = rgRole.getCheckedRadioButtonId();
+        if (checkedId == R.id.rbStudent) {
+            role = "STUDENT";
             String input = edtBuildingId.getText().toString().trim().toLowerCase();
             buildingId = input.isEmpty() ? defaultBuildingId : buildingMap.get(input);
             if (isBlank(buildingId)) {
                 btnRegister.setEnabled(true);
-                btnRegister.setText("Dang ky");
-                edtBuildingId.setError("Chon toa nha co trong he thong");
+                btnRegister.setText("Đăng ký");
+                edtBuildingId.setError("Chọn tòa nhà có trong hệ thống");
                 return;
             }
-        } else {
+        } else if (checkedId == R.id.rbOwner) {
+            role = "VENDOR";
             shopName = edtShopName.getText().toString().trim();
             if (shopName.isEmpty()) {
                 btnRegister.setEnabled(true);
-                btnRegister.setText("Dang ky");
-                edtShopName.setError("Nhap ten quan");
+                btnRegister.setText("Đăng ký");
+                edtShopName.setError("Nhập tên quán");
                 return;
             }
         }
 
-        viewModel.register(fullName, phone, email, password, rbStudent.isChecked(), buildingId, shopName);
+        viewModel.register(fullName, phone, email, password, role, buildingId, shopName);
     }
 
     private boolean validateCommonInput(String fullName, String email, String phone, String password, String confirm) {

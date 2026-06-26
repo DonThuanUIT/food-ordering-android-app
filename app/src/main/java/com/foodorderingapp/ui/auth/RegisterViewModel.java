@@ -28,23 +28,28 @@ public class RegisterViewModel extends ViewModel {
     public LiveData<String> getMessage() { return message; }
 
     public void register(String fullName, String phone, String email, String password,
-                         boolean isStudent, String buildingId, String shopName) {
+                         String role, String buildingId, String shopName) {
 
         isLoading.setValue(true);
         isSuccess.setValue(null); // Reset để Observer luôn nhận được sự kiện mới
 
         Call<AuthResponse> call;
-        if (isStudent) {
+        if ("STUDENT".equalsIgnoreCase(role)) {
             StudentRegisterRequest request = new StudentRegisterRequest(
                     phone.trim(), password.trim(), fullName.trim(), email.trim(), buildingId
             );
             call = ApiClient.getAuthApiService().registerStudent(request);
-        } else {
+        } else if ("VENDOR".equalsIgnoreCase(role)) {
             VendorRegisterRequest request = new VendorRegisterRequest(
                     phone.trim(), password.trim(), fullName.trim(), email.trim(),
                     shopName.trim(), "", "", ""
             );
             call = ApiClient.getAuthApiService().registerVendor(request);
+        } else {
+            com.foodorderingapp.model.request.BaseRegisterRequest request = new com.foodorderingapp.model.request.BaseRegisterRequest(
+                    phone.trim(), password.trim(), fullName.trim(), email.trim()
+            );
+            call = ApiClient.getAuthApiService().registerShipper(request);
         }
 
         call.enqueue(new Callback<AuthResponse>() {
@@ -55,7 +60,7 @@ public class RegisterViewModel extends ViewModel {
                 if (response.isSuccessful()) {
                     TokenManager.getInstance().saveUserSession(
                             phone.trim(),
-                            isStudent ? "STUDENT" : "VENDOR",
+                            role.toUpperCase(),
                             fullName.trim()
                     );
                     isSuccess.setValue(true);
