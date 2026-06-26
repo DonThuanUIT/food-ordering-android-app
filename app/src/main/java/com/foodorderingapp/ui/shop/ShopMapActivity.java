@@ -423,7 +423,6 @@ public class ShopMapActivity extends AppCompatActivity {
                         
                         isProgrammaticMapMove = true;
                         mapController.setCenter(currentPoint);
-                        triggerReverseGeocoding();
                     }
                 }
             }
