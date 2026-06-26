@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +33,7 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.google.android.material.button.MaterialButton;
+import com.foodorderingapp.utils.constants.AppConstants;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -59,6 +61,19 @@ import retrofit2.Response;
 
 public class ShopMapActivity extends AppCompatActivity {
 
+    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase CARTO_VOYAGER = 
+        new org.osmdroid.tileprovider.tilesource.XYTileSource(
+            "CartoVoyager",
+            0, 20, 256, ".png",
+            new String[] {
+                "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+            },
+            "© OpenStreetMap contributors, © CARTO"
+        );
+
     private static final String TAG = "ShopMapActivity";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
@@ -84,7 +99,12 @@ public class ShopMapActivity extends AppCompatActivity {
 
     private final Handler reverseGeocodeHandler = new Handler(Looper.getMainLooper());
     private Runnable reverseGeocodeRunnable;
-    private boolean isProgrammaticMove = false;
+    private boolean isProgrammaticTextChange = false;
+    private boolean isProgrammaticMapMove = false;
+    private Double userCurrentLat = null;
+    private Double userCurrentLng = null;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,12 +159,24 @@ public class ShopMapActivity extends AppCompatActivity {
     }
 
     private void setupMap() {
-        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
+        String mapKey = AppConstants.GOONG_MAP_KEY;
+        if (mapKey != null && !mapKey.isEmpty() && !mapKey.startsWith("YOUR_")) {
+            org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase goongTiles = 
+                new org.osmdroid.tileprovider.tilesource.XYTileSource(
+                    "GoongMaps",
+                    0, 20, 256, ".png?api_key=" + mapKey,
+                    new String[] { "https://tiles.goong.io/assets/goong_map_web/" },
+                    "© Goong Maps, © OpenStreetMap contributors"
+                );
+            mapView.setTileSource(goongTiles);
+        } else {
+            mapView.setTileSource(CARTO_VOYAGER);
+        }
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false); // Hide default ugly +/- buttons
 
         mapController = mapView.getController();
-        mapController.setZoom(17.0);
+        mapController.setZoom(18.5);
         
         GeoPoint startPoint = new GeoPoint(selectedLat, selectedLng);
         mapController.setCenter(startPoint);
@@ -153,8 +185,8 @@ public class ShopMapActivity extends AppCompatActivity {
         mapView.addMapListener(new DelayedMapListener(new MapListener() {
             @Override
             public boolean onScroll(ScrollEvent event) {
-                if (isProgrammaticMove) {
-                    isProgrammaticMove = false;
+                if (isProgrammaticMapMove) {
+                    isProgrammaticMapMove = false;
                     return true;
                 }
                 triggerReverseGeocoding();
@@ -170,17 +202,11 @@ public class ShopMapActivity extends AppCompatActivity {
 
     private void setupSearch() {
         suggestionAdapter = new SuggestionAdapter(suggestionList, suggestion -> {
-            isProgrammaticMove = true;
-            selectedLat = suggestion.lat;
-            selectedLng = suggestion.lon;
-            selectedAddress = suggestion.displayName;
-
-            tvSelectedAddress.setText(selectedAddress);
-            etSearch.setText(selectedAddress);
-            cardSuggestionsContainer.setVisibility(View.GONE);
-
-            GeoPoint target = new GeoPoint(selectedLat, selectedLng);
-            mapController.animateTo(target);
+            if (suggestion.placeId != null && !suggestion.placeId.isEmpty()) {
+                fetchGoongPlaceDetail(suggestion);
+            } else {
+                selectSuggestion(suggestion);
+            }
         });
 
         rvSuggestions.setLayoutManager(new LinearLayoutManager(this));
@@ -198,7 +224,7 @@ public class ShopMapActivity extends AppCompatActivity {
                     btnClearSearch.setVisibility(View.GONE);
                 }
 
-                if (isProgrammaticMove) {
+                if (isProgrammaticTextChange) {
                     return;
                 }
 
@@ -211,6 +237,63 @@ public class ShopMapActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+    }
+
+    private void selectSuggestion(AddressSuggestion suggestion) {
+        selectedLat = suggestion.lat;
+        selectedLng = suggestion.lon;
+        selectedAddress = suggestion.displayName;
+
+        tvSelectedAddress.setText(selectedAddress);
+        
+        isProgrammaticTextChange = true;
+        etSearch.setText(selectedAddress);
+        isProgrammaticTextChange = false;
+        
+        cardSuggestionsContainer.setVisibility(View.GONE);
+
+        GeoPoint target = new GeoPoint(selectedLat, selectedLng);
+        isProgrammaticMapMove = true;
+        mapController.animateTo(target);
+    }
+
+    private void fetchGoongPlaceDetail(AddressSuggestion suggestion) {
+        new Thread(() -> {
+            try {
+                String apiKey = AppConstants.GOONG_API_KEY;
+                String urlStr = String.format("https://rsapi.goong.io/v2/place/detail?place_id=%s&api_key=%s",
+                        java.net.URLEncoder.encode(suggestion.placeId, "UTF-8"), apiKey);
+                URL url = new URL(urlStr);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                if (conn.getResponseCode() == 200) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+                    
+                    JSONObject jsonObj = new JSONObject(response.toString());
+                    if ("OK".equals(jsonObj.getString("status"))) {
+                        JSONObject resultObj = jsonObj.getJSONObject("result");
+                        JSONObject geometryObj = resultObj.getJSONObject("geometry");
+                        JSONObject locationObj = geometryObj.getJSONObject("location");
+                        double lat = locationObj.getDouble("lat");
+                        double lon = locationObj.getDouble("lng");
+                        
+                        runOnUiThread(() -> {
+                            suggestion.lat = lat;
+                            suggestion.lon = lon;
+                            selectSuggestion(suggestion);
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error fetching Goong Place Detail: ", e);
+            }
+        }).start();
     }
 
     private void triggerReverseGeocoding() {
@@ -230,16 +313,46 @@ public class ShopMapActivity extends AppCompatActivity {
             return;
         }
 
+        double biasLat = 10.8756; // Default HCMC UT
+        double biasLng = 106.8006;
+        if (userCurrentLat != null && userCurrentLng != null) {
+            biasLat = userCurrentLat;
+            biasLng = userCurrentLng;
+        } else if (mapView != null && mapView.getMapCenter() != null) {
+            biasLat = mapView.getMapCenter().getLatitude();
+            biasLng = mapView.getMapCenter().getLongitude();
+        }
+
+        final double finalLat = biasLat;
+        final double finalLng = biasLng;
+
+        String apiKey = AppConstants.GOONG_API_KEY;
+        boolean useGoong = apiKey != null && !apiKey.isEmpty() && !apiKey.startsWith("YOUR_");
+
         new Thread(() -> {
             try {
                 String encodedQuery = URLEncoder.encode(query, "UTF-8");
-                String urlStr = "https://nominatim.openstreetmap.org/search?q=" + encodedQuery 
-                        + "&format=json&limit=5&countrycodes=vn&accept-language=vi";
+                String urlStr;
+                if (useGoong) {
+                    urlStr = String.format(java.util.Locale.US,
+                            "https://rsapi.goong.io/v2/place/autocomplete?api_key=%s&input=%s&location=%.6f,%.6f&limit=15",
+                            apiKey, encodedQuery, finalLat, finalLng);
+                } else {
+                    double left = finalLng - 0.25;
+                    double right = finalLng + 0.25;
+                    double top = finalLat + 0.25;
+                    double bottom = finalLat - 0.25;
+                    urlStr = String.format(java.util.Locale.US,
+                            "https://nominatim.openstreetmap.org/search?q=%s&format=json&limit=15&countrycodes=vn&accept-language=vi&lat=%.6f&lon=%.6f&viewbox=%.4f,%.4f,%.4f,%.4f&bounded=0",
+                            encodedQuery, finalLat, finalLng, left, top, right, bottom);
+                }
                 
                 URL url = new URL(urlStr);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setRequestProperty("User-Agent", getPackageName()); // Nominatim requires a valid user agent
+                if (!useGoong) {
+                    conn.setRequestProperty("User-Agent", getPackageName()); // Nominatim requires a valid user agent
+                }
 
                 if (conn.getResponseCode() == 200) {
                     BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -250,14 +363,27 @@ public class ShopMapActivity extends AppCompatActivity {
                     }
                     in.close();
 
-                    JSONArray jsonArray = new JSONArray(response.toString());
                     List<AddressSuggestion> results = new ArrayList<>();
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject obj = jsonArray.getJSONObject(i);
-                        String name = obj.getString("display_name");
-                        double lat = obj.getDouble("lat");
-                        double lon = obj.getDouble("lon");
-                        results.add(new AddressSuggestion(name, lat, lon));
+                    if (useGoong) {
+                        JSONObject jsonObj = new JSONObject(response.toString());
+                        if (jsonObj.has("predictions")) {
+                            JSONArray predictions = jsonObj.getJSONArray("predictions");
+                            for (int i = 0; i < predictions.length(); i++) {
+                                JSONObject obj = predictions.getJSONObject(i);
+                                String name = obj.getString("description");
+                                String placeId = obj.getString("place_id");
+                                results.add(new AddressSuggestion(name, placeId));
+                            }
+                        }
+                    } else {
+                        JSONArray jsonArray = new JSONArray(response.toString());
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
+                            String name = obj.getString("display_name");
+                            double lat = obj.getDouble("lat");
+                            double lon = obj.getDouble("lon");
+                            results.add(new AddressSuggestion(name, lat, lon));
+                        }
                     }
 
                     runOnUiThread(() -> {
@@ -278,15 +404,25 @@ public class ShopMapActivity extends AppCompatActivity {
     }
 
     private void performReverseGeocoding(double lat, double lon) {
+        String apiKey = AppConstants.GOONG_API_KEY;
+        boolean useGoong = apiKey != null && !apiKey.isEmpty() && !apiKey.startsWith("YOUR_");
+
         new Thread(() -> {
             try {
-                String urlStr = "https://nominatim.openstreetmap.org/reverse?lat=" + lat 
-                        + "&lon=" + lon + "&format=json&accept-language=vi";
+                String urlStr;
+                if (useGoong) {
+                    urlStr = "https://rsapi.goong.io/Geocode?latlng=" + lat + "," + lon + "&api_key=" + apiKey;
+                } else {
+                    urlStr = "https://nominatim.openstreetmap.org/reverse?lat=" + lat 
+                            + "&lon=" + lon + "&format=json&accept-language=vi";
+                }
                 
                 URL url = new URL(urlStr);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setRequestProperty("User-Agent", getPackageName());
+                if (!useGoong) {
+                    conn.setRequestProperty("User-Agent", getPackageName());
+                }
 
                 if (conn.getResponseCode() == 200) {
                     BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -297,17 +433,28 @@ public class ShopMapActivity extends AppCompatActivity {
                     }
                     in.close();
 
-                    JSONObject jsonObj = new JSONObject(response.toString());
-                    String displayName = jsonObj.getString("display_name");
+                    String displayName = "";
+                    if (useGoong) {
+                        JSONObject jsonObj = new JSONObject(response.toString());
+                        if (jsonObj.has("results")) {
+                            JSONArray results = jsonObj.getJSONArray("results");
+                            if (results.length() > 0) {
+                                displayName = results.getJSONObject(0).getString("formatted_address");
+                            }
+                        }
+                    } else {
+                        JSONObject jsonObj = new JSONObject(response.toString());
+                        displayName = jsonObj.getString("display_name");
+                    }
 
-                    runOnUiThread(() -> {
-                        selectedAddress = displayName;
-                        tvSelectedAddress.setText(selectedAddress);
-                        
-                        isProgrammaticMove = true;
-                        etSearch.setText(selectedAddress);
-                        btnClearSearch.setVisibility(View.VISIBLE);
-                    });
+                    if (!displayName.isEmpty()) {
+                        final String finalAddress = displayName;
+                        runOnUiThread(() -> {
+                            // Only update selectedAddress and tvSelectedAddress, do not overwrite etSearch
+                            selectedAddress = finalAddress;
+                            tvSelectedAddress.setText(selectedAddress);
+                        });
+                    }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Reverse geocoding error: ", e);
@@ -362,7 +509,7 @@ public class ShopMapActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
-            zoomToCurrentLocation();
+            startLocationUpdates();
         }
     }
 
@@ -371,38 +518,78 @@ public class ShopMapActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                zoomToCurrentLocation();
+                startLocationUpdates();
             }
         }
     }
 
-    private void zoomToCurrentLocation() {
+    private void startLocationUpdates() {
         try {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (locationManager != null) {
-                boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                
-                Location lastKnown = null;
-                if (isNetworkEnabled && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                }
-                if (isGpsEnabled && lastKnown == null && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                }
+                locationListener = new LocationListener() {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        userCurrentLat = location.getLatitude();
+                        userCurrentLng = location.getLongitude();
+                    }
 
-                if (lastKnown != null && getIntent().getDoubleExtra("LATITUDE", 0.0) == 0.0) {
-                    selectedLat = lastKnown.getLatitude();
-                    selectedLng = lastKnown.getLongitude();
-                    GeoPoint currentPoint = new GeoPoint(selectedLat, selectedLng);
-                    
-                    isProgrammaticMove = true;
-                    mapController.setCenter(currentPoint);
-                    triggerReverseGeocoding();
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {}
+                    @Override
+                    public void onProviderEnabled(@NonNull String provider) {}
+                    @Override
+                    public void onProviderDisabled(@NonNull String provider) {}
+                };
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, locationListener);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5f, locationListener);
+
+                    Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (lastKnown == null) {
+                        lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    }
+                    if (lastKnown != null) {
+                        userCurrentLat = lastKnown.getLatitude();
+                        userCurrentLng = lastKnown.getLongitude();
+                        if (getIntent().getDoubleExtra("LATITUDE", 0.0) == 0.0) {
+                            selectedLat = lastKnown.getLatitude();
+                            selectedLng = lastKnown.getLongitude();
+                            GeoPoint currentPoint = new GeoPoint(selectedLat, selectedLng);
+                            
+                            isProgrammaticMapMove = true;
+                            mapController.setCenter(currentPoint);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to get current location: ", e);
+            Log.e(TAG, "Failed to start location updates: ", e);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mapView != null) {
+            mapView.onResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mapView != null) {
+            mapView.onPause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (locationManager != null && locationListener != null) {
+            locationManager.removeUpdates(locationListener);
         }
     }
 
@@ -411,11 +598,18 @@ public class ShopMapActivity extends AppCompatActivity {
         String displayName;
         double lat;
         double lon;
+        String placeId;
 
         AddressSuggestion(String displayName, double lat, double lon) {
             this.displayName = displayName;
             this.lat = lat;
             this.lon = lon;
+            this.placeId = null;
+        }
+
+        AddressSuggestion(String displayName, String placeId) {
+            this.displayName = displayName;
+            this.placeId = placeId;
         }
     }
 

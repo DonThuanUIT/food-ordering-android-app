@@ -72,7 +72,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
             holder.tvCancelReason.setVisibility(View.GONE);
         }
 
-        boolean canReview = showReviewAction && ("COMPLETED".equalsIgnoreCase(order.getStatus()) || "RECEIVED".equalsIgnoreCase(order.getStatus()));
+        boolean canReview = showReviewAction 
+                && ("COMPLETED".equalsIgnoreCase(order.getStatus()) || "RECEIVED".equalsIgnoreCase(order.getStatus()))
+                && !order.isReviewed();
         holder.btnReview.setVisibility(canReview ? View.VISIBLE : View.GONE);
         holder.btnReview.setOnClickListener(v -> {
             if (reviewClickListener != null) {

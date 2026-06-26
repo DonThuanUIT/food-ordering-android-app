@@ -24,6 +24,8 @@ import com.foodorderingapp.R;
 import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.model.request.ReviewSubmitRequest;
 import com.foodorderingapp.model.response.OrderDetailResponse;
+import androidx.cardview.widget.CardView;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -36,6 +38,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RateOrderActivity extends AppCompatActivity {
+
+    private MaterialCheckBox cbRateOrder, cbRateShop, cbRateFood;
+    private CardView cardRateOrder, cardRateShop;
+    private TextView tvRateFoodHeader;
 
     private RatingBar ratingOrder;
     private EditText etCommentOrder;
@@ -71,12 +77,33 @@ public class RateOrderActivity extends AppCompatActivity {
     }
 
     private void bindViews() {
+        cbRateOrder = findViewById(R.id.cb_rate_order);
+        cbRateShop = findViewById(R.id.cb_rate_shop);
+        cbRateFood = findViewById(R.id.cb_rate_food);
+
+        cardRateOrder = findViewById(R.id.card_rate_order);
+        cardRateShop = findViewById(R.id.card_rate_shop);
+        tvRateFoodHeader = findViewById(R.id.tv_rate_food_header);
+
         ratingOrder = findViewById(R.id.rating_bar_order);
         etCommentOrder = findViewById(R.id.et_comment_order);
         ratingShop = findViewById(R.id.rating_bar_shop);
         etCommentShop = findViewById(R.id.et_comment_shop);
         rvFoodRatings = findViewById(R.id.rv_food_ratings);
         btnSubmit = findViewById(R.id.btn_submit_review);
+
+        cbRateOrder.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            cardRateOrder.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
+
+        cbRateShop.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            cardRateShop.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
+
+        cbRateFood.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            tvRateFoodHeader.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            rvFoodRatings.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
 
         btnSubmit.setOnClickListener(v -> submitReviews());
     }
@@ -120,19 +147,32 @@ public class RateOrderActivity extends AppCompatActivity {
         btnSubmit.setText("Đang gửi...");
 
         ReviewSubmitRequest request = new ReviewSubmitRequest();
-        request.setOrderRating((int) ratingOrder.getRating());
-        request.setOrderComment(etCommentOrder.getText().toString().trim());
 
-        request.setShopRating((int) ratingShop.getRating());
-        request.setShopComment(etCommentShop.getText().toString().trim());
+        if (cbRateOrder.isChecked()) {
+            request.setOrderRating((int) ratingOrder.getRating());
+            request.setOrderComment(etCommentOrder.getText().toString().trim());
+        } else {
+            request.setOrderRating(null);
+            request.setOrderComment(null);
+        }
+
+        if (cbRateShop.isChecked()) {
+            request.setShopRating((int) ratingShop.getRating());
+            request.setShopComment(etCommentShop.getText().toString().trim());
+        } else {
+            request.setShopRating(null);
+            request.setShopComment(null);
+        }
 
         List<ReviewSubmitRequest.FoodReviewItem> foodReviews = new ArrayList<>();
-        for (OrderDetailResponse item : foodItems) {
-            String foodId = item.getFoodId();
-            if (foodId != null) {
-                int rating = foodRatingsMap.containsKey(foodId) ? foodRatingsMap.get(foodId) : 5;
-                String comment = foodCommentsMap.containsKey(foodId) ? foodCommentsMap.get(foodId) : "";
-                foodReviews.add(new ReviewSubmitRequest.FoodReviewItem(foodId, rating, comment));
+        if (cbRateFood.isChecked()) {
+            for (OrderDetailResponse item : foodItems) {
+                String foodId = item.getFoodId();
+                if (foodId != null) {
+                    int rating = foodRatingsMap.containsKey(foodId) ? foodRatingsMap.get(foodId) : 5;
+                    String comment = foodCommentsMap.containsKey(foodId) ? foodCommentsMap.get(foodId) : "";
+                    foodReviews.add(new ReviewSubmitRequest.FoodReviewItem(foodId, rating, comment));
+                }
             }
         }
         request.setFoodReviews(foodReviews);
@@ -146,7 +186,19 @@ public class RateOrderActivity extends AppCompatActivity {
                     Toast.makeText(RateOrderActivity.this, "Đánh giá đơn hàng thành công!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(RateOrderActivity.this, "Gửi đánh giá thất bại", Toast.LENGTH_SHORT).show();
+                    String errorMessage = "Gửi đánh giá thất bại";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            org.json.JSONObject obj = new org.json.JSONObject(errorJson);
+                            if (obj.has("message")) {
+                                errorMessage = obj.getString("message");
+                            }
+                        }
+                    } catch (Exception e) {
+                        // ignore
+                    }
+                    Toast.makeText(RateOrderActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -179,11 +231,14 @@ public class RateOrderActivity extends AppCompatActivity {
             holder.tvName.setText(item.getFoodName());
 
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                holder.imgFood.setImageTintList(null); // Clear tint for actual image
                 Glide.with(holder.itemView.getContext())
                         .load(item.getImageUrl())
                         .placeholder(R.drawable.ic_chef_cook)
                         .into(holder.imgFood);
             } else {
+                holder.imgFood.setImageTintList(android.content.res.ColorStateList.valueOf(
+                        android.graphics.Color.parseColor("#8A7D79"))); // Keep gray tint for placeholder vector
                 holder.imgFood.setImageResource(R.drawable.ic_chef_cook);
             }
 

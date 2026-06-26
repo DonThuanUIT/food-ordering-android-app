@@ -16,6 +16,7 @@ public class OrderResponse {
     private List<OrderDetailResponse> details;
     private String voucherCode;
     private double discountAmount;
+    private boolean isReviewed;
 
     private String shipperId;
     private String shipperName;
@@ -43,6 +44,8 @@ public class OrderResponse {
     public List<OrderDetailResponse> getDetails() { return details; }
     public String getVoucherCode() { return voucherCode; }
     public double getDiscountAmount() { return discountAmount; }
+    public boolean isReviewed() { return isReviewed; }
+    public void setReviewed(boolean reviewed) { isReviewed = reviewed; }
 
     public String getShipperId() { return shipperId; }
     public String getShipperName() { return shipperName; }

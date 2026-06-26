@@ -120,13 +120,38 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }
     }
 
+    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase CARTO_VOYAGER = 
+        new org.osmdroid.tileprovider.tilesource.XYTileSource(
+            "CartoVoyager",
+            0, 20, 256, ".png",
+            new String[] {
+                "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
+                "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+            },
+            "© OpenStreetMap contributors, © CARTO"
+        );
+
     private void setupMap() {
-        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
+        String mapKey = AppConstants.GOONG_MAP_KEY;
+        if (mapKey != null && !mapKey.isEmpty() && !mapKey.startsWith("YOUR_")) {
+            org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase goongTiles = 
+                new org.osmdroid.tileprovider.tilesource.XYTileSource(
+                    "GoongMaps",
+                    0, 20, 256, ".png?api_key=" + mapKey,
+                    new String[] { "https://tiles.goong.io/assets/goong_map_web/" },
+                    "© Goong Maps, © OpenStreetMap contributors"
+                );
+            mapView.setTileSource(goongTiles);
+        } else {
+            mapView.setTileSource(CARTO_VOYAGER);
+        }
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
         mapController = mapView.getController();
-        mapController.setZoom(16.5);
+        mapController.setZoom(17.0);
 
         // Put markers for Shop & Building
         if (shopLat != 0.0 && shopLng != 0.0) {
@@ -162,10 +187,13 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }
 
         // Center map
-        if (shopLat != 0.0) {
+        if (shopLat != 0.0 && shopLng != 0.0) {
             mapController.setCenter(new GeoPoint(shopLat, shopLng));
-        } else if (buildingLat != 0.0) {
+        } else if (buildingLat != 0.0 && buildingLng != 0.0) {
             mapController.setCenter(new GeoPoint(buildingLat, buildingLng));
+        } else {
+            // Default center: HCMC University Village
+            mapController.setCenter(new GeoPoint(10.8756, 106.8006));
         }
     }
 
@@ -265,6 +293,22 @@ public class OrderTrackingActivity extends AppCompatActivity {
             pts.add(new GeoPoint(buildingLat, buildingLng));
             routeLine.setPoints(pts);
             mapView.invalidate();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mapView != null) {
+            mapView.onResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mapView != null) {
+            mapView.onPause();
         }
     }
 
