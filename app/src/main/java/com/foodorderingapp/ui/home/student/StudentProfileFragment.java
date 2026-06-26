@@ -1,11 +1,13 @@
 package com.foodorderingapp.ui.home.student;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.res.ColorStateList;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -38,6 +42,8 @@ import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.StudentProfileViewModel;
+import com.foodorderingapp.viewmodel.UploadImageViewModel;
+import com.foodorderingapp.viewmodel.ViewModelFactory;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
@@ -76,15 +82,41 @@ public class StudentProfileFragment extends Fragment {
     private final DateTimeFormatter displayDateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final DateTimeFormatter shortDateFormatter = DateTimeFormatter.ofPattern("dd/MM");
     private StudentProfileViewModel viewModel;
+    private UploadImageViewModel uploadImageViewModel;
+    private ActivityResultLauncher<Intent> avatarPickerLauncher;
     private UserProfileResponse currentProfile;
     private BottomSheetDialog editProfileDialog;
     private BottomSheetDialog reviewsDialog;
     private StudentReviewAdapter reviewAdapter;
     private TextView tvReviewsEmpty;
+    private ImageView editAvatarPreview;
+    private MaterialButton btnChooseAvatar;
+    private MaterialButton btnSaveProfile;
+    private String selectedAvatarUrl;
     private LocalDate spendingFrom;
     private LocalDate spendingTo;
 
     public StudentProfileFragment() {}
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ViewModelFactory factory = new ViewModelFactory(requireActivity().getApplication());
+        uploadImageViewModel = new ViewModelProvider(this, factory).get(UploadImageViewModel.class);
+        avatarPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri selectedImageUri = result.getData().getData();
+                        if (selectedImageUri != null) {
+                            previewSelectedAvatar(selectedImageUri);
+                            uploadImageViewModel.clearUploadResult();
+                            uploadImageViewModel.uploadImage(selectedImageUri);
+                        }
+                    }
+                }
+        );
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -100,6 +132,7 @@ public class StudentProfileFragment extends Fragment {
         setupSpendingRange(view);
         setupActions(view);
         observeMyReviews();
+        observeAvatarUpload();
         loadRemoteProfile(view);
     }
 
@@ -224,6 +257,57 @@ public class StudentProfileFragment extends Fragment {
         view.findViewById(R.id.rowSupport).setOnClickListener(v -> showSupportInfo());
         view.findViewById(R.id.btnEditAvatar).setOnClickListener(v -> showEditProfileSheet());
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> confirmLogout());
+    }
+
+    private void observeAvatarUpload() {
+        uploadImageViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            boolean loading = Boolean.TRUE.equals(isLoading);
+            if (btnChooseAvatar != null) {
+                btnChooseAvatar.setEnabled(!loading);
+                btnChooseAvatar.setText(loading ? "Đang upload ảnh..." : "Chọn ảnh từ thư viện");
+            }
+            if (btnSaveProfile != null) {
+                btnSaveProfile.setEnabled(!loading);
+            }
+        });
+
+        uploadImageViewModel.getUploadSuccessUrl().observe(getViewLifecycleOwner(), url -> {
+            if (isBlank(url)) {
+                return;
+            }
+            selectedAvatarUrl = url;
+            if (editAvatarPreview != null && getContext() != null) {
+                Glide.with(this)
+                        .load(url)
+                        .placeholder(R.drawable.ic_profile)
+                        .error(R.drawable.ic_profile)
+                        .into(editAvatarPreview);
+            }
+            ToastUtils.success(getContext(), "Đã upload ảnh đại diện");
+        });
+
+        uploadImageViewModel.getUploadError().observe(getViewLifecycleOwner(), error -> {
+            if (!isBlank(error)) {
+                ToastUtils.error(getContext(), "Không upload được ảnh đại diện");
+            }
+        });
+    }
+
+    private void previewSelectedAvatar(Uri uri) {
+        if (editAvatarPreview != null && getContext() != null) {
+            editAvatarPreview.setPadding(0, 0, 0, 0);
+            Glide.with(this)
+                    .load(uri)
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .into(editAvatarPreview);
+        }
+    }
+
+    private void openAvatarPicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        avatarPickerLauncher.launch(intent);
     }
 
     private void setupSpendingRange(View view) {
@@ -744,27 +828,52 @@ public class StudentProfileFragment extends Fragment {
 
         EditText etFullName = content.findViewById(R.id.etProfileFullName);
         EditText etEmail = content.findViewById(R.id.etProfileEmail);
-        EditText etAvatarUrl = content.findViewById(R.id.etProfileAvatarUrl);
+        editAvatarPreview = content.findViewById(R.id.imgProfileAvatarPreview);
+        btnChooseAvatar = content.findViewById(R.id.btnChooseProfileAvatar);
+        btnSaveProfile = content.findViewById(R.id.btnSaveProfile);
         Spinner spinnerBuilding = content.findViewById(R.id.spinnerProfileBuilding);
-        View btnSave = content.findViewById(R.id.btnSaveProfile);
         View btnCancel = content.findViewById(R.id.btnCancelEditProfile);
 
         etFullName.setText(nonNull(currentProfile.getFullName()));
         etEmail.setText(nonNull(currentProfile.getEmail()));
-        etAvatarUrl.setText(nonNull(currentProfile.getAvatarUrl()));
+        selectedAvatarUrl = normalize(currentProfile.getAvatarUrl());
+        bindEditAvatarPreview();
 
         String[] selectedBuildingId = {currentProfile.getBuildingId()};
         bindBuildingSpinner(spinnerBuilding, selectedBuildingId);
 
+        uploadImageViewModel.clearUploadResult();
+        btnChooseAvatar.setOnClickListener(v -> openAvatarPicker());
         btnCancel.setOnClickListener(v -> editProfileDialog.dismiss());
-        btnSave.setOnClickListener(v -> saveProfile(
+        btnSaveProfile.setOnClickListener(v -> saveProfile(
                 etFullName.getText().toString(),
                 etEmail.getText().toString(),
                 selectedBuildingId[0],
-                etAvatarUrl.getText().toString()
+                selectedAvatarUrl
         ));
 
+        editProfileDialog.setOnDismissListener(dialog -> {
+            editAvatarPreview = null;
+            btnChooseAvatar = null;
+            btnSaveProfile = null;
+        });
         editProfileDialog.show();
+    }
+
+    private void bindEditAvatarPreview() {
+        if (editAvatarPreview == null) {
+            return;
+        }
+        if (!isBlank(selectedAvatarUrl) && getContext() != null) {
+            editAvatarPreview.setPadding(0, 0, 0, 0);
+            Glide.with(this)
+                    .load(selectedAvatarUrl)
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .into(editAvatarPreview);
+        } else {
+            editAvatarPreview.setImageResource(R.drawable.ic_profile);
+        }
     }
 
     private void bindBuildingSpinner(Spinner spinner, String[] selectedBuildingId) {

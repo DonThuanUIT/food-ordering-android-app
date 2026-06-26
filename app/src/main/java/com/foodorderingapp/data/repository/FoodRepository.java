@@ -11,6 +11,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class FoodRepository {
+    public interface FoodPageCallback {
+        void onSuccess(PageResponse<FoodExploreResponse> response);
+        void onError();
+    }
+
     public void getExploreFoods(
             int page,
             int size,
@@ -33,6 +38,32 @@ public class FoodRepository {
                     @Override
                     public void onFailure(Call<PageResponse<FoodExploreResponse>> call, Throwable t) {
                         liveData.postValue(null);
+                    }
+                });
+    }
+
+    public void getExploreFoods(
+            int page,
+            int size,
+            FoodPageCallback callback
+    ) {
+        ApiClient.getApiService().getExploreFoods(page, size)
+                .enqueue(new Callback<PageResponse<FoodExploreResponse>>() {
+                    @Override
+                    public void onResponse(
+                            Call<PageResponse<FoodExploreResponse>> call,
+                            Response<PageResponse<FoodExploreResponse>> response
+                    ) {
+                        if (response.isSuccessful()) {
+                            callback.onSuccess(response.body());
+                        } else {
+                            callback.onError();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<PageResponse<FoodExploreResponse>> call, Throwable t) {
+                        callback.onError();
                     }
                 });
     }
