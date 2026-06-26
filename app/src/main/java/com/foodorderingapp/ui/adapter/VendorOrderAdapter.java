@@ -27,6 +27,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
         void onDeliverClicked(OrderResponse order);
         void onCompleteClicked(OrderResponse order);
         void onCancelClicked(OrderResponse order);
+        void onContactStudentClicked(OrderResponse order);
         void onOrderClicked(OrderResponse order);
     }
 
@@ -75,6 +76,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
         private final Button btnActionAccept;
         private final Button btnActionDeliver;
         private final Button btnActionComplete;
+        private final Button btnContactStudent;
         private final TextView tvOrderItemsCount;
 
         public OrderViewHolder(@NonNull View itemView) {
@@ -92,6 +94,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             btnActionAccept = itemView.findViewById(R.id.btn_action_accept);
             btnActionDeliver = itemView.findViewById(R.id.btn_action_deliver);
             btnActionComplete = itemView.findViewById(R.id.btn_action_complete);
+            btnContactStudent = itemView.findViewById(R.id.btn_contact_student);
             tvOrderItemsCount = itemView.findViewById(R.id.tv_order_items_count);
         }
 
@@ -200,6 +203,10 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
 
             btnActionCancel.setOnClickListener(v -> {
                 if (actionHandler != null) actionHandler.onCancelClicked(order);
+            });
+
+            btnContactStudent.setOnClickListener(v -> {
+                if (actionHandler != null) actionHandler.onContactStudentClicked(order);
             });
 
             itemView.setOnClickListener(v -> {

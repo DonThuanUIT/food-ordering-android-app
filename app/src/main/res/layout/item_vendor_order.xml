@@ -133,6 +133,18 @@
             android:layout_marginBottom="12dp"
             android:visibility="gone"/>
 
+        <Button
+            android:id="@+id/btn_contact_student"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_btn_outline_orange"
+            android:text="NHẮN TIN"
+            android:textColor="@color/vendor_dark_orange"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+
         <!-- Actions Row -->
         <LinearLayout
             android:id="@+id/layout_actions"

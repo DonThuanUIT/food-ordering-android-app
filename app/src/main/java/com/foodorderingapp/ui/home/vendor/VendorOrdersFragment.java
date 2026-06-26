@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.net.Uri;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.foodorderingapp.model.response.OrderDetailResponse;
+import com.foodorderingapp.ui.chat.ChatActivity;
 import android.widget.RelativeLayout;
 import java.text.DecimalFormat;
 import java.util.Locale;
@@ -334,6 +335,22 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
     }
 
     @Override
+    public void onContactStudentClicked(OrderResponse order) {
+        if (order == null || order.getId() == null || order.getId().trim().isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy đơn hàng để nhắn tin", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
+        intent.putExtra(ChatActivity.EXTRA_ORDER_ID, order.getId());
+        intent.putExtra(ChatActivity.EXTRA_PEER_NAME,
+                order.getCustomerName() == null || order.getCustomerName().trim().isEmpty()
+                        ? "Sinh viên"
+                        : order.getCustomerName());
+        startActivity(intent);
+    }
+
+    @Override
     public void onOrderClicked(OrderResponse order) {
         showOrderDetailDialog(order);
     }
@@ -347,6 +364,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         TextView tvCustomerName = view.findViewById(R.id.tv_detail_customer_name);
         TextView tvCustomerPhone = view.findViewById(R.id.tv_detail_customer_phone);
         View btnCall = view.findViewById(R.id.btn_call_customer);
+        View btnChat = view.findViewById(R.id.btn_chat_customer);
         TextView tvBuilding = view.findViewById(R.id.tv_detail_building);
         TextView tvDropOff = view.findViewById(R.id.tv_detail_dropoff);
         LinearLayout layoutItems = view.findViewById(R.id.layout_detail_order_items);
@@ -392,6 +410,13 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
 
         if (tvBuilding != null) tvBuilding.setText("Giao đến: " + (order.getBuilding() != null ? order.getBuilding() : "Chưa rõ tòa nhà"));
         if (tvDropOff != null) tvDropOff.setText("Vị trí thả đồ / Phòng: " + (order.getDropOff() != null ? order.getDropOff() : "Chưa rõ"));
+
+        if (btnChat != null) {
+            btnChat.setOnClickListener(v -> {
+                dialog.dismiss();
+                onContactStudentClicked(order);
+            });
+        }
 
         // Items list
         if (layoutItems != null) {
