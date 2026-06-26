@@ -13,6 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.FoodResponse;
+import com.foodorderingapp.data.remote.api.ApiClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -252,20 +256,27 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
 
-            // Set overlay badge
-            if (tvBadge != null) {
-                int hash = food.getName() != null ? Math.abs(food.getName().hashCode()) : 0;
-                if (hash % 3 == 0) {
-                    tvBadge.setVisibility(View.VISIBLE);
-                    tvBadge.setText("Yêu thích");
-                    tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
-                } else if (hash % 3 == 1) {
-                    tvBadge.setVisibility(View.VISIBLE);
-                    tvBadge.setText("Bán chạy");
-                    tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
-                } else {
-                    tvBadge.setVisibility(View.GONE);
-                }
+            // Set overlay badge dynamically based on rating and soldCount
+            updateBadgeState(tvBadge, food, -1.0);
+            if (food.getId() != null) {
+                ApiClient.getApiService().getFoodRating(food.getId().toString()).enqueue(new Callback<Double>() {
+                    @Override
+                    public void onResponse(Call<Double> call, Response<Double> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            double rating = response.body();
+                            updateBadgeState(tvBadge, food, rating);
+                        } else {
+                            updateBadgeState(tvBadge, food, 0.0);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Double> call, Throwable t) {
+                        updateBadgeState(tvBadge, food, 0.0);
+                    }
+                });
+            } else {
+                updateBadgeState(tvBadge, food, 0.0);
             }
 
             if (isAvailable) {
@@ -312,6 +323,49 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return true;
             });
         }
+    }
+
+    private void updateBadgeState(TextView tvBadge, FoodResponse food, double rating) {
+        if (tvBadge == null) return;
+
+        // 1. Check manual tags
+        if (food.getTags() != null) {
+            for (String tag : food.getTags()) {
+                String cleanTag = tag.trim().toLowerCase();
+                if (cleanTag.contains("yêu thích") || cleanTag.contains("favorite")) {
+                    tvBadge.setVisibility(View.VISIBLE);
+                    tvBadge.setText("Yêu thích");
+                    tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
+                    return;
+                }
+                if (cleanTag.contains("bán chạy") || cleanTag.contains("best seller")) {
+                    tvBadge.setVisibility(View.VISIBLE);
+                    tvBadge.setText("Bán chạy");
+                    tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
+                    return;
+                }
+            }
+        }
+
+        // 2. Check rating
+        if (rating >= 4.0) {
+            tvBadge.setVisibility(View.VISIBLE);
+            tvBadge.setText("Yêu thích");
+            tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
+            return;
+        }
+
+        // 3. Check soldCount
+        int soldCount = food.getSoldCount() != null ? food.getSoldCount() : 0;
+        if (soldCount >= 30) {
+            tvBadge.setVisibility(View.VISIBLE);
+            tvBadge.setText("Bán chạy");
+            tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
+            return;
+        }
+
+        // 4. Otherwise hide
+        tvBadge.setVisibility(View.GONE);
     }
 
     static class AddViewHolder extends RecyclerView.ViewHolder {

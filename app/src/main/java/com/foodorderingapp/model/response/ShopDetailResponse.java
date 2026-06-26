@@ -80,6 +80,7 @@ public class ShopDetailResponse {
         private List<String> tags;
         private String cuisine;
         private Integer spicyLevel;
+        private Integer soldCount;
 
         public String getId() { return id; }
         public String getName() { return name; }
@@ -92,5 +93,6 @@ public class ShopDetailResponse {
         public List<String> getTags() { return tags; }
         public String getCuisine() { return cuisine; }
         public Integer getSpicyLevel() { return spicyLevel; }
+        public Integer getSoldCount() { return soldCount != null ? soldCount : 0; }
     }
 }

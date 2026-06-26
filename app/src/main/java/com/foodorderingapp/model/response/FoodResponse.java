@@ -17,6 +17,7 @@ public class FoodResponse {
     private List<String> tags;
     private String cuisine;
     private Integer spicyLevel;
+    private Integer soldCount;
 
     public FoodResponse() {}
 
@@ -75,4 +76,6 @@ public class FoodResponse {
     public void setTags(List<String> tags) { this.tags = tags; }
     public void setCuisine(String cuisine) { this.cuisine = cuisine; }
     public void setSpicyLevel(Integer spicyLevel) { this.spicyLevel = spicyLevel; }
+    public Integer getSoldCount() { return soldCount != null ? soldCount : 0; }
+    public void setSoldCount(Integer soldCount) { this.soldCount = soldCount; }
 }

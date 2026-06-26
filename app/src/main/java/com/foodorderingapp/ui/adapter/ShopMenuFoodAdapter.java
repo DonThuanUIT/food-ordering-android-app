@@ -95,7 +95,8 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
             }
         });
 
-        // Set average star rating of food item
+        // Set average star rating of food item and update badge dynamically
+        updateBadgeState(holder.tvBadge, food, -1.0);
         holder.tvRating.setText("★ ...");
         if (food.getId() != null) {
             ApiClient.getApiService().getFoodRating(food.getId()).enqueue(new Callback<Double>() {
@@ -104,16 +105,23 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
                     if (response.isSuccessful() && response.body() != null) {
                         double rating = response.body();
                         holder.tvRating.setText(String.format(Locale.getDefault(), "★ %.1f", rating));
+                        updateBadgeState(holder.tvBadge, food, rating);
                     } else {
                         holder.tvRating.setText("★ N/A");
+                        updateBadgeState(holder.tvBadge, food, 0.0);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Double> call, Throwable t) {
                     holder.tvRating.setText("★ N/A");
+                    updateBadgeState(holder.tvBadge, food, 0.0);
                 }
             });
+        } else {
+            holder.tvRating.setText("★ N/A");
+            updateBadgeState(holder.tvBadge, food, 0.0);
+        }
 
             holder.tvRating.setOnClickListener(v -> {
                 android.content.Context ctx = holder.itemView.getContext();
@@ -185,6 +193,49 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         return formatter.format(price) + "đ";
     }
 
+    private void updateBadgeState(TextView tvBadge, ShopDetailResponse.FoodItem food, double rating) {
+        if (tvBadge == null) return;
+
+        // 1. Check manual tags
+        if (food.getTags() != null) {
+            for (String tag : food.getTags()) {
+                String cleanTag = tag.trim().toLowerCase();
+                if (cleanTag.contains("yêu thích") || cleanTag.contains("favorite")) {
+                    tvBadge.setVisibility(View.VISIBLE);
+                    tvBadge.setText("Yêu thích");
+                    tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
+                    return;
+                }
+                if (cleanTag.contains("bán chạy") || cleanTag.contains("best seller")) {
+                    tvBadge.setVisibility(View.VISIBLE);
+                    tvBadge.setText("Bán chạy");
+                    tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
+                    return;
+                }
+            }
+        }
+
+        // 2. Check rating
+        if (rating >= 4.0) {
+            tvBadge.setVisibility(View.VISIBLE);
+            tvBadge.setText("Yêu thích");
+            tvBadge.setBackgroundResource(R.drawable.bg_badge_orange);
+            return;
+        }
+
+        // 3. Check soldCount
+        int soldCount = food.getSoldCount() != null ? food.getSoldCount() : 0;
+        if (soldCount >= 30) {
+            tvBadge.setVisibility(View.VISIBLE);
+            tvBadge.setText("Bán chạy");
+            tvBadge.setBackgroundResource(R.drawable.bg_badge_green);
+            return;
+        }
+
+        // 4. Otherwise hide
+        tvBadge.setVisibility(View.GONE);
+    }
+
     static class FoodViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFoodImage;
         TextView tvName;
@@ -192,6 +243,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
         TextView tvPrice;
         TextView tvTags;
         TextView tvRating;
+        TextView tvBadge;
         ImageView btnAddFood;
 
         FoodViewHolder(@NonNull View itemView) {
@@ -202,6 +254,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
             tvPrice = itemView.findViewById(R.id.tvMenuFoodPrice);
             tvTags = itemView.findViewById(R.id.tvMenuFoodTags);
             tvRating = itemView.findViewById(R.id.tvMenuFoodRating);
+            tvBadge = itemView.findViewById(R.id.tv_badge_label);
             btnAddFood = itemView.findViewById(R.id.btnAddFood);
         }
     }
