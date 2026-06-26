@@ -86,6 +86,8 @@ public class ShopMapActivity extends AppCompatActivity {
     private Runnable reverseGeocodeRunnable;
     private boolean isProgrammaticTextChange = false;
     private boolean isProgrammaticMapMove = false;
+    private Double userCurrentLat = null;
+    private Double userCurrentLng = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -235,11 +237,25 @@ public class ShopMapActivity extends AppCompatActivity {
             return;
         }
 
+        double biasLat = 10.8756; // Default HCMC UT
+        double biasLng = 106.8034;
+        if (userCurrentLat != null && userCurrentLng != null) {
+            biasLat = userCurrentLat;
+            biasLng = userCurrentLng;
+        } else if (mapView != null && mapView.getMapCenter() != null) {
+            biasLat = mapView.getMapCenter().getLatitude();
+            biasLng = mapView.getMapCenter().getLongitude();
+        }
+
+        final double finalLat = biasLat;
+        final double finalLng = biasLng;
+
         new Thread(() -> {
             try {
                 String encodedQuery = URLEncoder.encode(query, "UTF-8");
                 String urlStr = "https://nominatim.openstreetmap.org/search?q=" + encodedQuery 
-                        + "&format=json&limit=5&countrycodes=vn&accept-language=vi";
+                        + "&format=json&limit=10&countrycodes=vn&accept-language=vi"
+                        + "&lat=" + finalLat + "&lon=" + finalLng;
                 
                 URL url = new URL(urlStr);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -397,14 +413,18 @@ public class ShopMapActivity extends AppCompatActivity {
                     lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
 
-                if (lastKnown != null && getIntent().getDoubleExtra("LATITUDE", 0.0) == 0.0) {
-                    selectedLat = lastKnown.getLatitude();
-                    selectedLng = lastKnown.getLongitude();
-                    GeoPoint currentPoint = new GeoPoint(selectedLat, selectedLng);
-                    
-                    isProgrammaticMapMove = true;
-                    mapController.setCenter(currentPoint);
-                    triggerReverseGeocoding();
+                if (lastKnown != null) {
+                    userCurrentLat = lastKnown.getLatitude();
+                    userCurrentLng = lastKnown.getLongitude();
+                    if (getIntent().getDoubleExtra("LATITUDE", 0.0) == 0.0) {
+                        selectedLat = lastKnown.getLatitude();
+                        selectedLng = lastKnown.getLongitude();
+                        GeoPoint currentPoint = new GeoPoint(selectedLat, selectedLng);
+                        
+                        isProgrammaticMapMove = true;
+                        mapController.setCenter(currentPoint);
+                        triggerReverseGeocoding();
+                    }
                 }
             }
         } catch (Exception e) {
