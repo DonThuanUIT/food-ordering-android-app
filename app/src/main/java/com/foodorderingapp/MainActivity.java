@@ -67,14 +67,10 @@ public class MainActivity extends AppCompatActivity {
         String role = getIntent().getStringExtra("USER_ROLE");
         if (role == null) role = "STUDENT";
         
-        if ("VENDOR".equalsIgnoreCase(role)) {
-            android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-            boolean isDarkMode = prefs.getBoolean("vendor_dark_mode", false);
-            if (isDarkMode) {
-                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
-                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-            }
+        android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("app_dark_mode", prefs.getBoolean("vendor_dark_mode", false));
+        if (isDarkMode) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
@@ -131,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
             }
             ImageView ivProfile = findViewById(R.id.ivProfile);
             if (ivProfile != null) {
-                android.content.SharedPreferences prefs = getSharedPreferences("vendor_settings_pref", MODE_PRIVATE);
-                String logoUrl = prefs.getString("last_shop_logo_url", null);
+                android.content.SharedPreferences vendorPrefs = getSharedPreferences("vendor_settings_pref", MODE_PRIVATE);
+                String logoUrl = vendorPrefs.getString("last_shop_logo_url", null);
                 if (logoUrl != null && !logoUrl.trim().isEmpty()) {
                     Glide.with(this)
                         .load(logoUrl)
@@ -196,35 +192,30 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
         bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
 
-        // Setup theme toggle for VENDOR
+        // Setup theme toggle for all roles
         ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
         if (ivThemeToggle != null) {
-            if ("VENDOR".equalsIgnoreCase(userRole)) {
-                ivThemeToggle.setVisibility(View.VISIBLE);
-                android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                boolean isDarkMode = prefs.getBoolean("vendor_dark_mode", false);
-                
-                if (isDarkMode) {
-                    ivThemeToggle.setImageResource(R.drawable.ic_sun);
-                } else {
-                    ivThemeToggle.setImageResource(R.drawable.ic_moon);
-                }
-                
-                ivThemeToggle.setOnClickListener(v -> {
-                    boolean currentMode = prefs.getBoolean("vendor_dark_mode", false);
-                    boolean newMode = !currentMode;
-                    prefs.edit().putBoolean("vendor_dark_mode", newMode).apply();
-                    
-                    if (newMode) {
-                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
-                    } else {
-                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-                    }
-                    recreate();
-                });
+            ivThemeToggle.setVisibility(View.VISIBLE);
+            boolean currentDarkMode = prefs.getBoolean("app_dark_mode", prefs.getBoolean("vendor_dark_mode", false));
+            
+            if (currentDarkMode) {
+                ivThemeToggle.setImageResource(R.drawable.ic_sun);
             } else {
-                ivThemeToggle.setVisibility(View.GONE);
+                ivThemeToggle.setImageResource(R.drawable.ic_moon);
             }
+            
+            ivThemeToggle.setOnClickListener(v -> {
+                boolean currentMode = prefs.getBoolean("app_dark_mode", prefs.getBoolean("vendor_dark_mode", false));
+                boolean newMode = !currentMode;
+                prefs.edit().putBoolean("app_dark_mode", newMode).apply();
+                
+                if (newMode) {
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+                } else {
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+                }
+                recreate();
+            });
         }
     }
 
