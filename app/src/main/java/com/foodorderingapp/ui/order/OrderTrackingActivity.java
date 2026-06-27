@@ -139,7 +139,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
         };
 
     private void setupMap() {
-        mapView.setTileSource(ESRI_STREETS);
+        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
