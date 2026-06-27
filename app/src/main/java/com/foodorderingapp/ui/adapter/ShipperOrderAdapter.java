@@ -61,7 +61,23 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
         holder.tvSummaryItems.setText(formatSummaryItems(order.getDetails()));
         holder.tvTotal.setText(formatPrice(order.getTotalPrice()));
         
-        holder.tvStatus.setText(formatStatusText(order.getStatus()));
+        String status = order.getStatus();
+        holder.tvStatus.setText(formatStatusText(status));
+        int badgeColor = android.graphics.Color.parseColor("#718096"); // Default Grey
+        if ("PENDING".equalsIgnoreCase(status)) {
+            badgeColor = android.graphics.Color.parseColor("#F46E26"); // Orange
+        } else if ("CONFIRMED".equalsIgnoreCase(status)) {
+            badgeColor = android.graphics.Color.parseColor("#F46E26"); // Orange
+        } else if ("DELIVERING".equalsIgnoreCase(status)) {
+            badgeColor = android.graphics.Color.parseColor("#382C29"); // Dark Cacao Grey
+        } else if ("COMPLETED".equalsIgnoreCase(status)) {
+            badgeColor = android.graphics.Color.parseColor("#38A169"); // Green
+        } else if ("CANCELLED".equalsIgnoreCase(status)) {
+            badgeColor = android.graphics.Color.parseColor("#718096"); // Grey
+        }
+        holder.tvStatus.setBackgroundResource(R.drawable.bg_shop_detail_rating);
+        holder.tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(badgeColor));
+        holder.tvStatus.setTextColor(android.graphics.Color.WHITE);
 
         if (mode == 0) {
             holder.btnAction.setVisibility(View.VISIBLE);
