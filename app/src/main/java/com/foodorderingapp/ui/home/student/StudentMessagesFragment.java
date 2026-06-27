@@ -69,14 +69,14 @@ public class StudentMessagesFragment extends Fragment {
             public void onResponse(Call<List<ChatRoomResponse>> call,
                                    Response<List<ChatRoomResponse>> response) {
                 if (!response.isSuccessful() || response.body() == null) {
-                    showEmpty("Khong tai duoc tin nhan");
+                    showEmpty("Không tải được tin nhắn");
                     return;
                 }
 
                 List<ChatRoomResponse> rooms = response.body();
                 adapter.submitList(rooms);
                 if (rooms.isEmpty()) {
-                    showEmpty("Chua co cuoc tro chuyen nao");
+                    showEmpty("Chưa có cuộc trò chuyện nào");
                 } else {
                     tvEmpty.setVisibility(View.GONE);
                     rvRooms.setVisibility(View.VISIBLE);
@@ -85,14 +85,14 @@ public class StudentMessagesFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<ChatRoomResponse>> call, Throwable t) {
-                showEmpty("Loi ket noi khi tai tin nhan");
+                showEmpty("Lỗi kết nối khi tải tin nhắn");
             }
         });
     }
 
     private void openRoom(ChatRoomResponse room) {
         if (room == null || room.getRoomId() == null) {
-            ToastUtils.error(getContext(), "Khong tim thay phong chat");
+            ToastUtils.error(getContext(), "Không tìm thấy phòng chat");
             return;
         }
 
@@ -100,7 +100,7 @@ public class StudentMessagesFragment extends Fragment {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA_ROOM_ID, room.getRoomId());
         intent.putExtra(ChatActivity.EXTRA_PEER_NAME,
-                partnerName == null || partnerName.trim().isEmpty() ? "Quan" : partnerName);
+                partnerName == null || partnerName.trim().isEmpty() ? "Quán" : partnerName);
         startActivity(intent);
     }
 

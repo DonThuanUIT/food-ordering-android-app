@@ -201,7 +201,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:hint="Chọn hoặc nhập mã"
+                            android:hint="Nhập mã giảm giá"
                             app:boxBackgroundColor="#FFFFFF"
                             app:boxBackgroundMode="outline"
                             app:boxCornerRadiusBottomEnd="14dp"
@@ -209,7 +209,6 @@
                             app:boxCornerRadiusTopEnd="14dp"
                             app:boxCornerRadiusTopStart="14dp"
                             app:boxStrokeColor="#D9DEE8"
-                            app:endIconMode="dropdown_menu"
                             app:hintTextColor="#7D8494">
 
                             <com.google.android.material.textfield.MaterialAutoCompleteTextView

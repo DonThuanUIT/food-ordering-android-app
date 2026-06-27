@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">Food Ordering App</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="add_new_item">Add New Item</string>
-    <string name="expand_menu">Expand your kitchen menu</string>
-    <string name="all">All</string>
+    <string name="app_name">UniEats</string>
+    <string name="hello_blank_fragment">Xin chào</string>
+    <string name="add_new_item">Thêm món mới</string>
+    <string name="expand_menu">Mở rộng thực đơn của bạn</string>
+    <string name="all">Tất cả</string>
 
     <!-- Bottom Navigation -->
     <string name="nav_home">Trang chủ</string>

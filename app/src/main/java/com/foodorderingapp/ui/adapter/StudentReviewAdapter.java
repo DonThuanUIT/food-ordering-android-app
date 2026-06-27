@@ -44,9 +44,9 @@ public class StudentReviewAdapter extends RecyclerView.Adapter<StudentReviewAdap
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
         StudentReviewResponse review = reviews.get(position);
-        holder.tvShopName.setText(defaultText(review.getShopName(), "Quan an"));
+        holder.tvShopName.setText(defaultText(review.getShopName(), "Quán ăn"));
         holder.tvRating.setText(buildStars(review.getRating()));
-        holder.tvComment.setText(defaultText(review.getComment(), "Chua co binh luan"));
+        holder.tvComment.setText(defaultText(review.getComment(), "Chưa có bình luận"));
         holder.tvDate.setText(formatDate(review.getCreatedAt()));
         holder.tvTotal.setText(formatPrice(review.getTotalPrice()));
     }
@@ -60,9 +60,9 @@ public class StudentReviewAdapter extends RecyclerView.Adapter<StudentReviewAdap
         int safeRating = rating == null ? 0 : Math.max(0, Math.min(5, rating));
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < safeRating; i++) {
-            builder.append("*");
+            builder.append("★");
         }
-        return builder.length() == 0 ? "Chua danh gia" : builder + " " + safeRating + "/5";
+        return builder.length() == 0 ? "Chưa đánh giá" : builder + " " + safeRating + "/5";
     }
 
     private String formatDate(String value) {
