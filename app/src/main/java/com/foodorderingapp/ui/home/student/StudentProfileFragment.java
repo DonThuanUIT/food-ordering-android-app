@@ -663,10 +663,20 @@ public class StudentProfileFragment extends Fragment {
         chart.setCenterText("Chi tiêu");
         chart.setCenterTextSize(14f);
         chart.setCenterTextColor(Color.WHITE);
-        chart.setDrawEntryLabels(false);
+        chart.setDrawEntryLabels(true);
+        chart.setEntryLabelColor(Color.WHITE);
+        chart.setEntryLabelTextSize(10f);
+        chart.setExtraBottomOffset(18f);
+        chart.setExtraLeftOffset(8f);
+        chart.setExtraRightOffset(8f);
 
         Legend legend = chart.getLegend();
+        legend.setEnabled(true);
         legend.setTextColor(Color.WHITE);
+        legend.setTextSize(12f);
+        legend.setFormSize(10f);
+        legend.setXEntrySpace(12f);
+        legend.setYEntrySpace(6f);
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);

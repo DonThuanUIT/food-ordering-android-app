@@ -77,24 +77,12 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAdminRoleAll"
-                    android:layout_width="0dp"
-                    android:layout_height="42dp"
-                    android:layout_weight="1"
-                    android:minWidth="0dp"
-                    android:text="Tất cả"
-                    android:textAllCaps="false"
-                    android:textSize="14sp"
-                    app:cornerRadius="14dp" />
-
-                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAdminRoleVendor"
                     android:layout_width="0dp"
                     android:layout_height="42dp"
-                    android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:minWidth="0dp"
-                    android:text="Người bán"
+                    android:text="Chủ quán"
                     android:textAllCaps="false"
                     android:textSize="14sp"
                     app:cornerRadius="14dp" />
