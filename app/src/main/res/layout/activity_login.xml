@@ -13,7 +13,7 @@
     <View
         android:id="@+id/topBackground"
         android:layout_width="0dp"
-        android:layout_height="285dp"
+        android:layout_height="330dp"
         android:background="#FF7A21"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,11 +22,11 @@
     <!-- Hình minh họa giao hàng đẹp mắt -->
     <ImageView
         android:id="@+id/imgIllustration"
-        android:layout_width="160dp"
-        android:layout_height="125dp"
+        android:layout_width="220dp"
+        android:layout_height="170dp"
         android:src="@drawable/img_login_illustration"
         android:scaleType="fitCenter"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -41,7 +41,7 @@
         android:textSize="30sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-medium"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         app:layout_constraintTop_toBottomOf="@id/imgIllustration"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
