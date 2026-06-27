@@ -83,7 +83,7 @@
                     android:layout_height="42dp"
                     android:layout_weight="1"
                     android:minWidth="0dp"
-                    android:text="Người bán"
+                    android:text="Chủ quán"
                     android:textAllCaps="false"
                     android:textSize="14sp"
                     app:cornerRadius="14dp" />

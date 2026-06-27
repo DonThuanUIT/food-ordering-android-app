@@ -138,7 +138,7 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void selectRole(String role) {
-        if ((role == null && selectedRole == null) || (role != null && role.equals(selectedRole))) {
+        if (role != null && role.equals(selectedRole)) {
             return;
         }
         selectedRole = role;
@@ -187,9 +187,9 @@ public class AdminUsersFragment extends Fragment {
 
         isLastPage = page.isLast() || loadedUserCount >= page.getTotalElements();
         tvEmpty.setVisibility(loadedUserCount == 0 ? View.VISIBLE : View.GONE);
-        tvEmpty.setText(selectedRole == null
-                ? "Không có người dùng phù hợp"
-                : ("STUDENT".equals(selectedRole) ? "Không có sinh viên phù hợp" : "Không có người bán phù hợp"));
+        tvEmpty.setText("STUDENT".equals(selectedRole)
+                ? "Không có sinh viên phù hợp"
+                : "Không có chủ quán phù hợp");
         updateLoadMoreButton();
     }
 
