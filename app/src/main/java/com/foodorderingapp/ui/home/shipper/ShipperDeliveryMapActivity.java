@@ -63,6 +63,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
     private MaterialButton btnAction;
 
     private String orderId;
+    private String shopId;
     private String shopName;
     private String shopAddress;
     private double shopLat;
@@ -114,6 +115,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
 
         // Get Intent extras
         orderId = getIntent().getStringExtra("ORDER_ID");
+        shopId = getIntent().getStringExtra("SHOP_ID");
         shopName = getIntent().getStringExtra("SHOP_NAME");
         shopAddress = getIntent().getStringExtra("SHOP_ADDRESS");
         shopLat = getIntent().getDoubleExtra("SHOP_LATITUDE", 0.0);
@@ -140,6 +142,22 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         btnAction = findViewById(R.id.btn_action);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
+        android.widget.ImageView btnChatVendor = findViewById(R.id.btn_chat_vendor);
+        if (btnChatVendor != null) {
+            btnChatVendor.setOnClickListener(v -> {
+                if (shopId == null || shopId.trim().isEmpty()) {
+                    com.foodorderingapp.utils.ToastUtils.error(this, "Không tìm thấy thông tin cửa hàng");
+                    return;
+                }
+                android.content.Intent intent = new android.content.Intent(this, com.foodorderingapp.ui.chat.ChatActivity.class);
+                intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_SHOP_ID, shopId);
+                intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_SHOP_NAME, shopName);
+                intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_PEER_NAME,
+                        shopName == null || shopName.trim().isEmpty() ? "Cửa hàng" : shopName);
+                startActivity(intent);
+            });
+        }
 
         if (orderId != null) {
             tvOrderTitle.setText("Đơn hàng: " + orderId.substring(0, 8).toUpperCase());
