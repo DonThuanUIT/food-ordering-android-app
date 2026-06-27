@@ -600,8 +600,8 @@ public class VendorStatsFragment extends Fragment {
                         label = "Chờ duyệt";
                         color = Color.parseColor("#8E8E93"); // status_gray
                         break;
-                    case "PREPARING":
-                        label = "Chuẩn bị";
+                    case "CONFIRMED":
+                        label = "Đã xác nhận";
                         color = Color.parseColor("#FF7A21"); // brand_orange
                         break;
                     default:

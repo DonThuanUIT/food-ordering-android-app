@@ -39,8 +39,7 @@ public class AdminUsersFragment extends Fragment {
     private TextView tvEmpty;
     private Runnable searchRunnable;
     private boolean pendingActiveState;
-    private String selectedRole = null;
-    private MaterialButton btnRoleAll;
+    private String selectedRole = "VENDOR";
     private MaterialButton btnRoleStudent;
     private MaterialButton btnRoleVendor;
     private MaterialButton btnLoadMore;
@@ -67,7 +66,6 @@ public class AdminUsersFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
         edtSearch = view.findViewById(R.id.edtAdminUserSearch);
         tvEmpty = view.findViewById(R.id.tvAdminUsersEmpty);
-        btnRoleAll = view.findViewById(R.id.btnAdminRoleAll);
         btnRoleStudent = view.findViewById(R.id.btnAdminRoleStudent);
         btnRoleVendor = view.findViewById(R.id.btnAdminRoleVendor);
         btnLoadMore = view.findViewById(R.id.btnAdminUsersLoadMore);
@@ -134,14 +132,13 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void setupRoleFilters() {
-        btnRoleAll.setOnClickListener(v -> selectRole(null));
         btnRoleVendor.setOnClickListener(v -> selectRole("VENDOR"));
         btnRoleStudent.setOnClickListener(v -> selectRole("STUDENT"));
         updateRoleButtonStates();
     }
 
     private void selectRole(String role) {
-        if ((role == null && selectedRole == null) || (role != null && role.equals(selectedRole))) {
+        if (role != null && role.equals(selectedRole)) {
             return;
         }
         selectedRole = role;
@@ -150,7 +147,6 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void updateRoleButtonStates() {
-        setFilterButtonState(btnRoleAll, selectedRole == null);
         setFilterButtonState(btnRoleVendor, "VENDOR".equals(selectedRole));
         setFilterButtonState(btnRoleStudent, "STUDENT".equals(selectedRole));
     }
@@ -191,9 +187,9 @@ public class AdminUsersFragment extends Fragment {
 
         isLastPage = page.isLast() || loadedUserCount >= page.getTotalElements();
         tvEmpty.setVisibility(loadedUserCount == 0 ? View.VISIBLE : View.GONE);
-        tvEmpty.setText(selectedRole == null
-                ? "Không có người dùng phù hợp"
-                : ("STUDENT".equals(selectedRole) ? "Không có sinh viên phù hợp" : "Không có người bán phù hợp"));
+        tvEmpty.setText("STUDENT".equals(selectedRole)
+                ? "Không có sinh viên phù hợp"
+                : "Không có chủ quán phù hợp");
         updateLoadMoreButton();
     }
 
