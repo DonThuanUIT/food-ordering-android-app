@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -33,7 +34,7 @@ import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LOGIN_DEBUG";
-    private TextView txtSignUp;
+    private TextView txtSignUp, txtForgot;
     private EditText edtPhone, edtPassword;
     private ImageView imgEye;
     private Button btnLogin;
@@ -46,13 +47,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-        boolean isDarkMode = prefs.getBoolean("app_dark_mode", prefs.getBoolean("vendor_dark_mode", false));
-        if (isDarkMode) {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-        }
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
 
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
@@ -81,6 +76,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initViews() {
         txtSignUp = findViewById(R.id.txtSignUp);
+        txtForgot = findViewById(R.id.txtForgot);
         edtPhone = findViewById(R.id.edtPhone);
         edtPassword = findViewById(R.id.edtPassword);
         imgEye = findViewById(R.id.imgEye);
@@ -131,6 +127,143 @@ public class LoginActivity extends AppCompatActivity {
                 showBiometricPrompt(savedPhone, savedPassword);
             }
         });
+
+        txtForgot.setOnClickListener(v -> showForgotPasswordDialog());
+    }
+
+    private void showForgotPasswordDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_forgot_password, null);
+
+        TextView dialogTitle = dialogView.findViewById(R.id.dialogTitle);
+        TextView dialogSubtitle = dialogView.findViewById(R.id.dialogSubtitle);
+        
+        LinearLayout layoutEmailInput = dialogView.findViewById(R.id.layoutEmailInput);
+        EditText dialogEdtEmail = dialogView.findViewById(R.id.dialogEdtEmail);
+        Button dialogBtnSendOtp = dialogView.findViewById(R.id.dialogBtnSendOtp);
+
+        LinearLayout layoutResetFields = dialogView.findViewById(R.id.layoutResetFields);
+        EditText dialogEdtOtp = dialogView.findViewById(R.id.dialogEdtOtp);
+        EditText dialogEdtNewPassword = dialogView.findViewById(R.id.dialogEdtNewPassword);
+        EditText dialogEdtConfirmNewPassword = dialogView.findViewById(R.id.dialogEdtConfirmNewPassword);
+        Button dialogBtnResetPassword = dialogView.findViewById(R.id.dialogBtnResetPassword);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setNegativeButton("Hủy", (dialogInterface, i) -> dialogInterface.dismiss())
+                .create();
+
+        dialogBtnSendOtp.setOnClickListener(v -> {
+            String email = dialogEdtEmail.getText().toString().trim();
+            if (email.isEmpty()) {
+                dialogEdtEmail.setError("Vui lòng nhập email");
+                return;
+            }
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                dialogEdtEmail.setError("Email không hợp lệ");
+                return;
+            }
+
+            dialogBtnSendOtp.setEnabled(false);
+            dialogBtnSendOtp.setText("Đang gửi...");
+
+            com.foodorderingapp.data.remote.api.ApiClient.getApiService().sendForgotPasswordOtp(email)
+                    .enqueue(new retrofit2.Callback<com.foodorderingapp.model.response.AuthResponse>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.foodorderingapp.model.response.AuthResponse> call, retrofit2.Response<com.foodorderingapp.model.response.AuthResponse> response) {
+                            dialogBtnSendOtp.setEnabled(true);
+                            dialogBtnSendOtp.setText("Gửi mã OTP");
+                            
+                            if (response.isSuccessful() && response.body() != null) {
+                                ToastUtils.success(LoginActivity.this, "Mã OTP đã được gửi đến email của bạn!");
+                                layoutEmailInput.setVisibility(View.GONE);
+                                layoutResetFields.setVisibility(View.VISIBLE);
+                                dialogSubtitle.setText("Vui lòng kiểm tra email để lấy mã OTP và đặt lại mật khẩu mới.");
+                            } else {
+                                String errorMsg = "Gửi OTP thất bại! Vui lòng kiểm tra lại email.";
+                                try {
+                                    if (response.errorBody() != null) {
+                                        org.json.JSONObject jsonObject = new org.json.JSONObject(response.errorBody().string());
+                                        if (jsonObject.has("message")) {
+                                            errorMsg = jsonObject.getString("message");
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Error parsing errorBody", e);
+                                }
+                                ToastUtils.error(LoginActivity.this, errorMsg);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(retrofit2.Call<com.foodorderingapp.model.response.AuthResponse> call, Throwable t) {
+                            dialogBtnSendOtp.setEnabled(true);
+                            dialogBtnSendOtp.setText("Gửi mã OTP");
+                            ToastUtils.error(LoginActivity.this, "Lỗi kết nối: " + t.getMessage());
+                        }
+                    });
+        });
+
+        dialogBtnResetPassword.setOnClickListener(v -> {
+            String email = dialogEdtEmail.getText().toString().trim();
+            String otpCode = dialogEdtOtp.getText().toString().trim();
+            String newPassword = dialogEdtNewPassword.getText().toString().trim();
+            String confirmNewPassword = dialogEdtConfirmNewPassword.getText().toString().trim();
+
+            if (otpCode.isEmpty() || otpCode.length() < 6) {
+                dialogEdtOtp.setError("Mã OTP gồm 6 số");
+                return;
+            }
+            java.util.regex.Pattern passwordPattern = java.util.regex.Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$");
+            if (!passwordPattern.matcher(newPassword).matches()) {
+                dialogEdtNewPassword.setError("Mật khẩu ít nhất 8 ký tự, gồm hoa, thường, số và ký tự đặc biệt");
+                return;
+            }
+            if (!newPassword.equals(confirmNewPassword)) {
+                dialogEdtConfirmNewPassword.setError("Mật khẩu không khớp");
+                return;
+            }
+
+            dialogBtnResetPassword.setEnabled(false);
+            dialogBtnResetPassword.setText("Đang thực hiện...");
+
+            com.foodorderingapp.model.request.ResetPasswordRequest resetRequest = new com.foodorderingapp.model.request.ResetPasswordRequest(email, otpCode, newPassword);
+            com.foodorderingapp.data.remote.api.ApiClient.getApiService().resetPassword(resetRequest)
+                    .enqueue(new retrofit2.Callback<com.foodorderingapp.model.response.AuthResponse>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.foodorderingapp.model.response.AuthResponse> call, retrofit2.Response<com.foodorderingapp.model.response.AuthResponse> response) {
+                            dialogBtnResetPassword.setEnabled(true);
+                            dialogBtnResetPassword.setText("Đặt lại mật khẩu");
+
+                            if (response.isSuccessful() && response.body() != null) {
+                                ToastUtils.success(LoginActivity.this, "Đặt lại mật khẩu thành công!");
+                                dialog.dismiss();
+                            } else {
+                                String errorMsg = "Đặt lại mật khẩu thất bại! Vui lòng thử lại.";
+                                try {
+                                    if (response.errorBody() != null) {
+                                        org.json.JSONObject jsonObject = new org.json.JSONObject(response.errorBody().string());
+                                        if (jsonObject.has("message")) {
+                                            errorMsg = jsonObject.getString("message");
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Error parsing errorBody", e);
+                                }
+                                ToastUtils.error(LoginActivity.this, errorMsg);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(retrofit2.Call<com.foodorderingapp.model.response.AuthResponse> call, Throwable t) {
+                            dialogBtnResetPassword.setEnabled(true);
+                            dialogBtnResetPassword.setText("Đặt lại mật khẩu");
+                            ToastUtils.error(LoginActivity.this, "Lỗi kết nối: " + t.getMessage());
+                        }
+                    });
+        });
+
+        dialog.show();
     }
 
     private void showLinkBiometricDialog() {
