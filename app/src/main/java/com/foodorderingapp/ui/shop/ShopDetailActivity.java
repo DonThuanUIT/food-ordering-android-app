@@ -32,6 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,6 +54,8 @@ public class ShopDetailActivity extends AppCompatActivity {
 
     private ShopViewModel shopViewModel;
     private String shopId;
+    private String currentOpenTime;
+    private String currentCloseTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +143,8 @@ public class ShopDetailActivity extends AppCompatActivity {
         String openTime = getIntent().getStringExtra("SHOP_OPEN_TIME");
         String closeTime = getIntent().getStringExtra("SHOP_CLOSE_TIME");
         String displayStatus = getIntent().getStringExtra("SHOP_DISPLAY_STATUS");
+        currentOpenTime = openTime;
+        currentCloseTime = closeTime;
 
         tvShopName.setText(nullToDefault(name, "Chưa có tên quán"));
         tvShopAddress.setText(nullToDefault(address, "Đang tải địa chỉ..."));
@@ -157,6 +163,9 @@ public class ShopDetailActivity extends AppCompatActivity {
             tvShopName.setText(nullToDefault(detail.getName(), tvShopName.getText().toString()));
             tvShopAddress.setText(nullToDefault(detail.getAddress(), "Chưa cập nhật địa chỉ"));
             tvShopDescription.setText(nullToDefault(detail.getDescription(), tvShopDescription.getText().toString()));
+            currentOpenTime = detail.getOpenTime();
+            currentCloseTime = detail.getCloseTime();
+            tvShopTime.setText(formatTimeRange(currentOpenTime, currentCloseTime));
             bindStatus(detail.getIsOpen());
             bindHeroImage(detail.getCoverUrl(), detail.getLogoUrl());
         });
@@ -248,15 +257,16 @@ public class ShopDetailActivity extends AppCompatActivity {
         if (isOpen == null) {
             return;
         }
-        bindStatus(isOpen ? "OPENING" : "CLOSED");
+        bindStatus(isOpen, currentOpenTime, currentCloseTime);
     }
 
     private void bindStatus(String displayStatus) {
-        boolean opening = "OPENING".equalsIgnoreCase(displayStatus)
-                || "OPEN".equalsIgnoreCase(displayStatus)
-                || displayStatus == null
-                || displayStatus.trim().isEmpty();
+        boolean manuallyOpen = !isClosedStatus(displayStatus);
+        bindStatus(manuallyOpen, currentOpenTime, currentCloseTime);
+    }
 
+    private void bindStatus(boolean manuallyOpen, String openTime, String closeTime) {
+        boolean opening = manuallyOpen && isWithinOpeningHours(openTime, closeTime);
         int statusColor = opening ? Color.parseColor("#00A843") : Color.parseColor("#777777");
         tvShopStatus.setText(opening ? "Đang mở cửa" : "Đang đóng cửa");
         tvShopStatus.setTextColor(statusColor);
@@ -264,6 +274,40 @@ public class ShopDetailActivity extends AppCompatActivity {
         layoutShopStatus.setBackgroundResource(opening
                 ? R.drawable.bg_shop_detail_status_open
                 : R.drawable.bg_shop_detail_status_closed);
+    }
+
+    private boolean isClosedStatus(String displayStatus) {
+        if (displayStatus == null || displayStatus.trim().isEmpty()) {
+            return false;
+        }
+        String normalized = displayStatus.trim().toUpperCase(Locale.ROOT);
+        return normalized.contains("CLOSED")
+                || normalized.contains("DONG")
+                || normalized.contains("ĐÓNG")
+                || normalized.contains("ÄÃ“NG");
+    }
+
+    private boolean isWithinOpeningHours(String openTime, String closeTime) {
+        if (openTime == null || openTime.trim().isEmpty()
+                || closeTime == null || closeTime.trim().isEmpty()) {
+            return true;
+        }
+
+        try {
+            LocalTime open = LocalTime.parse(openTime.trim());
+            LocalTime close = LocalTime.parse(closeTime.trim());
+            LocalTime now = LocalTime.now();
+
+            if (open.equals(close)) {
+                return true;
+            }
+            if (close.isAfter(open)) {
+                return !now.isBefore(open) && !now.isAfter(close);
+            }
+            return !now.isBefore(open) || !now.isAfter(close);
+        } catch (DateTimeParseException exception) {
+            return true;
+        }
     }
 
     private String formatTimeRange(String openTime, String closeTime) {

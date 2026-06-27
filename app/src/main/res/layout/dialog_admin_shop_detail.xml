@@ -123,6 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:visibility="gone"
             android:text="Hồ sơ xác minh"
             android:textColor="@color/black"
             android:textSize="19sp"
@@ -133,6 +134,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_admin_doc_card"
+            android:visibility="gone"
             android:orientation="vertical"
             android:padding="14dp">
 
@@ -176,6 +178,55 @@
                     android:adjustViewBounds="true"
                     android:src="@drawable/logo_food" />
             </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_admin_doc_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thông tin cửa hàng"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDialogShopAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#5B3728"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDialogShopContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#5B3728"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDialogShopTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#5B3728"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDialogShopBank"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#5B3728"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

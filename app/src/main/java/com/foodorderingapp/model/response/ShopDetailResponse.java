@@ -11,6 +11,8 @@ public class ShopDetailResponse {
     private String description;
     private String coverUrl;
     private String logoUrl;
+    private String openTime;
+    private String closeTime;
     private Boolean isOpen;
     private Double latitude;
     private Double longitude;
@@ -46,6 +48,14 @@ public class ShopDetailResponse {
 
     public String getLogoUrl() {
         return logoUrl;
+    }
+
+    public String getOpenTime() {
+        return openTime;
+    }
+
+    public String getCloseTime() {
+        return closeTime;
     }
 
     public Boolean getIsOpen() {

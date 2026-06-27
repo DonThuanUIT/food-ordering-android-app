@@ -71,8 +71,8 @@ public class AdminViewModel extends ViewModel {
         repository.getUsers(search, role, page, size, users);
     }
 
-    public void toggleUserLock(String userId) {
-        repository.toggleUserLock(userId, userLockResult);
+    public void updateUserLock(String userId, boolean locked) {
+        repository.updateUserLock(userId, locked, userLockResult);
     }
 
     public void clearShopStatusResult() {
