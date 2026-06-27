@@ -176,6 +176,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
+                    android:id="@+id/ivActiveOrderImage"
                     android:layout_width="54dp"
                     android:layout_height="54dp"
                     android:background="@drawable/home_bg_circle_white"

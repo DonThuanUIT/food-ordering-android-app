@@ -25,6 +25,7 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.ui.home.admin.AdminApprovalsFragment;
 import com.foodorderingapp.ui.home.admin.AdminOverviewFragment;
+import com.foodorderingapp.ui.home.admin.AdminProfileFragment;
 import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
 import com.foodorderingapp.ui.home.shipper.ShipperOrdersFragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
@@ -154,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (isAdminRole(role)) {
-            updateHeader("UniEats Admin");
+            updateHeader("UniEats Quản trị");
         } else if (isVendorRole(role)) {
             updateHeader("Đơn hàng");
         } else if (isShipperRole(role)) {
@@ -173,15 +174,19 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_admin_overview) {
                 viewPager.setCurrentItem(0, false);
-                updateHeader("UniEats Admin");
+                updateHeader("UniEats Quản trị");
                 return true;
             } else if (id == R.id.nav_admin_approvals) {
                 viewPager.setCurrentItem(1, false);
-                updateHeader("UniEats Admin");
+                updateHeader("UniEats Quản trị");
                 return true;
             } else if (id == R.id.nav_admin_users) {
                 viewPager.setCurrentItem(2, false);
-                updateHeader("UniEats Admin");
+                updateHeader("UniEats Quản trị");
+                return true;
+            } else if (id == R.id.nav_admin_profile) {
+                viewPager.setCurrentItem(3, false);
+                updateHeader("Cá nhân");
                 return true;
             } else if (id == R.id.nav_admin_logout) {
                 confirmLogout();
@@ -237,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     case 0: return new AdminOverviewFragment();
                     case 1: return new AdminApprovalsFragment();
                     case 2: return new AdminUsersFragment();
+                    case 3: return new AdminProfileFragment();
                 }
             } else if (isVendorRole(role)) {
                 switch (position) {
@@ -268,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             if (isAdminRole(role)) {
-                return 3;
+                return 4;
             }
             if (isShipperRole(role)) {
                 return 3;
@@ -281,12 +287,10 @@ public class MainActivity extends AppCompatActivity {
         ImageView ivProfile = findViewById(R.id.ivProfile);
         if (ivProfile != null) {
             if (isAdminRole(userRole)) {
-                ivProfile.setImageResource(R.drawable.ic_logout);
-                ivProfile.setImageTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(this, R.color.profile_logout_red)
-                ));
-                ivProfile.setContentDescription(getString(R.string.profile_logout));
-                ivProfile.setOnClickListener(v -> confirmLogout());
+                ivProfile.setImageResource(R.drawable.ic_profile);
+                ivProfile.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+                ivProfile.setContentDescription(getString(R.string.nav_profile));
+                ivProfile.setOnClickListener(v -> openProfileShortcut());
             } else {
                 ivProfile.setOnClickListener(v -> openProfileShortcut());
             }
@@ -300,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                 ivMenu.setVisibility(View.VISIBLE);
                 ivMenu.setImageResource(R.drawable.ic_contact);
                 ivMenu.setImageTintList(ColorStateList.valueOf(Color.WHITE));
-                ivMenu.setContentDescription("Mo tin nhan");
+                ivMenu.setContentDescription("Mở tin nhắn");
                 ivMenu.setOnClickListener(v -> openMessagesShortcut());
             }
         }
@@ -366,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openProfileShortcut() {
         if (isAdminRole(userRole)) {
-            bottomNav.setSelectedItemId(R.id.nav_admin_users);
+            bottomNav.setSelectedItemId(R.id.nav_admin_profile);
         } else if (isVendorRole(userRole)) {
             bottomNav.setSelectedItemId(R.id.nav_vendor_settings);
         } else {
@@ -379,10 +383,10 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_vendor_messages);
         } else if (isShipperRole(userRole)) {
             viewPager.setCurrentItem(SHIPPER_MESSAGES_PAGE, false);
-            updateHeader("Tin nhan");
+            updateHeader("Tin nhắn");
         } else {
             viewPager.setCurrentItem(STUDENT_MESSAGES_PAGE, false);
-            updateHeader("Tin nhan");
+            updateHeader("Tin nhắn");
         }
     }
 
@@ -392,9 +396,9 @@ public class MainActivity extends AppCompatActivity {
         Menu menu = popupMenu.getMenu();
 
         if (isAdminRole(userRole)) {
-            menu.add(Menu.NONE, R.id.nav_admin_overview, Menu.NONE, "Overview");
-            menu.add(Menu.NONE, R.id.nav_admin_approvals, Menu.NONE, "Approvals");
-            menu.add(Menu.NONE, R.id.nav_admin_users, Menu.NONE, "Users");
+            menu.add(Menu.NONE, R.id.nav_admin_overview, Menu.NONE, "Tổng quan");
+            menu.add(Menu.NONE, R.id.nav_admin_approvals, Menu.NONE, "Phê duyệt");
+            menu.add(Menu.NONE, R.id.nav_admin_users, Menu.NONE, "Người dùng");
             menu.add(Menu.NONE, R.id.nav_admin_logout, Menu.NONE, getString(R.string.profile_logout));
         } else if (isVendorRole(userRole)) {
             menu.add(Menu.NONE, R.id.nav_vendor_orders, Menu.NONE, "Đơn hàng");
@@ -468,6 +472,8 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.nav_admin_approvals);
         } else if (isAdminRole(userRole) && "USERS".equalsIgnoreCase(openTab)) {
             bottomNav.setSelectedItemId(R.id.nav_admin_users);
+        } else if (isAdminRole(userRole) && "PROFILE".equalsIgnoreCase(openTab)) {
+            bottomNav.setSelectedItemId(R.id.nav_admin_profile);
         } else if ("MESSAGES".equalsIgnoreCase(openTab)) {
             openMessagesShortcut();
         } else if ("ORDERS".equalsIgnoreCase(openTab)) {

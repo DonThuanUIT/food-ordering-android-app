@@ -11,9 +11,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.OrderDetailResponse;
 import com.foodorderingapp.model.response.OrderResponse;
+import com.foodorderingapp.utils.ImageUrlUtils;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -87,6 +89,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         holder.tvOrderNumber.setText("Đơn hàng #" + shortOrderId(order.getId()));
         holder.tvOrderLocation.setText(formatLocation(order.getBuilding()));
         holder.tvOrderSummaryItems.setText(formatSummaryItems(order.getDetails()));
+        bindOrderImage(holder.ivOrderImage, order.getDetails());
         bindDiscount(holder.tvOrderDiscount, order);
         holder.tvOrderTotal.setText(formatPrice(order.getTotalPrice()));
         holder.btnContactShop.setOnClickListener(v -> {
@@ -210,6 +213,29 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         view.setText(prefix + ": -" + formatPrice(order.getDiscountAmount()));
     }
 
+    private void bindOrderImage(ImageView imageView, List<OrderDetailResponse> details) {
+        String imageUrl = findFirstImageUrl(details);
+        Glide.with(imageView.getContext())
+                .load(ImageUrlUtils.resolveImageUrl(imageUrl))
+                .placeholder(R.drawable.logo_food)
+                .error(R.drawable.logo_food)
+                .centerCrop()
+                .into(imageView);
+    }
+
+    private String findFirstImageUrl(List<OrderDetailResponse> details) {
+        if (details == null) {
+            return null;
+        }
+        for (OrderDetailResponse detail : details) {
+            if (detail != null && detail.getImageUrl() != null
+                    && !detail.getImageUrl().trim().isEmpty()) {
+                return detail.getImageUrl();
+            }
+        }
+        return null;
+    }
+
     private String formatLocation(String building) {
         return "Tòa nhận: " + nullToDefault(building, "Chưa chọn");
     }
@@ -250,6 +276,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         TextView tvOrderShopName;
         TextView tvOrderNumber;
         TextView tvOrderLocation;
+        ImageView ivOrderImage;
         TextView tvOrderSummaryItems;
         TextView tvOrderDiscount;
         TextView tvOrderTotal;
@@ -271,6 +298,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
             tvOrderShopName = itemView.findViewById(R.id.tvOrderShopName);
             tvOrderNumber = itemView.findViewById(R.id.tvOrderNumber);
             tvOrderLocation = itemView.findViewById(R.id.tvOrderLocation);
+            ivOrderImage = itemView.findViewById(R.id.ivActiveOrderImage);
             tvOrderSummaryItems = itemView.findViewById(R.id.tvOrderSummaryItems);
             tvOrderDiscount = itemView.findViewById(R.id.tvOrderDiscount);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);

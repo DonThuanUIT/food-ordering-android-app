@@ -19,18 +19,15 @@ import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.BuildingResponse;
 import com.foodorderingapp.model.response.CartItemResponse;
 import com.foodorderingapp.model.response.ShopCartResponse;
-import com.foodorderingapp.model.response.VoucherResponse;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.CartViewModel;
 import com.foodorderingapp.viewmodel.OrderViewModel;
 import com.google.android.material.button.MaterialButton;
 
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 public class CheckoutActivity extends AppCompatActivity {
 
@@ -47,14 +44,13 @@ public class CheckoutActivity extends AppCompatActivity {
     private TextView tvVoucherApplied;
     private TextView tvDiscount;
     private TextView tvTotal;
+    private MaterialButton btnApplyVoucher;
     private MaterialButton btnConfirmOrder;
 
     private final List<BuildingResponse> buildingOptions = new ArrayList<>();
-    private final List<VoucherResponse> voucherOptions = new ArrayList<>();
     private String shopId;
     private ShopCartResponse checkoutShop;
     private BuildingResponse selectedBuilding;
-    private VoucherResponse appliedVoucher;
     private String appliedVoucherCode;
     private boolean submitting;
 
@@ -79,7 +75,6 @@ public class CheckoutActivity extends AppCompatActivity {
 
         cartViewModel.loadCart();
         orderViewModel.loadBuildings();
-        orderViewModel.loadVouchers(shopId);
     }
 
     private void bindViews() {
@@ -93,25 +88,18 @@ public class CheckoutActivity extends AppCompatActivity {
         tvVoucherApplied = findViewById(R.id.tvCheckoutVoucherApplied);
         tvDiscount = findViewById(R.id.tvCheckoutDiscount);
         tvTotal = findViewById(R.id.tvCheckoutTotal);
+        btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
         btnConfirmOrder = findViewById(R.id.btnConfirmOrder);
 
-        findViewById(R.id.btnApplyVoucher).setOnClickListener(v -> applyVoucherFromInput(true));
+        btnApplyVoucher.setOnClickListener(v -> handleVoucherButtonClick());
         btnConfirmOrder.setOnClickListener(v -> confirmCheckout());
     }
 
     private void setupInputs() {
         setupDropdown(acBuilding);
-        setupDropdown(acVoucher);
 
         acBuilding.setOnItemClickListener((parent, view, position, id) ->
                 selectedBuilding = (BuildingResponse) parent.getItemAtPosition(position));
-
-        acVoucher.setOnItemClickListener((parent, view, position, id) -> {
-            Object selected = parent.getItemAtPosition(position);
-            if (selected instanceof VoucherResponse) {
-                applyVoucher((VoucherResponse) selected, true);
-            }
-        });
 
         acVoucher.setOnEditorActionListener((v, actionId, event) -> {
             boolean enterPressed = event != null
@@ -136,7 +124,7 @@ public class CheckoutActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if (appliedVoucherCode != null && !sameText(appliedVoucherCode, s.toString())) {
-                    clearAppliedVoucher();
+                    clearAppliedVoucher(false);
                 }
             }
         });
@@ -173,7 +161,6 @@ public class CheckoutActivity extends AppCompatActivity {
         });
 
         orderViewModel.getBuildings().observe(this, this::bindBuildings);
-        orderViewModel.getVouchers().observe(this, this::bindVouchers);
         orderViewModel.getMessage().observe(this, message -> {
             if (!isBlank(message)) {
                 ToastUtils.info(this, message);
@@ -199,18 +186,6 @@ public class CheckoutActivity extends AppCompatActivity {
                 this,
                 android.R.layout.simple_dropdown_item_1line,
                 buildingOptions
-        ));
-    }
-
-    private void bindVouchers(List<VoucherResponse> vouchers) {
-        voucherOptions.clear();
-        if (vouchers != null) {
-            voucherOptions.addAll(vouchers);
-        }
-        acVoucher.setAdapter(new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                voucherOptions
         ));
     }
 
@@ -254,114 +229,66 @@ public class CheckoutActivity extends AppCompatActivity {
                 shopId,
                 cartItemIds,
                 selectedBuilding.getId(),
-                appliedVoucher != null ? appliedVoucher.getCode() : null
+                appliedVoucherCode
         );
     }
 
-    private boolean applyVoucherFromInput(boolean showSuccessMessage) {
-        String value = acVoucher.getText().toString().trim();
-        if (value.isEmpty()) {
-            clearAppliedVoucher();
-            return true;
+    private void handleVoucherButtonClick() {
+        String value = normalizeVoucherCode(acVoucher.getText().toString());
+        if (!isBlank(appliedVoucherCode) && sameText(appliedVoucherCode, value)) {
+            clearAppliedVoucher(true);
+            ToastUtils.info(this, "Đã bỏ mã giảm giá");
+            return;
         }
-
-        if (appliedVoucher != null && sameText(appliedVoucherCode, value)) {
-            return true;
-        }
-
-        VoucherResponse voucher = findVoucher(value);
-        if (voucher == null) {
-            clearAppliedVoucher();
-            ToastUtils.error(this, "Mã giảm giá không hợp lệ");
-            return false;
-        }
-        return applyVoucher(voucher, showSuccessMessage);
+        applyVoucherFromInput(true);
     }
 
-    private boolean applyVoucher(VoucherResponse voucher, boolean showSuccessMessage) {
-        VoucherCalculation calculation = calculateVoucher(voucher);
-        if (!calculation.valid) {
-            clearAppliedVoucher();
-            ToastUtils.error(this, calculation.message);
-            return false;
+    private boolean applyVoucherFromInput(boolean showSuccessMessage) {
+        String value = normalizeVoucherCode(acVoucher.getText().toString());
+        if (value.isEmpty()) {
+            clearAppliedVoucher(false);
+            if (showSuccessMessage) {
+                ToastUtils.error(this, "Vui lòng nhập mã giảm giá");
+            }
+            return true;
         }
 
-        appliedVoucher = voucher;
-        appliedVoucherCode = voucher.getCode();
-        acVoucher.setText(voucher.getCode(), false);
+        if (sameText(appliedVoucherCode, value)) {
+            return true;
+        }
+
+        appliedVoucherCode = value;
+        acVoucher.setText(value, false);
         acVoucher.setSelection(acVoucher.getText().length());
-        bindVoucherPreview(voucher, calculation);
+        bindVoucherPreview(value);
         if (showSuccessMessage) {
-            ToastUtils.success(this, "Đã áp dụng mã giảm giá");
+            ToastUtils.success(this, "Đã nhập mã giảm giá");
         }
         return true;
     }
 
     private void refreshAppliedVoucher() {
-        if (appliedVoucher == null) {
+        if (isBlank(appliedVoucherCode)) {
             return;
         }
-        VoucherCalculation calculation = calculateVoucher(appliedVoucher);
-        if (calculation.valid) {
-            bindVoucherPreview(appliedVoucher, calculation);
-        } else {
-            clearAppliedVoucher();
-        }
+        bindVoucherPreview(appliedVoucherCode);
     }
 
-    private void bindVoucherPreview(VoucherResponse voucher, VoucherCalculation calculation) {
+    private void bindVoucherPreview(String voucherCode) {
         layoutVoucherPreview.setVisibility(View.VISIBLE);
-        tvVoucherApplied.setText("Đã áp dụng: " + voucher.getDisplayText());
-        tvDiscount.setText("Giảm giá: -" + formatPrice(calculation.discount));
-        tvTotal.setText("Tổng thanh toán: " + formatPrice(calculation.totalAfterDiscount));
+        tvVoucherApplied.setText("Mã giảm giá: " + voucherCode);
+        tvDiscount.setText("Mã sẽ được kiểm tra khi xác nhận đặt hàng");
+        tvTotal.setText("Tạm tính: " + formatPrice(calculateSubtotal()));
+        btnApplyVoucher.setText("Bỏ mã");
     }
 
-    private void clearAppliedVoucher() {
-        appliedVoucher = null;
+    private void clearAppliedVoucher(boolean clearInput) {
         appliedVoucherCode = null;
         layoutVoucherPreview.setVisibility(View.GONE);
-    }
-
-    private VoucherResponse findVoucher(String value) {
-        for (VoucherResponse voucher : voucherOptions) {
-            if (voucher != null && (sameText(voucher.getCode(), value)
-                    || sameText(voucher.getDisplayText(), value))) {
-                return voucher;
-            }
+        btnApplyVoucher.setText("Áp dụng");
+        if (clearInput) {
+            acVoucher.setText("", false);
         }
-        return null;
-    }
-
-    private VoucherCalculation calculateVoucher(VoucherResponse voucher) {
-        if (checkoutShop == null) {
-            return VoucherCalculation.invalid("Đơn hàng chưa sẵn sàng");
-        }
-
-        double subtotal = calculateSubtotal();
-        double applicableTotal = calculateApplicableTotal(voucher);
-        if (applicableTotal <= 0D) {
-            return VoucherCalculation.invalid("Mã giảm giá không áp dụng cho món trong giỏ");
-        }
-
-        double minOrder = decimalValue(voucher.getMinOrderValue());
-        if (applicableTotal < minOrder) {
-            return VoucherCalculation.invalid("Đơn hàng chưa đạt giá trị tối thiểu");
-        }
-
-        double discountValue = decimalValue(voucher.getDiscountValue());
-        double discount;
-        if ("PERCENTAGE".equalsIgnoreCase(voucher.getDiscountType())) {
-            discount = applicableTotal * discountValue / 100D;
-            double maxDiscount = decimalValue(voucher.getMaxDiscountValue());
-            if (maxDiscount > 0D) {
-                discount = Math.min(discount, maxDiscount);
-            }
-        } else {
-            discount = discountValue;
-        }
-
-        discount = Math.min(discount, subtotal);
-        return VoucherCalculation.valid(discount, subtotal - discount);
     }
 
     private double calculateSubtotal() {
@@ -375,32 +302,6 @@ public class CheckoutActivity extends AppCompatActivity {
             }
         }
         return total;
-    }
-
-    private double calculateApplicableTotal(VoucherResponse voucher) {
-        if (!"SPECIFIC_FOODS".equalsIgnoreCase(voucher.getApplyType())) {
-            return calculateSubtotal();
-        }
-
-        double total = 0D;
-        for (CartItemResponse item : checkoutShop.getItems()) {
-            if (item != null && voucherAppliesToFood(voucher, item.getFoodId())) {
-                total += item.getPrice() * item.getQuantity();
-            }
-        }
-        return total;
-    }
-
-    private boolean voucherAppliesToFood(VoucherResponse voucher, String foodId) {
-        if (voucher.getFoodIds() == null || foodId == null) {
-            return false;
-        }
-        for (UUID id : voucher.getFoodIds()) {
-            if (id != null && sameText(id.toString(), foodId)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private List<String> collectCartItemIds() {
@@ -437,12 +338,12 @@ public class CheckoutActivity extends AppCompatActivity {
         finish();
     }
 
-    private double decimalValue(BigDecimal value) {
-        return value == null ? 0D : value.doubleValue();
-    }
-
     private String formatPrice(double price) {
         return NumberFormat.getInstance(new Locale("vi", "VN")).format(price) + "đ";
+    }
+
+    private String normalizeVoucherCode(String value) {
+        return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
     }
 
     private boolean sameText(String first, String second) {
@@ -452,28 +353,5 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
-    }
-
-    private static class VoucherCalculation {
-        final boolean valid;
-        final String message;
-        final double discount;
-        final double totalAfterDiscount;
-
-        private VoucherCalculation(boolean valid, String message, double discount,
-                                   double totalAfterDiscount) {
-            this.valid = valid;
-            this.message = message;
-            this.discount = discount;
-            this.totalAfterDiscount = totalAfterDiscount;
-        }
-
-        static VoucherCalculation valid(double discount, double totalAfterDiscount) {
-            return new VoucherCalculation(true, null, discount, totalAfterDiscount);
-        }
-
-        static VoucherCalculation invalid(String message) {
-            return new VoucherCalculation(false, message, 0D, 0D);
-        }
     }
 }

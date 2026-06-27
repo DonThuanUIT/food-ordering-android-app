@@ -16,7 +16,7 @@ public class AdminShopStatusChartView extends View {
     private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint valuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint emptyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final String[] labels = {"Cho duyet", "Da duyet", "Tu choi", "Bi khoa"};
+    private final String[] labels = {"Chờ duyệt", "Đã duyệt", "Từ chối", "Bị khóa"};
     private final long[] values = new long[4];
 
     public AdminShopStatusChartView(Context context) {
@@ -85,7 +85,7 @@ public class AdminShopStatusChartView extends View {
         }
 
         if (total == 0) {
-            canvas.drawText("Chua co du lieu cua hang", left + width / 2f, top + height / 2f, emptyPaint);
+            canvas.drawText("Chưa có dữ liệu cửa hàng", left + width / 2f, top + height / 2f, emptyPaint);
             return;
         }
 

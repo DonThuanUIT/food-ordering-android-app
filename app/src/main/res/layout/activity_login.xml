@@ -199,58 +199,8 @@
                     android:textStyle="bold"
                     android:textSize="15sp"/>
             </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hoặc"
-                android:textColor="#7D8494"
-                android:textSize="16sp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="18dp"/>
-
-            <!-- Social buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/btnFacebook"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="20dp"
-                    android:src="@drawable/ic_facebook"
-                    android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="Facebook" />
-
-                <ImageButton
-                    android:id="@+id/btnGoogle"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="20dp"
-                    android:src="@drawable/ic_google"
-                    android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="Google" />
-
-                <ImageButton
-                    android:id="@+id/btnApple"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_apple"
-                    android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="Apple" />
-
-            </LinearLayout>
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
