@@ -72,6 +72,10 @@ public class OrderTrackingActivity extends AppCompatActivity {
     private android.widget.TextView tvStepDeliverNum;
     private android.widget.TextView tvStepDeliverLabel;
 
+    private List<GeoPoint> staticShopToBuildingRoutePoints = new ArrayList<>();
+    private long lastRouteFetchTime = 0;
+    private GeoPoint lastFetchedShipperLocation = null;
+
     private StompClient stompClient;
 
     @Override
@@ -195,6 +199,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
             routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Muted green
             routeLineBuilding.setWidth(8f);
             mapView.getOverlays().add(routeLineBuilding);
+            fetchStaticRoute();
         }
 
         // Center map
@@ -298,45 +303,177 @@ public class OrderTrackingActivity extends AppCompatActivity {
 
     private void updateRouteLine(GeoPoint shipperPt) {
         if (routeLineShop != null && routeLineBuilding != null) {
-            if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
-                // Active leg: Shipper -> Shop (Orange)
-                List<GeoPoint> ptsShop = new ArrayList<>();
-                ptsShop.add(shipperPt);
-                if (shopLat != 0.0 && shopLng != 0.0) {
-                    ptsShop.add(new GeoPoint(shopLat, shopLng));
+            // Check if we fetched recently (less than 10 seconds ago) AND shipper location didn't change much
+            long now = System.currentTimeMillis();
+            if (lastFetchedShipperLocation != null && now - lastRouteFetchTime < 10000) {
+                double dist = lastFetchedShipperLocation.distanceToAsDouble(shipperPt);
+                if (dist < 15.0) {
+                    // Update the active line start point to current shipper Pt so it tracks smoothly
+                    if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                        List<GeoPoint> shopPts = new ArrayList<>();
+                        shopPts.add(shipperPt);
+                        if (shopLat != 0.0 && shopLng != 0.0) {
+                            shopPts.add(new GeoPoint(shopLat, shopLng));
+                        }
+                        routeLineShop.setPoints(shopPts);
+                    } else {
+                        List<GeoPoint> bldPts = new ArrayList<>();
+                        bldPts.add(shipperPt);
+                        if (buildingLat != 0.0 && buildingLng != 0.0) {
+                            bldPts.add(new GeoPoint(buildingLat, buildingLng));
+                        }
+                        routeLineBuilding.setPoints(bldPts);
+                    }
+                    mapView.invalidate();
+                    return;
                 }
-                routeLineShop.setPoints(ptsShop);
-                routeLineShop.setColor(Color.parseColor("#F46E26")); // Active
-                
-                // Muted leg: Shop -> Building (faded green)
-                List<GeoPoint> ptsBuilding = new ArrayList<>();
-                if (shopLat != 0.0 && buildingLat != 0.0) {
-                    ptsBuilding.add(new GeoPoint(shopLat, shopLng));
-                    ptsBuilding.add(new GeoPoint(buildingLat, buildingLng));
-                }
-                routeLineBuilding.setPoints(ptsBuilding);
-                routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Faded
-            } else {
-                // Active leg: Shipper -> Building (Green)
-                List<GeoPoint> ptsBuilding = new ArrayList<>();
-                ptsBuilding.add(shipperPt);
-                if (buildingLat != 0.0 && buildingLng != 0.0) {
-                    ptsBuilding.add(new GeoPoint(buildingLat, buildingLng));
-                }
-                routeLineBuilding.setPoints(ptsBuilding);
-                routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active
-                
-                // Completed leg: Shop -> Shipper (faded grey)
-                List<GeoPoint> ptsShop = new ArrayList<>();
-                if (shopLat != 0.0 && shopLng != 0.0) {
-                    ptsShop.add(new GeoPoint(shopLat, shopLng));
-                    ptsShop.add(shipperPt);
-                }
-                routeLineShop.setPoints(ptsShop);
-                routeLineShop.setColor(Color.parseColor("#40718096")); // Faded
             }
-            mapView.invalidate();
+            
+            lastRouteFetchTime = now;
+            lastFetchedShipperLocation = shipperPt;
+            
+            // Query OSRM for active leg
+            List<GeoPoint> waypoints = new ArrayList<>();
+            waypoints.add(shipperPt);
+            if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                if (shopLat != 0.0 && shopLng != 0.0) {
+                    waypoints.add(new GeoPoint(shopLat, shopLng));
+                }
+            } else {
+                if (buildingLat != 0.0 && buildingLng != 0.0) {
+                    waypoints.add(new GeoPoint(buildingLat, buildingLng));
+                }
+            }
+            
+            if (waypoints.size() >= 2) {
+                fetchRouteAndDraw(waypoints);
+            }
         }
+    }
+
+    private void fetchRouteAndDraw(List<GeoPoint> waypoints) {
+        new Thread(() -> {
+            try {
+                StringBuilder urlBuilder = new StringBuilder("https://router.project-osrm.org/route/v1/driving/");
+                for (int i = 0; i < waypoints.size(); i++) {
+                    GeoPoint pt = waypoints.get(i);
+                    urlBuilder.append(pt.getLongitude()).append(",").append(pt.getLatitude());
+                    if (i < waypoints.size() - 1) {
+                        urlBuilder.append(";");
+                    }
+                }
+                urlBuilder.append("?overview=full&geometries=geojson");
+
+                java.net.URL url = new java.net.URL(urlBuilder.toString());
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", getPackageName());
+                if (conn.getResponseCode() == 200) {
+                    java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    org.json.JSONObject jsonObj = new org.json.JSONObject(response.toString());
+                    org.json.JSONArray routesArray = jsonObj.getJSONArray("routes");
+                    if (routesArray.length() > 0) {
+                        org.json.JSONObject routeObj = routesArray.getJSONObject(0);
+                        org.json.JSONObject geometryObj = routeObj.getJSONObject("geometry");
+                        org.json.JSONArray coordinatesArray = geometryObj.getJSONArray("coordinates");
+
+                        List<GeoPoint> routePoints = new ArrayList<>();
+                        for (int i = 0; i < coordinatesArray.length(); i++) {
+                            org.json.JSONArray coord = coordinatesArray.getJSONArray(i);
+                            double lon = coord.getDouble(0);
+                            double lat = coord.getDouble(1);
+                            routePoints.add(new GeoPoint(lat, lon));
+                        }
+
+                        runOnUiThread(() -> {
+                             if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                                 routeLineShop.setPoints(routePoints);
+                                 routeLineShop.setColor(Color.parseColor("#F46E26")); // Active
+                                 
+                                 if (staticShopToBuildingRoutePoints != null && !staticShopToBuildingRoutePoints.isEmpty()) {
+                                     routeLineBuilding.setPoints(staticShopToBuildingRoutePoints);
+                                 } else {
+                                     List<GeoPoint> shopToBuilding = new ArrayList<>();
+                                     if (shopLat != 0.0 && buildingLat != 0.0) {
+                                         shopToBuilding.add(new GeoPoint(shopLat, shopLng));
+                                         shopToBuilding.add(new GeoPoint(buildingLat, buildingLng));
+                                     }
+                                     routeLineBuilding.setPoints(shopToBuilding);
+                                 }
+                                 routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Faded green
+                             } else {
+                                 routeLineBuilding.setPoints(routePoints);
+                                 routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active
+                                 
+                                 List<GeoPoint> shopToShipper = new ArrayList<>();
+                                 if (shopLat != 0.0 && lastFetchedShipperLocation != null) {
+                                     shopToShipper.add(new GeoPoint(shopLat, shopLng));
+                                     shopToShipper.add(lastFetchedShipperLocation);
+                                 }
+                                 routeLineShop.setPoints(shopToShipper);
+                                 routeLineShop.setColor(Color.parseColor("#40718096")); // Faded grey
+                             }
+                             mapView.invalidate();
+                         });
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Routing fetch error: ", e);
+            }
+        }).start();
+    }
+
+    private void fetchStaticRoute() {
+        if (shopLat == 0.0 || buildingLat == 0.0) return;
+        new Thread(() -> {
+            try {
+                String urlStr = "https://router.project-osrm.org/route/v1/driving/" +
+                        shopLng + "," + shopLat + ";" + buildingLng + "," + buildingLat +
+                        "?overview=full&geometries=geojson";
+                java.net.URL url = new java.net.URL(urlStr);
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", getPackageName());
+                if (conn.getResponseCode() == 200) {
+                    java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+                    org.json.JSONObject jsonObj = new org.json.JSONObject(response.toString());
+                    org.json.JSONArray routesArray = jsonObj.getJSONArray("routes");
+                    if (routesArray.length() > 0) {
+                        org.json.JSONObject routeObj = routesArray.getJSONObject(0);
+                        org.json.JSONObject geometryObj = routeObj.getJSONObject("geometry");
+                        org.json.JSONArray coordinatesArray = geometryObj.getJSONArray("coordinates");
+                        List<GeoPoint> pts = new ArrayList<>();
+                        for (int i = 0; i < coordinatesArray.length(); i++) {
+                            org.json.JSONArray coord = coordinatesArray.getJSONArray(i);
+                            pts.add(new GeoPoint(coord.getDouble(1), coord.getDouble(0)));
+                        }
+                        staticShopToBuildingRoutePoints = pts;
+                        runOnUiThread(() -> {
+                            if ("CONFIRMED".equalsIgnoreCase(orderStatus) && routeLineBuilding != null) {
+                                routeLineBuilding.setPoints(staticShopToBuildingRoutePoints);
+                                routeLineBuilding.setColor(Color.parseColor("#4010B981"));
+                                mapView.invalidate();
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to fetch static route: ", e);
+            }
+        }).start();
     }
 
     @Override

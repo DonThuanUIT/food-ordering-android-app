@@ -95,6 +95,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
 
     private long lastRouteFetchTime = 0;
     private GeoPoint lastFetchedShipperLocation = null;
+    private List<GeoPoint> staticShopToBuildingRoutePoints = new ArrayList<>();
 
     private final Handler updateHandler = new Handler(Looper.getMainLooper());
     private final Runnable updateRunnable = new Runnable() {
@@ -255,6 +256,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
 
         // Draw initial route
         updateRoute();
+        fetchStaticRoute();
 
         // Center on Shop
         if (shopLat != 0.0 && shopLng != 0.0) {
@@ -474,13 +476,17 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
                                  routeLineShop.setPoints(routePoints);
                                  routeLineShop.setColor(Color.parseColor("#F46E26")); // Active
                                  
-                                 List<GeoPoint> shopToBuilding = new ArrayList<>();
-                                 if (shopLat != 0.0 && buildingLat != 0.0) {
-                                     shopToBuilding.add(new GeoPoint(shopLat, shopLng));
-                                     shopToBuilding.add(new GeoPoint(buildingLat, buildingLng));
-                                 }
-                                 routeLineBuilding.setPoints(shopToBuilding);
-                                 routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Faded green
+                                  if (staticShopToBuildingRoutePoints != null && !staticShopToBuildingRoutePoints.isEmpty()) {
+                                      routeLineBuilding.setPoints(staticShopToBuildingRoutePoints);
+                                  } else {
+                                      List<GeoPoint> shopToBuilding = new ArrayList<>();
+                                      if (shopLat != 0.0 && buildingLat != 0.0) {
+                                          shopToBuilding.add(new GeoPoint(shopLat, shopLng));
+                                          shopToBuilding.add(new GeoPoint(buildingLat, buildingLng));
+                                      }
+                                      routeLineBuilding.setPoints(shopToBuilding);
+                                  }
+                                  routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Faded green
                              } else {
                                  routeLineBuilding.setPoints(routePoints);
                                  routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active
@@ -566,5 +572,51 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
             tvStepDeliverNum.setTextColor(Color.WHITE);
             tvStepDeliverLabel.setTextColor(Color.parseColor("#10B981"));
         }
+    }
+
+    private void fetchStaticRoute() {
+        if (shopLat == 0.0 || buildingLat == 0.0) return;
+        new Thread(() -> {
+            try {
+                String urlStr = "https://router.project-osrm.org/route/v1/driving/" +
+                        shopLng + "," + shopLat + ";" + buildingLng + "," + buildingLat +
+                        "?overview=full&geometries=geojson";
+                URL url = new URL(urlStr);
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", getPackageName());
+                if (conn.getResponseCode() == 200) {
+                    java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+                    org.json.JSONObject jsonObj = new org.json.JSONObject(response.toString());
+                    org.json.JSONArray routesArray = jsonObj.getJSONArray("routes");
+                    if (routesArray.length() > 0) {
+                        org.json.JSONObject routeObj = routesArray.getJSONObject(0);
+                        org.json.JSONObject geometryObj = routeObj.getJSONObject("geometry");
+                        org.json.JSONArray coordinatesArray = geometryObj.getJSONArray("coordinates");
+                        List<GeoPoint> pts = new ArrayList<>();
+                        for (int i = 0; i < coordinatesArray.length(); i++) {
+                            org.json.JSONArray coord = coordinatesArray.getJSONArray(i);
+                            pts.add(new GeoPoint(coord.getDouble(1), coord.getDouble(0)));
+                        }
+                        staticShopToBuildingRoutePoints = pts;
+                        runOnUiThread(() -> {
+                            if ("CONFIRMED".equalsIgnoreCase(orderStatus) && routeLineBuilding != null) {
+                                routeLineBuilding.setPoints(staticShopToBuildingRoutePoints);
+                                routeLineBuilding.setColor(Color.parseColor("#4010B981"));
+                                mapView.invalidate();
+                            }
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to fetch static route: ", e);
+            }
+        }).start();
     }
 }
