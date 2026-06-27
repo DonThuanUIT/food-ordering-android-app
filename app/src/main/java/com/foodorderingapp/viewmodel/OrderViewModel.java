@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.foodorderingapp.data.repository.OrderRepository;
 import com.foodorderingapp.model.response.BuildingResponse;
-import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.VoucherResponse;
 
@@ -18,9 +17,9 @@ public class OrderViewModel extends ViewModel {
     private final MutableLiveData<List<OrderResponse>> activeOrders = new MutableLiveData<>();
     private final MutableLiveData<List<OrderResponse>> orderHistory = new MutableLiveData<>();
     private final MutableLiveData<List<BuildingResponse>> buildings = new MutableLiveData<>();
-    private final MutableLiveData<List<DropOffPointResponse>> dropOffPoints = new MutableLiveData<>();
     private final MutableLiveData<List<VoucherResponse>> vouchers = new MutableLiveData<>();
     private final MutableLiveData<Boolean> reviewResult = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> cancelOrderResult = new MutableLiveData<>();
     private final MutableLiveData<String> message = new MutableLiveData<>();
 
     private final MutableLiveData<List<OrderResponse>> shipperAvailableOrders = new MutableLiveData<>();
@@ -65,10 +64,6 @@ public class OrderViewModel extends ViewModel {
         return buildings;
     }
 
-    public LiveData<List<DropOffPointResponse>> getDropOffPoints() {
-        return dropOffPoints;
-    }
-
     public LiveData<List<VoucherResponse>> getVouchers() {
         return vouchers;
     }
@@ -77,22 +72,22 @@ public class OrderViewModel extends ViewModel {
         return reviewResult;
     }
 
+    public LiveData<Boolean> getCancelOrderResult() {
+        return cancelOrderResult;
+    }
+
     public LiveData<String> getMessage() {
         return message;
     }
 
     public void checkout(String shopId, List<String> cartItemIds, String buildingId,
-                         String dropOffPointId, String voucherCode) {
-        orderRepository.checkout(shopId, cartItemIds, buildingId, dropOffPointId,
-                voucherCode, checkoutResult, message);
+                         String voucherCode) {
+        orderRepository.checkout(shopId, cartItemIds, buildingId, voucherCode,
+                checkoutResult, message);
     }
 
     public void loadBuildings() {
         orderRepository.getBuildings(buildings, message);
-    }
-
-    public void loadDropOffPoints(String buildingId) {
-        orderRepository.getDropOffPoints(buildingId, dropOffPoints, message);
     }
 
     public void loadVouchers(String shopId) {
@@ -105,6 +100,10 @@ public class OrderViewModel extends ViewModel {
 
     public void loadOrderHistory() {
         orderRepository.getOrderHistory(orderHistory, message);
+    }
+
+    public void cancelPendingOrder(String orderId, String reason) {
+        orderRepository.cancelPendingOrder(orderId, reason, cancelOrderResult, message);
     }
 
     public void createReview(String orderId, int rating, String comment) {

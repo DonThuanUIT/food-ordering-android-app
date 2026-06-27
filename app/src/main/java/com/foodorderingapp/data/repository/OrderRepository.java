@@ -6,8 +6,8 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.data.remote.api.ApiService;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.ReviewRequest;
+import com.foodorderingapp.model.request.UpdateStatusRequest;
 import com.foodorderingapp.model.response.BuildingResponse;
-import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.VoucherResponse;
 
@@ -24,14 +24,13 @@ public class OrderRepository {
     private final ApiService apiService = ApiClient.getApiService();
 
     public void checkout(String shopId, List<String> cartItemIds,
-                         String buildingId, String dropOffPointId,
-                         String voucherCode, MutableLiveData<Boolean> result,
+                         String buildingId, String voucherCode,
+                         MutableLiveData<Boolean> result,
                          MutableLiveData<String> message) {
         CheckoutRequest request = new CheckoutRequest(
                 shopId,
                 cartItemIds,
                 buildingId,
-                dropOffPointId,
                 voucherCode,
                 null
         );
@@ -72,29 +71,6 @@ public class OrderRepository {
             public void onFailure(Call<List<BuildingResponse>> call, Throwable t) {
                 buildings.postValue(null);
                 postMessage(message, "Loi ket noi khi tai toa nha");
-            }
-        });
-    }
-
-    public void getDropOffPoints(String buildingId,
-                                 MutableLiveData<List<DropOffPointResponse>> dropOffPoints,
-                                 MutableLiveData<String> message) {
-        apiService.getDropOffPoints(buildingId).enqueue(new Callback<List<DropOffPointResponse>>() {
-            @Override
-            public void onResponse(Call<List<DropOffPointResponse>> call,
-                                   Response<List<DropOffPointResponse>> response) {
-                if (response.isSuccessful()) {
-                    dropOffPoints.postValue(response.body());
-                } else {
-                    dropOffPoints.postValue(null);
-                    postMessage(message, "Khong tai duoc diem nhan hang");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<DropOffPointResponse>> call, Throwable t) {
-                dropOffPoints.postValue(null);
-                postMessage(message, "Loi ket noi khi tai diem nhan hang");
             }
         });
     }
@@ -164,6 +140,37 @@ public class OrderRepository {
             public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
                 orderHistory.postValue(null);
                 postMessage(message, "Lỗi kết nối khi tải lịch sử đơn");
+            }
+        });
+    }
+
+    public void cancelPendingOrder(String orderId, String reason,
+                                   MutableLiveData<Boolean> result,
+                                   MutableLiveData<String> message) {
+        UpdateStatusRequest request = new UpdateStatusRequest("CANCELLED", reason);
+        apiService.cancelPendingOrder(orderId, request).enqueue(new Callback<OrderResponse>() {
+            @Override
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
+                boolean success = response.isSuccessful();
+                result.postValue(success);
+                if (success) {
+                    postMessage(message, "Đã hủy đơn hàng");
+                    return;
+                }
+
+                if (response.code() == 400) {
+                    postMessage(message, "Chỉ có thể hủy đơn đang chờ quán xác nhận");
+                } else if (response.code() == 403) {
+                    postMessage(message, "Bạn không có quyền hủy đơn này");
+                } else {
+                    postMessage(message, "Không thể hủy đơn hàng");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderResponse> call, Throwable t) {
+                result.postValue(false);
+                postMessage(message, "Lỗi kết nối khi hủy đơn");
             }
         });
     }
