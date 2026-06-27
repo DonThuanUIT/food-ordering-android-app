@@ -4,17 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#1B110F">
+    android:background="@color/vendor_dark_bg">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#1B110F"
+        android:background="@color/vendor_dark_bg"
         app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/vendor_dark_text_primary"
         app:title="Đánh giá đơn hàng"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/vendor_dark_text_primary" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -46,7 +47,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Bạn muốn đánh giá phần nào?"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
@@ -63,7 +64,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Đơn hàng"
-                            android:textColor="@color/white"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:buttonTint="@color/brand_orange"
                             android:checked="true"/>
 
@@ -73,7 +74,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Cửa hàng"
-                            android:textColor="@color/white"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:buttonTint="@color/brand_orange"
                             android:checked="true"/>
 
@@ -83,7 +84,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Món ăn"
-                            android:textColor="@color/white"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:buttonTint="@color/brand_orange"
                             android:checked="true"/>
                     </LinearLayout>
@@ -111,7 +112,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1. Vận chuyển &amp; Giao nhận"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="8dp"/>
@@ -143,7 +144,7 @@
                         android:layout_height="80dp"
                         android:background="@drawable/bg_vendor_input_dark"
                         android:hint="Nhập nhận xét về vận chuyển (ví dụ: giao nhanh, shipper thân thiện...)"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textColorHint="#8A7D79"
                         android:textSize="13sp"
                         android:gravity="top"
@@ -174,7 +175,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="2. Dịch vụ Cửa hàng"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="8dp"/>
@@ -206,7 +207,7 @@
                         android:layout_height="80dp"
                         android:background="@drawable/bg_vendor_input_dark"
                         android:hint="Nhập nhận xét về quán ăn (ví dụ: chuẩn bị nhanh, đồ ăn sạch sẽ...)"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textColorHint="#8A7D79"
                         android:textSize="13sp"
                         android:gravity="top"
@@ -223,7 +224,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3. Đánh giá Món ăn"
-                android:textColor="@color/white"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_marginStart="4dp"
@@ -245,7 +246,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="#1B110F">
+        app:cardBackgroundColor="@color/vendor_dark_bg">
 
         <LinearLayout
             android:layout_width="match_parent"

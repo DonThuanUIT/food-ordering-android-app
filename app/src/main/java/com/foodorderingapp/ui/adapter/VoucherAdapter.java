@@ -130,10 +130,13 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             tvVoucherTitle.setText(voucher.getTitle());
 
             // 3. Status Switch (Avoid trigger handler during binding)
+            boolean isActive = voucher.getActive() != null ? voucher.getActive() : false;
             switchActive.setOnCheckedChangeListener(null);
-            switchActive.setChecked(voucher.getActive() != null ? voucher.getActive() : false);
+            switchActive.setChecked(isActive);
             switchActive.setEnabled(!expired);
             switchActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                voucher.setActive(isChecked);
+                bind(voucher);
                 if (actionHandler != null) {
                     actionHandler.onStatusToggled(voucher, isChecked);
                 }
@@ -144,6 +147,9 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             String end = formatDateTimeShort(voucher.getEndDate());
             if (expired) {
                 tvVoucherDates.setText("Hiệu lực: " + start + " - " + end + " (Hết hạn)");
+                tvVoucherDates.setTextColor(itemView.getContext().getResources().getColor(R.color.status_red));
+            } else if (!isActive) {
+                tvVoucherDates.setText("Hiệu lực: " + start + " - " + end + " (Đã tắt)");
                 tvVoucherDates.setTextColor(itemView.getContext().getResources().getColor(R.color.status_red));
             } else {
                 tvVoucherDates.setText("Hiệu lực: " + start + " - " + end);
@@ -159,26 +165,44 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
             tvVoucherConditions.setText("Đơn tối thiểu: " + minOrder + maxDiscount);
 
             // 6. Application Range
+            boolean isUsable = isActive && !expired;
             if ("ALL_MENU".equalsIgnoreCase(voucher.getApplyType())) {
                 tvVoucherApplyType.setText("Áp dụng: Toàn bộ thực đơn");
-                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(expired ? R.color.vendor_dark_text_secondary : R.color.status_success));
+                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(!isUsable ? R.color.vendor_dark_text_secondary : R.color.status_success));
             } else {
                 int foodCount = voucher.getFoodIds() != null ? voucher.getFoodIds().size() : 0;
                 tvVoucherApplyType.setText("Áp dụng: " + foodCount + " món ăn cụ thể");
-                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(expired ? R.color.vendor_dark_text_secondary : R.color.brand_orange_dark));
+                tvVoucherApplyType.setTextColor(itemView.getContext().getResources().getColor(!isUsable ? R.color.vendor_dark_text_secondary : R.color.brand_orange_dark));
             }
 
-            // Expired styling (grey out portion & alpha reduction)
-            if (expired) {
-                if (layoutLeftPortion != null) {
-                    layoutLeftPortion.setBackgroundColor(0xFF524643); // Dark grey tint
+            // Active/Deactivated/Expired styling (grey out portion & alpha reduction)
+            if (itemView instanceof androidx.cardview.widget.CardView) {
+                androidx.cardview.widget.CardView card = (androidx.cardview.widget.CardView) itemView;
+                if (!isUsable) {
+                    if (layoutLeftPortion != null) {
+                        layoutLeftPortion.setBackgroundColor(0xFF6B7280); // Slate grey tint
+                    }
+                    card.setCardBackgroundColor(itemView.getContext().getResources().getColor(R.color.voucher_inactive_bg));
+                    itemView.setAlpha(0.5f);
+                } else {
+                    if (layoutLeftPortion != null) {
+                        layoutLeftPortion.setBackgroundColor(itemView.getContext().getResources().getColor(R.color.vendor_dark_orange));
+                    }
+                    card.setCardBackgroundColor(itemView.getContext().getResources().getColor(R.color.vendor_dark_card));
+                    itemView.setAlpha(1.0f);
                 }
-                itemView.setAlpha(0.6f);
             } else {
-                if (layoutLeftPortion != null) {
-                    layoutLeftPortion.setBackgroundColor(itemView.getContext().getResources().getColor(R.color.vendor_dark_orange));
+                if (!isUsable) {
+                    if (layoutLeftPortion != null) {
+                        layoutLeftPortion.setBackgroundColor(0xFF6B7280);
+                    }
+                    itemView.setAlpha(0.5f);
+                } else {
+                    if (layoutLeftPortion != null) {
+                        layoutLeftPortion.setBackgroundColor(itemView.getContext().getResources().getColor(R.color.vendor_dark_orange));
+                    }
+                    itemView.setAlpha(1.0f);
                 }
-                itemView.setAlpha(1.0f);
             }
 
             // 7. Click Handlers

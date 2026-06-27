@@ -43,16 +43,6 @@
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:textColor="@color/vendor_dark_text_primary"/>
-
-                        <ImageButton
-                            android:id="@+id/btn_view_reviews"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginStart="8dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:src="@drawable/ic_star_filled"
-                            app:tint="@color/vendor_dark_orange"
-                            android:contentDescription="Xem phản hồi" />
                     </LinearLayout>
 
                     <TextView
@@ -82,11 +72,202 @@
                     android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/bg_vendor_input_dark"
+                    android:background="@drawable/bg_vendor_spinner"
                     android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
+                    android:paddingEnd="28dp"
                     android:popupBackground="@color/vendor_dark_card" />
             </RelativeLayout>
+
+            <!-- Quick Actions Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
+                app:cardBackgroundColor="@color/vendor_dark_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thao Tác Nhanh"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/vendor_dark_text_primary"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="4">
+
+                        <!-- Item 1: Voucher -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_voucher"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_orange_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_promo"
+                                    app:tint="@color/vendor_dark_orange" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tạo Voucher"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                        <!-- Item 2: Shop Map -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_map"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_green_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_location"
+                                    app:tint="#22C55E" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Vị Trí Quán"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                        <!-- Item 3: Menu management -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_menu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_orange_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_store"
+                                    app:tint="@color/vendor_dark_orange" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Thực Đơn"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                        <!-- Item 4: Customer Feedback (Reviews) -->
+                        <LinearLayout
+                            android:id="@+id/btn_quick_reviews"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="4dp">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="@color/vendor_light_green_soft"
+                                android:layout_marginBottom="6dp">
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_star_filled"
+                                    app:tint="#22C55E" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Đánh Giá"
+                                android:textSize="11sp"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <!-- Metrics Cards Grid -->
             <!-- Row 1 -->
@@ -102,8 +283,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="3dp"
+                    app:cardUseCompatPadding="true"
                     app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginEnd="6dp">
                     <RelativeLayout
@@ -143,16 +325,16 @@
                         </LinearLayout>
                         <androidx.cardview.widget.CardView
                             android:id="@+id/card_revenue_icon_container"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentTop="true"
-                            app:cardCornerRadius="8dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#2A1E17">
+                            app:cardBackgroundColor="@color/vendor_light_orange_soft">
                             <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_bank"
                                 app:tint="@color/vendor_dark_orange" />
@@ -165,8 +347,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="3dp"
+                    app:cardUseCompatPadding="true"
                     app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginStart="6dp">
                     <RelativeLayout
@@ -206,16 +389,16 @@
                         </LinearLayout>
                         <androidx.cardview.widget.CardView
                             android:id="@+id/card_orders_icon_container"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentTop="true"
-                            app:cardCornerRadius="8dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#2A1E17">
+                            app:cardBackgroundColor="@color/vendor_light_orange_soft">
                             <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_orders"
                                 app:tint="@color/vendor_dark_orange" />
@@ -237,8 +420,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="3dp"
+                    app:cardUseCompatPadding="true"
                     app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginEnd="6dp">
                     <RelativeLayout
@@ -278,16 +462,16 @@
                         </LinearLayout>
                         <androidx.cardview.widget.CardView
                             android:id="@+id/card_completion_icon_container"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentTop="true"
-                            app:cardCornerRadius="8dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#15291E">
+                            app:cardBackgroundColor="@color/vendor_light_green_soft">
                             <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_store"
                                 app:tint="#22C55E" />
@@ -300,8 +484,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="3dp"
+                    app:cardUseCompatPadding="true"
                     app:cardBackgroundColor="@color/vendor_dark_card"
                     android:layout_marginStart="6dp">
                     <RelativeLayout
@@ -341,16 +526,16 @@
                         </LinearLayout>
                         <androidx.cardview.widget.CardView
                             android:id="@+id/card_aov_icon_container"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentTop="true"
-                            app:cardCornerRadius="8dp"
+                            app:cardCornerRadius="12dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#2A1E17">
+                            app:cardBackgroundColor="@color/vendor_light_orange_soft">
                             <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_clock"
                                 app:tint="@color/vendor_dark_orange" />
@@ -364,8 +549,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
@@ -394,8 +580,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
@@ -424,8 +611,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
@@ -454,8 +642,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:cardUseCompatPadding="true"
                 app:cardBackgroundColor="@color/vendor_dark_card">
                 <LinearLayout
                     android:padding="16dp"
@@ -479,6 +668,16 @@
                         android:orientation="horizontal"
                         android:paddingBottom="8dp"
                         android:weightSum="10">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:text="#"
+                            android:textColor="@color/vendor_dark_text_secondary"
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:gravity="center"
+                            android:minWidth="16dp" />
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"

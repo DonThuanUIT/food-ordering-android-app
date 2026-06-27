@@ -30,7 +30,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Tên quán"
-                android:textColor="@color/white"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Khách hàng: Nguyễn Văn An - 0123456789"
-            android:textColor="@color/white"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="14sp"/>
 
         <TextView
@@ -82,7 +82,7 @@
             android:layout_marginTop="12dp"
             android:lineSpacingExtra="3dp"
             android:text="Chi tiết món"
-            android:textColor="@color/white"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="14sp" />
 
         <View
@@ -111,7 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0đ"
-                android:textColor="@color/white"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>

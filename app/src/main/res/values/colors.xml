@@ -66,12 +66,22 @@
     <color name="profile_divider">#E5E5EA</color>
     <color name="profile_bg_grey">#EBECED</color>
     <!-- Vendor Dark Mode Theme -->
-    <color name="vendor_dark_bg">#181210</color>
-    <color name="vendor_dark_card">#281F1C</color>
-    <color name="vendor_dark_text_primary">#FFFFFF</color>
-    <color name="vendor_dark_text_secondary">#8A7D79</color>
-    <color name="vendor_dark_orange">#F46E26</color>
-    <color name="vendor_dark_orange_gradient_end">#E35312</color>
-    <color name="vendor_dark_divider">#382C29</color>
-    <color name="vendor_dark_border">#4E3C37</color>
+    <color name="vendor_dark_bg">#F8FAFC</color>
+    <color name="vendor_dark_card">#FFFFFF</color>
+    <color name="vendor_dark_text_primary">#0F172A</color>
+    <color name="vendor_dark_text_secondary">#64748B</color>
+    <color name="vendor_dark_orange">#FF7A21</color>
+    <color name="vendor_dark_orange_gradient_end">#E86714</color>
+    <color name="vendor_dark_divider">#E2E8F0</color>
+    <color name="vendor_dark_border">#CBD5E1</color>
+    <!-- Vendor Light Theme Soft Status Colors -->
+    <color name="vendor_light_orange_soft">#FFF3E0</color>
+    <color name="vendor_light_green_soft">#DCFCE7</color>
+    <!-- Vendor Header/BottomNav dynamic colors -->
+    <color name="vendor_header_bg">#FFFFFF</color>
+    <color name="vendor_header_text_icon">#0F172A</color>
+    <!-- Vendor Button Colors -->
+    <color name="vendor_btn_secondary_bg">#E2E8F0</color>
+    <color name="chat_input_bg">#F1F5F9</color>
+    <color name="voucher_inactive_bg">#E2E8F0</color>
 </resources>

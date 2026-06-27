@@ -48,7 +48,6 @@
                 app:queryHint="Tìm món trong thực đơn..."
                 app:queryBackground="@android:color/transparent" />
 
-            <!-- Stats Dashboard Cards Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,24 +62,23 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginEnd="4dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginEnd="6dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
-                     app:strokeColor="@color/vendor_dark_orange"
-                     app:strokeWidth="1.5dp">
+                     app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_total_count"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
                              android:text="0"
-                             android:textColor="@color/white"
+                             android:textColor="@color/vendor_dark_text_primary"
                              android:textSize="18sp"
                              android:textStyle="bold" />
                          <TextView
@@ -100,23 +98,23 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginHorizontal="2dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginHorizontal="4dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
                      app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_in_stock_count"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
                              android:text="0"
-                             android:textColor="@color/white"
+                             android:textColor="@color/vendor_dark_text_primary"
                              android:textSize="18sp"
                              android:textStyle="bold" />
                          <TextView
@@ -136,23 +134,23 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginHorizontal="2dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginHorizontal="4dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
                      app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_sold_out_count"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
                              android:text="0"
-                             android:textColor="@color/white"
+                             android:textColor="@color/vendor_dark_text_primary"
                              android:textSize="18sp"
                              android:textStyle="bold" />
                          <TextView
@@ -172,23 +170,23 @@
                      android:layout_width="0dp"
                      android:layout_height="wrap_content"
                      android:layout_weight="1"
-                     android:layout_marginStart="4dp"
-                     app:cardCornerRadius="12dp"
-                     app:cardElevation="0dp"
+                     android:layout_marginStart="6dp"
+                     app:cardCornerRadius="16dp"
+                     app:cardElevation="2dp"
                      app:cardBackgroundColor="@color/vendor_dark_card"
                      app:strokeWidth="0dp">
                      <LinearLayout
                          android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:orientation="vertical"
-                         android:padding="8dp"
+                         android:padding="10dp"
                          android:gravity="center">
                          <TextView
                              android:id="@+id/tv_stat_categories_count"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
                              android:text="0"
-                             android:textColor="@color/white"
+                             android:textColor="@color/vendor_dark_text_primary"
                              android:textSize="18sp"
                              android:textStyle="bold" />
                          <TextView
@@ -200,34 +198,23 @@
                              android:textStyle="bold"
                              android:layout_marginTop="2dp"/>
                      </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Pinned Category Chips -->
-        <HorizontalScrollView
+        <!-- Curved Category List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_categories"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="115dp"
+            android:orientation="horizontal"
             android:scrollbars="none"
+            android:clipToPadding="false"
+            android:clipChildren="false"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="12dp"
+            android:paddingBottom="6dp"
             android:paddingTop="6dp"
-            android:background="@color/vendor_dark_bg">
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_categories"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:selectionRequired="true">
-                <!-- Chips will be added dynamically or can be static -->
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="All"
-                    android:checked="true"/>
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
+            android:background="@color/vendor_dark_bg" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

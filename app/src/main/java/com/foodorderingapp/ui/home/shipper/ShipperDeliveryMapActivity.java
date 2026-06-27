@@ -81,9 +81,20 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
     private Marker shopMarker;
     private Marker buildingMarker;
     private Marker shipperMarker;
-    private Polyline routeLine;
+    private Polyline routeLineShop;
+    private Polyline routeLineBuilding;
+
+    private com.google.android.material.card.MaterialCardView cardStepPickup;
+    private com.google.android.material.card.MaterialCardView cardStepDeliver;
+    private android.view.View viewStepDivider;
+    private android.widget.TextView tvStepPickupNum;
+    private android.widget.TextView tvStepPickupLabel;
+    private android.widget.TextView tvStepDeliverNum;
+    private android.widget.TextView tvStepDeliverLabel;
+
     private long lastRouteFetchTime = 0;
     private GeoPoint lastFetchedShipperLocation = null;
+    private List<GeoPoint> staticShopToBuildingRoutePoints = new ArrayList<>();
 
     private final Handler updateHandler = new Handler(Looper.getMainLooper());
     private final Runnable updateRunnable = new Runnable() {
@@ -114,6 +125,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         orderStatus = getIntent().getStringExtra("ORDER_STATUS");
 
         bindViews();
+        bindStepViews();
         setupMap();
         checkLocationPermissions();
     }
@@ -156,10 +168,49 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         }
     }
 
+    private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+        float[] results = new float[1];
+        try {
+            Location.distanceBetween(lat1, lng1, lat2, lng2, results);
+            return results[0];
+        } catch (Exception e) {
+            double earthRadius = 6371000; // meters
+            double dLat = Math.toRadians(lat2 - lat1);
+            double dLng = Math.toRadians(lng2 - lng1);
+            double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                       Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                       Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return earthRadius * c;
+        }
+    }
+
     private void handleActionButtonClick() {
         if ("CONFIRMED".equals(orderStatus)) {
+            // Safety Check: Shipper must be within 100m of the shop to start delivery
+            if (currentLat != null && currentLng != null && shopLat != 0.0 && shopLng != 0.0) {
+                double distance = calculateDistance(currentLat, currentLng, shopLat, shopLng);
+                if (distance > 100.0) {
+                    Toast.makeText(this, "⚠️ Bạn phải đến cách cửa hàng dưới 100m mới được xác nhận đã lấy hàng! (Khoảng cách hiện tại: " + (int) distance + "m)", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            } else if (currentLat == null || currentLng == null) {
+                Toast.makeText(this, "⚠️ Đang xác định vị trí GPS của bạn, vui lòng đợi trong giây lát...", Toast.LENGTH_SHORT).show();
+                return;
+            }
             updateOrderStatusOnServer("DELIVERING");
         } else if ("DELIVERING".equals(orderStatus)) {
+            // Safety Check: Shipper must be within 100m of the delivery building
+            if (currentLat != null && currentLng != null && buildingLat != 0.0 && buildingLng != 0.0) {
+                double distance = calculateDistance(currentLat, currentLng, buildingLat, buildingLng);
+                if (distance > 100.0) {
+                    Toast.makeText(this, "⚠️ Bạn phải đến cách điểm giao dưới 100m mới được xác nhận đã giao! (Khoảng cách hiện tại: " + (int) distance + "m)", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            } else if (currentLat == null || currentLng == null) {
+                Toast.makeText(this, "⚠️ Đang xác định vị trí GPS của bạn, vui lòng đợi trong giây lát...", Toast.LENGTH_SHORT).show();
+                return;
+            }
             updateOrderStatusOnServer("COMPLETED");
         }
     }
@@ -174,6 +225,8 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     orderStatus = response.body().getStatus();
                     updateButtonState();
+                    updateStepIndicator();
+                    updateRoute();
                     Toast.makeText(ShipperDeliveryMapActivity.this, "Đã cập nhật trạng thái đơn hàng!", Toast.LENGTH_SHORT).show();
                     if ("COMPLETED".equals(orderStatus) || "RECEIVED".equals(orderStatus)) {
                         finish();
@@ -191,33 +244,41 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         });
     }
 
-    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase CARTO_VOYAGER = 
-        new org.osmdroid.tileprovider.tilesource.XYTileSource(
-            "CartoVoyager",
-            0, 20, 256, ".png",
+    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase ESRI_STREETS = 
+        new org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase(
+            "EsriStreets",
+            0, 20, 256, "",
             new String[] {
-                "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/"
             },
-            "© OpenStreetMap contributors, © CARTO"
-        );
+            "Tiles © Esri"
+        ) {
+            @Override
+            public String getTileURLString(long pMapTileIndex) {
+                return getBaseUrl() + 
+                       org.osmdroid.util.MapTileIndex.getZoom(pMapTileIndex) + "/" + 
+                       org.osmdroid.util.MapTileIndex.getY(pMapTileIndex) + "/" + 
+                       org.osmdroid.util.MapTileIndex.getX(pMapTileIndex);
+            }
+        };
 
     private void setupMap() {
-        String mapKey = AppConstants.GOONG_MAP_KEY;
-        if (mapKey != null && !mapKey.isEmpty() && !mapKey.startsWith("YOUR_")) {
-            org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase goongTiles = 
-                new org.osmdroid.tileprovider.tilesource.XYTileSource(
-                    "GoongMaps",
-                    0, 20, 256, ".png?api_key=" + mapKey,
-                    new String[] { "https://tiles.goong.io/assets/goong_map_web/" },
-                    "© Goong Maps, © OpenStreetMap contributors"
-                );
-            mapView.setTileSource(goongTiles);
-        } else {
-            mapView.setTileSource(CARTO_VOYAGER);
+        // Try to get last known location immediately for instant route rendering
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (lm != null) {
+                Location lastKnown = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (lastKnown == null) {
+                    lastKnown = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                }
+                if (lastKnown != null) {
+                    currentLat = lastKnown.getLatitude();
+                    currentLng = lastKnown.getLongitude();
+                }
+            }
         }
+
+        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
@@ -245,8 +306,12 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
             mapView.getOverlays().add(buildingMarker);
         }
 
-        // Draw initial route
-        updateRoute();
+        // Draw initial route and shipper marker
+        if (currentLat != null && currentLng != null) {
+            updateShipperMarkerOnMap();
+        } else {
+            updateRoute();
+        }
 
         // Center on Shop
         if (shopLat != 0.0 && shopLng != 0.0) {
@@ -389,11 +454,14 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
             waypoints.add(shipperPt);
         }
         
-        if (shopLat != 0.0 && shopLng != 0.0) {
-            waypoints.add(new GeoPoint(shopLat, shopLng));
-        }
-        if (buildingLat != 0.0 && buildingLng != 0.0) {
-            waypoints.add(new GeoPoint(buildingLat, buildingLng));
+        if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+            if (shopLat != 0.0 && shopLng != 0.0) {
+                waypoints.add(new GeoPoint(shopLat, shopLng));
+            }
+        } else {
+            if (buildingLat != 0.0 && buildingLng != 0.0) {
+                waypoints.add(new GeoPoint(buildingLat, buildingLng));
+            }
         }
         
         if (waypoints.size() >= 2) {
@@ -446,15 +514,30 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
                         }
 
                         runOnUiThread(() -> {
-                            if (routeLine == null) {
-                                routeLine = new Polyline();
-                                routeLine.setColor(Color.parseColor("#4F46E5")); // Indigo line
-                                routeLine.setWidth(8f);
-                                mapView.getOverlays().add(routeLine);
-                            }
-                            routeLine.setPoints(routePoints);
-                            mapView.invalidate();
-                        });
+                             if (routeLineShop == null) {
+                                 routeLineShop = new Polyline();
+                                 routeLineShop.setColor(Color.parseColor("#F46E26")); // Orange
+                                 routeLineShop.setWidth(8f);
+                                 mapView.getOverlays().add(routeLineShop);
+                             }
+                             if (routeLineBuilding == null) {
+                                 routeLineBuilding = new Polyline();
+                                 routeLineBuilding.setColor(Color.parseColor("#10B981")); // Emerald Green
+                                 routeLineBuilding.setWidth(8f);
+                                 mapView.getOverlays().add(routeLineBuilding);
+                             }
+
+                             if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                                 routeLineShop.setPoints(routePoints);
+                                 routeLineShop.setColor(Color.parseColor("#F46E26")); // Active
+                                 routeLineBuilding.setPoints(new ArrayList<>());
+                             } else {
+                                 routeLineBuilding.setPoints(routePoints);
+                                 routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active
+                                 routeLineShop.setPoints(new ArrayList<>());
+                             }
+                             mapView.invalidate();
+                         });
                     }
                 }
             } catch (Exception e) {
@@ -487,4 +570,46 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
             locationManager.removeUpdates(locationListener);
         }
     }
+
+    private void bindStepViews() {
+        cardStepPickup = findViewById(R.id.card_step_pickup);
+        cardStepDeliver = findViewById(R.id.card_step_deliver);
+        viewStepDivider = findViewById(R.id.view_step_divider);
+        tvStepPickupNum = findViewById(R.id.tv_step_pickup_num);
+        tvStepPickupLabel = findViewById(R.id.tv_step_pickup_label);
+        tvStepDeliverNum = findViewById(R.id.tv_step_deliver_num);
+        tvStepDeliverLabel = findViewById(R.id.tv_step_deliver_label);
+        updateStepIndicator();
+    }
+
+    private void updateStepIndicator() {
+        if (cardStepPickup == null) return;
+        if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F46E26")));
+            tvStepPickupNum.setText("1");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#F46E26"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#2D2D30"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#2D2D30")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.parseColor("#718096"));
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#718096"));
+        } else {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepPickupNum.setText("✔");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#10B981"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#10B981"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.WHITE);
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#10B981"));
+        }
+    }
+
+
 }

@@ -104,4 +104,7 @@ dependencies {
 
     // Thư viện bản đồ OpenStreetMap (osmdroid)
     implementation("org.osmdroid:osmdroid-android:6.1.18")
+
+    // Biometric Authentication
+    implementation("androidx.biometric:biometric:1.1.0")
 }

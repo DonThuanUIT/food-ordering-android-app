@@ -20,7 +20,7 @@
             android:layout_height="60dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#281F1C">
+            app:cardBackgroundColor="@color/vendor_dark_divider">
 
             <ImageView
                 android:id="@+id/ivVendorFoodRatingImage"

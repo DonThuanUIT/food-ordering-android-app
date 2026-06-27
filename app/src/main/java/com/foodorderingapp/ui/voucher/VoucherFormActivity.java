@@ -318,24 +318,28 @@ public class VoucherFormActivity extends AppCompatActivity {
             checkedItems[i] = selectedFoodIds.contains(food.getId());
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Chọn các món ăn áp dụng");
-        builder.setMultiChoiceItems(items, checkedItems, (dialog, which, isChecked) -> {
-            UUID id = allShopFoods.get(which).getId();
-            if (isChecked) {
-                if (!selectedFoodIds.contains(id)) {
-                    selectedFoodIds.add(id);
-                }
-            } else {
-                selectedFoodIds.remove(id);
-            }
-        });
-
-        builder.setPositiveButton("Xác nhận", (dialog, which) -> {
-            updateSelectedFoodsCountText();
-        });
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
-        builder.show();
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Chọn các món ăn áp dụng 🍔")
+                .setMultiChoiceItems(items, checkedItems, (d, which, isChecked) -> {
+                    UUID id = allShopFoods.get(which).getId();
+                    if (isChecked) {
+                        if (!selectedFoodIds.contains(id)) {
+                            selectedFoodIds.add(id);
+                        }
+                    } else {
+                        selectedFoodIds.remove(id);
+                    }
+                })
+                .setPositiveButton("Xác nhận", (d, which) -> {
+                    updateSelectedFoodsCountText();
+                })
+                .setNegativeButton("Hủy", (d, which) -> d.dismiss())
+                .create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(this, R.color.vendor_dark_orange));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(this, R.color.vendor_dark_text_secondary));
     }
 
     private void updateSelectedFoodsCountText() {

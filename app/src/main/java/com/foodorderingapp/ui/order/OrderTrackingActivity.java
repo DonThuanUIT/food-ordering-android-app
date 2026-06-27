@@ -61,7 +61,20 @@ public class OrderTrackingActivity extends AppCompatActivity {
     private Marker shopMarker;
     private Marker buildingMarker;
     private Marker shipperMarker;
-    private Polyline routeLine;
+    private Polyline routeLineShop;
+    private Polyline routeLineBuilding;
+
+    private com.google.android.material.card.MaterialCardView cardStepPickup;
+    private com.google.android.material.card.MaterialCardView cardStepDeliver;
+    private android.view.View viewStepDivider;
+    private android.widget.TextView tvStepPickupNum;
+    private android.widget.TextView tvStepPickupLabel;
+    private android.widget.TextView tvStepDeliverNum;
+    private android.widget.TextView tvStepDeliverLabel;
+
+    private List<GeoPoint> staticShopToBuildingRoutePoints = new ArrayList<>();
+    private long lastRouteFetchTime = 0;
+    private GeoPoint lastFetchedShipperLocation = null;
 
     private StompClient stompClient;
 
@@ -86,6 +99,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
         shipperPhone = getIntent().getStringExtra("SHIPPER_PHONE");
 
         bindViews();
+        bindStepViews();
         setupMap();
         connectWebSocket();
     }
@@ -120,33 +134,26 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }
     }
 
-    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase CARTO_VOYAGER = 
-        new org.osmdroid.tileprovider.tilesource.XYTileSource(
-            "CartoVoyager",
-            0, 20, 256, ".png",
+    private static final org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase ESRI_STREETS = 
+        new org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase(
+            "EsriStreets",
+            0, 20, 256, "",
             new String[] {
-                "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
-                "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/"
             },
-            "© OpenStreetMap contributors, © CARTO"
-        );
+            "Tiles © Esri"
+        ) {
+            @Override
+            public String getTileURLString(long pMapTileIndex) {
+                return getBaseUrl() + 
+                       org.osmdroid.util.MapTileIndex.getZoom(pMapTileIndex) + "/" + 
+                       org.osmdroid.util.MapTileIndex.getY(pMapTileIndex) + "/" + 
+                       org.osmdroid.util.MapTileIndex.getX(pMapTileIndex);
+            }
+        };
 
     private void setupMap() {
-        String mapKey = AppConstants.GOONG_MAP_KEY;
-        if (mapKey != null && !mapKey.isEmpty() && !mapKey.startsWith("YOUR_")) {
-            org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase goongTiles = 
-                new org.osmdroid.tileprovider.tilesource.XYTileSource(
-                    "GoongMaps",
-                    0, 20, 256, ".png?api_key=" + mapKey,
-                    new String[] { "https://tiles.goong.io/assets/goong_map_web/" },
-                    "© Goong Maps, © OpenStreetMap contributors"
-                );
-            mapView.setTileSource(goongTiles);
-        } else {
-            mapView.setTileSource(CARTO_VOYAGER);
-        }
+        mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
 
@@ -174,16 +181,17 @@ public class OrderTrackingActivity extends AppCompatActivity {
             mapView.getOverlays().add(buildingMarker);
         }
 
-        // Draw initial route line
+        // Draw initial route lines
         if (shopLat != 0.0 && buildingLat != 0.0) {
-            routeLine = new Polyline();
-            List<GeoPoint> pts = new ArrayList<>();
-            pts.add(new GeoPoint(shopLat, shopLng));
-            pts.add(new GeoPoint(buildingLat, buildingLng));
-            routeLine.setPoints(pts);
-            routeLine.setColor(Color.parseColor("#4F46E5")); // Indigo line
-            routeLine.setWidth(6f);
-            mapView.getOverlays().add(routeLine);
+            routeLineShop = new Polyline();
+            routeLineShop.setColor(Color.parseColor("#F46E26")); // Orange
+            routeLineShop.setWidth(8f);
+            mapView.getOverlays().add(routeLineShop);
+
+            routeLineBuilding = new Polyline();
+            routeLineBuilding.setColor(Color.parseColor("#10B981")); // Emerald Green
+            routeLineBuilding.setWidth(8f);
+            mapView.getOverlays().add(routeLineBuilding);
         }
 
         // Center map
@@ -286,15 +294,121 @@ public class OrderTrackingActivity extends AppCompatActivity {
     }
 
     private void updateRouteLine(GeoPoint shipperPt) {
-        if (routeLine != null) {
-            List<GeoPoint> pts = new ArrayList<>();
-            pts.add(shipperPt);
-            pts.add(new GeoPoint(shopLat, shopLng));
-            pts.add(new GeoPoint(buildingLat, buildingLng));
-            routeLine.setPoints(pts);
-            mapView.invalidate();
+        if (routeLineShop != null && routeLineBuilding != null) {
+            // Check if we fetched recently (less than 10 seconds ago) AND shipper location didn't change much
+            long now = System.currentTimeMillis();
+            if (lastFetchedShipperLocation != null && now - lastRouteFetchTime < 10000) {
+                double dist = lastFetchedShipperLocation.distanceToAsDouble(shipperPt);
+                if (dist < 15.0) {
+                    // Update the active line start point to current shipper Pt so it tracks smoothly
+                    if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                        List<GeoPoint> shopPts = new ArrayList<>();
+                        shopPts.add(shipperPt);
+                        if (shopLat != 0.0 && shopLng != 0.0) {
+                            shopPts.add(new GeoPoint(shopLat, shopLng));
+                        }
+                        routeLineShop.setPoints(shopPts);
+                    } else {
+                        List<GeoPoint> bldPts = new ArrayList<>();
+                        bldPts.add(shipperPt);
+                        if (buildingLat != 0.0 && buildingLng != 0.0) {
+                            bldPts.add(new GeoPoint(buildingLat, buildingLng));
+                        }
+                        routeLineBuilding.setPoints(bldPts);
+                    }
+                    mapView.invalidate();
+                    return;
+                }
+            }
+            
+            lastRouteFetchTime = now;
+            lastFetchedShipperLocation = shipperPt;
+            
+            // Query OSRM for active leg
+            List<GeoPoint> waypoints = new ArrayList<>();
+            waypoints.add(shipperPt);
+            if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                if (shopLat != 0.0 && shopLng != 0.0) {
+                    waypoints.add(new GeoPoint(shopLat, shopLng));
+                }
+            } else {
+                if (buildingLat != 0.0 && buildingLng != 0.0) {
+                    waypoints.add(new GeoPoint(buildingLat, buildingLng));
+                }
+            }
+            
+            if (waypoints.size() >= 2) {
+                fetchRouteAndDraw(waypoints);
+            }
         }
     }
+
+    private void fetchRouteAndDraw(List<GeoPoint> waypoints) {
+        new Thread(() -> {
+            try {
+                StringBuilder urlBuilder = new StringBuilder("https://router.project-osrm.org/route/v1/driving/");
+                for (int i = 0; i < waypoints.size(); i++) {
+                    GeoPoint pt = waypoints.get(i);
+                    urlBuilder.append(pt.getLongitude()).append(",").append(pt.getLatitude());
+                    if (i < waypoints.size() - 1) {
+                        urlBuilder.append(";");
+                    }
+                }
+                urlBuilder.append("?overview=full&geometries=geojson");
+
+                java.net.URL url = new java.net.URL(urlBuilder.toString());
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", getPackageName());
+                if (conn.getResponseCode() == 200) {
+                    java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    org.json.JSONObject jsonObj = new org.json.JSONObject(response.toString());
+                    org.json.JSONArray routesArray = jsonObj.getJSONArray("routes");
+                    if (routesArray.length() > 0) {
+                        org.json.JSONObject routeObj = routesArray.getJSONObject(0);
+                        org.json.JSONObject geometryObj = routeObj.getJSONObject("geometry");
+                        org.json.JSONArray coordinatesArray = geometryObj.getJSONArray("coordinates");
+
+                        List<GeoPoint> routePoints = new ArrayList<>();
+                        for (int i = 0; i < coordinatesArray.length(); i++) {
+                            org.json.JSONArray coord = coordinatesArray.getJSONArray(i);
+                            double lon = coord.getDouble(0);
+                            double lat = coord.getDouble(1);
+                            routePoints.add(new GeoPoint(lat, lon));
+                        }
+
+                        runOnUiThread(() -> {
+                            if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                                routeLineShop.setPoints(routePoints);
+                                routeLineShop.setColor(Color.parseColor("#F46E26")); // Active Orange
+                                
+                                // Clear delivery line in CONFIRMED
+                                routeLineBuilding.setPoints(new ArrayList<>());
+                            } else {
+                                routeLineBuilding.setPoints(routePoints);
+                                routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active Emerald Green
+                                
+                                // Clear shop line in DELIVERING
+                                routeLineShop.setPoints(new ArrayList<>());
+                            }
+                            mapView.invalidate();
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Routing fetch error: ", e);
+            }
+        }).start();
+    }
+
+
 
     @Override
     protected void onResume() {
@@ -317,6 +431,46 @@ public class OrderTrackingActivity extends AppCompatActivity {
         super.onDestroy();
         if (stompClient != null) {
             stompClient.disconnect();
+        }
+    }
+
+    private void bindStepViews() {
+        cardStepPickup = findViewById(R.id.card_step_pickup);
+        cardStepDeliver = findViewById(R.id.card_step_deliver);
+        viewStepDivider = findViewById(R.id.view_step_divider);
+        tvStepPickupNum = findViewById(R.id.tv_step_pickup_num);
+        tvStepPickupLabel = findViewById(R.id.tv_step_pickup_label);
+        tvStepDeliverNum = findViewById(R.id.tv_step_deliver_num);
+        tvStepDeliverLabel = findViewById(R.id.tv_step_deliver_label);
+        updateStepIndicator();
+    }
+
+    private void updateStepIndicator() {
+        if (cardStepPickup == null) return;
+        if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F46E26")));
+            tvStepPickupNum.setText("1");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#F46E26"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#2D2D30"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#2D2D30")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.parseColor("#718096"));
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#718096"));
+        } else {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepPickupNum.setText("✔");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#10B981"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#10B981"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.WHITE);
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#10B981"));
         }
     }
 }

@@ -38,8 +38,10 @@ import com.foodorderingapp.model.response.CategoryResponse;
 import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.FoodAdapter;
+import com.foodorderingapp.ui.adapter.VendorCategoryAdapter;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.utils.CategoryIconHelper;
+import com.foodorderingapp.utils.VendorDataCache;
 import com.foodorderingapp.viewmodel.UploadImageViewModel;
 import com.foodorderingapp.viewmodel.ViewModelFactory;
 import com.bumptech.glide.Glide;
@@ -67,7 +69,8 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private List<CategoryResponse> categories = new ArrayList<>();
     
     private SearchView searchView;
-    private ChipGroup chipGroupCategories;
+    private RecyclerView rvCategories;
+    private VendorCategoryAdapter categoryAdapter;
     private FloatingActionButton fabScrollTop;
     private FloatingActionButton fabAddFood;
     
@@ -97,32 +100,22 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     private UploadImageViewModel uploadViewModel;
     private String currentUploadedUrl = null; // Biến cục bộ lưu URL Cloudinary
 
-    private final ChipGroup.OnCheckedStateChangeListener categoryCheckedListener = (group, checkedIds) -> {
-        if (checkedIds.isEmpty()) {
+    private final VendorCategoryAdapter.OnCategoryClickListener categoryClickListener = (categoryId, categoryName) -> {
+        String currentSel = selectedCategoryId == null ? "ALL" : selectedCategoryId.toString();
+        if (categoryId.equalsIgnoreCase(currentSel)) {
+            return; // Ignore click on already selected category
+        }
+        if ("ALL".equalsIgnoreCase(categoryId)) {
             selectedCategoryId = null;
             adapter.setCategoryFilter("Tất cả");
-            loadData(true);
-            return;
+        } else {
+            selectedCategoryId = UUID.fromString(categoryId);
+            adapter.setCategoryFilter(categoryName);
         }
-        Chip chip = group.findViewById(checkedIds.get(0));
-        if (chip != null) {
-            Object tag = chip.getTag();
-            if (tag instanceof UUID) {
-                selectedCategoryId = (UUID) tag;
-                String categoryName = "";
-                for (CategoryResponse c : categories) {
-                    if (c.getId().equals(selectedCategoryId)) {
-                        categoryName = c.getName();
-                        break;
-                    }
-                }
-                adapter.setCategoryFilter(categoryName);
-            } else {
-                selectedCategoryId = null;
-                adapter.setCategoryFilter("Tất cả");
-            }
-            loadData(true);
+        if (categoryAdapter != null) {
+            categoryAdapter.setSelectedCategoryId(categoryId);
         }
+        loadData(true);
     };
 
     @Override
@@ -159,12 +152,16 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         
         rvMenu = view.findViewById(R.id.rv_vendor_menu);
         searchView = view.findViewById(R.id.search_view_menu);
-        chipGroupCategories = view.findViewById(R.id.chip_group_categories);
+        rvCategories = view.findViewById(R.id.rv_categories);
+        setupCategoriesRecyclerView();
         swipeRefresh = view.findViewById(R.id.swipe_refresh_menu);
         if (swipeRefresh != null) {
-            swipeRefresh.setOnRefreshListener(() -> loadData(true));
+            swipeRefresh.setOnRefreshListener(() -> {
+                loadCategories();
+                loadData(true);
+            });
             swipeRefresh.setColorSchemeResources(R.color.vendor_dark_orange);
-            swipeRefresh.setProgressBackgroundColorSchemeColor(android.graphics.Color.parseColor("#1B110F"));
+            swipeRefresh.setProgressBackgroundColorSchemeColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_card));
         }
         fabScrollTop = view.findViewById(R.id.fab_scroll_top);
         fabAddFood = view.findViewById(R.id.fab_add_food);
@@ -197,6 +194,26 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             });
         }
         
+        // Restore from VendorDataCache
+        if (com.foodorderingapp.utils.VendorDataCache.getShopResponse() != null) {
+            ShopResponse shop = com.foodorderingapp.utils.VendorDataCache.getShopResponse();
+            String idStr = shop.getId();
+            currentShopId = idStr != null ? UUID.fromString(idStr) : null;
+        }
+        if (com.foodorderingapp.utils.VendorDataCache.getCategories() != null) {
+            categories.clear();
+            categories.addAll(com.foodorderingapp.utils.VendorDataCache.getCategories());
+            updateCategoryChips();
+        }
+        if (com.foodorderingapp.utils.VendorDataCache.getFoodList() != null) {
+            foodList.clear();
+            foodList.addAll(com.foodorderingapp.utils.VendorDataCache.getFoodList());
+            if (adapter != null) {
+                adapter.updateData(foodList);
+            }
+            updateStatsCounts();
+        }
+
         fetchShopInfoAndLoadData();
         return view;
     }
@@ -227,12 +244,19 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private void fetchShopInfoAndLoadData() {
+        // If we already have foods loaded in cache, skip loading from network on recreate
+        if (foodList != null && !foodList.isEmpty()) {
+            return;
+        }
         ApiClient.getApiService().getVendorShops().enqueue(new Callback<List<ShopResponse>>() {
             @Override
             public void onResponse(Call<List<ShopResponse>> call, Response<List<ShopResponse>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    String idStr = response.body().get(0).getId();
+                    ShopResponse shop = response.body().get(0);
+                    com.foodorderingapp.utils.VendorDataCache.setShopResponse(shop);
+                    String idStr = shop.getId();
                     currentShopId = idStr != null ? UUID.fromString(idStr) : null;
+                    loadCategories();
                     loadData(true);
                 }
             }
@@ -285,9 +309,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private void setupFilters() {
-        if (chipGroupCategories != null) {
-            chipGroupCategories.setOnCheckedStateChangeListener(categoryCheckedListener);
-        }
+        // Setup category recycler view is handled in setupCategoriesRecyclerView()
 
         // Stats cards click filters
         if (cardStatTotal != null) {
@@ -326,7 +348,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         
         // Highlight active one with orange border
         int strokeWidthPx = (int) (1.5f * getResources().getDisplayMetrics().density);
-        ColorStateList orangeColor = ColorStateList.valueOf(Color.parseColor("#F46E26"));
+        ColorStateList orangeColor = ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
         if ("Tất cả".equals(selectedStat)) {
             cardStatTotal.setStrokeColor(orangeColor);
             cardStatTotal.setStrokeWidth(strokeWidthPx);
@@ -357,11 +379,12 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
         if (reload) {
             currentPage = 0;
             isLastPage = false;
-            foodList.clear();
-            if (adapter != null) {
-                adapter.updateData(new ArrayList<>());
-                if (swipeRefresh == null || !swipeRefresh.isRefreshing()) {
-                    adapter.setLoading(true);
+            if (foodList.isEmpty()) {
+                if (adapter != null) {
+                    adapter.updateData(new ArrayList<>());
+                    if (swipeRefresh == null || !swipeRefresh.isRefreshing()) {
+                        adapter.setLoading(true);
+                    }
                 }
             }
         }
@@ -381,7 +404,11 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 }
                 if (response.isSuccessful() && response.body() != null) {
                     List<FoodResponse> newFoods = response.body().getContent();
+                    if (reload) {
+                        foodList.clear();
+                    }
                     foodList.addAll(newFoods);
+                    com.foodorderingapp.utils.VendorDataCache.setFoodList(foodList);
                     if (adapter != null) {
                         adapter.updateData(foodList);
                     }
@@ -407,9 +434,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
                 }
             }
         });
-        if (reload) {
-            loadCategories();
-        }
+
     }
 
     private void loadCategories() {
@@ -423,6 +448,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             public void onResponse(Call<List<CategoryResponse>> call, Response<List<CategoryResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     categories = response.body();
+                    com.foodorderingapp.utils.VendorDataCache.setCategories(categories);
                     updateCategoryChips();
                     updateStatsCounts();
                     if (currentAddFoodDialog != null && currentAddFoodDialog.isShowing()) {
@@ -435,44 +461,63 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private void updateCategoryChips() {
-        if (chipGroupCategories == null) return;
-        chipGroupCategories.setOnCheckedStateChangeListener(null);
-        chipGroupCategories.removeAllViews();
-        
-        Chip allChip = new Chip(requireContext());
-        allChip.setText(CategoryIconHelper.getEmojiForDisplay("Tất cả"));
-        allChip.setTag("ALL");
-        allChip.setCheckable(true);
-        allChip.setId(View.generateViewId());
-        if (selectedCategoryId == null) {
-            allChip.setChecked(true);
-        }
-        allChip.setChipBackgroundColor(getChipBackgroundStateList());
-        allChip.setTextColor(getChipTextStateList());
-        allChip.setChipStrokeColor(getChipStrokeColorStateList());
-        allChip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
-        chipGroupCategories.addView(allChip);
-        
-        for (CategoryResponse category : categories) {
-            Chip chip = new Chip(requireContext());
-            chip.setText(CategoryIconHelper.getEmojiForDisplay(category.getName()));
-            chip.setTag(category.getId());
-            chip.setCheckable(true);
-            chip.setId(View.generateViewId());
-            if (selectedCategoryId != null && selectedCategoryId.equals(category.getId())) {
-                chip.setChecked(true);
+        if (categoryAdapter != null) {
+            categoryAdapter.setData(categories);
+            if (selectedCategoryId == null) {
+                categoryAdapter.setSelectedCategoryId("ALL");
+            } else {
+                categoryAdapter.setSelectedCategoryId(selectedCategoryId.toString());
             }
-            chip.setChipBackgroundColor(getChipBackgroundStateList());
-            chip.setTextColor(getChipTextStateList());
-            chip.setChipStrokeColor(getChipStrokeColorStateList());
-            chip.setChipStrokeWidth(1 * getResources().getDisplayMetrics().density);
-            chip.setOnLongClickListener(v -> {
-                showCategoryOptionsDialog(category);
-                return true;
-            });
-            chipGroupCategories.addView(chip);
+            if (rvCategories != null) {
+                rvCategories.post(() -> updateCategoryWheel());
+            }
         }
-        chipGroupCategories.setOnCheckedStateChangeListener(categoryCheckedListener);
+    }
+
+    private void updateCategoryWheel() {
+        if (rvCategories == null) return;
+        int center = rvCategories.getWidth() / 2;
+        if (center <= 0) return;
+        for (int i = 0; i < rvCategories.getChildCount(); i++) {
+            View child = rvCategories.getChildAt(i);
+            int childCenter = (child.getLeft() + child.getRight()) / 2;
+            int distanceFromCenter = Math.abs(childCenter - center);
+            float factorY = 0.00045f;
+            float translationY = distanceFromCenter * distanceFromCenter * factorY;
+            child.setTranslationY(translationY);
+            float maxScale = 1.0f;
+            float minScale = 0.82f;
+            float distanceRatio = (float) distanceFromCenter / center;
+            float scale = maxScale - (distanceRatio * (maxScale - minScale));
+            scale = Math.max(minScale, Math.min(maxScale, scale));
+            child.setScaleX(scale);
+            child.setScaleY(scale);
+            float rotationFactor = 0.06f;
+            float rotation = (childCenter - center) * rotationFactor;
+            child.setRotation(rotation);
+        }
+    }
+
+    private void setupCategoriesRecyclerView() {
+        if (rvCategories == null) return;
+        rvCategories.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        categoryAdapter = new VendorCategoryAdapter();
+        categoryAdapter.setOnCategoryClickListener(categoryClickListener);
+        categoryAdapter.setOnCategoryLongClickListener(category -> showCategoryOptionsDialog(category));
+        rvCategories.setAdapter(categoryAdapter);
+
+        rvCategories.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                updateCategoryWheel();
+            }
+        });
+
+        // Keep the wheel shape updated on any layout pass (like notifyDataSetChanged when selection changes)
+        rvCategories.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            updateCategoryWheel();
+        });
     }
 
     @Override
@@ -653,37 +698,67 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private void showAddNewCategoryDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Thêm danh mục mới");
-        final EditText input = new EditText(requireContext());
-        input.setHint("Tên danh mục");
-        builder.setView(input);
-        builder.setPositiveButton("Thêm", (dialog, which) -> {
-            String name = input.getText().toString().trim();
-            if (!TextUtils.isEmpty(name)) {
-                android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
-                progressDialog.setMessage("AI đang sinh biểu tượng...");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Thêm danh mục mới 📂");
 
-                com.foodorderingapp.utils.GeminiEmojiHelper.generateEmojiForCategory(name, new com.foodorderingapp.utils.GeminiEmojiHelper.EmojiCallback() {
-                    @Override
-                    public void onSuccess(String emoji) {
-                        progressDialog.dismiss();
-                        handleNewCategoryEmoji(emoji, name);
-                    }
+        final android.widget.EditText input = new android.widget.EditText(requireContext());
+        input.setHint("Nhập tên danh mục (ví dụ: Trà sữa, Bánh mì...)");
+        input.setPadding(36, 32, 36, 32);
+        input.setTextSize(15);
+        input.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        input.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        input.setBackgroundResource(R.drawable.bg_vendor_reply);
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        progressDialog.dismiss();
-                        String emoji = CategoryIconHelper.getCategoryEmoji(name);
-                        handleNewCategoryEmoji(emoji, name);
-                    }
-                });
-            }
-        });
+        android.widget.FrameLayout container = new android.widget.FrameLayout(requireContext());
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = 56;
+        params.rightMargin = 56;
+        params.topMargin = 24;
+        params.bottomMargin = 16;
+        input.setLayoutParams(params);
+        container.addView(input);
+        builder.setView(container);
+
+        builder.setPositiveButton("Thêm", null);
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
-        builder.show();
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String name = input.getText().toString().trim();
+            if (TextUtils.isEmpty(name)) {
+                Toast.makeText(requireContext(), "Tên danh mục không được để trống", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            dialog.dismiss();
+
+            android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
+            progressDialog.setMessage("AI đang sinh biểu tượng...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            com.foodorderingapp.utils.GeminiEmojiHelper.generateEmojiForCategory(name, new com.foodorderingapp.utils.GeminiEmojiHelper.EmojiCallback() {
+                @Override
+                public void onSuccess(String emoji) {
+                    progressDialog.dismiss();
+                    handleNewCategoryEmoji(emoji, name);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    progressDialog.dismiss();
+                    String emoji = CategoryIconHelper.getCategoryEmoji(name);
+                    handleNewCategoryEmoji(emoji, name);
+                }
+            });
+        });
     }
 
     private void addNewCategory(String name) {
@@ -692,7 +767,7 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
             @Override
             public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(getContext(), "Category added!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Đã thêm danh mục thành công!", Toast.LENGTH_SHORT).show();
                     loadCategories(response.body().getId());
                 } else {
                     String errorMessage = "Đã xảy ra lỗi!";
@@ -945,12 +1020,17 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private void showDeleteCategoryConfirmDialog(CategoryResponse category) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Xóa danh mục?")
-                .setMessage("Bạn có chắc chắn muốn xóa danh mục '" + category.getName() + "'? Lưu ý: Chỉ có thể xóa danh mục không chứa món ăn nào.")
-                .setPositiveButton("Xóa", (dialog, which) -> deleteCategoryFromDb(category.getId()))
-                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
-                .show();
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Xóa danh mục? ⚠️")
+                .setMessage("Bạn có chắc chắn muốn xóa danh mục '" + category.getName() + "'?\n\nLưu ý: Chỉ có thể xóa danh mục không chứa món ăn nào.")
+                .setPositiveButton("Xóa", (d, which) -> deleteCategoryFromDb(category.getId()))
+                .setNegativeButton("Hủy", (d, which) -> d.dismiss())
+                .create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                android.graphics.Color.parseColor("#FF4D4D"));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
     }
 
     private void deleteCategoryFromDb(UUID categoryId) {
@@ -1029,66 +1109,97 @@ public class VendorMenuFragment extends Fragment implements FoodAdapter.OnFoodAc
     }
 
     private void showCategoryOptionsDialog(CategoryResponse category) {
-        String[] options = {"Sửa tên danh mục", "Xóa danh mục"};
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Tùy chọn danh mục")
-                .setItems(options, (dialog, which) -> {
+        String[] options = {"Sửa tên danh mục ✏️", "Xóa danh mục ❌"};
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Tùy chọn danh mục 📂")
+                .setItems(options, (d, which) -> {
                     if (which == 0) {
                         showEditCategoryDialog(category);
                     } else if (which == 1) {
                         showDeleteCategoryConfirmDialog(category);
                     }
                 })
-                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setNegativeButton("Hủy", (d, which) -> d.dismiss())
+                .create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
     }
 
     private void showEditCategoryDialog(CategoryResponse category) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Sửa tên danh mục");
-        final EditText input = new EditText(requireContext());
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Sửa tên danh mục ✏️");
+        
+        final android.widget.EditText input = new android.widget.EditText(requireContext());
         String plainName = CategoryIconHelper.getNameForDisplay(category.getName());
         input.setText(plainName);
         input.setSelection(plainName.length());
-        builder.setView(input);
-        builder.setPositiveButton("Lưu", (dialog, which) -> {
+        input.setPadding(36, 32, 36, 32);
+        input.setTextSize(15);
+        input.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        input.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        input.setBackgroundResource(R.drawable.bg_vendor_reply);
+
+        android.widget.FrameLayout container = new android.widget.FrameLayout(requireContext());
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = 56;
+        params.rightMargin = 56;
+        params.topMargin = 24;
+        params.bottomMargin = 16;
+        input.setLayoutParams(params);
+        container.addView(input);
+        builder.setView(container);
+
+        builder.setPositiveButton("Lưu", null);
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+        
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String newName = input.getText().toString().trim();
-            if (!TextUtils.isEmpty(newName)) {
-                // Check if duplicate name (ignoring self)
-                String cleanNewName = newName.toLowerCase();
-                for (CategoryResponse cat : categories) {
-                    if (!cat.getId().equals(category.getId())) {
-                        String existingCleanName = CategoryIconHelper.getNameForDisplay(cat.getName()).trim().toLowerCase();
-                        if (existingCleanName.equals(cleanNewName)) {
-                            Toast.makeText(getContext(), "Tên danh mục này đã tồn tại trong cửa hàng!", Toast.LENGTH_LONG).show();
-                            return;
-                        }
+            if (TextUtils.isEmpty(newName)) {
+                Toast.makeText(requireContext(), "Tên danh mục không được để trống", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String cleanNewName = newName.toLowerCase();
+            for (CategoryResponse cat : categories) {
+                if (!cat.getId().equals(category.getId())) {
+                    String existingCleanName = CategoryIconHelper.getNameForDisplay(cat.getName()).trim().toLowerCase();
+                    if (existingCleanName.equals(cleanNewName)) {
+                        Toast.makeText(getContext(), "Tên danh mục này đã tồn tại trong cửa hàng!", Toast.LENGTH_LONG).show();
+                        return;
                     }
                 }
-
-                android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
-                progressDialog.setMessage("AI đang sinh biểu tượng mới...");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
-
-                com.foodorderingapp.utils.GeminiEmojiHelper.generateEmojiForCategory(newName, new com.foodorderingapp.utils.GeminiEmojiHelper.EmojiCallback() {
-                    @Override
-                    public void onSuccess(String emoji) {
-                        progressDialog.dismiss();
-                        handleEditCategoryEmoji(category.getId(), emoji, newName);
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        progressDialog.dismiss();
-                        String emoji = CategoryIconHelper.getCategoryEmoji(newName);
-                        handleEditCategoryEmoji(category.getId(), emoji, newName);
-                    }
-                });
             }
+            dialog.dismiss();
+
+            android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
+            progressDialog.setMessage("AI đang sinh biểu tượng mới...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            com.foodorderingapp.utils.GeminiEmojiHelper.generateEmojiForCategory(newName, new com.foodorderingapp.utils.GeminiEmojiHelper.EmojiCallback() {
+                @Override
+                public void onSuccess(String emoji) {
+                    progressDialog.dismiss();
+                    handleEditCategoryEmoji(category.getId(), emoji, newName);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    progressDialog.dismiss();
+                    String emoji = CategoryIconHelper.getCategoryEmoji(newName);
+                    handleEditCategoryEmoji(category.getId(), emoji, newName);
+                }
+            });
         });
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
-        builder.show();
     }
 
     private void handleEditCategoryEmoji(UUID categoryId, String emoji, String newName) {

@@ -44,6 +44,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import com.foodorderingapp.utils.StompClient;
+import com.foodorderingapp.utils.VendorDataCache;
 import com.foodorderingapp.utils.constants.AppConstants;
 import com.foodorderingapp.utils.TokenManager;
 
@@ -82,6 +83,26 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         adapter = new VendorOrderAdapter(orderList, this);
         rvVendorOrders.setAdapter(adapter);
 
+        // Restore from VendorDataCache
+        if (com.foodorderingapp.utils.VendorDataCache.getShopResponse() != null) {
+            ShopResponse shop = com.foodorderingapp.utils.VendorDataCache.getShopResponse();
+            String idStr = shop.getId();
+            currentShopId = idStr != null ? UUID.fromString(idStr) : null;
+            connectWebSocket();
+        }
+        if (com.foodorderingapp.utils.VendorDataCache.getOrderList() != null) {
+            orderList.clear();
+            orderList.addAll(com.foodorderingapp.utils.VendorDataCache.getOrderList());
+            adapter.updateData(orderList);
+            if (orderList.isEmpty()) {
+                layoutEmptyOrders.setVisibility(View.VISIBLE);
+                rvVendorOrders.setVisibility(View.GONE);
+            } else {
+                layoutEmptyOrders.setVisibility(View.GONE);
+                rvVendorOrders.setVisibility(View.VISIBLE);
+            }
+        }
+
         // Setup Swipe Refresh
         swipeRefresh.setOnRefreshListener(() -> fetchShopInfoAndLoadOrders(true));
 
@@ -108,8 +129,10 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
             loadOrders(false);
         });
 
-        // Load Initial Data
-        fetchShopInfoAndLoadOrders(false);
+        // Load Initial Data if empty
+        if (orderList.isEmpty()) {
+            fetchShopInfoAndLoadOrders(false);
+        }
 
         return view;
     }
@@ -117,12 +140,14 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
     @Override
     public void onResume() {
         super.onResume();
-        // Reload when coming back to fragment
-        fetchShopInfoAndLoadOrders(false);
+        // Only load if order list is empty to avoid unnecessary reloads on theme changes/tab switching
+        if (orderList.isEmpty()) {
+            fetchShopInfoAndLoadOrders(false);
+        }
     }
 
     private void fetchShopInfoAndLoadOrders(boolean isRefresh) {
-        if (!isRefresh && swipeRefresh != null) {
+        if (!isRefresh && swipeRefresh != null && orderList.isEmpty()) {
             swipeRefresh.setRefreshing(true);
         }
 
@@ -131,6 +156,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
             public void onResponse(Call<List<ShopResponse>> call, Response<List<ShopResponse>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     ShopResponse shop = response.body().get(0);
+                    com.foodorderingapp.utils.VendorDataCache.setShopResponse(shop);
                     String idStr = shop.getId();
                     if (idStr != null) {
                         currentShopId = UUID.fromString(idStr);
@@ -238,6 +264,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
                 if (swipeRefresh != null) swipeRefresh.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     List<OrderResponse> orders = response.body();
+                    com.foodorderingapp.utils.VendorDataCache.setOrderList(orders);
                     adapter.updateData(orders);
                     if (orders.isEmpty()) {
                         layoutEmptyOrders.setVisibility(View.VISIBLE);
@@ -316,7 +343,21 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
 
     @Override
     public void onDeliverClicked(OrderResponse order) {
-        updateOrderStatusOnServer(order, "DELIVERING", null);
+        if ("DELIVERING".equalsIgnoreCase(order.getStatus())) {
+            android.content.Intent intent = new android.content.Intent(getContext(), com.foodorderingapp.ui.order.OrderTrackingActivity.class);
+            intent.putExtra("ORDER_ID", order.getId());
+            intent.putExtra("SHOP_NAME", order.getShopName());
+            intent.putExtra("SHOP_ADDRESS", order.getShopAddress());
+            intent.putExtra("SHOP_LATITUDE", order.getShopLatitude() != null ? order.getShopLatitude() : 0.0);
+            intent.putExtra("SHOP_LONGITUDE", order.getShopLongitude() != null ? order.getShopLongitude() : 0.0);
+            intent.putExtra("BUILDING_NAME", order.getBuilding());
+            intent.putExtra("BUILDING_LATITUDE", order.getBuildingLatitude() != null ? order.getBuildingLatitude() : 0.0);
+            intent.putExtra("BUILDING_LONGITUDE", order.getBuildingLongitude() != null ? order.getBuildingLongitude() : 0.0);
+            intent.putExtra("ORDER_STATUS", "DELIVERING");
+            intent.putExtra("SHIPPER_NAME", order.getShipperName());
+            intent.putExtra("SHIPPER_PHONE", order.getShipperPhone());
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -326,29 +367,48 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
 
     @Override
     public void onCancelClicked(OrderResponse order) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Xác nhận hủy đơn hàng?");
-        builder.setMessage("Vui lòng nhập lý do hủy đơn hàng bắt buộc:");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Xác nhận hủy đơn hàng? ⚠️");
 
-        final EditText etReason = new EditText(requireContext());
-        etReason.setHint("Lý do hủy đơn...");
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        etReason.setLayoutParams(lp);
-        builder.setView(etReason);
+        final android.widget.EditText etReason = new android.widget.EditText(requireContext());
+        etReason.setHint("Nhập lý do hủy đơn hàng bắt buộc...");
+        etReason.setPadding(36, 32, 36, 32);
+        etReason.setTextSize(15);
+        etReason.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etReason.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etReason.setBackgroundResource(R.drawable.bg_vendor_reply);
 
-        builder.setPositiveButton("Hủy đơn", (dialog, which) -> {
+        android.widget.FrameLayout container = new android.widget.FrameLayout(requireContext());
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = 56;
+        params.rightMargin = 56;
+        params.topMargin = 24;
+        params.bottomMargin = 16;
+        etReason.setLayoutParams(params);
+        container.addView(etReason);
+        builder.setView(container);
+
+        builder.setPositiveButton("Hủy đơn", null);
+        builder.setNegativeButton("Quay lại", (dialog, which) -> dialog.dismiss());
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                android.graphics.Color.parseColor("#FF4D4D"));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String reason = etReason.getText().toString().trim();
             if (reason.isEmpty()) {
                 Toast.makeText(getContext(), "Bạn phải cung cấp lý do hủy đơn!", Toast.LENGTH_SHORT).show();
-                onCancelClicked(order); // Reopen dialog
             } else {
+                dialog.dismiss();
                 updateOrderStatusOnServer(order, "CANCELLED", reason);
             }
         });
-
-        builder.setNegativeButton("Quay lại", (dialog, which) -> dialog.dismiss());
-        builder.show();
     }
 
     @Override
@@ -445,7 +505,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
 
                     TextView tvName = new TextView(requireContext());
                     tvName.setText(detail.getQuantity() + "x " + detail.getFoodName());
-                    tvName.setTextColor(android.graphics.Color.parseColor("#1A202C"));
+                    tvName.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
                     tvName.setTextSize(13);
                     RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -454,7 +514,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
 
                     TextView tvPrice = new TextView(requireContext());
                     tvPrice.setText(formatCurrency(detail.getPrice() * detail.getQuantity()));
-                    tvPrice.setTextColor(android.graphics.Color.parseColor("#718096"));
+                    tvPrice.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
                     tvPrice.setTextSize(13);
                     RelativeLayout.LayoutParams lpRight = new RelativeLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

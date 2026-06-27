@@ -3,27 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1B110F">
+    android:background="@color/vendor_dark_bg">
 
     <!-- Header Section -->
     <RelativeLayout
         android:id="@+id/layout_header"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="#1B110F"
+        android:background="@color/vendor_dark_bg"
         android:elevation="4dp"
         android:paddingHorizontal="16dp">
 
         <ImageView
             android:id="@+id/btn_back"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:src="@drawable/ic_back"
-            android:padding="4dp"
+            android:padding="12dp"
             android:contentDescription="Quay lại"
-            app:tint="@color/white"
+            app:tint="@color/vendor_dark_text_primary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"/>
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Quản lý Voucher"
-            android:textColor="@color/white"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Chưa có mã giảm giá nào"
-            android:textColor="@color/white"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -82,7 +82,7 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="Nhấn nút '+' bên dưới để tạo voucher mới\ncho khách hàng của bạn."
-            android:textColor="#8A7D79"
+            android:textColor="@color/vendor_dark_text_secondary"
             android:textSize="13sp" />
     </LinearLayout>
 

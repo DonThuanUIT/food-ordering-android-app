@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1B110F">
+    android:background="@color/vendor_dark_bg">
 
     <!-- 1. Map View -->
     <org.osmdroid.views.MapView
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="12dp"
             app:cardElevation="6dp"
-            app:cardBackgroundColor="#2B1D1A">
+            app:cardBackgroundColor="@color/vendor_dark_card">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -54,14 +54,14 @@
 
                 <ImageView
                     android:id="@+id/btn_back_map"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:src="@drawable/ic_back"
-                    app:tint="@color/white"
+                    app:tint="@color/vendor_dark_text_primary"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"
-                    android:padding="2dp"/>
+                    android:padding="12dp"/>
 
                 <EditText
                     android:id="@+id/et_address_search"
@@ -70,7 +70,7 @@
                     android:layout_weight="1"
                     android:background="@null"
                     android:hint="Tìm kiếm địa chỉ của quán..."
-                    android:textColor="@color/white"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textColorHint="#8A7D79"
                     android:textSize="14sp"
                     android:paddingHorizontal="12dp"
@@ -99,7 +99,7 @@
             android:layout_marginTop="4dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="6dp"
-            app:cardBackgroundColor="#2B1D1A"
+            app:cardBackgroundColor="@color/vendor_dark_card"
             android:visibility="gone">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -118,7 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="#1B110F">
+        app:cardBackgroundColor="@color/vendor_dark_bg">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -146,7 +146,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="Chưa chọn vị trí"
-                    android:textColor="@color/white"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:ellipsize="end"

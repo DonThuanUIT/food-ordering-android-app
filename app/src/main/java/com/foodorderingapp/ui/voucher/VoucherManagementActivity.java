@@ -172,12 +172,17 @@ public class VoucherManagementActivity extends AppCompatActivity implements Vouc
     @Override
     public void onDeleteClicked(VoucherResponse voucher) {
         if (currentShopId == null || voucher.getId() == null) return;
-        new AlertDialog.Builder(this)
-                .setTitle("Xóa Voucher?")
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Xóa Voucher? ⚠️")
                 .setMessage("Bạn có chắc chắn muốn xóa voucher " + voucher.getCode() + "? Hành động này không thể hoàn tác.")
-                .setPositiveButton("Xóa", (dialog, which) -> deleteVoucherOnServer(voucher.getId()))
-                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setPositiveButton("Xóa", (d, which) -> deleteVoucherOnServer(voucher.getId()))
+                .setNegativeButton("Hủy", (d, which) -> d.dismiss())
+                .create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                android.graphics.Color.parseColor("#FF4D4D"));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(this, R.color.vendor_dark_text_secondary));
     }
 
     private void deleteVoucherOnServer(UUID voucherId) {

@@ -244,6 +244,24 @@ public class VendorSettingsFragment extends Fragment {
             });
         }
 
+        // Load cached images from shared preferences instantly to avoid flickering/blank placeholders
+        String cachedLogoUrl = sharedPreferences.getString("last_shop_logo_url", null);
+        String cachedCoverUrl = sharedPreferences.getString("last_shop_cover_url", null);
+        if (getContext() != null) {
+            if (cachedLogoUrl != null) {
+                Glide.with(getContext())
+                    .load(cachedLogoUrl)
+                    .placeholder(R.drawable.logo_food)
+                    .into(imgShopLogo);
+            }
+            if (cachedCoverUrl != null) {
+                Glide.with(getContext())
+                    .load(cachedCoverUrl)
+                    .placeholder(R.drawable.burger_sample)
+                    .into(imgShopCover);
+            }
+        }
+
         setupClickListeners();
         loadContactAndBankInfo();
         loadSavedPreferences();
@@ -316,10 +334,10 @@ public class VendorSettingsFragment extends Fragment {
 
         // Logout click listener
         btnLogout.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext())
+            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Đăng xuất?")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?")
-                .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                .setPositiveButton("Đăng xuất", (d, which) -> {
                     TokenManager.getInstance().clearTokens();
                     Toast.makeText(getContext(), "Đăng xuất thành công!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(requireActivity(), LoginActivity.class);
@@ -327,20 +345,30 @@ public class VendorSettingsFragment extends Fragment {
                     startActivity(intent);
                     requireActivity().finish();
                 })
-                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setNegativeButton("Hủy", (d, which) -> d.dismiss())
+                .create();
+            dialog.show();
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                android.graphics.Color.parseColor("#FF4D4D"));
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         });
 
         // Deactivate button click with warning alert dialog
         btnDeactivate.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext())
+            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Vô hiệu hóa Cửa hàng?")
                 .setMessage("Bạn có chắc chắn muốn tạm thời vô hiệu hóa cửa hàng? Cửa hàng của bạn sẽ bị ẩn khỏi mọi kết quả tìm kiếm trên DormDash.")
-                .setPositiveButton("Vô hiệu hóa", (dialog, which) -> {
+                .setPositiveButton("Vô hiệu hóa", (d, which) -> {
                     toggleShopStatusOnServer(false);
                 })
-                .setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setNegativeButton("Hủy bỏ", (d, which) -> d.dismiss())
+                .create();
+            dialog.show();
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                android.graphics.Color.parseColor("#FF4D4D"));
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         });
 
         // Close permanently click listener
@@ -427,73 +455,125 @@ public class VendorSettingsFragment extends Fragment {
     }
 
     private void showEditContactDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Chỉnh sửa thông tin liên hệ");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Chỉnh sửa thông tin liên hệ 📞");
 
         android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(40, 20, 40, 20);
+        layout.setPadding(56, 32, 56, 16);
 
         final android.widget.EditText etEmail = new android.widget.EditText(requireContext());
         etEmail.setHint("Email liên hệ");
         etEmail.setText(tvShopEmail.getText().toString());
+        etEmail.setPadding(36, 32, 36, 32);
+        etEmail.setTextSize(15);
+        etEmail.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etEmail.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etEmail.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etEmail);
+
+        View space = new View(requireContext());
+        android.widget.LinearLayout.LayoutParams spaceParams = new android.widget.LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 24);
+        space.setLayoutParams(spaceParams);
+        layout.addView(space);
 
         final android.widget.EditText etPhone = new android.widget.EditText(requireContext());
         etPhone.setHint("Số điện thoại hỗ trợ");
         etPhone.setText(tvShopPhone.getText().toString());
+        etPhone.setPadding(36, 32, 36, 32);
+        etPhone.setTextSize(15);
+        etPhone.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etPhone.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etPhone.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etPhone);
 
         builder.setView(layout);
-        builder.setPositiveButton("Lưu", (dialog, which) -> {
+        builder.setPositiveButton("Lưu", null);
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String phone = etPhone.getText().toString().trim();
             if (email.isEmpty() || phone.isEmpty()) {
                 Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
+            dialog.dismiss();
             ShopUpdateRequest req = new ShopUpdateRequest();
             req.setEmail(email);
             req.setPhone(phone);
             saveShopProfile(req);
         });
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
-        builder.show();
     }
 
     private void showEditBankDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Chỉnh sửa thông tin ngân hàng");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Chỉnh sửa thông tin ngân hàng 🏦");
 
         android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(40, 20, 40, 20);
+        layout.setPadding(56, 32, 56, 16);
 
         final android.widget.EditText etBankName = new android.widget.EditText(requireContext());
         etBankName.setHint("Tên ngân hàng (ví dụ: Chase Business)");
         etBankName.setText(tvBankName.getText().toString());
+        etBankName.setPadding(36, 32, 36, 32);
+        etBankName.setTextSize(15);
+        etBankName.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etBankName.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etBankName.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etBankName);
 
+        View space = new View(requireContext());
+        android.widget.LinearLayout.LayoutParams spaceParams = new android.widget.LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 24);
+        space.setLayoutParams(spaceParams);
+        layout.addView(space);
+
         final android.widget.EditText etAccount = new android.widget.EditText(requireContext());
-        etAccount.setHint("Số tài khoản (hoặc 4 số cuối, ví dụ: Ending in •••• 4402)");
+        etAccount.setHint("Số tài khoản (hoặc 4 số cuối)");
         etAccount.setText(tvBankDetails.getText().toString());
+        etAccount.setPadding(36, 32, 36, 32);
+        etAccount.setTextSize(15);
+        etAccount.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etAccount.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etAccount.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etAccount);
 
         builder.setView(layout);
-        builder.setPositiveButton("Lưu", (dialog, which) -> {
+        builder.setPositiveButton("Lưu", null);
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String name = etBankName.getText().toString().trim();
             String acc = etAccount.getText().toString().trim();
             if (name.isEmpty() || acc.isEmpty()) {
                 Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
+            dialog.dismiss();
             ShopUpdateRequest req = new ShopUpdateRequest();
             req.setBankName(name);
             req.setBankAccountNumber(acc);
             saveShopProfile(req);
         });
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
-        builder.show();
     }
 
 
@@ -501,14 +581,18 @@ public class VendorSettingsFragment extends Fragment {
     private void updateOperationalStatusUI(boolean isOpen) {
         if (isOpen) {
             tvOperationalStatus.setText("Đang mở cửa");
-            tvOperationalStatus.setTextColor(Color.parseColor("#00A843")); // Green
-            cardStatusIconBg.setCardBackgroundColor(Color.parseColor("#E6FFE6")); // Light Green background
-            ivStatusIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00A843")));
+            int greenColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.status_success);
+            int greenBg = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_light_green_soft);
+            tvOperationalStatus.setTextColor(greenColor);
+            cardStatusIconBg.setCardBackgroundColor(greenBg);
+            ivStatusIcon.setImageTintList(ColorStateList.valueOf(greenColor));
         } else {
             tvOperationalStatus.setText("Tạm đóng cửa");
-            tvOperationalStatus.setTextColor(Color.parseColor("#718096")); // Gray text
-            cardStatusIconBg.setCardBackgroundColor(Color.parseColor("#EDF2F7")); // Light Gray background
-            ivStatusIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#718096")));
+            int grayColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary);
+            int grayBg = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_divider);
+            tvOperationalStatus.setTextColor(grayColor);
+            cardStatusIconBg.setCardBackgroundColor(grayBg);
+            ivStatusIcon.setImageTintList(ColorStateList.valueOf(grayColor));
         }
     }
 
@@ -581,6 +665,20 @@ public class VendorSettingsFragment extends Fragment {
         String logoUrl = shop.getLogoUrl() != null ? shop.getLogoUrl() : sharedPreferences.getString("shop_logo_url_" + currentShopId, null);
         String coverUrl = shop.getCoverUrl() != null ? shop.getCoverUrl() : sharedPreferences.getString("shop_cover_url_" + currentShopId, null);
 
+        // Cache the values globally for instant loading next time
+        if (logoUrl != null) {
+            sharedPreferences.edit().putString("last_shop_logo_url", logoUrl).apply();
+            if (currentShopId != null) {
+                sharedPreferences.edit().putString("shop_logo_url_" + currentShopId, logoUrl).apply();
+            }
+        }
+        if (coverUrl != null) {
+            sharedPreferences.edit().putString("last_shop_cover_url", coverUrl).apply();
+            if (currentShopId != null) {
+                sharedPreferences.edit().putString("shop_cover_url_" + currentShopId, coverUrl).apply();
+            }
+        }
+
         if (getContext() != null) {
             Glide.with(getContext())
                 .load(logoUrl != null ? logoUrl : R.drawable.logo_food)
@@ -647,57 +745,104 @@ public class VendorSettingsFragment extends Fragment {
     }
 
     private void showEditProfileDialog(ShopResponse shop) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Cập nhật thông tin quán");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Cập nhật thông tin quán 🏪");
 
         android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(40, 20, 40, 20);
+        layout.setPadding(56, 32, 56, 32);
 
-        // General Shop Fields
+        // Name
         final android.widget.EditText etName = new android.widget.EditText(requireContext());
         etName.setHint("Tên quán ăn");
         etName.setText(shop.getName());
+        etName.setPadding(36, 32, 36, 32);
+        etName.setTextSize(14);
+        etName.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etName.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etName.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etName);
 
+        layout.addView(createSpaceView(16));
+
+        // Desc
         final android.widget.EditText etDesc = new android.widget.EditText(requireContext());
-        etDesc.setHint("Mô tả");
+        etDesc.setHint("Mô tả cửa hàng");
         etDesc.setText(shop.getDescription() != null ? shop.getDescription() : "");
+        etDesc.setPadding(36, 32, 36, 32);
+        etDesc.setTextSize(14);
+        etDesc.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etDesc.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etDesc.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etDesc);
 
+        layout.addView(createSpaceView(16));
+
+        // Address
         final android.widget.EditText etAddress = new android.widget.EditText(requireContext());
         etAddress.setHint("Địa chỉ");
         etAddress.setText(shop.getAddress() != null ? shop.getAddress() : "");
+        etAddress.setPadding(36, 32, 36, 32);
+        etAddress.setTextSize(14);
+        etAddress.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etAddress.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etAddress.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etAddress);
+
+        layout.addView(createSpaceView(20));
 
         // Section header for hours
         TextView tvHoursHeader = new TextView(requireContext());
-        tvHoursHeader.setText("\nCài đặt giờ hoạt động chi tiết:");
-        tvHoursHeader.setTextColor(Color.BLACK);
+        tvHoursHeader.setText("Cài đặt giờ hoạt động chi tiết:");
+        tvHoursHeader.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
         tvHoursHeader.setTextSize(14);
         tvHoursHeader.setTypeface(null, android.graphics.Typeface.BOLD);
         layout.addView(tvHoursHeader);
 
+        layout.addView(createSpaceView(12));
+
         // Spinner to choose Day Group
         final Spinner spinnerDays = new Spinner(requireContext());
-        spinnerDays.setPopupBackgroundResource(R.color.white);
+        spinnerDays.setPopupBackgroundResource(R.color.vendor_dark_card);
         String[] dayGroups = {"Thứ 2 - Thứ 6", "Thứ Bảy", "Chủ Nhật"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, dayGroups);
         spinnerDays.setAdapter(adapter);
+        spinnerDays.setPadding(24, 16, 24, 16);
+        spinnerDays.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(spinnerDays);
 
+        layout.addView(createSpaceView(16));
+
+        // Open Time
         final android.widget.EditText etOpen = new android.widget.EditText(requireContext());
         etOpen.setHint("Giờ mở cửa (HH:mm)");
+        etOpen.setPadding(36, 32, 36, 32);
+        etOpen.setTextSize(14);
+        etOpen.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etOpen.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etOpen.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etOpen);
 
+        layout.addView(createSpaceView(16));
+
+        // Close Time
         final android.widget.EditText etClose = new android.widget.EditText(requireContext());
         etClose.setHint("Giờ đóng cửa (HH:mm)");
+        etClose.setPadding(36, 32, 36, 32);
+        etClose.setTextSize(14);
+        etClose.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etClose.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etClose.setBackgroundResource(R.drawable.bg_vendor_reply);
         layout.addView(etClose);
 
         // Day selection listener to load appropriate hours dynamically
         spinnerDays.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view instanceof TextView) {
+                    ((TextView) view).setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+                    ((TextView) view).setTextSize(14);
+                }
                 if (position == 0) { // Mon - Fri
                     String openVal = shop.getMonFriOpenTime() != null ? shop.getMonFriOpenTime() : (shop.getOpenTime() != null ? shop.getOpenTime() : "08:00");
                     String closeVal = shop.getMonFriCloseTime() != null ? shop.getMonFriCloseTime() : (shop.getCloseTime() != null ? shop.getCloseTime() : "22:00");
@@ -719,8 +864,18 @@ public class VendorSettingsFragment extends Fragment {
         });
 
         builder.setView(layout);
+        builder.setPositiveButton("Lưu", null);
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+        
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
 
-        builder.setPositiveButton("Lưu", (dialog, which) -> {
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String desc = etDesc.getText().toString().trim();
             String addr = etAddress.getText().toString().trim();
@@ -732,9 +887,9 @@ public class VendorSettingsFragment extends Fragment {
                 Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
+            dialog.dismiss();
 
-            // Save hours to respective day groups
-            if (selectedDayPos == 0) { // Mon - Fri (Sent to backend)
+            if (selectedDayPos == 0) { // Mon - Fri
                 ShopUpdateRequest req = new ShopUpdateRequest(name, addr, desc, open, close);
                 req.setMonFriOpenTime(open);
                 req.setMonFriCloseTime(close);
@@ -751,9 +906,16 @@ public class VendorSettingsFragment extends Fragment {
                 saveShopProfile(req);
             }
         });
+    }
 
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
-        builder.show();
+    private View createSpaceView(int heightDp) {
+        View space = new View(requireContext());
+        float scale = getResources().getDisplayMetrics().density;
+        int heightPx = (int) (heightDp * scale + 0.5f);
+        android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, heightPx);
+        space.setLayoutParams(params);
+        return space;
     }
 
     private void saveShopProfile(ShopUpdateRequest req) {
@@ -779,8 +941,8 @@ public class VendorSettingsFragment extends Fragment {
     }
 
     private void showManageLeadsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Danh sách khách hàng tiềm năng");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Danh sách khách hàng tiềm năng 👥");
 
         String[] leads = {
             "● Nguyễn Văn A - Yêu cầu hợp tác làm Campus Event cơm trưa",
@@ -793,12 +955,16 @@ public class VendorSettingsFragment extends Fragment {
             Toast.makeText(getContext(), "Đang xử lý yêu cầu: " + leads[which], Toast.LENGTH_SHORT).show();
         });
         builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
-        builder.show();
+        
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
     }
 
     private void showStatementsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Lịch sử doanh thu & Sao kê");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Lịch sử doanh thu & Sao kê 📊");
 
         String[] statements = {
             "Tháng 06/2026 - Doanh thu: $1,280.50 (124 đơn) - ĐÃ DUYỆT CHI",
@@ -811,7 +977,11 @@ public class VendorSettingsFragment extends Fragment {
             Toast.makeText(getContext(), "Mở chi tiết sao kê: " + statements[which].split(" - ")[0], Toast.LENGTH_SHORT).show();
         });
         builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
-        builder.show();
+        
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
     }
 
     @Override
@@ -823,56 +993,84 @@ public class VendorSettingsFragment extends Fragment {
 
 
     private void showCloseShopConfirmDialog() {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("CẢNH BÁO: ĐÓNG CỬA HÀNG VĨNH VIỄN?")
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("CẢNH BÁO: ĐÓNG CỬA HÀNG VĨNH VIỄN? ⚠️")
                 .setMessage("Hành động này sẽ đóng cửa hàng của bạn vĩnh viễn và ẩn khỏi hệ thống. Tất cả dữ liệu của cửa hàng sẽ không thể truy cập được nữa. Bạn có chắc chắn muốn tiếp tục?")
-                .setPositiveButton("Tiếp tục", (dialog, which) -> {
+                .setPositiveButton("Tiếp tục", (d, which) -> {
                     showVerificationMethodDialog();
                 })
-                .setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setNegativeButton("Hủy bỏ", (d, which) -> d.dismiss())
+                .create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                android.graphics.Color.parseColor("#FF4D4D"));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
     }
 
     private void showVerificationMethodDialog() {
-        String[] methods = {"Xác thực bằng Mật khẩu tài khoản", "Xác thực bằng mã OTP gửi qua Email"};
-        new AlertDialog.Builder(requireContext())
+        String[] methods = {"Xác thực bằng Mật khẩu tài khoản 🔑", "Xác thực bằng mã OTP gửi qua Email 📧"};
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Chọn phương thức xác thực")
-                .setItems(methods, (dialog, which) -> {
+                .setItems(methods, (d, which) -> {
                     if (which == 0) {
                         showPasswordVerificationDialog();
                     } else {
                         requestCloseShopOtpAndShowDialog();
                     }
                 })
-                .setNegativeButton("Hủy bỏ", (dialog, id) -> dialog.dismiss())
-                .show();
+                .setNegativeButton("Hủy bỏ", (d, id) -> d.dismiss())
+                .create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
     }
 
     private void showPasswordVerificationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Xác thực mật khẩu");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Xác thực mật khẩu 🔑");
         builder.setMessage("Vui lòng nhập mật khẩu tài khoản của bạn để xác nhận đóng cửa hàng:");
 
         final android.widget.EditText etPassword = new android.widget.EditText(requireContext());
         etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
         etPassword.setHint("Mật khẩu của bạn");
+        etPassword.setPadding(36, 32, 36, 32);
+        etPassword.setTextSize(15);
+        etPassword.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+        etPassword.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        etPassword.setBackgroundResource(R.drawable.bg_vendor_reply);
         
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(40, 20, 40, 20);
-        layout.addView(etPassword);
-        builder.setView(layout);
+        android.widget.FrameLayout container = new android.widget.FrameLayout(requireContext());
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = 56;
+        params.rightMargin = 56;
+        params.topMargin = 24;
+        params.bottomMargin = 16;
+        etPassword.setLayoutParams(params);
+        container.addView(etPassword);
+        builder.setView(container);
 
-        builder.setPositiveButton("Xác nhận đóng cửa hàng", (dialog, which) -> {
+        builder.setPositiveButton("Xác nhận đóng cửa hàng", null);
+        builder.setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss());
+        
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                android.graphics.Color.parseColor("#FF4D4D"));
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String password = etPassword.getText().toString();
             if (password.isEmpty()) {
                 Toast.makeText(getContext(), "Mật khẩu không được để trống!", Toast.LENGTH_SHORT).show();
                 return;
             }
+            dialog.dismiss();
             confirmCloseShopOnServer("PASSWORD", password, null);
         });
-        builder.setNegativeButton("Hủy bỏ", (dialog, which) -> dialog.dismiss());
-        builder.show();
     }
 
     private void requestCloseShopOtpAndShowDialog() {
@@ -896,19 +1094,13 @@ public class VendorSettingsFragment extends Fragment {
     }
 
     private void showOtpVerificationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Xác thực OTP");
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Xác thực OTP 📧");
         builder.setMessage("Vui lòng nhập mã OTP được gửi tới email của bạn để xác nhận đóng cửa hàng:");
 
         final android.widget.EditText etOtp = new android.widget.EditText(requireContext());
         etOtp.setHint("Nhập mã OTP");
         etOtp.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(requireContext());
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(40, 20, 40, 20);
-        layout.addView(etOtp);
-        builder.setView(layout);
 
         builder.setPositiveButton("Xác nhận đóng cửa hàng", (dialog, which) -> {
             String otp = etOtp.getText().toString().trim();

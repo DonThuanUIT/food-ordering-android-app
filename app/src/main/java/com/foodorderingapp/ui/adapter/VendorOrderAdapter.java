@@ -167,11 +167,16 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             btnActionDeliver.setVisibility(View.GONE);
             btnActionComplete.setVisibility(View.GONE);
 
+            btnActionDeliver.setText("GIAO HÀNG"); // Reset default
+
             if ("PENDING".equalsIgnoreCase(status)) {
                 btnActionCancel.setVisibility(View.VISIBLE);
                 btnActionAccept.setVisibility(View.VISIBLE);
             } else if ("CONFIRMED".equalsIgnoreCase(status)) {
                 btnActionCancel.setVisibility(View.VISIBLE);
+            } else if ("DELIVERING".equalsIgnoreCase(status)) {
+                btnActionDeliver.setVisibility(View.VISIBLE);
+                btnActionDeliver.setText("XEM BẢN ĐỒ");
             }
 
             // 10. Click Listeners

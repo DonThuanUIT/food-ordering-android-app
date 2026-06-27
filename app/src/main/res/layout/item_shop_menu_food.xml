@@ -19,13 +19,35 @@
         android:paddingEnd="12dp"
         android:paddingBottom="12dp">
 
-        <ImageView
-            android:id="@+id/ivMenuFoodImage"
+        <RelativeLayout
             android:layout_width="78dp"
-            android:layout_height="78dp"
-            android:background="#F3F4F6"
-            android:scaleType="centerCrop"
-            android:src="@drawable/logo_food" />
+            android:layout_height="78dp">
+
+            <ImageView
+                android:id="@+id/ivMenuFoodImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#F3F4F6"
+                android:scaleType="centerCrop"
+                android:src="@drawable/logo_food" />
+
+            <!-- Badge Overlay (Popular / Bestseller) -->
+            <TextView
+                android:id="@+id/tv_badge_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="4dp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:background="@drawable/bg_badge_orange"
+                android:text="Popular"
+                android:textColor="@android:color/white"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="0dp"
