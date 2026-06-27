@@ -19,4 +19,12 @@
     <color name="vendor_btn_secondary_bg">#2D2D2D</color>
     <color name="chat_input_bg">#2D3748</color>
     <color name="voucher_inactive_bg">#2D2D2D</color>
+    <!-- Profile Theme Colors (Dark Mode) -->
+    <color name="profile_tag_bg">#2D2D2D</color>
+    <color name="profile_divider">#2D2D2D</color>
+    <color name="profile_bg_grey">#121212</color>
+    <color name="admin_profile_accent">#FF7A21</color>
+    <color name="bg_role_vendor_color">#1E293B</color>
+    <color name="bg_role_student_color">#1E1B4B</color>
+    <color name="admin_header_bg">#1E1E1E</color>
 </resources>

@@ -184,25 +184,29 @@
             </LinearLayout>
 
             <!-- Shop Info Row -->
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="top"
                 android:layout_marginBottom="12dp">
 
                 <ImageView
+                    android:id="@+id/iv_shop_icon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_location"
-                    app:tint="@color/vendor_dark_orange"
-                    android:layout_marginTop="2dp"/>
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="2dp"
+                    android:src="@drawable/ic_store"
+                    app:tint="@color/vendor_dark_orange"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:layout_toEndOf="@id/iv_shop_icon"
+                    android:layout_toStartOf="@+id/btn_chat_vendor"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tv_shop_name"
@@ -222,7 +226,21 @@
                         android:textSize="12sp"
                         android:layout_marginTop="2dp"/>
                 </LinearLayout>
-            </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/btn_chat_vendor"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_contact"
+                    app:tint="@color/vendor_dark_orange"
+                    android:padding="6dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="Chat with Vendor"/>
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"

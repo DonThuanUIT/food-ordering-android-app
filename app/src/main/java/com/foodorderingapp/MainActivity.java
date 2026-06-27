@@ -29,6 +29,7 @@ import com.foodorderingapp.ui.home.admin.AdminOverviewFragment;
 import com.foodorderingapp.ui.home.admin.AdminProfileFragment;
 import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
 import com.foodorderingapp.ui.home.shipper.ShipperOrdersFragment;
+import com.foodorderingapp.ui.home.shipper.ShipperProfileFragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
 import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
@@ -66,14 +67,10 @@ public class MainActivity extends AppCompatActivity {
         String role = getIntent().getStringExtra("USER_ROLE");
         if (role == null) role = "STUDENT";
         
-        if ("VENDOR".equalsIgnoreCase(role)) {
-            android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-            boolean isDarkMode = prefs.getBoolean("vendor_dark_mode", false);
-            if (isDarkMode) {
-                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
-                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-            }
+        android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("app_dark_mode", prefs.getBoolean("vendor_dark_mode", false));
+        if (isDarkMode) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
@@ -130,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
             }
             ImageView ivProfile = findViewById(R.id.ivProfile);
             if (ivProfile != null) {
-                android.content.SharedPreferences prefs = getSharedPreferences("vendor_settings_pref", MODE_PRIVATE);
-                String logoUrl = prefs.getString("last_shop_logo_url", null);
+                android.content.SharedPreferences vendorPrefs = getSharedPreferences("vendor_settings_pref", MODE_PRIVATE);
+                String logoUrl = vendorPrefs.getString("last_shop_logo_url", null);
                 if (logoUrl != null && !logoUrl.trim().isEmpty()) {
                     Glide.with(this)
                         .load(logoUrl)
@@ -182,9 +179,94 @@ public class MainActivity extends AppCompatActivity {
                 ivProfile.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
                 ivProfile.setBackground(null);
             }
+            ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+            if (ivThemeToggle != null) {
+                ivThemeToggle.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
+            }
             if (getWindow() != null) {
                 getWindow().setStatusBarColor(Color.parseColor("#1B110F"));
                 getWindow().getDecorView().setSystemUiVisibility(0);
+            }
+        } else if ("ADMIN".equalsIgnoreCase(userRole)) {
+            int headerBg = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_bg);
+            int headerTextIcon = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_text_icon);
+            
+            if (findViewById(R.id.appBarLayout) != null) {
+                findViewById(R.id.appBarLayout).setBackgroundColor(headerBg);
+            }
+            if (findViewById(R.id.toolbar) != null) {
+                findViewById(R.id.toolbar).setBackgroundColor(headerBg);
+            }
+            if (bottomNav != null) {
+                bottomNav.setBackgroundColor(headerBg);
+            }
+            if (tvAppTitle != null) {
+                tvAppTitle.setTextColor(headerTextIcon);
+            }
+            ImageView ivMenu = findViewById(R.id.ivMenu);
+            if (ivMenu != null) {
+                ivMenu.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            ImageView ivProfile = findViewById(R.id.ivProfile);
+            if (ivProfile != null) {
+                ivProfile.setImageResource(R.drawable.ic_profile);
+                ivProfile.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+                ivProfile.setBackground(null);
+            }
+            ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+            if (ivThemeToggle != null) {
+                ivThemeToggle.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            if (getWindow() != null) {
+                getWindow().setStatusBarColor(headerBg);
+                if (androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode() == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES) {
+                    getWindow().getDecorView().setSystemUiVisibility(0);
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                }
+            }
+        } else {
+            // STUDENT Header Setup (Uses Vendor/Orange theme colors)
+            int headerBg = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_bg);
+            int headerTextIcon = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_text_icon);
+            
+            if (findViewById(R.id.appBarLayout) != null) {
+                findViewById(R.id.appBarLayout).setBackgroundColor(headerBg);
+            }
+            if (findViewById(R.id.toolbar) != null) {
+                findViewById(R.id.toolbar).setBackgroundColor(headerBg);
+            }
+            if (bottomNav != null) {
+                bottomNav.setBackgroundColor(headerBg);
+            }
+            if (tvAppTitle != null) {
+                tvAppTitle.setTextColor(headerTextIcon);
+            }
+            ImageView ivMenu = findViewById(R.id.ivMenu);
+            if (ivMenu != null) {
+                ivMenu.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            ImageView ivProfile = findViewById(R.id.ivProfile);
+            if (ivProfile != null) {
+                ivProfile.setImageResource(R.drawable.ic_profile);
+                ivProfile.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+                ivProfile.setBackground(null);
+            }
+            ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+            if (ivThemeToggle != null) {
+                ivThemeToggle.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            if (getWindow() != null) {
+                getWindow().setStatusBarColor(headerBg);
+                if (androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode() == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES) {
+                    getWindow().getDecorView().setSystemUiVisibility(0);
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                }
             }
         }
 
@@ -195,35 +277,30 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
         bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
 
-        // Setup theme toggle for VENDOR
+        // Setup theme toggle for all roles
         ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
         if (ivThemeToggle != null) {
-            if ("VENDOR".equalsIgnoreCase(userRole)) {
-                ivThemeToggle.setVisibility(View.VISIBLE);
-                android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                boolean isDarkMode = prefs.getBoolean("vendor_dark_mode", false);
-                
-                if (isDarkMode) {
-                    ivThemeToggle.setImageResource(R.drawable.ic_sun);
-                } else {
-                    ivThemeToggle.setImageResource(R.drawable.ic_moon);
-                }
-                
-                ivThemeToggle.setOnClickListener(v -> {
-                    boolean currentMode = prefs.getBoolean("vendor_dark_mode", false);
-                    boolean newMode = !currentMode;
-                    prefs.edit().putBoolean("vendor_dark_mode", newMode).apply();
-                    
-                    if (newMode) {
-                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
-                    } else {
-                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-                    }
-                    recreate();
-                });
+            ivThemeToggle.setVisibility(View.VISIBLE);
+            boolean currentDarkMode = prefs.getBoolean("app_dark_mode", prefs.getBoolean("vendor_dark_mode", false));
+            
+            if (currentDarkMode) {
+                ivThemeToggle.setImageResource(R.drawable.ic_sun);
             } else {
-                ivThemeToggle.setVisibility(View.GONE);
+                ivThemeToggle.setImageResource(R.drawable.ic_moon);
             }
+            
+            ivThemeToggle.setOnClickListener(v -> {
+                boolean currentMode = prefs.getBoolean("app_dark_mode", prefs.getBoolean("vendor_dark_mode", false));
+                boolean newMode = !currentMode;
+                prefs.edit().putBoolean("app_dark_mode", newMode).apply();
+                
+                if (newMode) {
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+                } else {
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+                }
+                recreate();
+            });
         }
     }
 
@@ -354,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (isShipperRole(role)) {
                 switch (position) {
                     case 0: return new ShipperOrdersFragment();
-                    case 1: return new StudentProfileFragment();
+                    case 1: return new ShipperProfileFragment();
                     case 2: return new StudentMessagesFragment();
                 }
             } else {

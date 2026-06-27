@@ -72,6 +72,12 @@ public interface ApiService {
     @POST("auth/login")
     Call<AuthResponse> login(@Body LoginRequest request);
 
+    @POST("auth/forgot-password/send-otp")
+    Call<AuthResponse> sendForgotPasswordOtp(@Query("email") String email);
+
+    @POST("auth/forgot-password/reset")
+    Call<AuthResponse> resetPassword(@Body com.foodorderingapp.model.request.ResetPasswordRequest request);
+
     // --- Image Upload ---
     @Multipart
     @POST("upload/image")

@@ -35,17 +35,18 @@ public class AdminShopStatusChartView extends View {
     }
 
     private void init() {
-        barPaint.setColor(Color.parseColor("#B24C08"));
-        gridPaint.setColor(Color.parseColor("#E5E7EB"));
+        Context context = getContext();
+        barPaint.setColor(androidx.core.content.ContextCompat.getColor(context, com.foodorderingapp.R.color.admin_profile_accent));
+        gridPaint.setColor(androidx.core.content.ContextCompat.getColor(context, com.foodorderingapp.R.color.vendor_dark_divider));
         gridPaint.setStrokeWidth(2f);
-        labelPaint.setColor(Color.parseColor("#5B6370"));
+        labelPaint.setColor(androidx.core.content.ContextCompat.getColor(context, com.foodorderingapp.R.color.vendor_dark_text_secondary));
         labelPaint.setTextAlign(Paint.Align.CENTER);
         labelPaint.setTextSize(sp(11));
-        valuePaint.setColor(Color.parseColor("#1A1D26"));
+        valuePaint.setColor(androidx.core.content.ContextCompat.getColor(context, com.foodorderingapp.R.color.vendor_dark_text_primary));
         valuePaint.setTextAlign(Paint.Align.CENTER);
         valuePaint.setTextSize(sp(14));
         valuePaint.setFakeBoldText(true);
-        emptyPaint.setColor(Color.parseColor("#7D8494"));
+        emptyPaint.setColor(androidx.core.content.ContextCompat.getColor(context, com.foodorderingapp.R.color.vendor_dark_text_secondary));
         emptyPaint.setTextAlign(Paint.Align.CENTER);
         emptyPaint.setTextSize(sp(14));
     }

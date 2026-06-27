@@ -7,7 +7,7 @@ public class AppConstants {
     // Real devices over USB use 127.0.0.1 after running: adb reverse tcp:8080 tcp:8080
     // For real devices over Wi-Fi, switch REAL_DEVICE_BASE_URL to WIFI_BASE_URL.
     private static final String EMULATOR_BASE_URL = "http://10.0.2.2:8080/api/";
-    private static final String USB_REVERSE_BASE_URL = "http://127.0.0.1:8080/api/";
+    private static final String USB_REVERSE_BASE_URL = "http://192.168.1.102:8080/api/";
     private static final String WIFI_BASE_URL = "http://192.168.1.105:8080/api/";
     private static final String REAL_DEVICE_BASE_URL = USB_REVERSE_BASE_URL;
 
@@ -15,9 +15,6 @@ public class AppConstants {
             ? EMULATOR_BASE_URL
             : REAL_DEVICE_BASE_URL;
 
-    // Register a free account at account.goong.io to get keys.
-    public static final String GOONG_MAP_KEY = "YOUR_GOONG_MAP_KEY";
-    public static final String GOONG_API_KEY = "YOUR_GOONG_API_KEY";
 
     public static String getWsChatUrl() {
         return BASE_URL.replaceFirst("^http", "ws") + "ws-chat";

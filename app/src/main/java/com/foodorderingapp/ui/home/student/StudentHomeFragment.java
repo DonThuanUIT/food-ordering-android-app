@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.foodorderingapp.R;
 import com.foodorderingapp.databinding.FragmentStudentHomeBinding;
 import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
@@ -270,7 +271,7 @@ public class StudentHomeFragment extends Fragment {
             binding.indicatorRestaurants.setVisibility(View.VISIBLE);
 
             // Unselect Dishes
-            binding.tvTabDishes.setTextColor(Color.parseColor("#555555"));
+            binding.tvTabDishes.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
             binding.indicatorDishes.setVisibility(View.INVISIBLE);
 
         } else {
@@ -279,7 +280,7 @@ public class StudentHomeFragment extends Fragment {
             binding.indicatorDishes.setVisibility(View.VISIBLE);
 
             // Unselect Restaurants
-            binding.tvTabRestaurants.setTextColor(Color.parseColor("#555555"));
+            binding.tvTabRestaurants.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
             binding.indicatorRestaurants.setVisibility(View.INVISIBLE);
 
         }

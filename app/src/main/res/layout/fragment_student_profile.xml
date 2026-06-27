@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/profile_bg_grey"
+    android:background="@color/vendor_dark_bg"
     tools:context=".ui.home.student.StudentProfileFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -72,7 +72,7 @@
                     android:layout_marginTop="16dp"
                     android:gravity="center"
                     android:text="Sinh viên UniEats"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -83,7 +83,7 @@
                     android:layout_marginTop="4dp"
                     android:gravity="center"
                     android:text="Chưa có số điện thoại"
-                    android:textColor="@color/text_gray"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -95,7 +95,7 @@
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="6dp"
                     android:text="Vai trò: Sinh viên"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -560,7 +560,7 @@
                         android:background="@drawable/bg_profile_tag"
                         android:padding="10dp"
                         android:src="@drawable/ic_edit_avatar"
-                        app:tint="@color/text_primary" />
+                        app:tint="@color/vendor_dark_text_primary" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -568,7 +568,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
                         android:text="Chỉnh sửa hồ sơ"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -582,7 +582,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/profile_divider" />
+                    android:background="@color/vendor_dark_divider" />
 
                 <LinearLayout
                     android:id="@+id/rowMyReviews"
@@ -599,7 +599,8 @@
                         android:layout_height="42dp"
                         android:background="@drawable/bg_profile_tag"
                         android:padding="10dp"
-                        android:src="@drawable/ic_star_filled" />
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/vendor_dark_text_primary" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -607,7 +608,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
                         android:text="@string/profile_my_reviews"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -621,7 +622,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/profile_divider" />
+                    android:background="@color/vendor_dark_divider" />
 
                 <LinearLayout
                     android:id="@+id/rowSupport"
@@ -639,7 +640,7 @@
                         android:background="@drawable/bg_profile_tag"
                         android:padding="10dp"
                         android:src="@drawable/ic_help_circle"
-                        app:tint="@color/text_primary" />
+                        app:tint="@color/vendor_dark_text_primary" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -647,7 +648,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_weight="1"
                         android:text="@string/profile_support"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 

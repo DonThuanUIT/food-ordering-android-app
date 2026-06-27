@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/vendor_dark_bg">
 
     <ScrollView
         android:id="@+id/shopDetailScroll"
@@ -61,7 +61,7 @@
                         android:layout_weight="1"
                         android:includeFontPadding="false"
                         android:text="Cơm Tấm Sài Gòn"
-                        android:textColor="#10152F"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="34sp"
                         android:textStyle="bold" />
 
@@ -88,7 +88,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
                             android:text="4.8"
-                            android:textColor="#1D1D1D"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="17sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -145,7 +145,7 @@
                         android:layout_weight="1"
                         android:lineSpacingExtra="4dp"
                         android:text="Khu Canteen A, Ký túc xá Khu B Đại học Quốc gia, TP. Thủ Đức"
-                        android:textColor="#563528"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -168,7 +168,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="22dp"
                         android:text="08:00 - 21:00"
-                        android:textColor="#563528"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="20sp" />
                 </LinearLayout>
 
@@ -176,14 +176,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="36dp"
-                    android:background="#E5E0DC" />
+                    android:background="@color/vendor_dark_divider" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="36dp"
                     android:text="Về chúng tôi"
-                    android:textColor="#0D0D0D"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="25sp"
                     android:textStyle="bold" />
 
@@ -194,7 +194,7 @@
                     android:layout_marginTop="22dp"
                     android:lineSpacingExtra="8dp"
                     android:text="Đang tải thông tin quán..."
-                    android:textColor="#563528"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="20sp" />
             </LinearLayout>
         </LinearLayout>

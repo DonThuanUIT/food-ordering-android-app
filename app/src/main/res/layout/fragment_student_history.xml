@@ -2,7 +2,7 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F7FB"
+    android:background="@color/vendor_dark_bg"
     android:clipToPadding="false"
     android:fillViewport="true">
 
@@ -18,12 +18,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:background="@drawable/bg_search_white"
+            android:background="@drawable/bg_student_card_container"
             android:gravity="center"
             android:minHeight="96dp"
             android:padding="18dp"
             android:text="Chưa có lịch sử đơn hàng"
-            android:textColor="#7D8494"
+            android:textColor="@color/vendor_dark_text_secondary"
             android:textSize="15sp" />
 
         <androidx.recyclerview.widget.RecyclerView

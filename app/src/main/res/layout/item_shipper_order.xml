@@ -117,10 +117,25 @@
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOrderAction"
+            android:id="@+id/btnContactVendor"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="14dp"
+            android:text="Nhắn tin với quán"
+            android:textAllCaps="false"
+            android:textColor="@color/vendor_dark_orange"
+            android:backgroundTint="@color/vendor_dark_card"
+            app:strokeColor="@color/vendor_dark_orange"
+            app:strokeWidth="1dp"
+            app:cornerRadius="14dp"
+            app:elevation="0dp"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOrderAction"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
             android:text="Nhận đơn"
             android:textAllCaps="false"
             android:textColor="@color/white"

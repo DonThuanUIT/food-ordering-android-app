@@ -119,6 +119,8 @@ public class StudentOrdersFragment extends Fragment {
         intent.putExtra("ORDER_STATUS", order.getStatus());
         intent.putExtra("SHIPPER_NAME", order.getShipperName());
         intent.putExtra("SHIPPER_PHONE", order.getShipperPhone());
+        intent.putExtra("SHIPPER_LATITUDE", order.getShipperLatitude() != null ? order.getShipperLatitude() : 0.0);
+        intent.putExtra("SHIPPER_LONGITUDE", order.getShipperLongitude() != null ? order.getShipperLongitude() : 0.0);
         startActivity(intent);
     }
 

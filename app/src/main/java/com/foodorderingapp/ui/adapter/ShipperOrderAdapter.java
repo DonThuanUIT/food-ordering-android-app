@@ -23,6 +23,7 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
     public interface OnOrderActionListener {
         void onClaim(OrderResponse order);
         void onDeliver(OrderResponse order);
+        void onContactVendor(OrderResponse order);
     }
 
     private final List<OrderResponse> orders = new ArrayList<>();
@@ -80,18 +81,24 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
         holder.tvStatus.setTextColor(android.graphics.Color.WHITE);
 
         if (mode == 0) {
+            holder.btnContactVendor.setVisibility(View.GONE);
             holder.btnAction.setVisibility(View.VISIBLE);
             holder.btnAction.setText("Nhận đơn");
             holder.btnAction.setOnClickListener(v -> {
                 if (listener != null) listener.onClaim(order);
             });
         } else if (mode == 1) {
+            holder.btnContactVendor.setVisibility(View.VISIBLE);
+            holder.btnContactVendor.setOnClickListener(v -> {
+                if (listener != null) listener.onContactVendor(order);
+            });
             holder.btnAction.setVisibility(View.VISIBLE);
             holder.btnAction.setText("Bản đồ & Giao hàng");
             holder.btnAction.setOnClickListener(v -> {
                 if (listener != null) listener.onDeliver(order);
             });
         } else {
+            holder.btnContactVendor.setVisibility(View.GONE);
             holder.btnAction.setVisibility(View.GONE);
         }
     }
@@ -143,8 +150,8 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
 
     static class ShipperViewHolder extends RecyclerView.ViewHolder {
         TextView tvShopName, tvOrderStatus, tvOrderNumber, tvCustomer, tvLocation, tvSummaryItems, tvTotal, tvStatus;
-        MaterialButton btnAction;
-
+        MaterialButton btnAction, btnContactVendor;
+ 
         ShipperViewHolder(@NonNull View itemView) {
             super(itemView);
             tvShopName = itemView.findViewById(R.id.tvOrderShopName);
@@ -156,6 +163,7 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
             tvTotal = itemView.findViewById(R.id.tvOrderTotal);
             tvStatus = itemView.findViewById(R.id.tvOrderStatus);
             btnAction = itemView.findViewById(R.id.btnOrderAction);
+            btnContactVendor = itemView.findViewById(R.id.btnContactVendor);
         }
     }
 }

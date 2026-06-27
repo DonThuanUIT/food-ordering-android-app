@@ -63,6 +63,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
     private MaterialButton btnAction;
 
     private String orderId;
+    private String shopId;
     private String shopName;
     private String shopAddress;
     private double shopLat;
@@ -95,6 +96,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
     private long lastRouteFetchTime = 0;
     private GeoPoint lastFetchedShipperLocation = null;
     private List<GeoPoint> staticShopToBuildingRoutePoints = new ArrayList<>();
+    private boolean hasZoomedToFit = false;
 
     private final Handler updateHandler = new Handler(Looper.getMainLooper());
     private final Runnable updateRunnable = new Runnable() {
@@ -114,6 +116,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
 
         // Get Intent extras
         orderId = getIntent().getStringExtra("ORDER_ID");
+        shopId = getIntent().getStringExtra("SHOP_ID");
         shopName = getIntent().getStringExtra("SHOP_NAME");
         shopAddress = getIntent().getStringExtra("SHOP_ADDRESS");
         shopLat = getIntent().getDoubleExtra("SHOP_LATITUDE", 0.0);
@@ -140,6 +143,22 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         btnAction = findViewById(R.id.btn_action);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
+        android.widget.ImageView btnChatVendor = findViewById(R.id.btn_chat_vendor);
+        if (btnChatVendor != null) {
+            btnChatVendor.setOnClickListener(v -> {
+                if (shopId == null || shopId.trim().isEmpty()) {
+                    com.foodorderingapp.utils.ToastUtils.error(this, "Không tìm thấy thông tin cửa hàng");
+                    return;
+                }
+                android.content.Intent intent = new android.content.Intent(this, com.foodorderingapp.ui.chat.ChatActivity.class);
+                intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_SHOP_ID, shopId);
+                intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_SHOP_NAME, shopName);
+                intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_PEER_NAME,
+                        shopName == null || shopName.trim().isEmpty() ? "Cửa hàng" : shopName);
+                startActivity(intent);
+            });
+        }
 
         if (orderId != null) {
             tvOrderTitle.setText("Đơn hàng: " + orderId.substring(0, 8).toUpperCase());
@@ -410,6 +429,11 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
 
         // Update route line dynamically
         updateRoute();
+
+        if (!hasZoomedToFit) {
+            hasZoomedToFit = true;
+            mapView.postDelayed(this::zoomToFitAllMarkers, 500);
+        }
     }
 
     private void sendShipperLocationToServer() {
@@ -611,5 +635,47 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         }
     }
 
+    private void zoomToFitAllMarkers() {
+        double minLat = Double.MAX_VALUE;
+        double maxLat = -Double.MAX_VALUE;
+        double minLng = Double.MAX_VALUE;
+        double maxLng = -Double.MAX_VALUE;
 
+        java.util.List<GeoPoint> points = new java.util.ArrayList<>();
+        if (shopLat != 0.0 && shopLng != 0.0) {
+            points.add(new GeoPoint(shopLat, shopLng));
+        }
+        if (buildingLat != 0.0 && buildingLng != 0.0) {
+            points.add(new GeoPoint(buildingLat, buildingLng));
+        }
+        if (shipperMarker != null && shipperMarker.getPosition() != null) {
+            points.add(shipperMarker.getPosition());
+        }
+
+        if (points.isEmpty()) return;
+
+        for (GeoPoint pt : points) {
+            if (pt.getLatitude() < minLat) minLat = pt.getLatitude();
+            if (pt.getLatitude() > maxLat) maxLat = pt.getLatitude();
+            if (pt.getLongitude() < minLng) minLng = pt.getLongitude();
+            if (pt.getLongitude() > maxLng) maxLng = pt.getLongitude();
+        }
+
+        // Add padding (at least 0.002 degrees for small area)
+        double latPadding = (maxLat - minLat) * 0.15;
+        double lngPadding = (maxLng - minLng) * 0.15;
+        if (latPadding < 0.002) latPadding = 0.002;
+        if (lngPadding < 0.002) lngPadding = 0.002;
+
+        org.osmdroid.util.BoundingBox box = new org.osmdroid.util.BoundingBox(
+                maxLat + latPadding,
+                maxLng + lngPadding,
+                minLat - latPadding,
+                minLng - lngPadding
+        );
+
+        if (mapView != null) {
+            mapView.zoomToBoundingBox(box, true);
+        }
+    }
 }

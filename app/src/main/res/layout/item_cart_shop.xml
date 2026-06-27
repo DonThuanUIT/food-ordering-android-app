@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
+    app:cardBackgroundColor="@color/vendor_dark_card"
     app:cardCornerRadius="24dp"
     app:cardElevation="2dp"
     app:strokeWidth="0dp">
@@ -35,7 +36,7 @@
                 android:layout_marginStart="12dp"
                 android:layout_toEndOf="@id/ivShopLogo"
                 android:text="Tên shop"
-                android:textColor="#1A1D26"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -62,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginVertical="20dp"
-            android:background="#F0F0F0" />
+            android:background="@color/vendor_dark_divider" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Tổng cộng (0 món):"
-                android:textColor="#7D8494"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="16sp" />
 
             <TextView
@@ -84,7 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0đ"
-                android:textColor="#1A1D26"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>

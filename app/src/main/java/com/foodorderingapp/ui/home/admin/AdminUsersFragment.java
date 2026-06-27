@@ -152,9 +152,9 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void setFilterButtonState(MaterialButton button, boolean selected) {
-        int backgroundColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.white);
-        int strokeColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.profile_divider);
-        int textColor = requireContext().getColor(selected ? R.color.white : R.color.text_primary);
+        int backgroundColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.vendor_dark_card);
+        int strokeColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.vendor_dark_border);
+        int textColor = requireContext().getColor(selected ? R.color.white : R.color.vendor_dark_text_secondary);
         button.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
         button.setStrokeColor(ColorStateList.valueOf(strokeColor));
         button.setStrokeWidth(dp(selected ? 0 : 1));

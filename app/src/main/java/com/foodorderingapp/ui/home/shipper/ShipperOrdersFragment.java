@@ -156,6 +156,7 @@ public class ShipperOrdersFragment extends Fragment implements ShipperOrderAdapt
         if (order != null && order.getId() != null) {
             Intent intent = new Intent(getContext(), com.foodorderingapp.ui.home.shipper.ShipperDeliveryMapActivity.class);
             intent.putExtra("ORDER_ID", order.getId());
+            intent.putExtra("SHOP_ID", order.getShopId());
             intent.putExtra("SHOP_NAME", order.getShopName());
             intent.putExtra("SHOP_ADDRESS", order.getShopAddress());
             intent.putExtra("SHOP_LATITUDE", order.getShopLatitude() != null ? order.getShopLatitude() : 0.0);
@@ -167,5 +168,19 @@ public class ShipperOrdersFragment extends Fragment implements ShipperOrderAdapt
             intent.putExtra("ORDER_STATUS", order.getStatus());
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onContactVendor(OrderResponse order) {
+        if (order == null || order.getShopId() == null) {
+            ToastUtils.error(getContext(), "Không tìm thấy thông tin cửa hàng");
+            return;
+        }
+        Intent intent = new Intent(requireContext(), com.foodorderingapp.ui.chat.ChatActivity.class);
+        intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_SHOP_ID, order.getShopId());
+        intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_SHOP_NAME, order.getShopName());
+        intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_PEER_NAME,
+                order.getShopName() == null || order.getShopName().trim().isEmpty() ? "Cửa hàng" : order.getShopName());
+        startActivity(intent);
     }
 }
