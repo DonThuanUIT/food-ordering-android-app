@@ -90,6 +90,99 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"/>
 
+            <!-- Route Steps Progress Indicator -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="18dp"
+                android:paddingHorizontal="4dp">
+
+                <!-- Step 1: Lấy hàng -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_step_pickup"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/vendor_dark_orange">
+                        <TextView
+                            android:id="@+id/tv_step_pickup_num"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"/>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/tv_step_pickup_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Đang lấy hàng"
+                        android:textColor="@color/vendor_dark_orange"
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Connecting Progress Line -->
+                <View
+                    android:id="@+id/view_step_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="10dp"
+                    android:background="@color/vendor_dark_divider"/>
+
+                <!-- Step 2: Giao hàng -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_step_deliver"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#2D2D30">
+                        <TextView
+                            android:id="@+id/tv_step_deliver_num"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="2"
+                            android:textColor="@color/vendor_dark_text_secondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold"/>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/tv_step_deliver_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Đang giao"
+                        android:textColor="@color/vendor_dark_text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+
             <!-- Shop Info Row -->
             <LinearLayout
                 android:layout_width="match_parent"

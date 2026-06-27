@@ -82,7 +82,17 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
     private Marker shopMarker;
     private Marker buildingMarker;
     private Marker shipperMarker;
-    private Polyline routeLine;
+    private Polyline routeLineShop;
+    private Polyline routeLineBuilding;
+
+    private com.google.android.material.card.MaterialCardView cardStepPickup;
+    private com.google.android.material.card.MaterialCardView cardStepDeliver;
+    private android.view.View viewStepDivider;
+    private android.widget.TextView tvStepPickupNum;
+    private android.widget.TextView tvStepPickupLabel;
+    private android.widget.TextView tvStepDeliverNum;
+    private android.widget.TextView tvStepDeliverLabel;
+
     private long lastRouteFetchTime = 0;
     private GeoPoint lastFetchedShipperLocation = null;
 
@@ -116,6 +126,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         orderStatus = getIntent().getStringExtra("ORDER_STATUS");
 
         bindViews();
+        bindStepViews();
         setupMap();
         checkLocationPermissions();
     }
@@ -176,6 +187,8 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     orderStatus = response.body().getStatus();
                     updateButtonState();
+                    updateStepIndicator();
+                    updateRoute();
                     Toast.makeText(ShipperDeliveryMapActivity.this, "Đã cập nhật trạng thái đơn hàng!", Toast.LENGTH_SHORT).show();
                     if ("COMPLETED".equals(orderStatus) || "RECEIVED".equals(orderStatus)) {
                         finish();
@@ -444,15 +457,44 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
                         }
 
                         runOnUiThread(() -> {
-                            if (routeLine == null) {
-                                routeLine = new Polyline();
-                                routeLine.setColor(Color.parseColor("#4F46E5")); // Indigo line
-                                routeLine.setWidth(8f);
-                                mapView.getOverlays().add(routeLine);
-                            }
-                            routeLine.setPoints(routePoints);
-                            mapView.invalidate();
-                        });
+                             if (routeLineShop == null) {
+                                 routeLineShop = new Polyline();
+                                 routeLineShop.setColor(Color.parseColor("#F46E26")); // Orange
+                                 routeLineShop.setWidth(8f);
+                                 mapView.getOverlays().add(routeLineShop);
+                             }
+                             if (routeLineBuilding == null) {
+                                 routeLineBuilding = new Polyline();
+                                 routeLineBuilding.setColor(Color.parseColor("#10B981")); // Emerald Green
+                                 routeLineBuilding.setWidth(8f);
+                                 mapView.getOverlays().add(routeLineBuilding);
+                             }
+
+                             if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                                 routeLineShop.setPoints(routePoints);
+                                 routeLineShop.setColor(Color.parseColor("#F46E26")); // Active
+                                 
+                                 List<GeoPoint> shopToBuilding = new ArrayList<>();
+                                 if (shopLat != 0.0 && buildingLat != 0.0) {
+                                     shopToBuilding.add(new GeoPoint(shopLat, shopLng));
+                                     shopToBuilding.add(new GeoPoint(buildingLat, buildingLng));
+                                 }
+                                 routeLineBuilding.setPoints(shopToBuilding);
+                                 routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Faded green
+                             } else {
+                                 routeLineBuilding.setPoints(routePoints);
+                                 routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active
+                                 
+                                 List<GeoPoint> shopToShipper = new ArrayList<>();
+                                 if (shopLat != 0.0 && currentLat != null) {
+                                     shopToShipper.add(new GeoPoint(shopLat, shopLng));
+                                     shopToShipper.add(new GeoPoint(currentLat, currentLng));
+                                 }
+                                 routeLineShop.setPoints(shopToShipper);
+                                 routeLineShop.setColor(Color.parseColor("#40718096")); // Faded grey
+                             }
+                             mapView.invalidate();
+                         });
                     }
                 }
             } catch (Exception e) {
@@ -483,6 +525,46 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         updateHandler.removeCallbacks(updateRunnable);
         if (locationManager != null && locationListener != null) {
             locationManager.removeUpdates(locationListener);
+        }
+    }
+
+    private void bindStepViews() {
+        cardStepPickup = findViewById(R.id.card_step_pickup);
+        cardStepDeliver = findViewById(R.id.card_step_deliver);
+        viewStepDivider = findViewById(R.id.view_step_divider);
+        tvStepPickupNum = findViewById(R.id.tv_step_pickup_num);
+        tvStepPickupLabel = findViewById(R.id.tv_step_pickup_label);
+        tvStepDeliverNum = findViewById(R.id.tv_step_deliver_num);
+        tvStepDeliverLabel = findViewById(R.id.tv_step_deliver_label);
+        updateStepIndicator();
+    }
+
+    private void updateStepIndicator() {
+        if (cardStepPickup == null) return;
+        if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F46E26")));
+            tvStepPickupNum.setText("1");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#F46E26"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#2D2D30"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#2D2D30")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.parseColor("#718096"));
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#718096"));
+        } else {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepPickupNum.setText("✔");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#10B981"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#10B981"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.WHITE);
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#10B981"));
         }
     }
 }

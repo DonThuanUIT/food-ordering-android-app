@@ -61,7 +61,16 @@ public class OrderTrackingActivity extends AppCompatActivity {
     private Marker shopMarker;
     private Marker buildingMarker;
     private Marker shipperMarker;
-    private Polyline routeLine;
+    private Polyline routeLineShop;
+    private Polyline routeLineBuilding;
+
+    private com.google.android.material.card.MaterialCardView cardStepPickup;
+    private com.google.android.material.card.MaterialCardView cardStepDeliver;
+    private android.view.View viewStepDivider;
+    private android.widget.TextView tvStepPickupNum;
+    private android.widget.TextView tvStepPickupLabel;
+    private android.widget.TextView tvStepDeliverNum;
+    private android.widget.TextView tvStepDeliverLabel;
 
     private StompClient stompClient;
 
@@ -86,6 +95,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
         shipperPhone = getIntent().getStringExtra("SHIPPER_PHONE");
 
         bindViews();
+        bindStepViews();
         setupMap();
         connectWebSocket();
     }
@@ -167,16 +177,24 @@ public class OrderTrackingActivity extends AppCompatActivity {
             mapView.getOverlays().add(buildingMarker);
         }
 
-        // Draw initial route line
+        // Draw initial route lines
         if (shopLat != 0.0 && buildingLat != 0.0) {
-            routeLine = new Polyline();
-            List<GeoPoint> pts = new ArrayList<>();
-            pts.add(new GeoPoint(shopLat, shopLng));
-            pts.add(new GeoPoint(buildingLat, buildingLng));
-            routeLine.setPoints(pts);
-            routeLine.setColor(Color.parseColor("#4F46E5")); // Indigo line
-            routeLine.setWidth(6f);
-            mapView.getOverlays().add(routeLine);
+            routeLineShop = new Polyline();
+            List<GeoPoint> ptsShop = new ArrayList<>();
+            ptsShop.add(new GeoPoint(shopLat, shopLng));
+            routeLineShop.setPoints(ptsShop);
+            routeLineShop.setColor(Color.parseColor("#40F46E26")); // Muted orange
+            routeLineShop.setWidth(8f);
+            mapView.getOverlays().add(routeLineShop);
+
+            routeLineBuilding = new Polyline();
+            List<GeoPoint> ptsBuilding = new ArrayList<>();
+            ptsBuilding.add(new GeoPoint(shopLat, shopLng));
+            ptsBuilding.add(new GeoPoint(buildingLat, buildingLng));
+            routeLineBuilding.setPoints(ptsBuilding);
+            routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Muted green
+            routeLineBuilding.setWidth(8f);
+            mapView.getOverlays().add(routeLineBuilding);
         }
 
         // Center map
@@ -279,19 +297,44 @@ public class OrderTrackingActivity extends AppCompatActivity {
     }
 
     private void updateRouteLine(GeoPoint shipperPt) {
-        if (routeLine != null) {
-            List<GeoPoint> pts = new ArrayList<>();
-            pts.add(shipperPt);
+        if (routeLineShop != null && routeLineBuilding != null) {
             if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                // Active leg: Shipper -> Shop (Orange)
+                List<GeoPoint> ptsShop = new ArrayList<>();
+                ptsShop.add(shipperPt);
                 if (shopLat != 0.0 && shopLng != 0.0) {
-                    pts.add(new GeoPoint(shopLat, shopLng));
+                    ptsShop.add(new GeoPoint(shopLat, shopLng));
                 }
+                routeLineShop.setPoints(ptsShop);
+                routeLineShop.setColor(Color.parseColor("#F46E26")); // Active
+                
+                // Muted leg: Shop -> Building (faded green)
+                List<GeoPoint> ptsBuilding = new ArrayList<>();
+                if (shopLat != 0.0 && buildingLat != 0.0) {
+                    ptsBuilding.add(new GeoPoint(shopLat, shopLng));
+                    ptsBuilding.add(new GeoPoint(buildingLat, buildingLng));
+                }
+                routeLineBuilding.setPoints(ptsBuilding);
+                routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Faded
             } else {
+                // Active leg: Shipper -> Building (Green)
+                List<GeoPoint> ptsBuilding = new ArrayList<>();
+                ptsBuilding.add(shipperPt);
                 if (buildingLat != 0.0 && buildingLng != 0.0) {
-                    pts.add(new GeoPoint(buildingLat, buildingLng));
+                    ptsBuilding.add(new GeoPoint(buildingLat, buildingLng));
                 }
+                routeLineBuilding.setPoints(ptsBuilding);
+                routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active
+                
+                // Completed leg: Shop -> Shipper (faded grey)
+                List<GeoPoint> ptsShop = new ArrayList<>();
+                if (shopLat != 0.0 && shopLng != 0.0) {
+                    ptsShop.add(new GeoPoint(shopLat, shopLng));
+                    ptsShop.add(shipperPt);
+                }
+                routeLineShop.setPoints(ptsShop);
+                routeLineShop.setColor(Color.parseColor("#40718096")); // Faded
             }
-            routeLine.setPoints(pts);
             mapView.invalidate();
         }
     }
@@ -317,6 +360,46 @@ public class OrderTrackingActivity extends AppCompatActivity {
         super.onDestroy();
         if (stompClient != null) {
             stompClient.disconnect();
+        }
+    }
+
+    private void bindStepViews() {
+        cardStepPickup = findViewById(R.id.card_step_pickup);
+        cardStepDeliver = findViewById(R.id.card_step_deliver);
+        viewStepDivider = findViewById(R.id.view_step_divider);
+        tvStepPickupNum = findViewById(R.id.tv_step_pickup_num);
+        tvStepPickupLabel = findViewById(R.id.tv_step_pickup_label);
+        tvStepDeliverNum = findViewById(R.id.tv_step_deliver_num);
+        tvStepDeliverLabel = findViewById(R.id.tv_step_deliver_label);
+        updateStepIndicator();
+    }
+
+    private void updateStepIndicator() {
+        if (cardStepPickup == null) return;
+        if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F46E26")));
+            tvStepPickupNum.setText("1");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#F46E26"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#2D2D30"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#2D2D30")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.parseColor("#718096"));
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#718096"));
+        } else {
+            cardStepPickup.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepPickupNum.setText("✔");
+            tvStepPickupNum.setTextColor(Color.WHITE);
+            tvStepPickupLabel.setTextColor(Color.parseColor("#10B981"));
+
+            viewStepDivider.setBackgroundColor(Color.parseColor("#10B981"));
+
+            cardStepDeliver.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            tvStepDeliverNum.setText("2");
+            tvStepDeliverNum.setTextColor(Color.WHITE);
+            tvStepDeliverLabel.setTextColor(Color.parseColor("#10B981"));
         }
     }
 }
