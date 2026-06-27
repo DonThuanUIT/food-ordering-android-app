@@ -63,7 +63,7 @@
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="7dp"
                     android:text="0 mới"
-                    android:textColor="#B24C08"
+                    android:textColor="@color/admin_profile_accent"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>

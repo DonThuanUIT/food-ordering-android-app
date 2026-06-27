@@ -13,7 +13,7 @@
         android:background="@drawable/bg_admin_avatar"
         android:padding="12dp"
         android:src="@drawable/ic_profile"
-        app:tint="#7B6B64" />
+        app:tint="@color/vendor_dark_text_secondary" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -26,7 +26,7 @@
             android:id="@+id/tvAdminUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -34,7 +34,7 @@
             android:id="@+id/tvAdminUserEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#6D4C41"
+            android:textColor="@color/vendor_dark_text_secondary"
             android:textSize="15sp" />
 
         <TextView
@@ -44,7 +44,7 @@
             android:layout_marginTop="6dp"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/vendor_dark_text_secondary"
             android:textSize="12sp" />
     </LinearLayout>
 

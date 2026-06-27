@@ -24,4 +24,6 @@
     <color name="profile_divider">#2D2D2D</color>
     <color name="profile_bg_grey">#121212</color>
     <color name="admin_profile_accent">#FF7A21</color>
+    <color name="bg_role_vendor_color">#1E293B</color>
+    <color name="bg_role_student_color">#1E1B4B</color>
 </resources>

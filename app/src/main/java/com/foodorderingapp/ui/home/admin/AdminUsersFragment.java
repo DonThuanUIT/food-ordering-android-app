@@ -39,8 +39,7 @@ public class AdminUsersFragment extends Fragment {
     private TextView tvEmpty;
     private Runnable searchRunnable;
     private boolean pendingActiveState;
-    private String selectedRole = null;
-    private MaterialButton btnRoleAll;
+    private String selectedRole = "VENDOR";
     private MaterialButton btnRoleStudent;
     private MaterialButton btnRoleVendor;
     private MaterialButton btnLoadMore;
@@ -67,7 +66,6 @@ public class AdminUsersFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
         edtSearch = view.findViewById(R.id.edtAdminUserSearch);
         tvEmpty = view.findViewById(R.id.tvAdminUsersEmpty);
-        btnRoleAll = view.findViewById(R.id.btnAdminRoleAll);
         btnRoleStudent = view.findViewById(R.id.btnAdminRoleStudent);
         btnRoleVendor = view.findViewById(R.id.btnAdminRoleVendor);
         btnLoadMore = view.findViewById(R.id.btnAdminUsersLoadMore);
@@ -134,7 +132,6 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void setupRoleFilters() {
-        btnRoleAll.setOnClickListener(v -> selectRole(null));
         btnRoleVendor.setOnClickListener(v -> selectRole("VENDOR"));
         btnRoleStudent.setOnClickListener(v -> selectRole("STUDENT"));
         updateRoleButtonStates();
@@ -150,15 +147,14 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void updateRoleButtonStates() {
-        setFilterButtonState(btnRoleAll, selectedRole == null);
         setFilterButtonState(btnRoleVendor, "VENDOR".equals(selectedRole));
         setFilterButtonState(btnRoleStudent, "STUDENT".equals(selectedRole));
     }
 
     private void setFilterButtonState(MaterialButton button, boolean selected) {
-        int backgroundColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.white);
-        int strokeColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.profile_divider);
-        int textColor = requireContext().getColor(selected ? R.color.white : R.color.text_primary);
+        int backgroundColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.vendor_dark_card);
+        int strokeColor = requireContext().getColor(selected ? R.color.brand_orange : R.color.vendor_dark_border);
+        int textColor = requireContext().getColor(selected ? R.color.white : R.color.vendor_dark_text_secondary);
         button.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
         button.setStrokeColor(ColorStateList.valueOf(strokeColor));
         button.setStrokeWidth(dp(selected ? 0 : 1));
