@@ -51,6 +51,7 @@
     <color name="nav_active_color">#34C759</color>
 
     <!-- Profile Screen Colors -->
+    <color name="admin_profile_accent">#B24C08</color>
     <color name="profile_header_dark">#0D1033</color>
     <color name="profile_spending_bg">#FFFFFF</color>
     <color name="profile_spending_surface">#F8FFFB</color>

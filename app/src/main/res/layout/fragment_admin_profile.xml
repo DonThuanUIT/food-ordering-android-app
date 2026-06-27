@@ -27,7 +27,7 @@
                 android:background="@drawable/bg_profile_tag"
                 android:padding="18dp"
                 android:src="@drawable/ic_profile"
-                app:tint="#B24C08" />
+                app:tint="@color/admin_profile_accent" />
 
             <TextView
                 android:id="@+id/tvAdminProfileName"
@@ -49,7 +49,7 @@
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="6dp"
                 android:text="ADMIN"
-                android:textColor="#B24C08"
+                android:textColor="@color/admin_profile_accent"
                 android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>

@@ -599,7 +599,8 @@
                         android:layout_height="42dp"
                         android:background="@drawable/bg_profile_tag"
                         android:padding="10dp"
-                        android:src="@drawable/ic_star_filled" />
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="@color/vendor_dark_text_primary" />
 
                     <TextView
                         android:layout_width="0dp"
