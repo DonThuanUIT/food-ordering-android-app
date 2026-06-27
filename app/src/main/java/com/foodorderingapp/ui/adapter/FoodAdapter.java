@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.FoodResponse;
+import com.foodorderingapp.utils.CategoryIconHelper;
 import com.foodorderingapp.data.remote.api.ApiClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -93,8 +94,9 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         
         // Check if it matches filters
         String cleanCategory = currentCategory.split(" \\(")[0];
+        String cleanTargetCategory = targetFood.getCategoryName() != null ? CategoryIconHelper.getNameForDisplay(targetFood.getCategoryName()) : "";
         boolean matchesCategory = cleanCategory.equals("All") || cleanCategory.equals("Tất cả") ||
-                (targetFood.getCategoryName() != null && targetFood.getCategoryName().equalsIgnoreCase(cleanCategory));
+                cleanTargetCategory.equalsIgnoreCase(cleanCategory);
                 
         boolean matchesStatus = true;
         if ("Sẵn có".equalsIgnoreCase(currentStatusFilter)) {
@@ -129,8 +131,9 @@ public class FoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             
             // Lọc theo text hiển thị trên Tab (ví dụ: "Burgers (8)" -> "Burgers")
             String cleanCategory = currentCategory.split(" \\(")[0];
+            String cleanItemCategory = item.getCategoryName() != null ? CategoryIconHelper.getNameForDisplay(item.getCategoryName()) : "";
             boolean matchesCategory = cleanCategory.equals("All") || cleanCategory.equals("Tất cả") ||
-                    (item.getCategoryName() != null && item.getCategoryName().equalsIgnoreCase(cleanCategory));
+                    cleanItemCategory.equalsIgnoreCase(cleanCategory);
 
             boolean isAvailable = item.getIsAvailable() != null ? item.getIsAvailable() : true;
             boolean matchesStatus = true;

@@ -202,30 +202,19 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Pinned Category Chips -->
-        <HorizontalScrollView
+        <!-- Curved Category List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_categories"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="115dp"
+            android:orientation="horizontal"
             android:scrollbars="none"
+            android:clipToPadding="false"
+            android:clipChildren="false"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="12dp"
+            android:paddingBottom="6dp"
             android:paddingTop="6dp"
-            android:background="@color/vendor_dark_bg">
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_categories"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:selectionRequired="true">
-                <!-- Chips will be added dynamically or can be static -->
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="All"
-                    android:checked="true"/>
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
+            android:background="@color/vendor_dark_bg" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

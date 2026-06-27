@@ -23,6 +23,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.ui.auth.LoginActivity;
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.ui.home.admin.AdminApprovalsFragment;
 import com.foodorderingapp.ui.home.admin.AdminOverviewFragment;
 import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
@@ -54,6 +55,21 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String role = getIntent().getStringExtra("USER_ROLE");
+        if (role == null) role = "STUDENT";
+        
+        if ("VENDOR".equalsIgnoreCase(role)) {
+            android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+            boolean isDarkMode = prefs.getBoolean("vendor_dark_mode", false);
+            if (isDarkMode) {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+            }
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -84,7 +100,59 @@ public class MainActivity extends AppCompatActivity {
 
         setupMenuAndNavigation(userRole);
 
-        if ("VENDOR".equalsIgnoreCase(userRole) || "SHIPPER".equalsIgnoreCase(userRole)) {
+        if ("VENDOR".equalsIgnoreCase(userRole)) {
+            int headerBg = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_bg);
+            int headerTextIcon = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_text_icon);
+            
+            if (findViewById(R.id.appBarLayout) != null) {
+                findViewById(R.id.appBarLayout).setBackgroundColor(headerBg);
+            }
+            if (findViewById(R.id.toolbar) != null) {
+                findViewById(R.id.toolbar).setBackgroundColor(headerBg);
+            }
+            if (bottomNav != null) {
+                bottomNav.setBackgroundColor(headerBg);
+            }
+            if (tvAppTitle != null) {
+                tvAppTitle.setTextColor(headerTextIcon);
+            }
+            ImageView ivMenu = findViewById(R.id.ivMenu);
+            if (ivMenu != null) {
+                ivMenu.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            ImageView ivProfile = findViewById(R.id.ivProfile);
+            if (ivProfile != null) {
+                android.content.SharedPreferences prefs = getSharedPreferences("vendor_settings_pref", MODE_PRIVATE);
+                String logoUrl = prefs.getString("last_shop_logo_url", null);
+                if (logoUrl != null && !logoUrl.trim().isEmpty()) {
+                    Glide.with(this)
+                        .load(logoUrl)
+                        .placeholder(R.drawable.ic_profile)
+                        .error(R.drawable.ic_profile)
+                        .circleCrop()
+                        .into(ivProfile);
+                    ivProfile.setImageTintList(null);
+                } else {
+                    ivProfile.setImageResource(R.drawable.ic_profile);
+                    ivProfile.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+                    ivProfile.setBackground(null);
+                }
+            }
+            ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+            if (ivThemeToggle != null) {
+                ivThemeToggle.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            if (getWindow() != null) {
+                getWindow().setStatusBarColor(headerBg);
+                if (androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode() == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES) {
+                    getWindow().getDecorView().setSystemUiVisibility(0);
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                }
+            }
+        } else if ("SHIPPER".equalsIgnoreCase(userRole)) {
             if (findViewById(R.id.appBarLayout) != null) {
                 findViewById(R.id.appBarLayout).setBackgroundColor(Color.parseColor("#1B110F"));
             }
@@ -108,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if (getWindow() != null) {
                 getWindow().setStatusBarColor(Color.parseColor("#1B110F"));
-                getWindow().getDecorView().setSystemUiVisibility(0); // clear light status bar so status text is white
+                getWindow().getDecorView().setSystemUiVisibility(0);
             }
         }
 
@@ -117,6 +185,37 @@ public class MainActivity extends AppCompatActivity {
         handleStartTab(getIntent());
         bottomNav.setItemIconTintList(ContextCompat.getColorStateList(this, R.color.nav_item_color));
         bottomNav.setItemTextColor(ContextCompat.getColorStateList(this, R.color.nav_item_color));
+
+        // Setup theme toggle for VENDOR
+        ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+        if (ivThemeToggle != null) {
+            if ("VENDOR".equalsIgnoreCase(userRole)) {
+                ivThemeToggle.setVisibility(View.VISIBLE);
+                android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                boolean isDarkMode = prefs.getBoolean("vendor_dark_mode", false);
+                
+                if (isDarkMode) {
+                    ivThemeToggle.setImageResource(R.drawable.ic_sun);
+                } else {
+                    ivThemeToggle.setImageResource(R.drawable.ic_moon);
+                }
+                
+                ivThemeToggle.setOnClickListener(v -> {
+                    boolean currentMode = prefs.getBoolean("vendor_dark_mode", false);
+                    boolean newMode = !currentMode;
+                    prefs.edit().putBoolean("vendor_dark_mode", newMode).apply();
+                    
+                    if (newMode) {
+                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+                    } else {
+                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+                    }
+                    recreate();
+                });
+            } else {
+                ivThemeToggle.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -373,6 +472,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void finishLogout() {
         TokenManager.getInstance().clearTokens();
+        // Reset theme back to default light mode on logout
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

@@ -51,6 +51,21 @@
                     android:textStyle="bold" />
 
                 <ImageView
+                    android:id="@+id/ivThemeToggle"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_toStartOf="@id/ivProfile"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_moon"
+                    app:tint="@android:color/white"
+                    android:contentDescription="Chuyển đổi giao diện Sáng/Tối"
+                    android:visibility="gone" />
+
+                <ImageView
                     android:id="@+id/ivProfile"
                     android:layout_width="36dp"
                     android:layout_height="36dp"

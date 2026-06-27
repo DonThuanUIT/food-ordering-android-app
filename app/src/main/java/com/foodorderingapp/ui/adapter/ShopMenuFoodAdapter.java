@@ -118,10 +118,6 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
                     updateBadgeState(holder.tvBadge, food, 0.0);
                 }
             });
-        } else {
-            holder.tvRating.setText("★ N/A");
-            updateBadgeState(holder.tvBadge, food, 0.0);
-        }
 
             holder.tvRating.setOnClickListener(v -> {
                 android.content.Context ctx = holder.itemView.getContext();
@@ -172,6 +168,7 @@ public class ShopMenuFoodAdapter extends RecyclerView.Adapter<ShopMenuFoodAdapte
             });
         } else {
             holder.tvRating.setText("★ N/A");
+            updateBadgeState(holder.tvBadge, food, 0.0);
             holder.tvRating.setOnClickListener(null);
         }
     }

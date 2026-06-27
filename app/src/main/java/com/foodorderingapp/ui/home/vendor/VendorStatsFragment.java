@@ -83,15 +83,7 @@ public class VendorStatsFragment extends Fragment {
         setupFilterSpinner();
         setupSwipeRefresh();
 
-        binding.btnViewReviews.setOnClickListener(v -> {
-            if (currentShopId != null) {
-                Intent intent = new Intent(getContext(), com.foodorderingapp.ui.review.VendorReviewsActivity.class);
-                intent.putExtra("SHOP_ID", currentShopId.toString());
-                startActivity(intent);
-            } else {
-                Toast.makeText(getContext(), "Không tìm thấy thông tin cửa hàng", Toast.LENGTH_SHORT).show();
-            }
-        });
+
 
         // Bind Quick Actions
         binding.btnQuickVoucher.setOnClickListener(v -> {
@@ -363,7 +355,7 @@ public class VendorStatsFragment extends Fragment {
             tvGrowth.setTextColor(Color.parseColor("#E53E3E")); // Red
         } else {
             tvGrowth.setText("0.0% so với kỳ trước");
-            tvGrowth.setTextColor(Color.parseColor("#718096")); // Gray
+            tvGrowth.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary)); // Gray
         }
     }
 
@@ -393,13 +385,14 @@ public class VendorStatsFragment extends Fragment {
         }
 
         LineDataSet set = new LineDataSet(revenueEntries, "Doanh thu (đ)");
-        set.setColor(Color.parseColor("#F46E26")); // vendor_dark_orange
-        set.setCircleColor(Color.parseColor("#F46E26"));
+        int orangeColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange);
+        set.setColor(orangeColor);
+        set.setCircleColor(orangeColor);
         set.setLineWidth(2.5f);
         set.setCircleRadius(4f);
         set.setDrawCircleHole(false);
         set.setDrawValues(true); // Draw values on line points
-        set.setValueTextColor(Color.parseColor("#0F172A"));
+        set.setValueTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
         set.setValueTextSize(9f);
         set.setValueFormatter(new ValueFormatter() {
             @Override
@@ -414,7 +407,8 @@ public class VendorStatsFragment extends Fragment {
             }
         });
         set.setDrawFilled(true);
-        set.setFillColor(Color.parseColor("#22F46E26")); // light orange fill (alpha 13%)
+        set.setFillColor(orangeColor);
+        set.setFillAlpha(34); // ~13% alpha (34 out of 255)
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
         LineData lineData = new LineData(set);
@@ -427,7 +421,7 @@ public class VendorStatsFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
-        xAxis.setTextColor(Color.parseColor("#64748B"));
+        xAxis.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         xAxis.setSpaceMin(0.5f);
         xAxis.setSpaceMax(0.5f);
         xAxis.setValueFormatter(new ValueFormatter() {
@@ -456,8 +450,8 @@ public class VendorStatsFragment extends Fragment {
         }
 
         binding.chartRevenueTrend.getAxisLeft().setDrawGridLines(true);
-        binding.chartRevenueTrend.getAxisLeft().setGridColor(Color.parseColor("#E2E8F0")); // vendor_dark_divider
-        binding.chartRevenueTrend.getAxisLeft().setTextColor(Color.parseColor("#64748B"));
+        binding.chartRevenueTrend.getAxisLeft().setGridColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_divider)); // vendor_dark_divider
+        binding.chartRevenueTrend.getAxisLeft().setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         binding.chartRevenueTrend.getAxisLeft().setXOffset(10f);
         binding.chartRevenueTrend.setExtraLeftOffset(10f);
         binding.chartRevenueTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
@@ -472,7 +466,7 @@ public class VendorStatsFragment extends Fragment {
             }
         });
 
-        binding.chartRevenueTrend.getLegend().setTextColor(Color.parseColor("#64748B"));
+        binding.chartRevenueTrend.getLegend().setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         binding.chartRevenueTrend.animateY(800);
         binding.chartRevenueTrend.invalidate();
     }
@@ -499,13 +493,14 @@ public class VendorStatsFragment extends Fragment {
         }
 
         LineDataSet set = new LineDataSet(orderEntries, "Số đơn hàng");
-        set.setColor(Color.parseColor("#5299FF")); // Lighter Blue
-        set.setCircleColor(Color.parseColor("#5299FF"));
+        int blueColor = Color.parseColor("#5299FF"); // Lighter Blue
+        set.setColor(blueColor);
+        set.setCircleColor(blueColor);
         set.setLineWidth(2.5f);
         set.setCircleRadius(4f);
         set.setDrawCircleHole(false);
         set.setDrawValues(true); // Draw values on line points
-        set.setValueTextColor(Color.parseColor("#0F172A"));
+        set.setValueTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
         set.setValueTextSize(9f);
         set.setValueFormatter(new ValueFormatter() {
             @Override
@@ -514,7 +509,8 @@ public class VendorStatsFragment extends Fragment {
             }
         });
         set.setDrawFilled(true);
-        set.setFillColor(Color.parseColor("#225299FF")); // light blue fill (alpha 13%)
+        set.setFillColor(blueColor);
+        set.setFillAlpha(34); // ~13% alpha
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
         LineData lineData = new LineData(set);
@@ -527,7 +523,7 @@ public class VendorStatsFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false); // Clean: hide vertical grid lines
-        xAxis.setTextColor(Color.parseColor("#64748B"));
+        xAxis.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         xAxis.setSpaceMin(0.5f);
         xAxis.setSpaceMax(0.5f);
         xAxis.setValueFormatter(new ValueFormatter() {
@@ -557,8 +553,8 @@ public class VendorStatsFragment extends Fragment {
         }
 
         binding.chartOrderTrend.getAxisLeft().setDrawGridLines(true);
-        binding.chartOrderTrend.getAxisLeft().setGridColor(Color.parseColor("#E2E8F0")); // vendor_dark_divider
-        binding.chartOrderTrend.getAxisLeft().setTextColor(Color.parseColor("#64748B"));
+        binding.chartOrderTrend.getAxisLeft().setGridColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_divider)); // vendor_dark_divider
+        binding.chartOrderTrend.getAxisLeft().setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         binding.chartOrderTrend.getAxisLeft().setXOffset(10f);
         binding.chartOrderTrend.setExtraLeftOffset(10f);
         binding.chartOrderTrend.getAxisLeft().setValueFormatter(new ValueFormatter() {
@@ -568,7 +564,7 @@ public class VendorStatsFragment extends Fragment {
             }
         });
 
-        binding.chartOrderTrend.getLegend().setTextColor(Color.parseColor("#64748B"));
+        binding.chartOrderTrend.getLegend().setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         binding.chartOrderTrend.animateY(800);
         binding.chartOrderTrend.invalidate();
     }
@@ -635,16 +631,16 @@ public class VendorStatsFragment extends Fragment {
         binding.chartStatusBreakdown.setUsePercentValues(true);
         binding.chartStatusBreakdown.getDescription().setEnabled(false);
         binding.chartStatusBreakdown.setDrawHoleEnabled(true);
-        binding.chartStatusBreakdown.setHoleColor(Color.WHITE); // vendor_dark_card
+        binding.chartStatusBreakdown.setHoleColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_card)); // vendor_dark_card
         binding.chartStatusBreakdown.setHoleRadius(40f);
         binding.chartStatusBreakdown.setTransparentCircleRadius(45f);
         binding.chartStatusBreakdown.setCenterText("Đơn hàng");
         binding.chartStatusBreakdown.setCenterTextSize(14f);
-        binding.chartStatusBreakdown.setCenterTextColor(Color.parseColor("#0F172A"));
+        binding.chartStatusBreakdown.setCenterTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
         binding.chartStatusBreakdown.setDrawEntryLabels(false);
 
         Legend l = binding.chartStatusBreakdown.getLegend();
-        l.setTextColor(Color.parseColor("#64748B"));
+        l.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         l.setOrientation(Legend.LegendOrientation.HORIZONTAL);

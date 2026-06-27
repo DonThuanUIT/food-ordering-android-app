@@ -697,7 +697,8 @@
                     <!-- Item 3: Turbo Mode -->
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp">
+                        android:layout_height="48dp"
+                        android:visibility="gone">
                         <ImageView
                             android:id="@+id/iv_pref_turbo"
                             android:layout_width="20dp"

@@ -76,8 +76,9 @@
                 android:id="@+id/tv_voucher_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:layout_toStartOf="@id/switch_active"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="12dp"
                 android:text="Giảm giá chào hè cực đã"
                 android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="15sp"
@@ -94,9 +95,10 @@
                 android:theme="@style/Theme.FoodOrderingApp"
                 app:thumbTint="@color/vendor_dark_orange"
                 app:trackTint="#FFCCBC"
-                android:minHeight="48dp"
+                android:layout_marginTop="-6dp"
+                android:minHeight="36dp"
                 android:minWidth="48dp"
-                android:padding="8dp"/>
+                android:padding="4dp"/>
 
             <!-- Usage Date -->
             <TextView
@@ -104,6 +106,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_voucher_title"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/switch_active"
+                android:layout_marginEnd="12dp"
                 android:layout_marginTop="4dp"
                 android:text="Hạn dùng: 18/06 - 25/06"
                 android:textColor="@color/vendor_dark_text_secondary"
@@ -115,6 +120,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_voucher_dates"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/switch_active"
+                android:layout_marginEnd="12dp"
                 android:layout_marginTop="4dp"
                 android:text="Đơn hàng từ: 50,000đ • Giảm tối đa: 20,000đ"
                 android:textColor="@color/vendor_dark_text_secondary"
@@ -126,6 +134,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_voucher_conditions"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/switch_active"
+                android:layout_marginEnd="12dp"
                 android:layout_marginTop="4dp"
                 android:text="Áp dụng cho: Món ăn cụ thể (3 món)"
                 android:textColor="@color/vendor_dark_orange"
