@@ -164,7 +164,6 @@ public class ShipperOrdersFragment extends Fragment implements ShipperOrderAdapt
             intent.putExtra("BUILDING_NAME", order.getBuilding());
             intent.putExtra("BUILDING_LATITUDE", order.getBuildingLatitude() != null ? order.getBuildingLatitude() : 0.0);
             intent.putExtra("BUILDING_LONGITUDE", order.getBuildingLongitude() != null ? order.getBuildingLongitude() : 0.0);
-            intent.putExtra("DROP_OFF", order.getDropOff());
             intent.putExtra("ORDER_STATUS", order.getStatus());
             startActivity(intent);
         }

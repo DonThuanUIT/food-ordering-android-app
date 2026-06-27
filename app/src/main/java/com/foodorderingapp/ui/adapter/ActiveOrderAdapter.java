@@ -30,6 +30,10 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         void onContactShopClick(OrderResponse order);
     }
 
+    public interface OnCancelOrderClickListener {
+        void onCancelOrderClick(OrderResponse order);
+    }
+
     private static final int COLOR_DARK = Color.parseColor("#1A1D26");
     private static final int COLOR_ORANGE = Color.parseColor("#FF7118");
     private static final int COLOR_BROWN = Color.parseColor("#9D3900");
@@ -39,15 +43,23 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
     private final List<OrderResponse> orders = new ArrayList<>();
     private final OnTrackClickListener trackClickListener;
     private final OnContactShopClickListener contactShopClickListener;
+    private final OnCancelOrderClickListener cancelOrderClickListener;
 
     public ActiveOrderAdapter(OnTrackClickListener trackClickListener) {
-        this(trackClickListener, null);
+        this(trackClickListener, null, null);
     }
 
     public ActiveOrderAdapter(OnTrackClickListener trackClickListener,
                               OnContactShopClickListener contactShopClickListener) {
+        this(trackClickListener, contactShopClickListener, null);
+    }
+
+    public ActiveOrderAdapter(OnTrackClickListener trackClickListener,
+                              OnContactShopClickListener contactShopClickListener,
+                              OnCancelOrderClickListener cancelOrderClickListener) {
         this.trackClickListener = trackClickListener;
         this.contactShopClickListener = contactShopClickListener;
+        this.cancelOrderClickListener = cancelOrderClickListener;
     }
 
     public void submitList(List<OrderResponse> newOrders) {
@@ -73,7 +85,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         bindTimeline(holder, order.getStatus());
         holder.tvOrderShopName.setText(nullToDefault(order.getShopName(), "Quán"));
         holder.tvOrderNumber.setText("Đơn hàng #" + shortOrderId(order.getId()));
-        holder.tvOrderLocation.setText(formatLocation(order.getBuilding(), order.getDropOff()));
+        holder.tvOrderLocation.setText(formatLocation(order.getBuilding()));
         holder.tvOrderSummaryItems.setText(formatSummaryItems(order.getDetails()));
         bindDiscount(holder.tvOrderDiscount, order);
         holder.tvOrderTotal.setText(formatPrice(order.getTotalPrice()));
@@ -82,6 +94,18 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
                 contactShopClickListener.onContactShopClick(order);
             }
         });
+
+        if ("PENDING".equalsIgnoreCase(order.getStatus())) {
+            holder.btnCancelOrder.setVisibility(View.VISIBLE);
+            holder.btnCancelOrder.setOnClickListener(v -> {
+                if (cancelOrderClickListener != null) {
+                    cancelOrderClickListener.onCancelOrderClick(order);
+                }
+            });
+        } else {
+            holder.btnCancelOrder.setVisibility(View.GONE);
+            holder.btnCancelOrder.setOnClickListener(null);
+        }
 
         if ("DELIVERING".equals(order.getStatus())) {
             holder.btnTrackDelivery.setVisibility(View.VISIBLE);
@@ -186,10 +210,8 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         view.setText(prefix + ": -" + formatPrice(order.getDiscountAmount()));
     }
 
-    private String formatLocation(String building, String dropOff) {
-        String safeBuilding = nullToDefault(building, "Chưa có tòa nhà");
-        String safeDropOff = nullToDefault(dropOff, "Chưa có điểm nhận");
-        return safeBuilding + " - " + safeDropOff;
+    private String formatLocation(String building) {
+        return "Tòa nhận: " + nullToDefault(building, "Chưa chọn");
     }
 
     private String shortOrderId(String id) {
@@ -232,6 +254,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         TextView tvOrderDiscount;
         TextView tvOrderTotal;
         View btnContactShop;
+        View btnCancelOrder;
         View btnTrackDelivery;
 
         OrderViewHolder(@NonNull View itemView) {
@@ -252,6 +275,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
             tvOrderDiscount = itemView.findViewById(R.id.tvOrderDiscount);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
             btnContactShop = itemView.findViewById(R.id.btnContactShop);
+            btnCancelOrder = itemView.findViewById(R.id.btnCancelOrder);
             btnTrackDelivery = itemView.findViewById(R.id.btnTrackDelivery);
         }
     }

@@ -148,15 +148,6 @@
             android:textColor="#2D3748"
             android:textSize="14sp"
             android:textStyle="bold"/>
-        <TextView
-            android:id="@+id/tv_detail_dropoff"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Vị trí thả đồ / Phòng: Phòng 402"
-            android:textColor="#C53030"
-            android:textSize="13sp"
-            android:layout_marginTop="4dp"
-            android:textStyle="bold"/>
     </LinearLayout>
 
     <!-- Section: Items Ordered -->

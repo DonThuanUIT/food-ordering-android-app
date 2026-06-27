@@ -109,18 +109,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
 
     private String buildAddress(OrderResponse order) {
         String building = nullToDefault(order.getBuilding(), "").trim();
-        String dropOff = nullToDefault(order.getDropOff(), "").trim();
-
-        if (building.isEmpty() && dropOff.isEmpty()) {
-            return "Chưa có địa điểm nhận";
-        }
         if (building.isEmpty()) {
-            return dropOff;
+            return "Chưa chọn tòa nhận";
         }
-        if (dropOff.isEmpty()) {
-            return building;
-        }
-        return building + " - " + dropOff;
+        return "Tòa nhận: " + building;
     }
 
     private void bindDiscount(TextView view, OrderResponse order) {

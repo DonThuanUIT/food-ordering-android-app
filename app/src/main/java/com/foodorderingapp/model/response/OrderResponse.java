@@ -10,7 +10,6 @@ public class OrderResponse {
     private double totalPrice;
     private String status;
     private String building;
-    private String dropOff;
     private String cancelReason;
     private String createdAt;
     private List<OrderDetailResponse> details;
@@ -38,7 +37,6 @@ public class OrderResponse {
     public double getTotalPrice() { return totalPrice; }
     public String getStatus() { return status; }
     public String getBuilding() { return building; }
-    public String getDropOff() { return dropOff; }
     public String getCancelReason() { return cancelReason; }
     public String getCreatedAt() { return createdAt; }
     public List<OrderDetailResponse> getDetails() { return details; }

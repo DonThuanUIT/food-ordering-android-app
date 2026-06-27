@@ -216,7 +216,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="Chưa có điểm nhận"
+                android:text="Tòa nhận: Chưa chọn"
                 android:textColor="#55607A"
                 android:textSize="14sp" />
 
@@ -233,6 +233,23 @@
                 app:backgroundTint="#FF7118"
                 app:cornerRadius="14dp"
                 app:elevation="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelOrder"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="12dp"
+                android:text="Hủy đơn"
+                android:textAllCaps="false"
+                android:textColor="#C1272D"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:backgroundTint="#FFFFFF"
+                app:cornerRadius="14dp"
+                app:elevation="0dp"
+                app:strokeColor="#C1272D"
+                app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTrackDelivery"

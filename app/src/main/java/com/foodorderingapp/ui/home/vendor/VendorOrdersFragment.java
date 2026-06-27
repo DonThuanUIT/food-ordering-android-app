@@ -31,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.foodorderingapp.model.response.OrderDetailResponse;
 import com.foodorderingapp.ui.chat.ChatActivity;
 import android.widget.RelativeLayout;
+import com.google.gson.Gson;
 import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
     private UUID currentShopId;
     private String selectedStatusFilter = null; // null represents "ALL"
     private StompClient stompClient;
+    private final Gson gson = new Gson();
 
 
 
@@ -170,11 +172,12 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
                 stompClient.subscribe("/topic/shop/" + currentShopId + "/orders", payload -> {
                     if (isAdded() && getContext() != null) {
                         try {
+                            OrderResponse updatedOrder = parseOrderUpdate(payload);
                             loadOrders(false);
                             android.content.SharedPreferences prefs = getContext().getSharedPreferences("vendor_settings_pref", android.content.Context.MODE_PRIVATE);
                             boolean alertsEnabled = prefs.getBoolean("order_alerts", true);
                             if (alertsEnabled) {
-                                showInAppOrderNotification();
+                                showInAppOrderNotification(updatedOrder);
                             } else {
                                 Toast.makeText(getContext(), "Có cập nhật đơn hàng mới!", Toast.LENGTH_SHORT).show();
                             }
@@ -194,6 +197,20 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
             }
         });
         stompClient.connect();
+    }
+
+    @Nullable
+    private OrderResponse parseOrderUpdate(String payload) {
+        if (payload == null || payload.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return gson.fromJson(payload, OrderResponse.class);
+        } catch (Exception exception) {
+            android.util.Log.e("ORDER_NOTIF", "Cannot parse order websocket payload", exception);
+            return null;
+        }
     }
 
     @Override
@@ -366,7 +383,6 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         View btnCall = view.findViewById(R.id.btn_call_customer);
         View btnChat = view.findViewById(R.id.btn_chat_customer);
         TextView tvBuilding = view.findViewById(R.id.tv_detail_building);
-        TextView tvDropOff = view.findViewById(R.id.tv_detail_dropoff);
         LinearLayout layoutItems = view.findViewById(R.id.layout_detail_order_items);
         View layoutDiscount = view.findViewById(R.id.layout_detail_discount);
         TextView tvDiscountLabel = view.findViewById(R.id.tv_detail_discount_label);
@@ -409,7 +425,6 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         }
 
         if (tvBuilding != null) tvBuilding.setText("Giao đến: " + (order.getBuilding() != null ? order.getBuilding() : "Chưa rõ tòa nhà"));
-        if (tvDropOff != null) tvDropOff.setText("Vị trí thả đồ / Phòng: " + (order.getDropOff() != null ? order.getDropOff() : "Chưa rõ"));
 
         if (btnChat != null) {
             btnChat.setOnClickListener(v -> {
@@ -480,7 +495,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         return formatter.format(value) + "đ";
     }
 
-    private void showInAppOrderNotification() {
+    private void showInAppOrderNotification(@Nullable OrderResponse order) {
         android.content.Context context = getContext();
         if (context == null) return;
 
@@ -530,11 +545,66 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
+        String notificationBody = buildOrderUpdateBody(order);
+        builder.setContentTitle(buildOrderUpdateTitle(order));
+        builder.setContentText(notificationBody);
+        builder.setStyle(new androidx.core.app.NotificationCompat.BigTextStyle().bigText(notificationBody));
+
         androidx.core.app.NotificationManagerCompat notificationManager = androidx.core.app.NotificationManagerCompat.from(context);
         try {
             notificationManager.notify((int) System.currentTimeMillis(), builder.build());
         } catch (SecurityException exception) {
             android.util.Log.e("ORDER_NOTIF", "Permission error showing notification", exception);
         }
+    }
+
+    private String buildOrderUpdateTitle(@Nullable OrderResponse order) {
+        if (order != null && "CANCELLED".equalsIgnoreCase(order.getStatus())) {
+            return "Đơn hàng đã bị hủy";
+        }
+
+        if (order != null && "PENDING".equalsIgnoreCase(order.getStatus())) {
+            return "Đơn hàng mới!";
+        }
+
+        return "Có cập nhật đơn hàng";
+    }
+
+    private String buildOrderUpdateBody(@Nullable OrderResponse order) {
+        if (order == null) {
+            return "Bạn có một đơn hàng vừa được cập nhật.";
+        }
+
+        String orderId = shortOrderId(order.getId());
+        String customerName = order.getCustomerName();
+        String customerPart = customerName == null || customerName.trim().isEmpty()
+                ? "Sinh viên"
+                : customerName.trim();
+
+        if ("CANCELLED".equalsIgnoreCase(order.getStatus())) {
+            String reason = order.getCancelReason();
+            String reasonPart = reason == null || reason.trim().isEmpty()
+                    ? ""
+                    : " Lý do: " + reason.trim();
+            return customerPart + " đã hủy đơn #" + orderId + "." + reasonPart;
+        }
+
+        if ("PENDING".equalsIgnoreCase(order.getStatus())) {
+            return "Bạn có đơn mới #" + orderId + " từ " + customerPart + ".";
+        }
+
+        return "Đơn #" + orderId + " vừa được cập nhật trạng thái: " + getReadableStatus(order.getStatus()) + ".";
+    }
+
+    private String shortOrderId(String orderId) {
+        if (orderId == null || orderId.trim().isEmpty()) {
+            return "000000";
+        }
+
+        String compactId = orderId.replace("-", "");
+        if (compactId.length() <= 6) {
+            return compactId;
+        }
+        return compactId.substring(0, 6);
     }
 }
