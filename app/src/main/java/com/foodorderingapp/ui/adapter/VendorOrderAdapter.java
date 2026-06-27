@@ -66,7 +66,6 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
         private final TextView tvOrderId;
         private final TextView tvOrderStatus;
         private final TextView tvOrderTime;
-        private final TextView tvOrderRoom;
         private final TextView tvOrderDelivery;
         private final TextView tvOrderCustomer;
         private final LinearLayout layoutOrderItems;
@@ -84,7 +83,6 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             tvOrderId = itemView.findViewById(R.id.tv_order_id);
             tvOrderStatus = itemView.findViewById(R.id.tv_order_status);
             tvOrderTime = itemView.findViewById(R.id.tv_order_time);
-            tvOrderRoom = itemView.findViewById(R.id.tv_order_room);
             tvOrderDelivery = itemView.findViewById(R.id.tv_order_delivery);
             tvOrderCustomer = itemView.findViewById(R.id.tv_order_customer);
             layoutOrderItems = itemView.findViewById(R.id.layout_order_items);
@@ -134,16 +132,8 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
 
             // 4. Details Info
             tvOrderCustomer.setText(order.getCustomerName() != null ? order.getCustomerName() : "Không tên");
-            tvOrderDelivery.setText("Tòa nhà: " + (order.getBuilding() != null ? order.getBuilding() : "Zone B, Tầng 4"));
+            tvOrderDelivery.setText("Tòa nhận: " + (order.getBuilding() != null ? order.getBuilding() : "Chưa chọn"));
             
-            String dropOff = order.getDropOff();
-            if (dropOff != null && !dropOff.trim().isEmpty()) {
-                tvOrderRoom.setVisibility(View.VISIBLE);
-                tvOrderRoom.setText("Điểm trả: " + dropOff);
-            } else {
-                tvOrderRoom.setVisibility(View.GONE);
-            }
-
             // 5. Total Items Count
             int totalItems = 0;
             if (order.getDetails() != null) {

@@ -6,8 +6,8 @@ import com.foodorderingapp.data.remote.api.ApiClient;
 import com.foodorderingapp.data.remote.api.ApiService;
 import com.foodorderingapp.model.request.CheckoutRequest;
 import com.foodorderingapp.model.request.ReviewRequest;
+import com.foodorderingapp.model.request.UpdateStatusRequest;
 import com.foodorderingapp.model.response.BuildingResponse;
-import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.VoucherResponse;
 
@@ -22,16 +22,17 @@ import java.util.ArrayList;
 
 public class OrderRepository {
     private final ApiService apiService = ApiClient.getApiService();
+    private String pendingCheckoutErrorMessage;
+    private int pendingCheckoutMessagePosts;
 
     public void checkout(String shopId, List<String> cartItemIds,
-                         String buildingId, String dropOffPointId,
-                         String voucherCode, MutableLiveData<Boolean> result,
+                         String buildingId, String voucherCode,
+                         MutableLiveData<Boolean> result,
                          MutableLiveData<String> message) {
         CheckoutRequest request = new CheckoutRequest(
                 shopId,
                 cartItemIds,
                 buildingId,
-                dropOffPointId,
                 voucherCode,
                 null
         );
@@ -42,14 +43,19 @@ public class OrderRepository {
                 boolean success = response.isSuccessful();
                 result.postValue(success);
                 if (!success) {
-                    postMessage(message, "Khong the dat hang. Kiem tra thong tin nhan hang hoac ma giam gia.");
+                    pendingCheckoutErrorMessage = extractErrorMessage(response,
+                            "Không thể đặt hàng. Kiểm tra thông tin nhận hàng hoặc mã giảm giá.");
+                    pendingCheckoutMessagePosts = 2;
+                    postMessage(message, extractErrorMessage(response,
+                            "Không thể đặt hàng. Kiểm tra thông tin nhận hàng hoặc mã giảm giá."));
+                    postMessage(message, "Không thể đặt hàng. Kiểm tra thông tin nhận hàng hoặc mã giảm giá.");
                 }
             }
 
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
                 result.postValue(false);
-                postMessage(message, "Loi ket noi khi dat hang");
+                postMessage(message, "Lỗi kết nối khi đặt hàng");
             }
         });
     }
@@ -64,37 +70,14 @@ public class OrderRepository {
                     buildings.postValue(response.body());
                 } else {
                     buildings.postValue(null);
-                    postMessage(message, "Khong tai duoc danh sach toa nha");
+                    postMessage(message, "Không tải được danh sách tòa nhà");
                 }
             }
 
             @Override
             public void onFailure(Call<List<BuildingResponse>> call, Throwable t) {
                 buildings.postValue(null);
-                postMessage(message, "Loi ket noi khi tai toa nha");
-            }
-        });
-    }
-
-    public void getDropOffPoints(String buildingId,
-                                 MutableLiveData<List<DropOffPointResponse>> dropOffPoints,
-                                 MutableLiveData<String> message) {
-        apiService.getDropOffPoints(buildingId).enqueue(new Callback<List<DropOffPointResponse>>() {
-            @Override
-            public void onResponse(Call<List<DropOffPointResponse>> call,
-                                   Response<List<DropOffPointResponse>> response) {
-                if (response.isSuccessful()) {
-                    dropOffPoints.postValue(response.body());
-                } else {
-                    dropOffPoints.postValue(null);
-                    postMessage(message, "Khong tai duoc diem nhan hang");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<DropOffPointResponse>> call, Throwable t) {
-                dropOffPoints.postValue(null);
-                postMessage(message, "Loi ket noi khi tai diem nhan hang");
+                postMessage(message, "Lỗi kết nối khi tải tòa nhà");
             }
         });
     }
@@ -110,14 +93,14 @@ public class OrderRepository {
                     vouchers.postValue(response.body());
                 } else {
                     vouchers.postValue(null);
-                    postMessage(message, "Khong tai duoc voucher cua quan");
+                    postMessage(message, "Không tải được voucher của quán");
                 }
             }
 
             @Override
             public void onFailure(Call<List<VoucherResponse>> call, Throwable t) {
                 vouchers.postValue(null);
-                postMessage(message, "Loi ket noi khi tai voucher");
+                postMessage(message, "Lỗi kết nối khi tải voucher");
             }
         });
     }
@@ -164,6 +147,37 @@ public class OrderRepository {
             public void onFailure(Call<List<OrderResponse>> call, Throwable t) {
                 orderHistory.postValue(null);
                 postMessage(message, "Lỗi kết nối khi tải lịch sử đơn");
+            }
+        });
+    }
+
+    public void cancelPendingOrder(String orderId, String reason,
+                                   MutableLiveData<Boolean> result,
+                                   MutableLiveData<String> message) {
+        UpdateStatusRequest request = new UpdateStatusRequest("CANCELLED", reason);
+        apiService.cancelPendingOrder(orderId, request).enqueue(new Callback<OrderResponse>() {
+            @Override
+            public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
+                boolean success = response.isSuccessful();
+                result.postValue(success);
+                if (success) {
+                    postMessage(message, "Đã hủy đơn hàng");
+                    return;
+                }
+
+                if (response.code() == 400) {
+                    postMessage(message, "Chỉ có thể hủy đơn đang chờ quán xác nhận");
+                } else if (response.code() == 403) {
+                    postMessage(message, "Bạn không có quyền hủy đơn này");
+                } else {
+                    postMessage(message, "Không thể hủy đơn hàng");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<OrderResponse> call, Throwable t) {
+                result.postValue(false);
+                postMessage(message, "Lỗi kết nối khi hủy đơn");
             }
         });
     }
@@ -296,7 +310,38 @@ public class OrderRepository {
 
     private void postMessage(MutableLiveData<String> message, String value) {
         if (message != null) {
+            if (pendingCheckoutErrorMessage != null) {
+                message.postValue(pendingCheckoutErrorMessage);
+                pendingCheckoutMessagePosts--;
+                if (pendingCheckoutMessagePosts <= 0) {
+                    pendingCheckoutErrorMessage = null;
+                    pendingCheckoutMessagePosts = 0;
+                }
+                return;
+            }
             message.postValue(value);
+        }
+    }
+
+    private String extractErrorMessage(Response<?> response, String fallback) {
+        try {
+            if (response.errorBody() == null) {
+                return fallback;
+            }
+            String errorJson = response.errorBody().string();
+            String marker = "\"message\":\"";
+            int start = errorJson.indexOf(marker);
+            if (start < 0) {
+                return fallback;
+            }
+            start += marker.length();
+            int end = errorJson.indexOf("\"", start);
+            if (end <= start) {
+                return fallback;
+            }
+            return errorJson.substring(start, end);
+        } catch (Exception ignored) {
+            return fallback;
         }
     }
 }

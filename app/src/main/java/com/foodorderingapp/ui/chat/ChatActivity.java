@@ -3,6 +3,7 @@ package com.foodorderingapp.ui.chat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -41,6 +42,8 @@ import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompHeader;
 
 public class ChatActivity extends AppCompatActivity {
+
+    private static final String TAG = "ChatActivity";
 
     public static final String EXTRA_SHOP_ID = "SHOP_ID";
     public static final String EXTRA_SHOP_NAME = "SHOP_NAME";
@@ -165,11 +168,14 @@ public class ChatActivity extends AppCompatActivity {
             public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setCurrentUserId(response.body().getId());
+                } else {
+                    logApiError("load current user", response, false);
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
+                logNetworkError("load current user", t, false);
             }
         });
     }
@@ -184,6 +190,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ChatRoomResponse> call, Response<ChatRoomResponse> response) {
                 if (!response.isSuccessful() || response.body() == null || isBlank(response.body().getRoomId())) {
+                    logApiError("open shop chat room", response, true);
                     showEmpty(true);
                     return;
                 }
@@ -200,6 +207,7 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ChatRoomResponse> call, Throwable t) {
+                logNetworkError("open shop chat room", t, true);
                 showEmpty(true);
             }
         });
@@ -215,6 +223,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ChatRoomResponse> call, Response<ChatRoomResponse> response) {
                 if (!response.isSuccessful() || response.body() == null || isBlank(response.body().getRoomId())) {
+                    logApiError("open order chat room", response, true);
                     showEmpty(true);
                     return;
                 }
@@ -231,6 +240,7 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ChatRoomResponse> call, Throwable t) {
+                logNetworkError("open order chat room", t, true);
                 showEmpty(true);
             }
         });
@@ -246,6 +256,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<ChatMessageResponse>> call, Response<List<ChatMessageResponse>> response) {
                 if (!response.isSuccessful() || response.body() == null) {
+                    logApiError("load chat history", response, scrollToBottom);
                     return;
                 }
 
@@ -263,6 +274,7 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<ChatMessageResponse>> call, Throwable t) {
+                logNetworkError("load chat history", t, scrollToBottom);
             }
         });
     }
@@ -292,13 +304,18 @@ public class ChatActivity extends AppCompatActivity {
             public void onResponse(Call<ChatMessageResponse> call, Response<ChatMessageResponse> response) {
                 setSending(false);
                 if (!response.isSuccessful()) {
+                    logApiError("send chat message", response, true);
                     ToastUtils.error(ChatActivity.this, "Không gửi được tin nhắn");
                     return;
                 }
 
                 edtMessage.setText("");
-                if (response.body() != null && !isBlank(response.body().getRoomId())) {
-                    roomId = response.body().getRoomId();
+                ChatMessageResponse sentMessage = response.body();
+                if (sentMessage != null) {
+                    if (!isBlank(sentMessage.getRoomId())) {
+                        roomId = sentMessage.getRoomId();
+                    }
+                    appendMessage(sentMessage);
                 }
                 loadHistory(true);
                 connectRealtime();
@@ -308,6 +325,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ChatMessageResponse> call, Throwable t) {
                 setSending(false);
+                logNetworkError("send chat message", t, true);
                 ToastUtils.error(ChatActivity.this, "Lỗi kết nối khi gửi tin nhắn");
             }
         });
@@ -411,6 +429,16 @@ public class ChatActivity extends AppCompatActivity {
         rvMessages.setVisibility(empty ? View.GONE : View.VISIBLE);
     }
 
+    private void appendMessage(ChatMessageResponse message) {
+        adapter.appendMessage(message);
+        boolean empty = adapter.getMessageCount() == 0;
+        showEmpty(empty);
+        lastMessageCount = adapter.getMessageCount();
+        if (!empty) {
+            rvMessages.scrollToPosition(adapter.getMessageCount() - 1);
+        }
+    }
+
     private void setSending(boolean sending) {
         btnSend.setEnabled(!sending);
         edtMessage.setEnabled(!sending);
@@ -432,5 +460,40 @@ public class ChatActivity extends AppCompatActivity {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private void logApiError(String action, Response<?> response, boolean showToast) {
+        int code = response != null ? response.code() : -1;
+        String detail = "HTTP " + code;
+        if (response != null && response.errorBody() != null) {
+            try {
+                String body = response.errorBody().string();
+                if (!isBlank(body)) {
+                    detail += ": " + shorten(body);
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Could not read error body for " + action, e);
+            }
+        }
+        Log.w(TAG, action + " failed: " + detail);
+        if (showToast) {
+            ToastUtils.error(this, action + " failed (" + code + ")");
+        }
+    }
+
+    private void logNetworkError(String action, Throwable t, boolean showToast) {
+        String message = t != null && t.getMessage() != null ? t.getMessage() : "unknown network error";
+        Log.e(TAG, action + " failed: " + message, t);
+        if (showToast) {
+            ToastUtils.error(this, action + " failed: " + shorten(message));
+        }
+    }
+
+    private String shorten(String value) {
+        if (value == null) {
+            return "";
+        }
+        String compact = value.replace('\n', ' ').replace('\r', ' ').trim();
+        return compact.length() > 120 ? compact.substring(0, 120) + "..." : compact;
     }
 }

@@ -87,6 +87,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.order.CheckoutActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.review.VendorReviewsActivity"
             android:exported="false" />
 

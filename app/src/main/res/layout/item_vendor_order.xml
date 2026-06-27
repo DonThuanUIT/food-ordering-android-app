@@ -78,16 +78,6 @@
                 android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="13sp" />
 
-            <!-- Drop off / Room Location -->
-            <TextView
-                android:id="@+id/tv_order_room"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Điểm trả: Sảnh trước Căng tin"
-                android:textColor="@color/vendor_dark_text_secondary"
-                android:textSize="13sp"
-                android:layout_marginTop="2dp"/>
-
             <!-- Total Items Count -->
             <TextView
                 android:id="@+id/tv_order_items_count"

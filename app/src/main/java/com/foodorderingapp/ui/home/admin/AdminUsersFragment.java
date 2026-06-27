@@ -39,7 +39,8 @@ public class AdminUsersFragment extends Fragment {
     private TextView tvEmpty;
     private Runnable searchRunnable;
     private boolean pendingActiveState;
-    private String selectedRole = "VENDOR";
+    private String selectedRole = null;
+    private MaterialButton btnRoleAll;
     private MaterialButton btnRoleStudent;
     private MaterialButton btnRoleVendor;
     private MaterialButton btnLoadMore;
@@ -66,6 +67,7 @@ public class AdminUsersFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
         edtSearch = view.findViewById(R.id.edtAdminUserSearch);
         tvEmpty = view.findViewById(R.id.tvAdminUsersEmpty);
+        btnRoleAll = view.findViewById(R.id.btnAdminRoleAll);
         btnRoleStudent = view.findViewById(R.id.btnAdminRoleStudent);
         btnRoleVendor = view.findViewById(R.id.btnAdminRoleVendor);
         btnLoadMore = view.findViewById(R.id.btnAdminUsersLoadMore);
@@ -74,11 +76,11 @@ public class AdminUsersFragment extends Fragment {
         adapter = new AdminUserAdapter();
         adapter.setOnUserActiveChangeListener((user, isActive) -> {
             if (user.getId() == null) {
-                ToastUtils.error(requireContext(), "Khong tim thay user");
+                ToastUtils.error(requireContext(), "Không tìm thấy người dùng");
                 return;
             }
             pendingActiveState = isActive;
-            viewModel.toggleUserLock(user.getId());
+            viewModel.updateUserLock(user.getId(), !isActive);
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
@@ -106,9 +108,9 @@ public class AdminUsersFragment extends Fragment {
                 return;
             }
             if (result) {
-                ToastUtils.success(requireContext(), pendingActiveState ? "Da mo khoa user" : "Da khoa user");
+                ToastUtils.success(requireContext(), pendingActiveState ? "Đã mở khóa người dùng" : "Đã khóa người dùng");
             } else {
-                ToastUtils.error(requireContext(), "Khong the cap nhat trang thai user");
+                ToastUtils.error(requireContext(), "Không thể cập nhật trạng thái người dùng");
             }
             loadUsers(true);
             viewModel.clearUserLockResult();
@@ -132,13 +134,14 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void setupRoleFilters() {
+        btnRoleAll.setOnClickListener(v -> selectRole(null));
         btnRoleVendor.setOnClickListener(v -> selectRole("VENDOR"));
         btnRoleStudent.setOnClickListener(v -> selectRole("STUDENT"));
         updateRoleButtonStates();
     }
 
     private void selectRole(String role) {
-        if (role.equals(selectedRole)) {
+        if ((role == null && selectedRole == null) || (role != null && role.equals(selectedRole))) {
             return;
         }
         selectedRole = role;
@@ -147,6 +150,7 @@ public class AdminUsersFragment extends Fragment {
     }
 
     private void updateRoleButtonStates() {
+        setFilterButtonState(btnRoleAll, selectedRole == null);
         setFilterButtonState(btnRoleVendor, "VENDOR".equals(selectedRole));
         setFilterButtonState(btnRoleStudent, "STUDENT".equals(selectedRole));
     }
@@ -170,7 +174,7 @@ public class AdminUsersFragment extends Fragment {
                 loadedUserCount = 0;
                 adapter.submitList(null);
             }
-            ToastUtils.error(requireContext(), "Khong tai duoc danh sach user");
+            ToastUtils.error(requireContext(), "Không tải được danh sách người dùng");
             updateLoadMoreButton();
             return;
         }
@@ -187,7 +191,9 @@ public class AdminUsersFragment extends Fragment {
 
         isLastPage = page.isLast() || loadedUserCount >= page.getTotalElements();
         tvEmpty.setVisibility(loadedUserCount == 0 ? View.VISIBLE : View.GONE);
-        tvEmpty.setText("STUDENT".equals(selectedRole) ? "Khong co student phu hop" : "Khong co vendor phu hop");
+        tvEmpty.setText(selectedRole == null
+                ? "Không có người dùng phù hợp"
+                : ("STUDENT".equals(selectedRole) ? "Không có sinh viên phù hợp" : "Không có người bán phù hợp"));
         updateLoadMoreButton();
     }
 
@@ -229,7 +235,7 @@ public class AdminUsersFragment extends Fragment {
         boolean hasMore = loadedUserCount > 0 && !isLastPage;
         btnLoadMore.setVisibility(hasMore ? View.VISIBLE : View.GONE);
         btnLoadMore.setEnabled(!isLoading);
-        btnLoadMore.setText(isLoading ? "Dang tai..." : "Tai them");
+        btnLoadMore.setText(isLoading ? "Đang tải..." : "Tải thêm");
     }
 
     private int dp(int value) {

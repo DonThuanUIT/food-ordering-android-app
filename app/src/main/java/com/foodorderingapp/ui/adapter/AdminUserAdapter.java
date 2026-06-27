@@ -90,12 +90,12 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
 
     private String formatRole(String role) {
         if ("VENDOR".equalsIgnoreCase(role)) {
-            return "Vendor";
+            return "Người bán";
         }
         if ("ADMIN".equalsIgnoreCase(role)) {
-            return "Admin";
+            return "Quản trị viên";
         }
-        return "Student";
+        return "Sinh viên";
     }
 
     private String firstNonBlank(String... values) {

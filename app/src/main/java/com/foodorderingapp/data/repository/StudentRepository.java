@@ -29,14 +29,14 @@ public class StudentRepository {
                     profile.postValue(response.body());
                 } else {
                     profile.postValue(null);
-                    postMessage(message, "Khong tai duoc thong tin ca nhan");
+                    postMessage(message, "Không tải được thông tin cá nhân");
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
                 profile.postValue(null);
-                postMessage(message, "Loi ket noi khi tai profile");
+                postMessage(message, "Lỗi kết nối khi tải hồ sơ");
             }
         });
     }
@@ -58,14 +58,14 @@ public class StudentRepository {
                     summary.postValue(response.body());
                 } else {
                     summary.postValue(null);
-                    postMessage(message, "Khong tai duoc tong chi tieu");
+                    postMessage(message, "Không tải được tổng chi tiêu");
                 }
             }
 
             @Override
             public void onFailure(Call<SpendingSummaryResponse> call, Throwable t) {
                 summary.postValue(null);
-                postMessage(message, "Loi ket noi khi tai chi tieu");
+                postMessage(message, "Lỗi kết nối khi tải chi tiêu");
             }
         });
     }
@@ -80,14 +80,14 @@ public class StudentRepository {
                     buildings.postValue(response.body());
                 } else {
                     buildings.postValue(null);
-                    postMessage(message, "Khong tai duoc danh sach toa nha");
+                    postMessage(message, "Không tải được danh sách tòa nhà");
                 }
             }
 
             @Override
             public void onFailure(Call<List<BuildingResponse>> call, Throwable t) {
                 buildings.postValue(null);
-                postMessage(message, "Loi ket noi khi tai toa nha");
+                postMessage(message, "Lỗi kết nối khi tải tòa nhà");
             }
         });
     }
@@ -106,14 +106,14 @@ public class StudentRepository {
                     updateResult.postValue(true);
                 } else {
                     updateResult.postValue(false);
-                    postMessage(message, "Khong cap nhat duoc ho so");
+                    postMessage(message, "Không cập nhật được hồ sơ");
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
                 updateResult.postValue(false);
-                postMessage(message, "Loi ket noi khi cap nhat ho so");
+                postMessage(message, "Lỗi kết nối khi cập nhật hồ sơ");
             }
         });
     }
@@ -128,14 +128,14 @@ public class StudentRepository {
                     reviews.postValue(response.body());
                 } else {
                     reviews.postValue(null);
-                    postMessage(message, "Khong tai duoc danh gia cua toi");
+                    postMessage(message, "Không tải được đánh giá của tôi");
                 }
             }
 
             @Override
             public void onFailure(Call<List<StudentReviewResponse>> call, Throwable t) {
                 reviews.postValue(null);
-                postMessage(message, "Loi ket noi khi tai danh gia");
+                postMessage(message, "Lỗi kết nối khi tải đánh giá");
             }
         });
     }

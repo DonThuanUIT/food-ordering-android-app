@@ -24,7 +24,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quản lý user"
+                android:text="Quản lý người dùng"
                 android:textColor="@color/white"
                 android:textSize="26sp"
                 android:textStyle="bold" />
@@ -77,12 +77,24 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAdminRoleVendor"
+                    android:id="@+id/btnAdminRoleAll"
                     android:layout_width="0dp"
                     android:layout_height="42dp"
                     android:layout_weight="1"
                     android:minWidth="0dp"
-                    android:text="Vendor"
+                    android:text="Tất cả"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    app:cornerRadius="14dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAdminRoleVendor"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:minWidth="0dp"
+                    android:text="Người bán"
                     android:textAllCaps="false"
                     android:textSize="14sp"
                     app:cornerRadius="14dp" />
@@ -94,7 +106,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:minWidth="0dp"
-                    android:text="Student"
+                    android:text="Sinh viên"
                     android:textAllCaps="false"
                     android:textSize="14sp"
                     app:cornerRadius="14dp" />
@@ -113,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingVertical="28dp"
-                android:text="Không có user phù hợp"
+                android:text="Không có người dùng phù hợp"
                 android:textColor="@color/text_secondary"
                 android:textSize="15sp"
                 android:visibility="gone" />
@@ -124,7 +136,7 @@
                 android:layout_height="46dp"
                 android:layout_marginTop="14dp"
                 android:backgroundTint="@color/white"
-                android:text="Tai them"
+                android:text="Tải thêm"
                 android:textAllCaps="false"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"

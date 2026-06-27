@@ -39,6 +39,7 @@ import com.foodorderingapp.model.response.StudentReviewResponse;
 import com.foodorderingapp.model.response.UserProfileResponse;
 import com.foodorderingapp.ui.adapter.StudentReviewAdapter;
 import com.foodorderingapp.ui.auth.LoginActivity;
+import com.foodorderingapp.utils.ImageUrlUtils;
 import com.foodorderingapp.utils.TokenManager;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.StudentProfileViewModel;
@@ -136,6 +137,12 @@ public class StudentProfileFragment extends Fragment {
         loadRemoteProfile(view);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadSpendingForSelectedRange();
+    }
+
     private void bindSessionInfo(View view) {
         TextView tvUserName = view.findViewById(R.id.tvUserName);
         TextView tvUserEmail = view.findViewById(R.id.tvUserEmail);
@@ -148,8 +155,8 @@ public class StudentProfileFragment extends Fragment {
         String fullName = tokenManager.getFullName();
 
         tvUserName.setText(isBlank(fullName) ? defaultDisplayName(role) : fullName);
-        tvUserEmail.setText(isBlank(phone) ? "Chua co so dien thoai" : phone);
-        tvUserTag.setText("Vai tro: " + formatRole(role));
+        tvUserEmail.setText(isBlank(phone) ? "Chưa có số điện thoại" : phone);
+        tvUserTag.setText("Vai trò: " + formatRole(role));
         tvMonthlySpending.setText("0đ");
     }
 
@@ -208,20 +215,25 @@ public class StudentProfileFragment extends Fragment {
         TextView tvUserTag = view.findViewById(R.id.tvUserTag);
         ImageView ivAvatar = view.findViewById(R.id.ivAvatar);
 
-        tvUserName.setText(isBlank(profile.getFullName()) ? "Sinh vien UniEats" : profile.getFullName());
+        tvUserName.setText(isBlank(profile.getFullName()) ? "Sinh viên UniEats" : profile.getFullName());
 
         String emailOrPhone = !isBlank(profile.getEmail()) ? profile.getEmail() : profile.getPhone();
-        tvUserEmail.setText(isBlank(emailOrPhone) ? "Chua co thong tin lien he" : emailOrPhone);
+        tvUserEmail.setText(isBlank(emailOrPhone) ? "Chưa có thông tin liên hệ" : emailOrPhone);
 
-        String building = isBlank(profile.getBuildingName()) ? "Chua chon toa nha" : profile.getBuildingName();
+        String building = isBlank(profile.getBuildingName()) ? "Chưa chọn tòa nhà" : profile.getBuildingName();
         tvUserTag.setText(formatRole(profile.getRole()) + " - " + building);
 
-        if (!isBlank(profile.getAvatarUrl()) && getContext() != null) {
+        String avatarUrl = ImageUrlUtils.resolveImageUrl(profile.getAvatarUrl());
+        if (!isBlank(avatarUrl) && getContext() != null) {
+            ivAvatar.setPadding(0, 0, 0, 0);
             Glide.with(this)
-                    .load(profile.getAvatarUrl())
+                    .load(avatarUrl)
                     .placeholder(R.drawable.ic_profile)
                     .error(R.drawable.ic_profile)
                     .into(ivAvatar);
+        } else {
+            ivAvatar.setPadding(dp(18), dp(18), dp(18), dp(18));
+            ivAvatar.setImageResource(R.drawable.ic_profile);
         }
     }
 
@@ -276,9 +288,10 @@ public class StudentProfileFragment extends Fragment {
                 return;
             }
             selectedAvatarUrl = url;
+            String previewUrl = ImageUrlUtils.resolveImageUrl(url);
             if (editAvatarPreview != null && getContext() != null) {
                 Glide.with(this)
-                        .load(url)
+                        .load(previewUrl)
                         .placeholder(R.drawable.ic_profile)
                         .error(R.drawable.ic_profile)
                         .into(editAvatarPreview);
@@ -400,8 +413,8 @@ public class StudentProfileFragment extends Fragment {
 
         if (tvBreakdownTitle != null) {
             tvBreakdownTitle.setText(isSelectedRangeWithinOneWeek()
-                    ? "Chi Tiết Tuần Đã Chọn"
-                    : "Chi Tiết Theo Tuần");
+                    ? "Chi tiết tuần đã chọn"
+                    : "Chi tiết theo tuần");
         }
         updateQuickRangeState(view);
     }
@@ -756,9 +769,9 @@ public class StudentProfileFragment extends Fragment {
         }
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Ho tro")
-                .setMessage("Vui long lien he quay ho tro UniEats neu don hang hoac tai khoan gap van de.")
-                .setPositiveButton("Da hieu", null)
+                .setTitle("Hỗ trợ")
+                .setMessage("Vui lòng liên hệ quầy hỗ trợ UniEats nếu đơn hàng hoặc tài khoản gặp vấn đề.")
+                .setPositiveButton("Đã hiểu", null)
                 .show();
     }
 
@@ -779,7 +792,7 @@ public class StudentProfileFragment extends Fragment {
         rvReviews.setAdapter(reviewAdapter);
 
         tvReviewsEmpty.setVisibility(View.VISIBLE);
-        tvReviewsEmpty.setText("Dang tai danh gia...");
+        tvReviewsEmpty.setText("Đang tải đánh giá...");
         rvReviews.setVisibility(View.GONE);
 
         reviewsDialog.setOnDismissListener(dialog -> {
@@ -803,7 +816,7 @@ public class StudentProfileFragment extends Fragment {
         boolean empty = reviews == null || reviews.isEmpty();
         reviewAdapter.submitList(reviews);
         tvReviewsEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
-        tvReviewsEmpty.setText(reviews == null ? "Khong tai duoc danh gia" : "Ban chua co danh gia nao");
+        tvReviewsEmpty.setText(reviews == null ? "Không tải được đánh giá" : "Bạn chưa có đánh giá nào");
 
         View rvReviews = reviewsDialog.findViewById(R.id.rvStudentReviews);
         if (rvReviews != null) {
@@ -867,7 +880,7 @@ public class StudentProfileFragment extends Fragment {
         if (!isBlank(selectedAvatarUrl) && getContext() != null) {
             editAvatarPreview.setPadding(0, 0, 0, 0);
             Glide.with(this)
-                    .load(selectedAvatarUrl)
+                    .load(ImageUrlUtils.resolveImageUrl(selectedAvatarUrl))
                     .placeholder(R.drawable.ic_profile)
                     .error(R.drawable.ic_profile)
                     .into(editAvatarPreview);
@@ -943,10 +956,10 @@ public class StudentProfileFragment extends Fragment {
         }
 
         new AlertDialog.Builder(getContext())
-                .setTitle("Dang xuat")
-                .setMessage("Ban muon dang xuat khoi tai khoan nay?")
-                .setNegativeButton("Huy", null)
-                .setPositiveButton("Dang xuat", (dialog, which) -> logout())
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn muốn đăng xuất khỏi tài khoản này?")
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Đăng xuất", (dialog, which) -> logout())
                 .show();
     }
 
@@ -1000,7 +1013,7 @@ public class StudentProfileFragment extends Fragment {
     }
 
     private String defaultDisplayName(String role) {
-        return "STUDENT".equalsIgnoreCase(role) ? "Sinh vien UniEats" : "Nguoi dung UniEats";
+        return "STUDENT".equalsIgnoreCase(role) ? "Sinh viên UniEats" : "Người dùng UniEats";
     }
 
     private boolean isBlank(String value) {
@@ -1086,13 +1099,13 @@ public class StudentProfileFragment extends Fragment {
 
     private String formatCompactPrice(double price) {
         if (price >= 1_000_000_000D) {
-            return formatOneDecimal(price / 1_000_000_000D) + "Bđ";
+            return formatOneDecimal(price / 1_000_000_000D) + " tỷ đ";
         }
         if (price >= 1_000_000D) {
-            return formatOneDecimal(price / 1_000_000D) + "Mđ";
+            return formatOneDecimal(price / 1_000_000D) + " triệu đ";
         }
         if (price >= 1_000D) {
-            return formatOneDecimal(price / 1_000D) + "Kđ";
+            return formatOneDecimal(price / 1_000D) + "k đ";
         }
         return formatPrice(price);
     }

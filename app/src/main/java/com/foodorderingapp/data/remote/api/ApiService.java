@@ -25,7 +25,6 @@ import com.foodorderingapp.model.response.CategoryResponse;
 import com.foodorderingapp.model.response.ChatMessageResponse;
 import com.foodorderingapp.model.response.ChatRoomResponse;
 import com.foodorderingapp.model.response.FoodResponse;
-import com.foodorderingapp.model.response.DropOffPointResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
@@ -238,9 +237,6 @@ public interface ApiService {
     @GET("buildings")
     Call<List<BuildingResponse>> getBuildings();
 
-    @GET("buildings/{buildingId}/drop-off-points")
-    Call<List<DropOffPointResponse>> getDropOffPoints(@Path("buildingId") String buildingId);
-
     @GET("users/me")
     Call<UserProfileResponse> getMyProfile();
 
@@ -282,6 +278,12 @@ public interface ApiService {
 
     @GET("orders/history")
     Call<List<OrderResponse>> getOrderHistory();
+
+    @PATCH("orders/{orderId}/cancel")
+    Call<OrderResponse> cancelPendingOrder(
+            @Path("orderId") String orderId,
+            @Body UpdateStatusRequest request
+    );
 
     @GET("orders/available-for-delivery")
     Call<List<OrderResponse>> getAvailableOrdersForDelivery();
@@ -389,7 +391,10 @@ public interface ApiService {
     );
 
     @PATCH("admin/users/{userId}/lock")
-    Call<Void> toggleAdminUserLock(@Path("userId") String userId);
+    Call<Void> toggleAdminUserLock(
+            @Path("userId") String userId,
+            @Body Map<String, Boolean> body
+    );
 
     /**
      * Gửi FCM Token lên Backend mỗi khi người dùng Mở app (hoặc Vừa Đăng Nhập xong)

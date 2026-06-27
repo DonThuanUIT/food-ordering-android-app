@@ -86,7 +86,7 @@ public class AdminApprovalsFragment extends Fragment {
                 loadSelectedStatus(true);
                 viewModel.loadOverview();
             } else {
-                ToastUtils.error(requireContext(), "Khong the cap nhat trang thai cua hang");
+                ToastUtils.error(requireContext(), "Không thể cập nhật trạng thái cửa hàng");
             }
             pendingActionStatus = null;
             viewModel.clearShopStatusResult();
@@ -146,7 +146,7 @@ public class AdminApprovalsFragment extends Fragment {
                 loadedShopCount = 0;
                 adapter.submitList(null);
             }
-            ToastUtils.error(requireContext(), "Khong tai duoc danh sach cua hang");
+            ToastUtils.error(requireContext(), "Không tải được danh sách cửa hàng");
             updateLoadMoreButton();
             return;
         }
@@ -163,9 +163,9 @@ public class AdminApprovalsFragment extends Fragment {
 
         long total = page.getTotalElements();
         isLastPage = page.isLast() || loadedShopCount >= total;
-        tvPendingCount.setText(total + " shop");
+        tvPendingCount.setText(total + " cửa hàng");
         tvEmpty.setVisibility(loadedShopCount == 0 ? View.VISIBLE : View.GONE);
-        tvEmpty.setText("Khong co cua hang " + statusLabel(selectedStatus).toLowerCase());
+        tvEmpty.setText("Không có cửa hàng " + statusLabel(selectedStatus).toLowerCase());
         updateLoadMoreButton();
     }
 
@@ -176,7 +176,7 @@ public class AdminApprovalsFragment extends Fragment {
         boolean hasMore = loadedShopCount > 0 && !isLastPage;
         btnLoadMore.setVisibility(hasMore ? View.VISIBLE : View.GONE);
         btnLoadMore.setEnabled(!isLoading);
-        btnLoadMore.setText(isLoading ? "Dang tai..." : "Tai them");
+        btnLoadMore.setText(isLoading ? "Đang tải..." : "Tải thêm");
     }
 
     private void showShopDetailSheet(ShopResponse shop) {
@@ -192,14 +192,22 @@ public class AdminApprovalsFragment extends Fragment {
         TextView tvShopName = content.findViewById(R.id.tvDialogShopName);
         TextView tvShopOwner = content.findViewById(R.id.tvDialogShopOwner);
         TextView tvShopStatus = content.findViewById(R.id.tvDialogShopStatus);
+        TextView tvShopAddress = content.findViewById(R.id.tvDialogShopAddress);
+        TextView tvShopContact = content.findViewById(R.id.tvDialogShopContact);
+        TextView tvShopTime = content.findViewById(R.id.tvDialogShopTime);
+        TextView tvShopBank = content.findViewById(R.id.tvDialogShopBank);
         View closeButton = content.findViewById(R.id.btnCloseAdminShopDetail);
         MaterialButton primaryButton = content.findViewById(R.id.btnApproveShop);
         MaterialButton secondaryButton = content.findViewById(R.id.btnRejectShop);
 
-        tvShopName.setText(nullToDefault(shop.getName(), "Chua co ten quan"));
-        tvShopOwner.setText("Lien he: " + nullToDefault(firstNonBlank(
-                shop.getPhone(), shop.getEmail(), shop.getAddress()), "Chua cap nhat"));
+        tvShopName.setText(nullToDefault(shop.getName(), "Chưa có tên quán"));
+        tvShopOwner.setText("Liên hệ: " + nullToDefault(firstNonBlank(
+                shop.getPhone(), shop.getEmail(), shop.getAddress()), "Chưa cập nhật"));
         tvShopStatus.setText(nullToDefault(shop.getStatus(), "PENDING"));
+        tvShopAddress.setText("Địa chỉ: " + nullToDefault(shop.getAddress(), "Chưa cập nhật"));
+        tvShopContact.setText("Liên hệ: " + nullToDefault(firstNonBlank(shop.getPhone(), shop.getEmail()), "Chưa cập nhật"));
+        tvShopTime.setText("Giờ mở cửa: " + formatTimeRange(shop.getOpenTime(), shop.getCloseTime()));
+        tvShopBank.setText("Ngân hàng: " + formatBankInfo(shop));
 
         closeButton.setOnClickListener(v -> dialog.dismiss());
         configureShopActions(dialog, shop, primaryButton, secondaryButton);
@@ -212,17 +220,17 @@ public class AdminApprovalsFragment extends Fragment {
                                       MaterialButton secondaryButton) {
         String status = shop.getStatus() == null ? "PENDING" : shop.getStatus().toUpperCase();
         if ("APPROVED".equals(status)) {
-            bindAction(primaryButton, "Tam khoa", "BANNED", dialog, shop);
-            bindAction(secondaryButton, "Tu choi", "REJECTED", dialog, shop);
+            bindAction(primaryButton, "Tạm khóa", "BANNED", dialog, shop);
+            bindAction(secondaryButton, "Từ chối", "REJECTED", dialog, shop);
         } else if ("REJECTED".equals(status)) {
-            bindAction(primaryButton, "Duyet lai", "APPROVED", dialog, shop);
-            bindAction(secondaryButton, "Tam khoa", "BANNED", dialog, shop);
+            bindAction(primaryButton, "Duyệt lại", "APPROVED", dialog, shop);
+            bindAction(secondaryButton, "Tạm khóa", "BANNED", dialog, shop);
         } else if ("BANNED".equals(status)) {
-            bindAction(primaryButton, "Mo khoa", "APPROVED", dialog, shop);
+            bindAction(primaryButton, "Mở khóa", "APPROVED", dialog, shop);
             secondaryButton.setVisibility(View.GONE);
         } else {
-            bindAction(primaryButton, "Phe duyet", "APPROVED", dialog, shop);
-            bindAction(secondaryButton, "Tu choi", "REJECTED", dialog, shop);
+            bindAction(primaryButton, "Phê duyệt", "APPROVED", dialog, shop);
+            bindAction(secondaryButton, "Từ chối", "REJECTED", dialog, shop);
         }
     }
 
@@ -259,28 +267,28 @@ public class AdminApprovalsFragment extends Fragment {
 
     private String successMessage() {
         if ("APPROVED".equals(pendingActionStatus)) {
-            return "Da phe duyet cua hang";
+            return "Đã phê duyệt cửa hàng";
         }
         if ("REJECTED".equals(pendingActionStatus)) {
-            return "Da tu choi cua hang";
+            return "Đã từ chối cửa hàng";
         }
         if ("BANNED".equals(pendingActionStatus)) {
-            return "Da khoa cua hang";
+            return "Đã khóa cửa hàng";
         }
-        return "Da cap nhat trang thai cua hang";
+        return "Đã cập nhật trạng thái cửa hàng";
     }
 
     private String statusLabel(String status) {
         if ("APPROVED".equals(status)) {
-            return "Da duyet";
+            return "Đã duyệt";
         }
         if ("REJECTED".equals(status)) {
-            return "Tu choi";
+            return "Từ chối";
         }
         if ("BANNED".equals(status)) {
-            return "Da khoa";
+            return "Đã khóa";
         }
-        return "Cho duyet";
+        return "Chờ duyệt";
     }
 
     private String firstNonBlank(String... values) {
@@ -294,6 +302,43 @@ public class AdminApprovalsFragment extends Fragment {
 
     private String nullToDefault(String value, String defaultValue) {
         return value == null || value.trim().isEmpty() ? defaultValue : value;
+    }
+
+    private String formatTimeRange(String openTime, String closeTime) {
+        if ((openTime == null || openTime.trim().isEmpty())
+                && (closeTime == null || closeTime.trim().isEmpty())) {
+            return "Chưa cập nhật";
+        }
+        return nullToDefault(openTime, "--:--") + " - " + nullToDefault(closeTime, "--:--");
+    }
+
+    private String formatBankInfo(ShopResponse shop) {
+        String bankName = shop.getBankName();
+        String accountNumber = shop.getBankAccountNumber();
+        String accountOwner = shop.getBankAccountOwner();
+        if ((bankName == null || bankName.trim().isEmpty())
+                && (accountNumber == null || accountNumber.trim().isEmpty())
+                && (accountOwner == null || accountOwner.trim().isEmpty())) {
+            return "Chưa cập nhật";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        if (bankName != null && !bankName.trim().isEmpty()) {
+            builder.append(bankName.trim());
+        }
+        if (accountNumber != null && !accountNumber.trim().isEmpty()) {
+            if (builder.length() > 0) {
+                builder.append(" - ");
+            }
+            builder.append(accountNumber.trim());
+        }
+        if (accountOwner != null && !accountOwner.trim().isEmpty()) {
+            if (builder.length() > 0) {
+                builder.append(" - ");
+            }
+            builder.append(accountOwner.trim());
+        }
+        return builder.toString();
     }
 
     private int dp(int value) {

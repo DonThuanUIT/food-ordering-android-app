@@ -57,7 +57,7 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
         holder.tvShopName.setText(nullToDefault(order.getShopName(), "Quán ăn"));
         holder.tvOrderNumber.setText("Đơn hàng #" + shortOrderId(order.getId()));
         holder.tvCustomer.setText("Khách: " + nullToDefault(order.getCustomerName(), "N/A") + " - " + nullToDefault(order.getCustomerPhone(), "N/A"));
-        holder.tvLocation.setText(nullToDefault(order.getBuilding(), "") + " - " + nullToDefault(order.getDropOff(), ""));
+        holder.tvLocation.setText("Tòa nhận: " + nullToDefault(order.getBuilding(), "Chưa chọn"));
         holder.tvSummaryItems.setText(formatSummaryItems(order.getDetails()));
         holder.tvTotal.setText(formatPrice(order.getTotalPrice()));
         

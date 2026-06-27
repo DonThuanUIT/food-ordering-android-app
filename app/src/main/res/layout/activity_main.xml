@@ -35,9 +35,9 @@
                     android:layout_height="28dp"
                     android:layout_centerVertical="true"
                     android:clickable="true"
-                    android:contentDescription="Mở menu nhanh"
+                    android:contentDescription="Mở tin nhắn"
                     android:focusable="true"
-                    android:src="@drawable/ic_menu_3_stripes"
+                    android:src="@drawable/ic_contact"
                     app:tint="@android:color/white" />
 
                 <TextView

@@ -71,7 +71,6 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
     private String buildingName;
     private double buildingLat;
     private double buildingLng;
-    private String dropOff;
     private String orderStatus;
 
     private LocationManager locationManager;
@@ -123,7 +122,6 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         buildingName = getIntent().getStringExtra("BUILDING_NAME");
         buildingLat = getIntent().getDoubleExtra("BUILDING_LATITUDE", 0.0);
         buildingLng = getIntent().getDoubleExtra("BUILDING_LONGITUDE", 0.0);
-        dropOff = getIntent().getStringExtra("DROP_OFF");
         orderStatus = getIntent().getStringExtra("ORDER_STATUS");
 
         bindViews();
@@ -149,7 +147,7 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         tvShopName.setText("Quán: " + (shopName != null ? shopName : "--"));
         tvShopAddress.setText(shopAddress != null ? shopAddress : "Địa chỉ lấy hàng");
         tvCustomerName.setText("Khách: " + (customerName != null ? customerName : "--"));
-        tvDeliveryBuilding.setText("Giao đến: " + (buildingName != null ? buildingName : "--") + " (" + (dropOff != null ? dropOff : "") + ")");
+        tvDeliveryBuilding.setText("Giao đến tòa: " + (buildingName != null ? buildingName : "--"));
 
         updateButtonState();
 

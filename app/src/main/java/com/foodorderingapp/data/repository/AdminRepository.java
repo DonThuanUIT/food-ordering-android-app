@@ -101,8 +101,11 @@ public class AdminRepository {
                 });
     }
 
-    public void toggleUserLock(String userId, MutableLiveData<Boolean> liveData) {
-        ApiClient.getApiService().toggleAdminUserLock(userId).enqueue(new Callback<Void>() {
+    public void updateUserLock(String userId, boolean locked, MutableLiveData<Boolean> liveData) {
+        Map<String, Boolean> body = new HashMap<>();
+        body.put("locked", locked);
+
+        ApiClient.getApiService().toggleAdminUserLock(userId, body).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 liveData.postValue(response.isSuccessful());
