@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="9dp"
     android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="#FFFFFF"
+    app:cardBackgroundColor="@color/vendor_dark_card"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp">
 
@@ -27,7 +27,7 @@
                 android:id="@+id/ivMenuFoodImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#F3F4F6"
+                android:background="@color/vendor_dark_bg"
                 android:scaleType="centerCrop"
                 android:src="@drawable/logo_food" />
 
@@ -64,7 +64,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Cơm Tấm Sườn Nướng"
-                android:textColor="#05070B"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -76,7 +76,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Cơm tấm dẻo, sườn nướng mỡ hành đậm vị."
-                android:textColor="#5B3A2E"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="12sp" />
 
             <TextView
@@ -98,7 +98,7 @@
                 android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="35.000đ"
-                android:textColor="#05070B"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -107,7 +107,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#8A7D79"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="10sp"
                 android:ellipsize="end"
                 android:maxLines="1"

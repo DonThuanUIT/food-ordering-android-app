@@ -60,7 +60,8 @@ public class ShopMenuTabAdapter extends RecyclerView.Adapter<ShopMenuTabAdapter.
 
         String name = nullToDefault(category.getName(), "Danh mục");
         holder.tvTabName.setText(CategoryIconHelper.getEmojiForDisplay(name));
-        holder.tvTabName.setTextColor(selected ? 0xFFFFFFFF : 0xFF563528);
+        int unselectedColor = androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.vendor_dark_text_secondary);
+        holder.tvTabName.setTextColor(selected ? 0xFFFFFFFF : unselectedColor);
         holder.tvTabName.setBackgroundResource(selected
                 ? R.drawable.bg_shop_menu_tab_selected
                 : R.drawable.bg_shop_menu_tab_unselected);

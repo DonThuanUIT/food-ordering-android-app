@@ -16,6 +16,6 @@
         android:paddingEnd="16dp"
         android:singleLine="true"
         android:text="Bán chạy"
-        android:textColor="#563528"
+        android:textColor="@color/vendor_dark_text_secondary"
         android:textSize="19sp" />
 </FrameLayout>

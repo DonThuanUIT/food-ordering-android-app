@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F7FB"
+    android:background="@color/vendor_dark_bg"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -66,7 +66,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 app:strokeWidth="0dp">
@@ -81,7 +81,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Đơn hàng của bạn"
-                        android:textColor="#7D8494"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -91,7 +91,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Đang tải quán..."
-                        android:textColor="#1A1D26"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -108,7 +108,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="0 món"
-                            android:textColor="#5B6370"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="15sp" />
 
                         <TextView
@@ -116,7 +116,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0đ"
-                            android:textColor="#1A1D26"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="19sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -127,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
                 app:strokeWidth="0dp">
@@ -142,7 +142,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Chọn thông tin nhận hàng"
-                        android:textColor="#1A1D26"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -151,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Chọn tòa bạn muốn nhận món"
-                        android:textColor="#7D8494"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="14sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -160,15 +160,15 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="18dp"
                         android:hint="Tòa nhận"
-                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxBackgroundColor="@color/vendor_dark_card"
                         app:boxBackgroundMode="outline"
                         app:boxCornerRadiusBottomEnd="14dp"
                         app:boxCornerRadiusBottomStart="14dp"
                         app:boxCornerRadiusTopEnd="14dp"
                         app:boxCornerRadiusTopStart="14dp"
-                        app:boxStrokeColor="#D9DEE8"
+                        app:boxStrokeColor="@color/vendor_dark_border"
                         app:endIconMode="dropdown_menu"
-                        app:hintTextColor="#7D8494">
+                        app:hintTextColor="@color/vendor_dark_text_secondary">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/etCheckoutBuilding"
@@ -177,7 +177,7 @@
                             android:inputType="none"
                             android:minHeight="56dp"
                             android:singleLine="true"
-                            android:textColor="#1A1D26"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -186,7 +186,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
                         android:text="Mã giảm giá (tùy chọn)"
-                        android:textColor="#1A1D26"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -202,14 +202,14 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:hint="Nhập mã giảm giá"
-                            app:boxBackgroundColor="#FFFFFF"
+                            app:boxBackgroundColor="@color/vendor_dark_card"
                             app:boxBackgroundMode="outline"
                             app:boxCornerRadiusBottomEnd="14dp"
                             app:boxCornerRadiusBottomStart="14dp"
                             app:boxCornerRadiusTopEnd="14dp"
                             app:boxCornerRadiusTopStart="14dp"
-                            app:boxStrokeColor="#D9DEE8"
-                            app:hintTextColor="#7D8494">
+                            app:boxStrokeColor="@color/vendor_dark_border"
+                            app:hintTextColor="@color/vendor_dark_text_secondary">
 
                             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                                 android:id="@+id/etCheckoutVoucher"
@@ -219,7 +219,7 @@
                                 android:inputType="textCapCharacters"
                                 android:minHeight="56dp"
                                 android:singleLine="true"
-                                android:textColor="#1A1D26"
+                                android:textColor="@color/vendor_dark_text_primary"
                                 android:textSize="15sp" />
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -232,7 +232,7 @@
                             android:textAllCaps="false"
                             android:textColor="#FF7118"
                             android:textStyle="bold"
-                            app:backgroundTint="#FFF3EC"
+                            app:backgroundTint="@color/vendor_dark_bg"
                             app:cornerRadius="14dp"
                             app:elevation="0dp" />
                     </LinearLayout>
@@ -242,7 +242,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:background="#FFF4E6"
+                        android:background="@color/vendor_dark_bg"
                         android:orientation="vertical"
                         android:padding="12dp"
                         android:visibility="gone">
@@ -251,7 +251,7 @@
                             android:id="@+id/tvCheckoutVoucherApplied"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="#1A1D26"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 

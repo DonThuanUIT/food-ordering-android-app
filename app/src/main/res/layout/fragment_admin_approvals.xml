@@ -147,7 +147,7 @@
                 android:gravity="center"
                 android:paddingVertical="28dp"
                 android:text="Không có cửa hàng chờ duyệt"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="15sp"
                 android:visibility="gone" />
 
@@ -156,14 +156,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
                 android:layout_marginTop="14dp"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="@color/vendor_dark_card"
                 android:text="Tải thêm"
                 android:textAllCaps="false"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="14sp"
                 android:visibility="gone"
                 app:cornerRadius="14dp"
-                app:strokeColor="@color/profile_divider"
+                app:strokeColor="@color/vendor_dark_border"
                 app:strokeWidth="1dp" />
         </LinearLayout>
     </LinearLayout>
