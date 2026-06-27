@@ -340,8 +340,6 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
             intent.putExtra("SHIPPER_NAME", order.getShipperName());
             intent.putExtra("SHIPPER_PHONE", order.getShipperPhone());
             startActivity(intent);
-        } else {
-            updateOrderStatusOnServer(order, "DELIVERING", null);
         }
     }
 
