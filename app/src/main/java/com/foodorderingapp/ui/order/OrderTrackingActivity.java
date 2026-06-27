@@ -184,22 +184,14 @@ public class OrderTrackingActivity extends AppCompatActivity {
         // Draw initial route lines
         if (shopLat != 0.0 && buildingLat != 0.0) {
             routeLineShop = new Polyline();
-            List<GeoPoint> ptsShop = new ArrayList<>();
-            ptsShop.add(new GeoPoint(shopLat, shopLng));
-            routeLineShop.setPoints(ptsShop);
-            routeLineShop.setColor(Color.parseColor("#40F46E26")); // Muted orange
+            routeLineShop.setColor(Color.parseColor("#F46E26")); // Orange
             routeLineShop.setWidth(8f);
             mapView.getOverlays().add(routeLineShop);
 
             routeLineBuilding = new Polyline();
-            List<GeoPoint> ptsBuilding = new ArrayList<>();
-            ptsBuilding.add(new GeoPoint(shopLat, shopLng));
-            ptsBuilding.add(new GeoPoint(buildingLat, buildingLng));
-            routeLineBuilding.setPoints(ptsBuilding);
-            routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Muted green
+            routeLineBuilding.setColor(Color.parseColor("#10B981")); // Emerald Green
             routeLineBuilding.setWidth(8f);
             mapView.getOverlays().add(routeLineBuilding);
-            fetchStaticRoute();
         }
 
         // Center map
@@ -393,35 +385,21 @@ public class OrderTrackingActivity extends AppCompatActivity {
                         }
 
                         runOnUiThread(() -> {
-                             if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
-                                 routeLineShop.setPoints(routePoints);
-                                 routeLineShop.setColor(Color.parseColor("#F46E26")); // Active
-                                 
-                                 if (staticShopToBuildingRoutePoints != null && !staticShopToBuildingRoutePoints.isEmpty()) {
-                                     routeLineBuilding.setPoints(staticShopToBuildingRoutePoints);
-                                 } else {
-                                     List<GeoPoint> shopToBuilding = new ArrayList<>();
-                                     if (shopLat != 0.0 && buildingLat != 0.0) {
-                                         shopToBuilding.add(new GeoPoint(shopLat, shopLng));
-                                         shopToBuilding.add(new GeoPoint(buildingLat, buildingLng));
-                                     }
-                                     routeLineBuilding.setPoints(shopToBuilding);
-                                 }
-                                 routeLineBuilding.setColor(Color.parseColor("#4010B981")); // Faded green
-                             } else {
-                                 routeLineBuilding.setPoints(routePoints);
-                                 routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active
-                                 
-                                 List<GeoPoint> shopToShipper = new ArrayList<>();
-                                 if (shopLat != 0.0 && lastFetchedShipperLocation != null) {
-                                     shopToShipper.add(new GeoPoint(shopLat, shopLng));
-                                     shopToShipper.add(lastFetchedShipperLocation);
-                                 }
-                                 routeLineShop.setPoints(shopToShipper);
-                                 routeLineShop.setColor(Color.parseColor("#40718096")); // Faded grey
-                             }
-                             mapView.invalidate();
-                         });
+                            if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                                routeLineShop.setPoints(routePoints);
+                                routeLineShop.setColor(Color.parseColor("#F46E26")); // Active Orange
+                                
+                                // Clear delivery line in CONFIRMED
+                                routeLineBuilding.setPoints(new ArrayList<>());
+                            } else {
+                                routeLineBuilding.setPoints(routePoints);
+                                routeLineBuilding.setColor(Color.parseColor("#10B981")); // Active Emerald Green
+                                
+                                // Clear shop line in DELIVERING
+                                routeLineShop.setPoints(new ArrayList<>());
+                            }
+                            mapView.invalidate();
+                        });
                     }
                 }
             } catch (Exception e) {
@@ -430,51 +408,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void fetchStaticRoute() {
-        if (shopLat == 0.0 || buildingLat == 0.0) return;
-        new Thread(() -> {
-            try {
-                String urlStr = "https://router.project-osrm.org/route/v1/driving/" +
-                        shopLng + "," + shopLat + ";" + buildingLng + "," + buildingLat +
-                        "?overview=full&geometries=geojson";
-                java.net.URL url = new java.net.URL(urlStr);
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("User-Agent", getPackageName());
-                if (conn.getResponseCode() == 200) {
-                    java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
-                    }
-                    in.close();
-                    org.json.JSONObject jsonObj = new org.json.JSONObject(response.toString());
-                    org.json.JSONArray routesArray = jsonObj.getJSONArray("routes");
-                    if (routesArray.length() > 0) {
-                        org.json.JSONObject routeObj = routesArray.getJSONObject(0);
-                        org.json.JSONObject geometryObj = routeObj.getJSONObject("geometry");
-                        org.json.JSONArray coordinatesArray = geometryObj.getJSONArray("coordinates");
-                        List<GeoPoint> pts = new ArrayList<>();
-                        for (int i = 0; i < coordinatesArray.length(); i++) {
-                            org.json.JSONArray coord = coordinatesArray.getJSONArray(i);
-                            pts.add(new GeoPoint(coord.getDouble(1), coord.getDouble(0)));
-                        }
-                        staticShopToBuildingRoutePoints = pts;
-                        runOnUiThread(() -> {
-                            if ("CONFIRMED".equalsIgnoreCase(orderStatus) && routeLineBuilding != null) {
-                                routeLineBuilding.setPoints(staticShopToBuildingRoutePoints);
-                                routeLineBuilding.setColor(Color.parseColor("#4010B981"));
-                                mapView.invalidate();
-                            }
-                        });
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to fetch static route: ", e);
-            }
-        }).start();
-    }
+
 
     @Override
     protected void onResume() {
