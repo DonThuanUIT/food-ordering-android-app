@@ -255,12 +255,15 @@ public class ChatActivity extends AppCompatActivity {
         ApiClient.getApiService().getChatHistory(roomId).enqueue(new Callback<List<ChatMessageResponse>>() {
             @Override
             public void onResponse(Call<List<ChatMessageResponse>> call, Response<List<ChatMessageResponse>> response) {
-                if (!response.isSuccessful() || response.body() == null) {
+                if (!response.isSuccessful()) {
                     logApiError("load chat history", response, scrollToBottom);
                     return;
                 }
 
                 List<ChatMessageResponse> messages = response.body();
+                if (messages == null) {
+                    messages = new java.util.ArrayList<>();
+                }
                 adapter.submitList(messages);
                 showEmpty(messages.isEmpty());
 

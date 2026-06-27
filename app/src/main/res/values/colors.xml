@@ -54,6 +54,7 @@
     <color name="bg_role_vendor_color">#D4DCE8</color>
     <color name="bg_role_student_color">#E6E8FF</color>
     <color name="admin_profile_accent">#B24C08</color>
+    <color name="admin_header_bg">#B24C08</color>
     <color name="profile_header_dark">#0D1033</color>
     <color name="profile_spending_bg">#FFFFFF</color>
     <color name="profile_spending_surface">#F8FFFB</color>

@@ -26,4 +26,5 @@
     <color name="admin_profile_accent">#FF7A21</color>
     <color name="bg_role_vendor_color">#1E293B</color>
     <color name="bg_role_student_color">#1E1B4B</color>
+    <color name="admin_header_bg">#1E1E1E</color>
 </resources>

@@ -179,9 +179,94 @@ public class MainActivity extends AppCompatActivity {
                 ivProfile.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
                 ivProfile.setBackground(null);
             }
+            ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+            if (ivThemeToggle != null) {
+                ivThemeToggle.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFFFFF")));
+            }
             if (getWindow() != null) {
                 getWindow().setStatusBarColor(Color.parseColor("#1B110F"));
                 getWindow().getDecorView().setSystemUiVisibility(0);
+            }
+        } else if ("ADMIN".equalsIgnoreCase(userRole)) {
+            int headerBg = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_bg);
+            int headerTextIcon = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_text_icon);
+            
+            if (findViewById(R.id.appBarLayout) != null) {
+                findViewById(R.id.appBarLayout).setBackgroundColor(headerBg);
+            }
+            if (findViewById(R.id.toolbar) != null) {
+                findViewById(R.id.toolbar).setBackgroundColor(headerBg);
+            }
+            if (bottomNav != null) {
+                bottomNav.setBackgroundColor(headerBg);
+            }
+            if (tvAppTitle != null) {
+                tvAppTitle.setTextColor(headerTextIcon);
+            }
+            ImageView ivMenu = findViewById(R.id.ivMenu);
+            if (ivMenu != null) {
+                ivMenu.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            ImageView ivProfile = findViewById(R.id.ivProfile);
+            if (ivProfile != null) {
+                ivProfile.setImageResource(R.drawable.ic_profile);
+                ivProfile.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+                ivProfile.setBackground(null);
+            }
+            ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+            if (ivThemeToggle != null) {
+                ivThemeToggle.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            if (getWindow() != null) {
+                getWindow().setStatusBarColor(headerBg);
+                if (androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode() == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES) {
+                    getWindow().getDecorView().setSystemUiVisibility(0);
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                }
+            }
+        } else {
+            // STUDENT Header Setup (Uses Vendor/Orange theme colors)
+            int headerBg = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_bg);
+            int headerTextIcon = androidx.core.content.ContextCompat.getColor(this, R.color.vendor_header_text_icon);
+            
+            if (findViewById(R.id.appBarLayout) != null) {
+                findViewById(R.id.appBarLayout).setBackgroundColor(headerBg);
+            }
+            if (findViewById(R.id.toolbar) != null) {
+                findViewById(R.id.toolbar).setBackgroundColor(headerBg);
+            }
+            if (bottomNav != null) {
+                bottomNav.setBackgroundColor(headerBg);
+            }
+            if (tvAppTitle != null) {
+                tvAppTitle.setTextColor(headerTextIcon);
+            }
+            ImageView ivMenu = findViewById(R.id.ivMenu);
+            if (ivMenu != null) {
+                ivMenu.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            ImageView ivProfile = findViewById(R.id.ivProfile);
+            if (ivProfile != null) {
+                ivProfile.setImageResource(R.drawable.ic_profile);
+                ivProfile.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+                ivProfile.setBackground(null);
+            }
+            ImageView ivThemeToggle = findViewById(R.id.ivThemeToggle);
+            if (ivThemeToggle != null) {
+                ivThemeToggle.setImageTintList(ColorStateList.valueOf(headerTextIcon));
+            }
+            if (getWindow() != null) {
+                getWindow().setStatusBarColor(headerBg);
+                if (androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode() == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES) {
+                    getWindow().getDecorView().setSystemUiVisibility(0);
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                }
             }
         }
 
