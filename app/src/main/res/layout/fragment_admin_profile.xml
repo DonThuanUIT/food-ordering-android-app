@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F6F8"
+    android:background="@color/vendor_dark_bg"
     android:fillViewport="true">
 
     <LinearLayout
@@ -36,7 +36,7 @@
                 android:layout_marginTop="16dp"
                 android:gravity="center"
                 android:text="Quản trị viên UniEats"
-                android:textColor="@color/black"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Thông tin cá nhân"
-                android:textColor="@color/black"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:text="Số điện thoại"
-                android:textColor="#7D6B62"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="13sp" />
 
             <TextView
@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="--"
-                android:textColor="@color/black"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -93,13 +93,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="16dp"
-                android:background="@color/profile_divider" />
+                android:background="@color/vendor_dark_divider" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Email"
-                android:textColor="#7D6B62"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="13sp" />
 
             <TextView
@@ -108,7 +108,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="--"
-                android:textColor="@color/black"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>

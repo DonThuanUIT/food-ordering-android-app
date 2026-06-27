@@ -31,7 +31,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:text="Xin chào!"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="26sp"
                     android:textStyle="bold" />
 
@@ -151,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:text="Món Ngon"
                         android:textSize="17sp"
-                        android:textColor="#555555"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textStyle="bold"
                         android:paddingBottom="10dp"/>
                     <View
@@ -167,7 +167,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="0dp"
-                android:background="#F0F0F0" />
+                android:background="@color/vendor_dark_divider" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvMainHomeList"
@@ -185,7 +185,7 @@
                 android:gravity="center"
                 android:padding="32dp"
                 android:text="Chưa có món ngon nào"
-                android:textColor="#7D8494"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="16sp"
                 android:visibility="gone" />
         </LinearLayout>
