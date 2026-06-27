@@ -384,11 +384,14 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
             waypoints.add(shipperPt);
         }
         
-        if (shopLat != 0.0 && shopLng != 0.0) {
-            waypoints.add(new GeoPoint(shopLat, shopLng));
-        }
-        if (buildingLat != 0.0 && buildingLng != 0.0) {
-            waypoints.add(new GeoPoint(buildingLat, buildingLng));
+        if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+            if (shopLat != 0.0 && shopLng != 0.0) {
+                waypoints.add(new GeoPoint(shopLat, shopLng));
+            }
+        } else {
+            if (buildingLat != 0.0 && buildingLng != 0.0) {
+                waypoints.add(new GeoPoint(buildingLat, buildingLng));
+            }
         }
         
         if (waypoints.size() >= 2) {

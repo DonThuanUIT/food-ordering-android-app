@@ -282,8 +282,15 @@ public class OrderTrackingActivity extends AppCompatActivity {
         if (routeLine != null) {
             List<GeoPoint> pts = new ArrayList<>();
             pts.add(shipperPt);
-            pts.add(new GeoPoint(shopLat, shopLng));
-            pts.add(new GeoPoint(buildingLat, buildingLng));
+            if ("CONFIRMED".equalsIgnoreCase(orderStatus)) {
+                if (shopLat != 0.0 && shopLng != 0.0) {
+                    pts.add(new GeoPoint(shopLat, shopLng));
+                }
+            } else {
+                if (buildingLat != 0.0 && buildingLng != 0.0) {
+                    pts.add(new GeoPoint(buildingLat, buildingLng));
+                }
+            }
             routeLine.setPoints(pts);
             mapView.invalidate();
         }
