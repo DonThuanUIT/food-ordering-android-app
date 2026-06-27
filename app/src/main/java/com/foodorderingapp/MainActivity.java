@@ -29,6 +29,7 @@ import com.foodorderingapp.ui.home.admin.AdminOverviewFragment;
 import com.foodorderingapp.ui.home.admin.AdminProfileFragment;
 import com.foodorderingapp.ui.home.admin.AdminUsersFragment;
 import com.foodorderingapp.ui.home.shipper.ShipperOrdersFragment;
+import com.foodorderingapp.ui.home.shipper.ShipperProfileFragment;
 import com.foodorderingapp.ui.home.student.StudentHomeFragment;
 import com.foodorderingapp.ui.home.student.StudentHistoryFragment;
 import com.foodorderingapp.ui.home.vendor.VendorOrdersFragment;
@@ -354,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (isShipperRole(role)) {
                 switch (position) {
                     case 0: return new ShipperOrdersFragment();
-                    case 1: return new StudentProfileFragment();
+                    case 1: return new ShipperProfileFragment();
                     case 2: return new StudentMessagesFragment();
                 }
             } else {
