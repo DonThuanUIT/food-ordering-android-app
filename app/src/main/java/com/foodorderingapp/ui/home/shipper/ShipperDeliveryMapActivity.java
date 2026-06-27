@@ -170,10 +170,38 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         }
     }
 
+    private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+        float[] results = new float[1];
+        try {
+            Location.distanceBetween(lat1, lng1, lat2, lng2, results);
+            return results[0];
+        } catch (Exception e) {
+            double earthRadius = 6371000; // meters
+            double dLat = Math.toRadians(lat2 - lat1);
+            double dLng = Math.toRadians(lng2 - lng1);
+            double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                       Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                       Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return earthRadius * c;
+        }
+    }
+
     private void handleActionButtonClick() {
         if ("CONFIRMED".equals(orderStatus)) {
             updateOrderStatusOnServer("DELIVERING");
         } else if ("DELIVERING".equals(orderStatus)) {
+            // Safety Check: Shipper must be within 100m of the delivery building
+            if (currentLat != null && currentLng != null && buildingLat != 0.0 && buildingLng != 0.0) {
+                double distance = calculateDistance(currentLat, currentLng, buildingLat, buildingLng);
+                if (distance > 100.0) {
+                    Toast.makeText(this, "⚠️ Bạn phải đến cách điểm giao dưới 100m mới được xác nhận đã giao! (Khoảng cách hiện tại: " + (int) distance + "m)", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            } else if (currentLat == null || currentLng == null) {
+                Toast.makeText(this, "⚠️ Đang xác định vị trí GPS của bạn, vui lòng đợi trong giây lát...", Toast.LENGTH_SHORT).show();
+                return;
+            }
             updateOrderStatusOnServer("COMPLETED");
         }
     }
@@ -226,6 +254,21 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
         };
 
     private void setupMap() {
+        // Try to get last known location immediately for instant route rendering
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (lm != null) {
+                Location lastKnown = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (lastKnown == null) {
+                    lastKnown = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                }
+                if (lastKnown != null) {
+                    currentLat = lastKnown.getLatitude();
+                    currentLng = lastKnown.getLongitude();
+                }
+            }
+        }
+
         mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
         mapView.setBuiltInZoomControls(false);
@@ -254,8 +297,12 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
             mapView.getOverlays().add(buildingMarker);
         }
 
-        // Draw initial route
-        updateRoute();
+        // Draw initial route and shipper marker
+        if (currentLat != null && currentLng != null) {
+            updateShipperMarkerOnMap();
+        } else {
+            updateRoute();
+        }
 
         // Center on Shop
         if (shopLat != 0.0 && shopLng != 0.0) {
