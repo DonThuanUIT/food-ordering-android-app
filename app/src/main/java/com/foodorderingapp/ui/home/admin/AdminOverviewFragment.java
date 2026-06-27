@@ -27,6 +27,7 @@ public class AdminOverviewFragment extends Fragment {
     private TextView tvShopsValue;
     private TextView tvPendingValue;
     private TextView tvRevenueValue;
+    private TextView tvOrdersValue;
     private AdminShopStatusChartView shopStatusChart;
 
     public AdminOverviewFragment() {
@@ -49,6 +50,7 @@ public class AdminOverviewFragment extends Fragment {
         tvShopsValue = view.findViewById(R.id.tvAdminShopsValue);
         tvPendingValue = view.findViewById(R.id.tvAdminPendingValue);
         tvRevenueValue = view.findViewById(R.id.tvAdminRevenueValue);
+        tvOrdersValue = view.findViewById(R.id.tvAdminOrdersValue);
         shopStatusChart = view.findViewById(R.id.adminShopStatusChart);
 
         viewModel.getOverview().observe(getViewLifecycleOwner(), this::bindOverview);
@@ -69,6 +71,7 @@ public class AdminOverviewFragment extends Fragment {
             tvShopsValue.setText("--");
             tvPendingValue.setText("--");
             tvRevenueValue.setText("--");
+            tvOrdersValue.setText("--");
             shopStatusChart.setData(0, 0, 0, 0);
             return;
         }
@@ -76,7 +79,8 @@ public class AdminOverviewFragment extends Fragment {
         tvUsersValue.setText(formatNumber(overview.getTotalUsers()));
         tvShopsValue.setText(formatNumber(overview.getTotalShops()));
         tvPendingValue.setText(formatNumber(overview.getPendingShops()));
-        tvRevenueValue.setText(formatNumber(overview.getApprovedShops()));
+        tvRevenueValue.setText(formatCurrency(overview.getTotalSystemRevenue().doubleValue()));
+        tvOrdersValue.setText(formatNumber(overview.getTotalSystemOrders()));
         shopStatusChart.setData(
                 overview.getPendingShops(),
                 overview.getApprovedShops(),
@@ -87,6 +91,10 @@ public class AdminOverviewFragment extends Fragment {
 
     private String formatNumber(long value) {
         return NumberFormat.getNumberInstance(vietnameseLocale).format(value);
+    }
+
+    private String formatCurrency(double value) {
+        return NumberFormat.getNumberInstance(vietnameseLocale).format(value) + "đ";
     }
 
 }

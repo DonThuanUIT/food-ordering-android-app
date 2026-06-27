@@ -15,6 +15,8 @@ import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.ShopResponse;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,9 +77,11 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         String closeTime = nullToDefault(shop.getCloseTime(), "--:--");
         holder.tvShopTime.setText(openTime + " - " + closeTime);
 
-        boolean isOpening = shop.getIsOpen() != null
+        boolean manuallyOpen = shop.getIsOpen() != null
                 ? shop.getIsOpen()
-                : "OPENING".equalsIgnoreCase(shop.getDisplayStatus());
+                : "OPENING".equalsIgnoreCase(shop.getDisplayStatus())
+                || "OPEN".equalsIgnoreCase(shop.getDisplayStatus());
+        boolean isOpening = manuallyOpen && isWithinOpeningHours(shop.getOpenTime(), shop.getCloseTime());
         if (isOpening) {
             holder.tvShopStatus.setText("Đang mở");
             holder.tvShopStatus.setTextColor(Color.parseColor("#FF7A21"));
@@ -113,6 +117,29 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             return second;
         }
         return null;
+    }
+
+    private boolean isWithinOpeningHours(String openTime, String closeTime) {
+        if (openTime == null || openTime.trim().isEmpty()
+                || closeTime == null || closeTime.trim().isEmpty()) {
+            return false;
+        }
+
+        try {
+            LocalTime open = LocalTime.parse(openTime.trim());
+            LocalTime close = LocalTime.parse(closeTime.trim());
+            LocalTime now = LocalTime.now();
+
+            if (open.equals(close)) {
+                return true;
+            }
+            if (close.isAfter(open)) {
+                return !now.isBefore(open) && !now.isAfter(close);
+            }
+            return !now.isBefore(open) || !now.isAfter(close);
+        } catch (DateTimeParseException exception) {
+            return false;
+        }
     }
 
     private int dp(View view, int value) {

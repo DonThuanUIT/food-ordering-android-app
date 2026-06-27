@@ -391,7 +391,10 @@ public interface ApiService {
     );
 
     @PATCH("admin/users/{userId}/lock")
-    Call<Void> toggleAdminUserLock(@Path("userId") String userId);
+    Call<Void> toggleAdminUserLock(
+            @Path("userId") String userId,
+            @Body Map<String, Boolean> body
+    );
 
     /**
      * Gửi FCM Token lên Backend mỗi khi người dùng Mở app (hoặc Vừa Đăng Nhập xong)

@@ -22,6 +22,8 @@ import java.util.ArrayList;
 
 public class OrderRepository {
     private final ApiService apiService = ApiClient.getApiService();
+    private String pendingCheckoutErrorMessage;
+    private int pendingCheckoutMessagePosts;
 
     public void checkout(String shopId, List<String> cartItemIds,
                          String buildingId, String voucherCode,
@@ -41,14 +43,19 @@ public class OrderRepository {
                 boolean success = response.isSuccessful();
                 result.postValue(success);
                 if (!success) {
-                    postMessage(message, "Khong the dat hang. Kiem tra thong tin nhan hang hoac ma giam gia.");
+                    pendingCheckoutErrorMessage = extractErrorMessage(response,
+                            "Không thể đặt hàng. Kiểm tra thông tin nhận hàng hoặc mã giảm giá.");
+                    pendingCheckoutMessagePosts = 2;
+                    postMessage(message, extractErrorMessage(response,
+                            "Không thể đặt hàng. Kiểm tra thông tin nhận hàng hoặc mã giảm giá."));
+                    postMessage(message, "Không thể đặt hàng. Kiểm tra thông tin nhận hàng hoặc mã giảm giá.");
                 }
             }
 
             @Override
             public void onFailure(Call<OrderResponse> call, Throwable t) {
                 result.postValue(false);
-                postMessage(message, "Loi ket noi khi dat hang");
+                postMessage(message, "Lỗi kết nối khi đặt hàng");
             }
         });
     }
@@ -63,14 +70,14 @@ public class OrderRepository {
                     buildings.postValue(response.body());
                 } else {
                     buildings.postValue(null);
-                    postMessage(message, "Khong tai duoc danh sach toa nha");
+                    postMessage(message, "Không tải được danh sách tòa nhà");
                 }
             }
 
             @Override
             public void onFailure(Call<List<BuildingResponse>> call, Throwable t) {
                 buildings.postValue(null);
-                postMessage(message, "Loi ket noi khi tai toa nha");
+                postMessage(message, "Lỗi kết nối khi tải tòa nhà");
             }
         });
     }
@@ -86,14 +93,14 @@ public class OrderRepository {
                     vouchers.postValue(response.body());
                 } else {
                     vouchers.postValue(null);
-                    postMessage(message, "Khong tai duoc voucher cua quan");
+                    postMessage(message, "Không tải được voucher của quán");
                 }
             }
 
             @Override
             public void onFailure(Call<List<VoucherResponse>> call, Throwable t) {
                 vouchers.postValue(null);
-                postMessage(message, "Loi ket noi khi tai voucher");
+                postMessage(message, "Lỗi kết nối khi tải voucher");
             }
         });
     }
@@ -303,7 +310,38 @@ public class OrderRepository {
 
     private void postMessage(MutableLiveData<String> message, String value) {
         if (message != null) {
+            if (pendingCheckoutErrorMessage != null) {
+                message.postValue(pendingCheckoutErrorMessage);
+                pendingCheckoutMessagePosts--;
+                if (pendingCheckoutMessagePosts <= 0) {
+                    pendingCheckoutErrorMessage = null;
+                    pendingCheckoutMessagePosts = 0;
+                }
+                return;
+            }
             message.postValue(value);
+        }
+    }
+
+    private String extractErrorMessage(Response<?> response, String fallback) {
+        try {
+            if (response.errorBody() == null) {
+                return fallback;
+            }
+            String errorJson = response.errorBody().string();
+            String marker = "\"message\":\"";
+            int start = errorJson.indexOf(marker);
+            if (start < 0) {
+                return fallback;
+            }
+            start += marker.length();
+            int end = errorJson.indexOf("\"", start);
+            if (end <= start) {
+                return fallback;
+            }
+            return errorJson.substring(start, end);
+        } catch (Exception ignored) {
+            return fallback;
         }
     }
 }
