@@ -3,6 +3,7 @@ package com.foodorderingapp.ui.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,9 +11,11 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.CartItemResponse;
 import com.foodorderingapp.model.response.ShopCartResponse;
+import com.foodorderingapp.utils.ImageUrlUtils;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -109,6 +112,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         ShopCartResponse shop = shops.get(position);
 
         holder.tvShopName.setText(shop.getShopName());
+        bindShopLogo(holder, shop.getLogoUrl());
 
         holder.foodAdapter.setOnQuantityChangeListener(quantityChangeListener);
         holder.foodAdapter.setOnDeleteClickListener(deleteClickListener);
@@ -161,7 +165,23 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
 
     private boolean areShopContentsTheSame(ShopCartResponse oldShop, ShopCartResponse newShop) {
         return Objects.equals(oldShop.getShopName(), newShop.getShopName())
+                && Objects.equals(oldShop.getLogoUrl(), newShop.getLogoUrl())
                 && areCartItemsTheSame(oldShop.getItems(), newShop.getItems());
+    }
+
+    private void bindShopLogo(ShopVH holder, String logoUrl) {
+        String resolvedLogoUrl = ImageUrlUtils.resolveImageUrl(logoUrl);
+        if (resolvedLogoUrl == null) {
+            Glide.with(holder.itemView).clear(holder.ivShopLogo);
+            holder.ivShopLogo.setImageResource(R.drawable.logo_food);
+            return;
+        }
+
+        Glide.with(holder.itemView)
+                .load(resolvedLogoUrl)
+                .placeholder(R.drawable.logo_food)
+                .error(R.drawable.logo_food)
+                .into(holder.ivShopLogo);
     }
 
     private boolean areCartItemsTheSame(List<CartItemResponse> oldItems,
@@ -195,6 +215,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         TextView tvShopTotal;
         View btnCheckoutShop;
         View btnDeleteShopCart;
+        ImageView ivShopLogo;
         RecyclerView rvFoods;
         CartFoodAdapter foodAdapter;
 
@@ -205,6 +226,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
             tvShopTotal = itemView.findViewById(R.id.tvShopTotal);
             btnCheckoutShop = itemView.findViewById(R.id.btnCheckoutShop);
             btnDeleteShopCart = itemView.findViewById(R.id.btnDeleteShopCart);
+            ivShopLogo = itemView.findViewById(R.id.ivShopLogo);
             rvFoods = itemView.findViewById(R.id.rvCartFoods);
             foodAdapter = new CartFoodAdapter();
             rvFoods.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
