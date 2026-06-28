@@ -72,6 +72,7 @@ public class ShipperProfileFragment extends Fragment {
     private TextView tvUserName, tvUserPhone, tvUserTag;
     private MaterialSwitch switchActiveStatus;
     private TextView tvActiveStatusText;
+    private com.google.android.material.card.MaterialCardView cardActiveStatus;
     private TextView tvStatOrders, tvStatEarnings, tvStatRating;
     private View btnEditProfile, btnLogout;
 
@@ -127,6 +128,7 @@ public class ShipperProfileFragment extends Fragment {
         tvStatEarnings = view.findViewById(R.id.tvStatEarnings);
         tvStatRating = view.findViewById(R.id.tvStatRating);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        cardActiveStatus = view.findViewById(R.id.cardActiveStatus);
         btnLogout = view.findViewById(R.id.btnLogout);
 
         // Setup Observers
@@ -170,12 +172,17 @@ public class ShipperProfileFragment extends Fragment {
     }
 
     private void updateActiveStatusUI(boolean isOnline) {
+        if (cardActiveStatus == null || getContext() == null) return;
         if (isOnline) {
             tvActiveStatusText.setText("Đang sẵn sàng nhận đơn");
             tvActiveStatusText.setTextColor(ColorStateList.valueOf(android.graphics.Color.parseColor("#10B981")));
+            cardActiveStatus.setCardBackgroundColor(androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.vendor_light_green_soft));
+            cardActiveStatus.setStrokeColor(ColorStateList.valueOf(android.graphics.Color.parseColor("#10B981")));
         } else {
             tvActiveStatusText.setText("Đang nghỉ ngơi");
             tvActiveStatusText.setTextColor(ColorStateList.valueOf(android.graphics.Color.parseColor("#718096")));
+            cardActiveStatus.setCardBackgroundColor(androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.vendor_dark_card));
+            cardActiveStatus.setStrokeColor(androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.vendor_dark_divider));
         }
     }
 
