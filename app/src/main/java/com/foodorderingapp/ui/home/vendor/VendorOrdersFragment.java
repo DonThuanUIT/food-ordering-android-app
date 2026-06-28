@@ -434,6 +434,35 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         showOrderDetailDialog(order);
     }
 
+    @Override
+    public void onDeleteClicked(OrderResponse order) {
+        if (order != null && order.getId() != null) {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận xóa đơn hàng? ⚠️")
+                    .setMessage("Bạn có chắc muốn ẩn đơn hàng này khỏi danh sách hiển thị của quán?")
+                    .setPositiveButton("Xóa", (dialog, which) -> {
+                        ApiClient.getApiService().hideOrderForVendor(order.getId()).enqueue(new Callback<OrderResponse>() {
+                            @Override
+                            public void onResponse(@NonNull Call<OrderResponse> call, @NonNull Response<OrderResponse> response) {
+                                if (response.isSuccessful()) {
+                                    loadOrders(false);
+                                    Toast.makeText(getContext(), "Đã ẩn đơn hàng thành công!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "Không thể ẩn đơn hàng!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<OrderResponse> call, @NonNull Throwable t) {
+                                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("Quay lại", null)
+                    .show();
+        }
+    }
+
     private void showOrderDetailDialog(OrderResponse order) {
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
         View view = getLayoutInflater().inflate(R.layout.dialog_order_detail, null);
