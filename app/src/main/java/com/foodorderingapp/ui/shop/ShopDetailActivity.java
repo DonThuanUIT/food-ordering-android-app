@@ -157,7 +157,11 @@ public class ShopDetailActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        layoutShopRating.setOnClickListener(v -> showReviewsDialog());
+        layoutShopRating.setOnClickListener(v -> {
+            Intent intent = new Intent(this, com.foodorderingapp.ui.review.VendorReviewsActivity.class);
+            intent.putExtra("SHOP_ID", shopId);
+            startActivity(intent);
+        });
     }
 
     private void showInitialShopInfo() {
@@ -236,56 +240,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void showReviewsDialog() {
-        if (shopId == null || shopId.isEmpty()) {
-            return;
-        }
 
-        View content = LayoutInflater.from(this).inflate(R.layout.dialog_student_reviews, null);
-        TextView tvTitle = content.findViewById(R.id.tvReviewsTitle);
-        if (tvTitle != null) {
-            tvTitle.setText("Đánh giá của quán");
-        }
-
-        RecyclerView rvReviews = content.findViewById(R.id.rvStudentReviews);
-        TextView tvEmpty = content.findViewById(R.id.tvStudentReviewsEmpty);
-
-        rvReviews.setLayoutManager(new LinearLayoutManager(this));
-        ReviewAdapter reviewAdapter = new ReviewAdapter();
-        rvReviews.setAdapter(reviewAdapter);
-
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
-        dialog.setContentView(content);
-        dialog.show();
-
-        ApiClient.getApiService().getShopReviews(shopId).enqueue(new Callback<List<ReviewResponse>>() {
-            @Override
-            public void onResponse(Call<List<ReviewResponse>> call, Response<List<ReviewResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<ReviewResponse> list = response.body();
-                    reviewAdapter.submitList(list);
-                    boolean isEmpty = list.isEmpty();
-                    if (tvEmpty != null) {
-                        tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-                        if (isEmpty) {
-                            tvEmpty.setText("Chưa có đánh giá nào");
-                        }
-                    }
-                } else {
-                    if (tvEmpty != null) {
-                        tvEmpty.setText("Không tải được đánh giá");
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ReviewResponse>> call, Throwable t) {
-                if (tvEmpty != null) {
-                    tvEmpty.setText("Lỗi mạng: " + t.getMessage());
-                }
-            }
-        });
-    }
 
     private void bindHeroImage(String coverUrl, String logoUrl) {
         String imageUrl = coverUrl != null && !coverUrl.trim().isEmpty() ? coverUrl : logoUrl;

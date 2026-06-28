@@ -55,6 +55,8 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
         List<String> replies = getRepliesForReview(holder.itemView.getContext(), review.getId());
         holder.layoutRepliesContainer.removeAllViews();
 
+        boolean isVendor = "VENDOR".equalsIgnoreCase(com.foodorderingapp.utils.TokenManager.getInstance().getRole());
+
         if (!replies.isEmpty()) {
             holder.layoutShopReply.setVisibility(View.VISIBLE);
             holder.btnReplyReview.setVisibility(View.GONE);
@@ -67,13 +69,18 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
                 holder.layoutRepliesContainer.setVisibility(View.VISIBLE);
                 holder.btnCollapseReply.setText("Thu gọn");
                 for (int i = 0; i < replies.size(); i++) {
-                    View replyView = createReplyItemView(holder.itemView.getContext(), review.getId(), replies.get(i), i, position);
+                    View replyView = createReplyItemView(holder.itemView.getContext(), review.getId(), replies.get(i), i, position, isVendor);
                     holder.layoutRepliesContainer.addView(replyView);
                 }
             }
         } else {
             holder.layoutShopReply.setVisibility(View.GONE);
-            holder.btnReplyReview.setVisibility(View.VISIBLE);
+            holder.btnReplyReview.setVisibility(isVendor ? View.VISIBLE : View.GONE);
+        }
+
+        if (!isVendor) {
+            holder.btnReplyReview.setVisibility(View.GONE);
+            holder.btnReplyMore.setVisibility(View.GONE);
         }
 
         holder.btnReplyReview.setOnClickListener(v -> {
@@ -180,7 +187,7 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
         editor.apply();
     }
 
-    private View createReplyItemView(android.content.Context context, String reviewId, String replyText, int index, int position) {
+    private View createReplyItemView(android.content.Context context, String reviewId, String replyText, int index, int position, boolean isVendor) {
         android.widget.LinearLayout itemLayout = new android.widget.LinearLayout(context);
         itemLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
         itemLayout.setPadding(0, 8, 0, 8);
@@ -211,43 +218,45 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
         tvIndex.setLayoutParams(indexParams);
         headerLayout.addView(tvIndex);
 
-        TextView btnEdit = new TextView(context);
-        btnEdit.setText("Sửa");
-        btnEdit.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary));
-        btnEdit.setTextSize(11);
-        btnEdit.setPadding(12, 6, 12, 6);
-        btnEdit.setClickable(true);
-        btnEdit.setFocusable(true);
-        btnEdit.setOnClickListener(v -> {
-            showEditReplyDialog(context, reviewId, index, replyText, position);
-        });
-        headerLayout.addView(btnEdit);
+        if (isVendor) {
+            TextView btnEdit = new TextView(context);
+            btnEdit.setText("Sửa");
+            btnEdit.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary));
+            btnEdit.setTextSize(11);
+            btnEdit.setPadding(12, 6, 12, 6);
+            btnEdit.setClickable(true);
+            btnEdit.setFocusable(true);
+            btnEdit.setOnClickListener(v -> {
+                showEditReplyDialog(context, reviewId, index, replyText, position);
+            });
+            headerLayout.addView(btnEdit);
 
-        TextView btnDelete = new TextView(context);
-        btnDelete.setText("Xóa");
-        btnDelete.setTextColor(android.graphics.Color.parseColor("#FF4D4D"));
-        btnDelete.setTextSize(11);
-        btnDelete.setPadding(12, 6, 12, 6);
-        btnDelete.setClickable(true);
-        btnDelete.setFocusable(true);
-        btnDelete.setOnClickListener(v -> {
-            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(context)
-                .setTitle("Xóa phản hồi? ⚠️")
-                .setMessage("Bạn có chắc chắn muốn xóa phản hồi #" + (index + 1) + " này?")
-                .setPositiveButton("Xóa", (d, which) -> {
-                    deleteReplyForReview(context, reviewId, index);
-                    notifyItemChanged(position);
-                    android.widget.Toast.makeText(context, "Đã xóa phản hồi", android.widget.Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Hủy", (d, which) -> d.dismiss())
-                .create();
-            dialog.show();
-            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
-                android.graphics.Color.parseColor("#FF4D4D"));
-            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
-                androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary));
-        });
-        headerLayout.addView(btnDelete);
+            TextView btnDelete = new TextView(context);
+            btnDelete.setText("Xóa");
+            btnDelete.setTextColor(android.graphics.Color.parseColor("#FF4D4D"));
+            btnDelete.setTextSize(11);
+            btnDelete.setPadding(12, 6, 12, 6);
+            btnDelete.setClickable(true);
+            btnDelete.setFocusable(true);
+            btnDelete.setOnClickListener(v -> {
+                androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(context)
+                    .setTitle("Xóa phản hồi? ⚠️")
+                    .setMessage("Bạn có chắc chắn muốn xóa phản hồi #" + (index + 1) + " này?")
+                    .setPositiveButton("Xóa", (d, which) -> {
+                        deleteReplyForReview(context, reviewId, index);
+                        notifyItemChanged(position);
+                        android.widget.Toast.makeText(context, "Đã xóa phản hồi", android.widget.Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("Hủy", (d, which) -> d.dismiss())
+                    .create();
+                dialog.show();
+                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                    android.graphics.Color.parseColor("#FF4D4D"));
+                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                    androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary));
+            });
+            headerLayout.addView(btnDelete);
+        }
 
         itemLayout.addView(headerLayout);
 
