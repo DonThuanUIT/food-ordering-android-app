@@ -78,11 +78,9 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         String closeTime = nullToDefault(shop.getCloseTime(), "--:--");
         holder.tvShopTime.setText(openTime + " - " + closeTime);
 
-        boolean manuallyOpen = shop.getIsOpen() != null
-                ? shop.getIsOpen()
-                : "OPENING".equalsIgnoreCase(shop.getDisplayStatus())
-                || "OPEN".equalsIgnoreCase(shop.getDisplayStatus());
-        boolean isOpening = manuallyOpen && isWithinOpeningHours(shop.getOpenTime(), shop.getCloseTime());
+        boolean isOpening = shop.getCurrentlyOpen() != null
+                ? shop.getCurrentlyOpen()
+                : isOpenByLocalFallback(shop);
         if (isOpening) {
             holder.tvShopStatus.setText("Đang mở");
             holder.tvShopStatus.setTextColor(Color.parseColor("#FF7A21"));
@@ -127,6 +125,14 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             return second;
         }
         return null;
+    }
+
+    private boolean isOpenByLocalFallback(ShopResponse shop) {
+        boolean manuallyOpen = shop.getIsOpen() != null
+                ? shop.getIsOpen()
+                : "OPENING".equalsIgnoreCase(shop.getDisplayStatus())
+                || "OPEN".equalsIgnoreCase(shop.getDisplayStatus());
+        return manuallyOpen && isWithinOpeningHours(shop.getOpenTime(), shop.getCloseTime());
     }
 
     private boolean isWithinOpeningHours(String openTime, String closeTime) {

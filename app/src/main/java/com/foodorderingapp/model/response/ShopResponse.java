@@ -14,6 +14,7 @@ public class ShopResponse {
     private String coverUrl;
     private String logoUrl;
     private Boolean isOpen;
+    private Boolean currentlyOpen;
     private String email;
     private String phone;
 
@@ -141,6 +142,14 @@ public class ShopResponse {
 
     public void setIsOpen(Boolean isOpen) {
         this.isOpen = isOpen;
+    }
+
+    public Boolean getCurrentlyOpen() {
+        return currentlyOpen;
+    }
+
+    public void setCurrentlyOpen(Boolean currentlyOpen) {
+        this.currentlyOpen = currentlyOpen;
     }
 
     public String getEmail() {

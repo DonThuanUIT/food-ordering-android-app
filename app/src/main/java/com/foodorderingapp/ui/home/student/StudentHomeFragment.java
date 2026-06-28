@@ -89,6 +89,9 @@ public class StudentHomeFragment extends Fragment {
             intent.putExtra("SHOP_OPEN_TIME", shop.getOpenTime());
             intent.putExtra("SHOP_CLOSE_TIME", shop.getCloseTime());
             intent.putExtra("SHOP_DISPLAY_STATUS", shop.getDisplayStatus());
+            if (shop.getCurrentlyOpen() != null) {
+                intent.putExtra("SHOP_CURRENTLY_OPEN", shop.getCurrentlyOpen());
+            }
             startActivity(intent);
         });
 
