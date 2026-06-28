@@ -14,6 +14,9 @@ import com.foodorderingapp.model.response.OrderResponse;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -59,7 +62,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         holder.tvShopName.setText(nullToDefault(order.getShopName(), "Đơn hàng"));
         holder.tvStatus.setText(formatStatus(order.getStatus()));
         holder.tvTotal.setText(formatPrice(order.getTotalPrice()));
-        holder.tvCreatedAt.setText(nullToDefault(order.getCreatedAt(), ""));
+        holder.tvCreatedAt.setText(formatDateTime(displayDateTimeForHistory(order)));
         holder.tvAddress.setText(buildAddress(order));
         holder.tvDetails.setText(buildDetails(order.getDetails()));
         bindDiscount(holder.tvDiscount, order);
@@ -156,6 +159,37 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
     private String formatPrice(double price) {
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         return formatter.format(price) + "đ";
+    }
+
+    private String displayDateTimeForHistory(OrderResponse order) {
+        if (order == null) {
+            return "";
+        }
+        if (("COMPLETED".equalsIgnoreCase(order.getStatus()) || "RECEIVED".equalsIgnoreCase(order.getStatus()))
+                && order.getCompletedAt() != null
+                && !order.getCompletedAt().trim().isEmpty()) {
+            return order.getCompletedAt();
+        }
+        return order.getCreatedAt();
+    }
+
+    private String formatDateTime(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return "";
+        }
+
+        String normalized = value.trim();
+        int dotIndex = normalized.indexOf('.');
+        if (dotIndex > 0) {
+            normalized = normalized.substring(0, dotIndex);
+        }
+
+        try {
+            return LocalDateTime.parse(normalized, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.getDefault()));
+        } catch (DateTimeParseException ignored) {
+            return value;
+        }
     }
 
     private String nullToDefault(String value, String fallback) {

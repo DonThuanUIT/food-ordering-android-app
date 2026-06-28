@@ -70,8 +70,10 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -240,11 +242,12 @@ public class StudentProfileFragment extends Fragment {
     private void bindSpending(View view, SpendingSummaryResponse summary) {
         TextView tvMonthlySpending = view.findViewById(R.id.tvMonthlySpending);
         tvMonthlySpending.setText(formatPrice(summary.getTotalSpent()));
-        bindSpendingSummaryStats(view, summary);
-        bindSpendingChart(view, summary.getBreakdown());
-        bindSpendingBarChart(view, summary.getBreakdown());
-        bindSpendingPieChart(view, summary.getBreakdown());
-        bindSpendingBreakdown(view, summary.getBreakdown());
+        List<SpendingSummaryResponse.SpendingBreakdown> displayBreakdown = normalizeSpendingBreakdown(summary);
+        bindSpendingSummaryStats(view, summary, displayBreakdown);
+        bindSpendingChart(view, displayBreakdown);
+        bindSpendingBarChart(view, displayBreakdown);
+        bindSpendingPieChart(view, displayBreakdown);
+        bindSpendingBreakdown(view, buildWeeklySpendingBreakdown(displayBreakdown));
     }
 
     private void setupActions(View view) {
@@ -412,9 +415,7 @@ public class StudentProfileFragment extends Fragment {
         btnTo.setText(toText);
 
         if (tvBreakdownTitle != null) {
-            tvBreakdownTitle.setText(isSelectedRangeWithinOneWeek()
-                    ? "Chi tiết tuần đã chọn"
-                    : "Chi tiết theo tuần");
+            tvBreakdownTitle.setText("Chi tiết theo tuần");
         }
         updateQuickRangeState(view);
     }
@@ -429,16 +430,63 @@ public class StudentProfileFragment extends Fragment {
         );
     }
 
-    private void bindSpendingSummaryStats(View view, SpendingSummaryResponse summary) {
+    private List<SpendingSummaryResponse.SpendingBreakdown> normalizeSpendingBreakdown(SpendingSummaryResponse summary) {
+        List<SpendingSummaryResponse.SpendingBreakdown> result = new ArrayList<>();
+        if (summary == null) {
+            return result;
+        }
+
+        List<SpendingSummaryResponse.SpendingBreakdown> source = summary.getBreakdown();
+        if (source != null) {
+            for (SpendingSummaryResponse.SpendingBreakdown item : source) {
+                if (item != null) {
+                    result.add(item);
+                }
+            }
+        }
+
+        result.sort((left, right) -> {
+            LocalDate leftDate = periodSortDate(left.getPeriod());
+            LocalDate rightDate = periodSortDate(right.getPeriod());
+            return leftDate.compareTo(rightDate);
+        });
+
+        if (result.isEmpty() && summary.getTotalSpent() > 0) {
+            SpendingSummaryResponse.SpendingBreakdown fallback = new SpendingSummaryResponse.SpendingBreakdown();
+            fallback.setPeriod(fallbackSpendingPeriod());
+            fallback.setTotal(summary.getTotalSpent());
+            result.add(fallback);
+        }
+
+        return result;
+    }
+
+    private String fallbackSpendingPeriod() {
+        LocalDate labelDate = spendingTo != null ? spendingTo : LocalDate.now();
+        return labelDate + " - " + labelDate;
+    }
+
+    private LocalDate periodSortDate(String period) {
+        LocalDate[] dates = parsePeriod(period);
+        if (dates == null) {
+            return LocalDate.MAX;
+        }
+        return isSelectedRangeDaily() ? clampPeriodToSelectedRange(dates)[1] : clampPeriodToSelectedRange(dates)[0];
+    }
+
+    private void bindSpendingSummaryStats(View view, SpendingSummaryResponse summary, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
         TextView tvPeriodCount = view.findViewById(R.id.tvSpendingPeriodCount);
         TextView tvAverage = view.findViewById(R.id.tvSpendingAverage);
         TextView tvPeak = view.findViewById(R.id.tvSpendingPeak);
 
-        List<SpendingSummaryResponse.SpendingBreakdown> breakdown = summary.getBreakdown();
-        int count = breakdown == null ? 0 : breakdown.size();
+        int count = 0;
         double peak = 0;
         if (breakdown != null) {
             for (SpendingSummaryResponse.SpendingBreakdown item : breakdown) {
+                if (item.getTotal() <= 0) {
+                    continue;
+                }
+                count++;
                 peak = Math.max(peak, item.getTotal());
             }
         }
@@ -466,8 +514,19 @@ public class StudentProfileFragment extends Fragment {
         List<String> labels = new ArrayList<>();
         for (int i = 0; i < breakdown.size(); i++) {
             SpendingSummaryResponse.SpendingBreakdown item = breakdown.get(i);
-            entries.add(new Entry(i, (float) item.getTotal()));
+            if (item.getTotal() <= 0) {
+                continue;
+            }
+            int chartIndex = entries.size();
+            entries.add(new Entry(chartIndex, (float) item.getTotal()));
             labels.add(shortPeriod(item.getPeriod(), i + 1));
+        }
+
+        if (entries.isEmpty()) {
+            chart.clear();
+            chart.setNoDataText("ChÆ°a cÃ³ chi tiÃªu trong khoáº£ng nÃ y");
+            chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
+            return;
         }
 
         LineDataSet dataSet = new LineDataSet(entries, "Chi tiêu (đ)");
@@ -480,7 +539,7 @@ public class StudentProfileFragment extends Fragment {
         dataSet.setFillColor(Color.parseColor("#22F46E26"));
         dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         dataSet.setDrawValues(true);
-        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueTextColor(Color.parseColor("#5F514D"));
         dataSet.setValueTextSize(9f);
         dataSet.setValueFormatter(new ValueFormatter() {
             @Override
@@ -498,10 +557,20 @@ public class StudentProfileFragment extends Fragment {
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
+        xAxis.setLabelCount(labels.size(), true);
+        xAxis.setAvoidFirstLastClipping(true);
+        xAxis.setLabelRotationAngle(labels.size() > 4 ? -35f : 0f);
         xAxis.setDrawGridLines(false);
         xAxis.setTextColor(Color.parseColor("#8A7D79"));
         xAxis.setSpaceMin(0.5f);
         xAxis.setSpaceMax(0.5f);
+        if (entries.size() == 1) {
+            xAxis.setAxisMinimum(-0.5f);
+            xAxis.setAxisMaximum(0.5f);
+        } else {
+            xAxis.setAxisMinimum(-0.2f);
+            xAxis.setAxisMaximum(entries.size() - 0.8f);
+        }
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -525,7 +594,7 @@ public class StudentProfileFragment extends Fragment {
             }
         });
 
-        chart.getLegend().setTextColor(Color.WHITE);
+        chart.getLegend().setTextColor(Color.parseColor("#5F514D"));
         chart.animateY(800);
         chart.invalidate();
     }
@@ -547,13 +616,24 @@ public class StudentProfileFragment extends Fragment {
         List<String> labels = new ArrayList<>();
         for (int i = 0; i < breakdown.size(); i++) {
             SpendingSummaryResponse.SpendingBreakdown item = breakdown.get(i);
-            entries.add(new BarEntry(i, (float) item.getTotal()));
+            if (item.getTotal() <= 0) {
+                continue;
+            }
+            int chartIndex = entries.size();
+            entries.add(new BarEntry(chartIndex, (float) item.getTotal()));
             labels.add(shortPeriod(item.getPeriod(), i + 1));
+        }
+
+        if (entries.isEmpty()) {
+            chart.clear();
+            chart.setNoDataText("ChÆ°a cÃ³ chi tiÃªu trong khoáº£ng nÃ y");
+            chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
+            return;
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "Chi tiêu theo kỳ");
         dataSet.setColor(Color.parseColor("#F46E26"));
-        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueTextColor(Color.parseColor("#5F514D"));
         dataSet.setValueTextSize(9f);
         dataSet.setValueFormatter(new ValueFormatter() {
             @Override
@@ -574,8 +654,18 @@ public class StudentProfileFragment extends Fragment {
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
+        xAxis.setLabelCount(labels.size(), true);
+        xAxis.setAvoidFirstLastClipping(true);
+        xAxis.setLabelRotationAngle(labels.size() > 4 ? -35f : 0f);
         xAxis.setDrawGridLines(false);
         xAxis.setTextColor(Color.parseColor("#8A7D79"));
+        if (entries.size() == 1) {
+            xAxis.setAxisMinimum(-0.5f);
+            xAxis.setAxisMaximum(0.5f);
+        } else {
+            xAxis.setAxisMinimum(-0.5f);
+            xAxis.setAxisMaximum(entries.size() - 0.5f);
+        }
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -599,7 +689,7 @@ public class StudentProfileFragment extends Fragment {
             }
         });
 
-        chart.getLegend().setTextColor(Color.WHITE);
+        chart.getLegend().setTextColor(Color.parseColor("#5F514D"));
         chart.animateY(800);
         chart.invalidate();
     }
@@ -628,13 +718,13 @@ public class StudentProfileFragment extends Fragment {
         List<PieEntry> entries = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();
         int colorIndex = 0;
+        Map<String, Double> weeklyTotals = buildWeeklySpendingTotals(breakdown);
 
-        for (int i = 0; i < breakdown.size(); i++) {
-            SpendingSummaryResponse.SpendingBreakdown item = breakdown.get(i);
-            if (item.getTotal() <= 0) {
+        for (Map.Entry<String, Double> entry : weeklyTotals.entrySet()) {
+            if (entry.getValue() <= 0) {
                 continue;
             }
-            entries.add(new PieEntry((float) item.getTotal(), shortPeriod(item.getPeriod(), i + 1)));
+            entries.add(new PieEntry(entry.getValue().floatValue(), formatShortWeeklyPeriod(entry.getKey())));
             colors.add(palette[colorIndex % palette.length]);
             colorIndex++;
         }
@@ -650,7 +740,7 @@ public class StudentProfileFragment extends Fragment {
         dataSet.setColors(colors);
         dataSet.setSliceSpace(3f);
         dataSet.setValueTextSize(12f);
-        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setValueTextColor(Color.parseColor("#5F514D"));
         dataSet.setValueFormatter(new PercentFormatter(chart));
 
         chart.setData(new PieData(dataSet));
@@ -662,9 +752,9 @@ public class StudentProfileFragment extends Fragment {
         chart.setTransparentCircleRadius(45f);
         chart.setCenterText("Chi tiêu");
         chart.setCenterTextSize(14f);
-        chart.setCenterTextColor(Color.WHITE);
-        chart.setDrawEntryLabels(true);
-        chart.setEntryLabelColor(Color.WHITE);
+        chart.setCenterTextColor(Color.parseColor("#F46E26"));
+        chart.setDrawEntryLabels(false);
+        chart.setEntryLabelColor(Color.parseColor("#5F514D"));
         chart.setEntryLabelTextSize(10f);
         chart.setExtraBottomOffset(18f);
         chart.setExtraLeftOffset(8f);
@@ -672,7 +762,7 @@ public class StudentProfileFragment extends Fragment {
 
         Legend legend = chart.getLegend();
         legend.setEnabled(true);
-        legend.setTextColor(Color.WHITE);
+        legend.setTextColor(Color.parseColor("#5F514D"));
         legend.setTextSize(12f);
         legend.setFormSize(10f);
         legend.setXEntrySpace(12f);
@@ -685,6 +775,56 @@ public class StudentProfileFragment extends Fragment {
 
         chart.animateY(800);
         chart.invalidate();
+    }
+
+    private Map<String, Double> buildWeeklySpendingTotals(List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
+        Map<String, Double> weeklyTotals = new LinkedHashMap<>();
+        if (breakdown == null) {
+            return weeklyTotals;
+        }
+
+        for (SpendingSummaryResponse.SpendingBreakdown item : breakdown) {
+            if (item == null || item.getTotal() <= 0) {
+                continue;
+            }
+
+            LocalDate[] dates = parsePeriod(item.getPeriod());
+            if (dates == null) {
+                weeklyTotals.merge(item.getPeriod(), item.getTotal(), Double::sum);
+                continue;
+            }
+
+            LocalDate spendingDate = clampPeriodToSelectedRange(dates)[1];
+            LocalDate weekStart = spendingDate.minusDays(spendingDate.getDayOfWeek().getValue() - 1L);
+            LocalDate weekEnd = weekStart.plusDays(6);
+            if (spendingFrom != null && weekStart.isBefore(spendingFrom)) {
+                weekStart = spendingFrom;
+            }
+            if (spendingTo != null && weekEnd.isAfter(spendingTo)) {
+                weekEnd = spendingTo;
+            }
+
+            String label = weekStart + " - " + weekEnd;
+            weeklyTotals.merge(label, item.getTotal(), Double::sum);
+        }
+
+        return weeklyTotals;
+    }
+
+    private List<SpendingSummaryResponse.SpendingBreakdown> buildWeeklySpendingBreakdown(
+            List<SpendingSummaryResponse.SpendingBreakdown> breakdown
+    ) {
+        List<SpendingSummaryResponse.SpendingBreakdown> weeklyBreakdown = new ArrayList<>();
+        for (Map.Entry<String, Double> entry : buildWeeklySpendingTotals(breakdown).entrySet()) {
+            if (entry.getValue() <= 0) {
+                continue;
+            }
+            SpendingSummaryResponse.SpendingBreakdown item = new SpendingSummaryResponse.SpendingBreakdown();
+            item.setPeriod(entry.getKey());
+            item.setTotal(entry.getValue());
+            weeklyBreakdown.add(item);
+        }
+        return weeklyBreakdown;
     }
 
     private void bindSpendingBreakdown(View view, List<SpendingSummaryResponse.SpendingBreakdown> breakdown) {
@@ -1043,7 +1183,9 @@ public class StudentProfileFragment extends Fragment {
         if (dates == null) {
             return "K" + fallbackIndex;
         }
-        return clampPeriodToSelectedRange(dates)[0].format(shortDateFormatter);
+        LocalDate[] clippedDates = clampPeriodToSelectedRange(dates);
+        LocalDate labelDate = isSelectedRangeDaily() ? clippedDates[1] : clippedDates[0];
+        return labelDate.format(shortDateFormatter);
     }
 
     private String formatPeriod(String period) {
@@ -1052,8 +1194,21 @@ public class StudentProfileFragment extends Fragment {
             return isBlank(period) ? "Không rõ thời gian" : period;
         }
         LocalDate[] clippedDates = clampPeriodToSelectedRange(dates);
+        if (clippedDates[0].equals(clippedDates[1])) {
+            return "Ngày " + clippedDates[0].format(displayDateFormatter);
+        }
         return "Tuần " + clippedDates[0].format(displayDateFormatter)
                 + " - " + clippedDates[1].format(displayDateFormatter);
+    }
+
+    private String formatShortWeeklyPeriod(String period) {
+        LocalDate[] dates = parsePeriod(period);
+        if (dates == null) {
+            return isBlank(period) ? "Tuần không rõ" : period;
+        }
+        LocalDate[] clippedDates = clampPeriodToSelectedRange(dates);
+        return "Tuần " + clippedDates[0].format(shortDateFormatter)
+                + " - " + clippedDates[1].format(shortDateFormatter);
     }
 
     private LocalDate[] clampPeriodToSelectedRange(LocalDate[] dates) {
@@ -1071,11 +1226,11 @@ public class StudentProfileFragment extends Fragment {
         return new LocalDate[]{start, end};
     }
 
-    private boolean isSelectedRangeWithinOneWeek() {
+    private boolean isSelectedRangeDaily() {
         if (spendingFrom == null || spendingTo == null) {
             return false;
         }
-        return spendingTo.toEpochDay() - spendingFrom.toEpochDay() < 7;
+        return spendingTo.toEpochDay() - spendingFrom.toEpochDay() <= 31;
     }
 
     private LocalDate[] parsePeriod(String period) {

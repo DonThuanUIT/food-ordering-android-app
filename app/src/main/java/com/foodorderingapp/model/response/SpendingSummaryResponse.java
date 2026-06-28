@@ -22,8 +22,16 @@ public class SpendingSummaryResponse {
             return period;
         }
 
+        public void setPeriod(String period) {
+            this.period = period;
+        }
+
         public double getTotal() {
             return total;
+        }
+
+        public void setTotal(double total) {
+            this.total = total;
         }
     }
 }
