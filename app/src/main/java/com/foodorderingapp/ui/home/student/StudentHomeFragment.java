@@ -75,6 +75,11 @@ public class StudentHomeFragment extends Fragment {
         });
         
         shopAdapter.setOnShopClickListener(shop -> {
+            if (!isVisibleStudentShop(shop)) {
+                ToastUtils.error(getContext(), "Quán ăn hiện không khả dụng");
+                loadShopsForCurrentSearch();
+                return;
+            }
             Intent intent = new Intent(requireContext(), ShopDetailActivity.class);
             intent.putExtra("SHOP_ID", shop.getId());
             intent.putExtra("SHOP_NAME", shop.getName());
@@ -91,7 +96,7 @@ public class StudentHomeFragment extends Fragment {
                 List<ShopResponse> approvedShops = new ArrayList<>();
 
                 for (ShopResponse shop : response.getContent()) {
-                    if ("APPROVED".equalsIgnoreCase(shop.getStatus()) && shop.isActive()) {
+                    if (isVisibleStudentShop(shop)) {
                         approvedShops.add(shop);
                     }
                 }
@@ -144,6 +149,32 @@ public class StudentHomeFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (binding == null || shopViewModel == null || foodViewModel == null) {
+            return;
+        }
+        loadShopsForCurrentSearch();
+        if (!showingRestaurants) {
+            foodViewModel.loadExploreFoods();
+        }
+    }
+
+    private boolean isVisibleStudentShop(ShopResponse shop) {
+        if (shop == null) {
+            return false;
+        }
+        String status = shop.getStatus();
+        return "APPROVED".equalsIgnoreCase(status)
+                && shop.isActive()
+                && !"BANNED".equalsIgnoreCase(status)
+                && !"REJECTED".equalsIgnoreCase(status)
+                && !"CLOSED".equalsIgnoreCase(status)
+                && !"PENDING".equalsIgnoreCase(status);
+    }
+
     private void setupTabListeners() {
         binding.tabRestaurants.setOnClickListener(v -> {
             showingRestaurants = true;

@@ -157,6 +157,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         shopViewModel.getShopDetail().observe(this, detail -> {
             if (detail == null) {
                 ToastUtils.error(this, "Không tải được chi tiết quán");
+                finish();
                 return;
             }
 
