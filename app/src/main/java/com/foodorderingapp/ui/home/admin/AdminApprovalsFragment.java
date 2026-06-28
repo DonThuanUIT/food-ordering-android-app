@@ -20,6 +20,7 @@ import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.ui.adapter.AdminPendingShopAdapter;
 import com.foodorderingapp.utils.ToastUtils;
 import com.foodorderingapp.viewmodel.AdminViewModel;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 
@@ -193,6 +194,7 @@ public class AdminApprovalsFragment extends Fragment {
         TextView tvShopOwner = content.findViewById(R.id.tvDialogShopOwner);
         TextView tvShopStatus = content.findViewById(R.id.tvDialogShopStatus);
         TextView tvShopAddress = content.findViewById(R.id.tvDialogShopAddress);
+        TextView tvShopDescription = content.findViewById(R.id.tvDialogShopDescription);
         TextView tvShopContact = content.findViewById(R.id.tvDialogShopContact);
         TextView tvShopTime = content.findViewById(R.id.tvDialogShopTime);
         TextView tvShopBank = content.findViewById(R.id.tvDialogShopBank);
@@ -205,6 +207,7 @@ public class AdminApprovalsFragment extends Fragment {
                 shop.getPhone(), shop.getEmail(), shop.getAddress()), "Chưa cập nhật"));
         tvShopStatus.setText(nullToDefault(shop.getStatus(), "PENDING"));
         tvShopAddress.setText("Địa chỉ: " + nullToDefault(shop.getAddress(), "Chưa cập nhật"));
+        tvShopDescription.setText("Mô tả: " + nullToDefault(shop.getDescription(), "Chưa cập nhật"));
         tvShopContact.setText("Liên hệ: " + nullToDefault(firstNonBlank(shop.getPhone(), shop.getEmail()), "Chưa cập nhật"));
         tvShopTime.setText("Giờ mở cửa: " + formatTimeRange(shop.getOpenTime(), shop.getCloseTime()));
         tvShopBank.setText("Ngân hàng: " + formatBankInfo(shop));
@@ -212,6 +215,21 @@ public class AdminApprovalsFragment extends Fragment {
         closeButton.setOnClickListener(v -> dialog.dismiss());
         configureShopActions(dialog, shop, primaryButton, secondaryButton);
         dialog.show();
+        expandShopDetailSheet(dialog);
+    }
+
+    private void expandShopDetailSheet(BottomSheetDialog dialog) {
+        View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+        if (bottomSheet == null) {
+            return;
+        }
+        ViewGroup.LayoutParams params = bottomSheet.getLayoutParams();
+        params.height = (int) (getResources().getDisplayMetrics().heightPixels * 0.9f);
+        bottomSheet.setLayoutParams(params);
+
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        behavior.setSkipCollapsed(false);
     }
 
     private void configureShopActions(BottomSheetDialog dialog,

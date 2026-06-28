@@ -49,14 +49,15 @@ public class ShopDetailActivity extends AppCompatActivity {
     private LinearLayout layoutShopStatus;
     private Button btnViewMenu;
     private Button btnChatShop;
+    private ImageButton btnFavorite;
     private TextView tvShopRating;
     private LinearLayout layoutShopRating;
-    private ImageButton btnFavorite;
 
     private ShopViewModel shopViewModel;
     private String shopId;
     private String currentOpenTime;
     private String currentCloseTime;
+    private boolean favoriteUpdating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +93,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         layoutShopStatus = findViewById(R.id.layoutShopStatus);
         btnViewMenu = findViewById(R.id.btnViewMenu);
         btnChatShop = findViewById(R.id.btnChatShop);
+        btnFavorite = findViewById(R.id.btnFavorite);
         tvShopRating = findViewById(R.id.tvShopRating);
         layoutShopRating = findViewById(R.id.layoutShopRating);
         btnFavorite = findViewById(R.id.btnFavorite);
@@ -104,13 +106,15 @@ public class ShopDetailActivity extends AppCompatActivity {
 
         btnFavorite.setOnClickListener(v -> {
             boolean isStudent = "STUDENT".equalsIgnoreCase(TokenManager.getInstance().getRole());
-            if (!isStudent) {
+            if (!isStudent || favoriteUpdating || shopId == null || shopId.isEmpty()) {
                 return;
             }
+            favoriteUpdating = true;
             btnFavorite.setEnabled(false);
             ApiClient.getApiService().toggleFavoriteShop(shopId).enqueue(new Callback<Boolean>() {
                 @Override
                 public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                    favoriteUpdating = false;
                     btnFavorite.setEnabled(true);
                     if (response.isSuccessful() && response.body() != null) {
                         boolean isFav = response.body();
@@ -121,12 +125,13 @@ public class ShopDetailActivity extends AppCompatActivity {
                             ToastUtils.info(ShopDetailActivity.this, "Đã bỏ yêu thích");
                         }
                     } else {
-                        ToastUtils.error(ShopDetailActivity.this, "Lỗi thao tác yêu thích");
+                        ToastUtils.error(ShopDetailActivity.this, "Không thể cập nhật yêu thích");
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Boolean> call, Throwable t) {
+                    favoriteUpdating = false;
                     btnFavorite.setEnabled(true);
                     ToastUtils.error(ShopDetailActivity.this, "Lỗi mạng: " + t.getMessage());
                 }
@@ -164,6 +169,8 @@ public class ShopDetailActivity extends AppCompatActivity {
         });
     }
 
+
+
     private void showInitialShopInfo() {
         String name = getIntent().getStringExtra("SHOP_NAME");
         String address = getIntent().getStringExtra("SHOP_ADDRESS");
@@ -185,6 +192,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         shopViewModel.getShopDetail().observe(this, detail -> {
             if (detail == null) {
                 ToastUtils.error(this, "Không tải được chi tiết quán");
+                finish();
                 return;
             }
 

@@ -12,6 +12,7 @@ public class OrderResponse {
     private String building;
     private String cancelReason;
     private String createdAt;
+    private String completedAt;
     private List<OrderDetailResponse> details;
     private String voucherCode;
     private double discountAmount;
@@ -39,6 +40,7 @@ public class OrderResponse {
     public String getBuilding() { return building; }
     public String getCancelReason() { return cancelReason; }
     public String getCreatedAt() { return createdAt; }
+    public String getCompletedAt() { return completedAt; }
     public List<OrderDetailResponse> getDetails() { return details; }
     public String getVoucherCode() { return voucherCode; }
     public double getDiscountAmount() { return discountAmount; }
