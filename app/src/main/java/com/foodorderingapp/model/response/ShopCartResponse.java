@@ -5,9 +5,11 @@ import java.util.List;
 public class ShopCartResponse {
     private String shopId;
     private String shopName;
+    private String logoUrl;
     private List<CartItemResponse> items;
 
     public String getShopId() { return shopId; }
     public String getShopName() { return shopName; }
+    public String getLogoUrl() { return logoUrl; }
     public List<CartItemResponse> getItems() { return items; }
 }
