@@ -54,6 +54,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 public class ShipperProfileFragment extends Fragment {
 
@@ -234,6 +240,9 @@ public class ShipperProfileFragment extends Fragment {
         tvStatOrders.setText(String.valueOf(completedCount));
         tvStatEarnings.setText(formatPrice(totalEarnings));
 
+        // Setup chart for shipper earnings
+        setupEarningsChart(getView(), orders);
+
         // Fetch Delivery reviews from unique shopIds to compute average rating
         if (!shopIds.isEmpty()) {
             calculateAverageDeliveryRating(new ArrayList<>(shopIds));
@@ -301,6 +310,121 @@ public class ShipperProfileFragment extends Fragment {
                     }
                 }
             });
+        }
+    }
+
+    private void setupEarningsChart(View view, List<OrderResponse> orders) {
+        if (view == null) return;
+        BarChart chart = view.findViewById(R.id.chartShipperEarnings);
+        if (chart == null) return;
+
+        boolean isDark = false;
+        if (getContext() != null) {
+            SharedPreferences appPrefs = getContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+            isDark = appPrefs.getBoolean("app_dark_mode", false);
+        }
+        int textColor = isDark ? Color.parseColor("#FFFFFF") : Color.parseColor("#64748B");
+        int gridColor = isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#E2E8F0");
+
+        java.time.LocalDate today = java.time.LocalDate.now();
+        List<java.time.LocalDate> last7Days = new ArrayList<>();
+        java.util.Map<java.time.LocalDate, Double> earningsMap = new java.util.HashMap<>();
+
+        for (int i = 6; i >= 0; i--) {
+            java.time.LocalDate d = today.minusDays(i);
+            last7Days.add(d);
+            earningsMap.put(d, 0.0);
+        }
+
+        if (orders != null) {
+            for (OrderResponse order : orders) {
+                if ("COMPLETED".equalsIgnoreCase(order.getStatus())) {
+                    String dateStr = order.getCompletedAt() != null ? order.getCompletedAt() : order.getCreatedAt();
+                    java.time.LocalDate orderDate = parseOrderDate(dateStr);
+                    if (orderDate != null && earningsMap.containsKey(orderDate)) {
+                        double distanceKm = calculateOrderDistance(order);
+                        double earnings = distanceKm * 5000.0;
+                        earningsMap.put(orderDate, earningsMap.get(orderDate) + earnings);
+                    }
+                }
+            }
+        }
+
+        List<BarEntry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        java.time.format.DateTimeFormatter labelFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM", Locale.getDefault());
+
+        for (int i = 0; i < last7Days.size(); i++) {
+            java.time.LocalDate d = last7Days.get(i);
+            float value = earningsMap.get(d).floatValue();
+            entries.add(new BarEntry(i, value));
+            labels.add(d.format(labelFormatter));
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "Thu nhập (đ)");
+        dataSet.setColor(Color.parseColor("#FF7A21")); // Orange
+        dataSet.setValueTextColor(textColor);
+        dataSet.setValueTextSize(9f);
+        dataSet.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getBarLabel(BarEntry barEntry) {
+                if (barEntry.getY() == 0) return "";
+                return String.format(Locale.getDefault(), "%.0fđ", barEntry.getY());
+            }
+        });
+
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.5f);
+        chart.setData(barData);
+
+        chart.getDescription().setEnabled(false);
+        chart.getAxisRight().setEnabled(false);
+        chart.getLegend().setTextColor(textColor);
+        
+        com.github.mikephil.charting.components.XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(textColor);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int idx = (int) value;
+                if (idx >= 0 && idx < labels.size()) {
+                    return labels.get(idx);
+                }
+                return "";
+            }
+        });
+
+        com.github.mikephil.charting.components.YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setGridColor(gridColor);
+        leftAxis.setTextColor(textColor);
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                if (value == 0) return "0đ";
+                return String.format(Locale.getDefault(), "%.0fk", value / 1000f);
+            }
+        });
+
+        chart.animateY(800);
+        chart.invalidate();
+    }
+
+    private java.time.LocalDate parseOrderDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) return null;
+        try {
+            String clean = dateStr.trim();
+            int dotIndex = clean.indexOf('.');
+            if (dotIndex > 0) {
+                clean = clean.substring(0, dotIndex);
+            }
+            return java.time.LocalDateTime.parse(clean, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate();
+        } catch (Exception e) {
+            return null;
         }
     }
 

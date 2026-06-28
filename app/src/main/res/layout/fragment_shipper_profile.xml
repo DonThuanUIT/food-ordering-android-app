@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1F1918"
+    android:background="@color/vendor_dark_bg"
     tools:context=".ui.home.shipper.ShipperProfileFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_profile_container"
-                android:backgroundTint="#2D2522"
+                android:backgroundTint="@color/vendor_dark_card"
                 android:elevation="3dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
@@ -49,7 +49,7 @@
                         android:padding="2dp"
                         android:src="@drawable/ic_profile"
                         app:shapeAppearanceOverlay="@style/CircleImage"
-                        app:strokeColor="#F46E26"
+                        app:strokeColor="@color/vendor_dark_orange"
                         app:strokeWidth="2dp" />
 
                     <ImageButton
@@ -74,7 +74,7 @@
                     android:layout_marginTop="16dp"
                     android:gravity="center"
                     android:text="Tài xế UniEats"
-                    android:textColor="@color/white"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -85,7 +85,7 @@
                     android:layout_marginTop="4dp"
                     android:gravity="center"
                     android:text="Chưa có số điện thoại"
-                    android:textColor="#A0AEC0"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="14sp" />
 
                 <TextView
@@ -94,7 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:background="@drawable/bg_profile_tag"
-                    android:backgroundTint="#F46E26"
+                    android:backgroundTint="@color/vendor_dark_orange"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="6dp"
                     android:text="Tài xế UniEats 🛵"
@@ -108,10 +108,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                app:cardBackgroundColor="#2D2522"
+                app:cardBackgroundColor="@color/vendor_dark_card"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:strokeColor="#3E3532"
+                app:strokeColor="@color/vendor_dark_divider"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -131,7 +131,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Trạng thái nhận đơn"
-                            android:textColor="@color/white"
+                            android:textColor="@color/vendor_dark_text_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
@@ -161,7 +161,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:background="@drawable/bg_profile_container"
-                android:backgroundTint="#2D2522"
+                android:backgroundTint="@color/vendor_dark_card"
                 android:elevation="3dp"
                 android:orientation="vertical"
                 android:padding="16dp">
@@ -170,7 +170,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Thống kê hiệu suất"
-                    android:textColor="@color/white"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -194,7 +194,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Đơn đã giao"
-                            android:textColor="#A0AEC0"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp" />
 
                         <TextView
@@ -203,7 +203,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="0"
-                            android:textColor="#F46E26"
+                            android:textColor="@color/vendor_dark_orange"
                             android:textSize="20sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -212,7 +212,7 @@
                         android:layout_width="1dp"
                         android:layout_height="40dp"
                         android:layout_gravity="center_vertical"
-                        android:background="#3E3532" />
+                        android:background="@color/vendor_dark_divider" />
 
                     <!-- Stat 2: Earnings -->
                     <LinearLayout
@@ -227,7 +227,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Thu nhập (KM)"
-                            android:textColor="#A0AEC0"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp" />
 
                         <TextView
@@ -245,7 +245,7 @@
                         android:layout_width="1dp"
                         android:layout_height="40dp"
                         android:layout_gravity="center_vertical"
-                        android:background="#3E3532" />
+                        android:background="@color/vendor_dark_divider" />
 
                     <!-- Stat 3: Rating -->
                     <LinearLayout
@@ -260,7 +260,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Đánh giá"
-                            android:textColor="#A0AEC0"
+                            android:textColor="@color/vendor_dark_text_secondary"
                             android:textSize="12sp" />
 
                         <TextView
@@ -276,13 +276,39 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Earnings Chart Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_profile_container"
+                android:backgroundTint="@color/vendor_dark_card"
+                android:elevation="3dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thống kê thu nhập (7 ngày qua)"
+                    android:textColor="@color/vendor_dark_text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/chartShipperEarnings"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:layout_marginTop="12dp" />
+            </LinearLayout>
+
             <!-- Actions Container -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:background="@drawable/bg_profile_container"
-                android:backgroundTint="#2D2522"
+                android:backgroundTint="@color/vendor_dark_card"
                 android:elevation="3dp"
                 android:orientation="vertical"
                 android:padding="8dp">
@@ -303,7 +329,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_profile"
-                        app:tint="#F46E26" />
+                        app:tint="@color/vendor_dark_orange" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -311,20 +337,20 @@
                         android:layout_marginStart="14dp"
                         android:layout_weight="1"
                         android:text="Cập nhật thông tin"
-                        android:textColor="@color/white"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="15sp" />
 
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_chevron_right"
-                        app:tint="#718096" />
+                        app:tint="@color/vendor_dark_text_secondary" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#3E3532" />
+                    android:background="@color/vendor_dark_divider" />
 
                 <!-- Logout Row -->
                 <LinearLayout
