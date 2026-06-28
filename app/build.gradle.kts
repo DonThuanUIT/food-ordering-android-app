@@ -32,8 +32,12 @@ android {
         if (localPropertiesFile.exists()) {
             localProperties.load(localPropertiesFile.inputStream())
         }
+
         val geminiKey = localProperties.getProperty("gemini.api.key") ?: ""
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
+
+        val mapsApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY") ?: ""
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -107,4 +111,8 @@ dependencies {
 
     // Biometric Authentication
     implementation("androidx.biometric:biometric:1.1.0")
+
+    // >>> PHASE 2: Google Maps SDK
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

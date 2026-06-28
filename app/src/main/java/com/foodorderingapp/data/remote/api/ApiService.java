@@ -26,6 +26,7 @@ import com.foodorderingapp.model.response.ChatMessageResponse;
 import com.foodorderingapp.model.response.ChatRoomResponse;
 import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.RegisterResponse;
+import com.foodorderingapp.model.response.ShopLocationDTO;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.StudentReviewResponse;
@@ -252,6 +253,14 @@ public interface ApiService {
             @Body AIRecommendationRequest request,
             @Query("shopId") UUID shopId
     );
+
+    // >>> PHASE 2: Agentic Chat with Function Calling
+    @POST("ai/agent/chat")
+    Call<Map<String, Object>> agenticChat(@Body AIRecommendationRequest request);
+
+    // >>> PHASE 2: Lấy danh sách tọa độ quán cho bản đồ
+    @GET("shops/locations")
+    Call<List<ShopLocationDTO>> getShopLocations();
 
     @GET("buildings")
     Call<List<BuildingResponse>> getBuildings();

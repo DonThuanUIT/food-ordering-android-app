@@ -25,6 +25,11 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:usesCleartextTraffic="true">
 
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${GOOGLE_MAPS_API_KEY}" />
+
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true">
@@ -101,6 +106,11 @@
         <activity
             android:name=".ui.order.OrderTrackingActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.map.FoodMapActivity"
+            android:exported="false"
+            android:label="Bản đồ quán ăn KTX" />
 
         <service
             android:name=".ui.services.MyFirebaseMessagingService"

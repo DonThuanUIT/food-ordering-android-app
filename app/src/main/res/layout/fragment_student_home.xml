@@ -36,6 +36,31 @@
                     android:textStyle="bold" />
 
                 <LinearLayout
+                    android:id="@+id/btn_home_map"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@id/btn_home_ai_assistant"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/home_bg_header_pill"
+                    android:backgroundTint="#4CAF50"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🗺️ Bản đồ"
+                        android:textColor="@android:color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/btn_home_ai_assistant"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

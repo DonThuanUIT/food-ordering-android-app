@@ -95,6 +95,12 @@ public class StudentHomeFragment extends Fragment {
             startActivity(intent);
         });
 
+        binding.btnHomeMap.setOnClickListener(v -> {
+            // Open Food Map
+            Intent intent = new Intent(requireContext(), com.foodorderingapp.ui.map.FoodMapActivity.class);
+            startActivity(intent);
+        });
+
         shopViewModel.getShopData().observe(getViewLifecycleOwner(), response -> {
             if (response != null && response.getContent() != null) {
                 List<ShopResponse> approvedShops = new ArrayList<>();
