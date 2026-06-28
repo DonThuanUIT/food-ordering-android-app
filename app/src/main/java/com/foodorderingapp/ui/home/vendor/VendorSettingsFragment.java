@@ -37,6 +37,7 @@ import com.foodorderingapp.model.request.ShopUpdateRequest;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.FoodResponse;
 import com.foodorderingapp.model.response.UploadImageResponse;
+import com.foodorderingapp.model.response.FollowerResponse;
 import com.foodorderingapp.ui.auth.LoginActivity;
 import com.foodorderingapp.ui.voucher.VoucherManagementActivity;
 import com.foodorderingapp.ui.voucher.VoucherFormActivity;
@@ -114,6 +115,8 @@ public class VendorSettingsFragment extends Fragment {
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private boolean isEditingLogo = true;
+    private View layoutPrefFollowers;
+    private TextView tvFollowersCount;
 
     private final CompoundButton.OnCheckedChangeListener switchListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
@@ -240,6 +243,9 @@ public class VendorSettingsFragment extends Fragment {
 
         btnEditCover = view.findViewById(R.id.btn_edit_cover);
         btnEditLogo = view.findViewById(R.id.btn_edit_logo);
+
+        layoutPrefFollowers = view.findViewById(R.id.layout_pref_followers);
+        tvFollowersCount = view.findViewById(R.id.tv_followers_count);
 
         cardShopLocation = view.findViewById(R.id.card_shop_location);
         if (cardShopLocation != null) {
@@ -717,7 +723,96 @@ public class VendorSettingsFragment extends Fragment {
                 .into(imgShopCover);
         }
 
+        fetchFollowersCount();
+    }
 
+    private void fetchFollowersCount() {
+        if (currentShopId == null) return;
+        ApiClient.getApiService().getShopFollowers(currentShopId).enqueue(new Callback<List<FollowerResponse>>() {
+            @Override
+            public void onResponse(Call<List<FollowerResponse>> call, Response<List<FollowerResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<FollowerResponse> list = response.body();
+                    if (tvFollowersCount != null) {
+                        tvFollowersCount.setText(list.size() + " người");
+                    }
+                    if (layoutPrefFollowers != null) {
+                        layoutPrefFollowers.setOnClickListener(v -> showFollowersDialog(list));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<FollowerResponse>> call, Throwable t) {
+                // Ignore
+            }
+        });
+    }
+
+    private void showFollowersDialog(List<FollowerResponse> list) {
+        if (getContext() == null) return;
+
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Người theo dõi cửa hàng (Yêu thích) ❤️");
+
+        if (list == null || list.isEmpty()) {
+            builder.setMessage("Hiện tại chưa có người dùng nào yêu thích cửa hàng của bạn.");
+            builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+            builder.create().show();
+            return;
+        }
+
+        RecyclerView rv = new RecyclerView(requireContext());
+        rv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        rv.setPadding(32, 24, 32, 24);
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        rv.setAdapter(new RecyclerView.Adapter<FollowerVH>() {
+            @NonNull
+            @Override
+            public FollowerVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_address_suggestion, parent, false);
+                return new FollowerVH(view);
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull FollowerVH holder, int position) {
+                FollowerResponse item = list.get(position);
+                holder.tvText.setText(item.getName() + " (" + item.getPhone() + ")");
+                if (holder.ivIcon != null) {
+                    holder.ivIcon.setImageResource(R.drawable.ic_contact);
+                    holder.ivIcon.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FF7A21")));
+                }
+            }
+
+            @Override
+            public int getItemCount() {
+                return list.size();
+            }
+        });
+
+        builder.setView(rv);
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_orange));
+    }
+
+    private static class FollowerVH extends RecyclerView.ViewHolder {
+        TextView tvText;
+        ImageView ivIcon;
+        FollowerVH(View itemView) {
+            super(itemView);
+            tvText = itemView.findViewById(R.id.tv_suggestion_text);
+            if (itemView instanceof ViewGroup) {
+                ViewGroup vg = (ViewGroup) itemView;
+                if (vg.getChildCount() > 0 && vg.getChildAt(0) instanceof ImageView) {
+                    ivIcon = (ImageView) vg.getChildAt(0);
+                }
+            }
+        }
     }
 
     private String formatTime12Hour(String timeStr) {
