@@ -25,9 +25,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
     private final List<OrderResponse> orders = new ArrayList<>();
     private boolean showReviewAction;
     private OnReviewClickListener reviewClickListener;
+    private OnHideClickListener hideClickListener;
+    private String pendingHideOrderId;
 
     public interface OnReviewClickListener {
         void onReviewClick(OrderResponse order);
+    }
+
+    public interface OnHideClickListener {
+        void onHideClick(OrderResponse order);
     }
 
     public void setShowReviewAction(boolean showReviewAction) {
@@ -39,10 +45,22 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         this.reviewClickListener = listener;
     }
 
+    public void setOnHideClickListener(OnHideClickListener listener) {
+        this.hideClickListener = listener;
+    }
+
+    public void setPendingHideOrderId(String orderId) {
+        pendingHideOrderId = orderId;
+        notifyDataSetChanged();
+    }
+
     public void submitList(List<OrderResponse> newOrders) {
         orders.clear();
         if (newOrders != null) {
             orders.addAll(newOrders);
+        }
+        if (pendingHideOrderId != null && !containsOrderId(pendingHideOrderId)) {
+            pendingHideOrderId = null;
         }
         notifyDataSetChanged();
     }
@@ -78,11 +96,31 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         boolean canReview = showReviewAction 
                 && ("COMPLETED".equalsIgnoreCase(order.getStatus()) || "RECEIVED".equalsIgnoreCase(order.getStatus()))
                 && !order.isReviewed();
+        boolean canShowHideAction = hideClickListener != null
+                && order.getId() != null
+                && order.getId().equals(pendingHideOrderId);
+        holder.layoutActions.setVisibility(canReview || canShowHideAction ? View.VISIBLE : View.GONE);
         holder.btnReview.setVisibility(canReview ? View.VISIBLE : View.GONE);
         holder.btnReview.setOnClickListener(v -> {
             if (reviewClickListener != null) {
                 reviewClickListener.onReviewClick(order);
             }
+        });
+        holder.btnHide.setVisibility(canShowHideAction ? View.VISIBLE : View.GONE);
+        holder.btnHide.setOnClickListener(v -> {
+            if (hideClickListener != null) {
+                hideClickListener.onHideClick(order);
+            }
+        });
+        holder.itemView.setOnLongClickListener(v -> {
+            if (hideClickListener == null) {
+                return false;
+            }
+            if (order.getId() == null || order.getId().trim().isEmpty()) {
+                return false;
+            }
+            setPendingHideOrderId(order.getId());
+            return true;
         });
     }
 
@@ -196,6 +234,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         return value == null || value.trim().isEmpty() ? fallback : value;
     }
 
+    private boolean containsOrderId(String orderId) {
+        for (OrderResponse order : orders) {
+            if (orderId.equals(order.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static class OrderVH extends RecyclerView.ViewHolder {
         TextView tvShopName;
         TextView tvStatus;
@@ -205,7 +252,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         TextView tvDetails;
         TextView tvCancelReason;
         TextView tvDiscount;
+        View layoutActions;
         MaterialButton btnReview;
+        MaterialButton btnHide;
 
         OrderVH(@NonNull View itemView) {
             super(itemView);
@@ -217,7 +266,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
             tvDetails = itemView.findViewById(R.id.tvOrderDetails);
             tvCancelReason = itemView.findViewById(R.id.tvOrderCancelReason);
             tvDiscount = itemView.findViewById(R.id.tvOrderDiscount);
+            layoutActions = itemView.findViewById(R.id.layoutOrderActions);
             btnReview = itemView.findViewById(R.id.btnReviewOrder);
+            btnHide = itemView.findViewById(R.id.btnHideOrder);
         }
     }
 }
