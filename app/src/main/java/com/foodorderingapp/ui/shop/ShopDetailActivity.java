@@ -185,7 +185,11 @@ public class ShopDetailActivity extends AppCompatActivity {
         tvShopAddress.setText(nullToDefault(address, "Đang tải địa chỉ..."));
         tvShopDescription.setText(nullToDefault(description, "Chưa có mô tả"));
         tvShopTime.setText(formatTimeRange(openTime, closeTime));
-        bindStatus(displayStatus);
+        if (getIntent().hasExtra("SHOP_CURRENTLY_OPEN")) {
+            bindOpeningStatus(getIntent().getBooleanExtra("SHOP_CURRENTLY_OPEN", false));
+        } else {
+            bindStatus(displayStatus);
+        }
     }
 
     private void observeShopDetail() {
@@ -202,7 +206,11 @@ public class ShopDetailActivity extends AppCompatActivity {
             currentOpenTime = detail.getOpenTime();
             currentCloseTime = detail.getCloseTime();
             tvShopTime.setText(formatTimeRange(currentOpenTime, currentCloseTime));
-            bindStatus(detail.getIsOpen());
+            if (detail.getCurrentlyOpen() != null) {
+                bindOpeningStatus(detail.getCurrentlyOpen());
+            } else {
+                bindStatus(detail.getIsOpen());
+            }
             bindHeroImage(detail.getCoverUrl(), detail.getLogoUrl());
         });
     }
@@ -278,6 +286,16 @@ public class ShopDetailActivity extends AppCompatActivity {
         boolean opening = manuallyOpen && isWithinOpeningHours(openTime, closeTime);
         int statusColor = opening ? Color.parseColor("#00A843") : Color.parseColor("#777777");
         tvShopStatus.setText(opening ? "Đang mở cửa" : "Đang đóng cửa");
+        tvShopStatus.setTextColor(statusColor);
+        ivShopStatusIcon.setImageTintList(ColorStateList.valueOf(statusColor));
+        layoutShopStatus.setBackgroundResource(opening
+                ? R.drawable.bg_shop_detail_status_open
+                : R.drawable.bg_shop_detail_status_closed);
+    }
+
+    private void bindOpeningStatus(boolean opening) {
+        int statusColor = opening ? Color.parseColor("#00A843") : Color.parseColor("#777777");
+        tvShopStatus.setText(opening ? "Äang má»Ÿ cá»­a" : "Äang Ä‘Ã³ng cá»­a");
         tvShopStatus.setTextColor(statusColor);
         ivShopStatusIcon.setImageTintList(ColorStateList.valueOf(statusColor));
         layoutShopStatus.setBackgroundResource(opening
