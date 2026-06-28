@@ -27,6 +27,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
         void onDeliverClicked(OrderResponse order);
         void onCompleteClicked(OrderResponse order);
         void onCancelClicked(OrderResponse order);
+        void onDeleteClicked(OrderResponse order);
         void onContactStudentClicked(OrderResponse order);
         void onOrderClicked(OrderResponse order);
     }
@@ -169,14 +170,29 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
 
             btnActionDeliver.setText("GIAO HÀNG"); // Reset default
 
+            android.widget.LinearLayout.LayoutParams params = (android.widget.LinearLayout.LayoutParams) btnActionCancel.getLayoutParams();
             if ("PENDING".equalsIgnoreCase(status)) {
+                params.width = 0;
+                params.weight = 1;
+                btnActionCancel.setLayoutParams(params);
+                btnActionCancel.setText("HỦY");
                 btnActionCancel.setVisibility(View.VISIBLE);
                 btnActionAccept.setVisibility(View.VISIBLE);
             } else if ("CONFIRMED".equalsIgnoreCase(status)) {
+                params.width = 0;
+                params.weight = 1;
+                btnActionCancel.setLayoutParams(params);
+                btnActionCancel.setText("HỦY");
                 btnActionCancel.setVisibility(View.VISIBLE);
             } else if ("DELIVERING".equalsIgnoreCase(status)) {
                 btnActionDeliver.setVisibility(View.VISIBLE);
                 btnActionDeliver.setText("XEM BẢN ĐỒ");
+            } else if ("COMPLETED".equalsIgnoreCase(status) || "CANCELLED".equalsIgnoreCase(status)) {
+                params.width = android.widget.LinearLayout.LayoutParams.MATCH_PARENT;
+                params.weight = 2;
+                btnActionCancel.setLayoutParams(params);
+                btnActionCancel.setText("XÓA ĐƠN");
+                btnActionCancel.setVisibility(View.VISIBLE);
             }
 
             // 10. Click Listeners
@@ -193,7 +209,13 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             });
 
             btnActionCancel.setOnClickListener(v -> {
-                if (actionHandler != null) actionHandler.onCancelClicked(order);
+                if (actionHandler != null) {
+                    if ("COMPLETED".equalsIgnoreCase(order.getStatus()) || "CANCELLED".equalsIgnoreCase(order.getStatus())) {
+                        actionHandler.onDeleteClicked(order);
+                    } else {
+                        actionHandler.onCancelClicked(order);
+                    }
+                }
             });
 
             btnContactStudent.setOnClickListener(v -> {

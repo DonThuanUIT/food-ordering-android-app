@@ -24,6 +24,7 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
         void onClaim(OrderResponse order);
         void onDeliver(OrderResponse order);
         void onContactVendor(OrderResponse order);
+        void onDelete(OrderResponse order);
     }
 
     private final List<OrderResponse> orders = new ArrayList<>();
@@ -84,6 +85,8 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
             holder.btnContactVendor.setVisibility(View.GONE);
             holder.btnAction.setVisibility(View.VISIBLE);
             holder.btnAction.setText("Nhận đơn");
+            holder.btnAction.setBackgroundTintList(androidx.core.content.ContextCompat.getColorStateList(
+                    holder.itemView.getContext(), R.color.vendor_dark_orange));
             holder.btnAction.setOnClickListener(v -> {
                 if (listener != null) listener.onClaim(order);
             });
@@ -94,12 +97,20 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
             });
             holder.btnAction.setVisibility(View.VISIBLE);
             holder.btnAction.setText("Bản đồ & Giao hàng");
+            holder.btnAction.setBackgroundTintList(androidx.core.content.ContextCompat.getColorStateList(
+                    holder.itemView.getContext(), R.color.vendor_dark_orange));
             holder.btnAction.setOnClickListener(v -> {
                 if (listener != null) listener.onDeliver(order);
             });
         } else {
             holder.btnContactVendor.setVisibility(View.GONE);
-            holder.btnAction.setVisibility(View.GONE);
+            holder.btnAction.setVisibility(View.VISIBLE);
+            holder.btnAction.setText("Xóa khỏi lịch sử");
+            holder.btnAction.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    android.graphics.Color.parseColor("#4A5568")));
+            holder.btnAction.setOnClickListener(v -> {
+                if (listener != null) listener.onDelete(order);
+            });
         }
     }
 

@@ -206,30 +206,8 @@ public class ShipperDeliveryMapActivity extends AppCompatActivity {
 
     private void handleActionButtonClick() {
         if ("CONFIRMED".equals(orderStatus)) {
-            // Safety Check: Shipper must be within 100m of the shop to start delivery
-            if (currentLat != null && currentLng != null && shopLat != 0.0 && shopLng != 0.0) {
-                double distance = calculateDistance(currentLat, currentLng, shopLat, shopLng);
-                if (distance > 100.0) {
-                    Toast.makeText(this, "⚠️ Bạn phải đến cách cửa hàng dưới 100m mới được xác nhận đã lấy hàng! (Khoảng cách hiện tại: " + (int) distance + "m)", Toast.LENGTH_LONG).show();
-                    return;
-                }
-            } else if (currentLat == null || currentLng == null) {
-                Toast.makeText(this, "⚠️ Đang xác định vị trí GPS của bạn, vui lòng đợi trong giây lát...", Toast.LENGTH_SHORT).show();
-                return;
-            }
             updateOrderStatusOnServer("DELIVERING");
         } else if ("DELIVERING".equals(orderStatus)) {
-            // Safety Check: Shipper must be within 100m of the delivery building
-            if (currentLat != null && currentLng != null && buildingLat != 0.0 && buildingLng != 0.0) {
-                double distance = calculateDistance(currentLat, currentLng, buildingLat, buildingLng);
-                if (distance > 100.0) {
-                    Toast.makeText(this, "⚠️ Bạn phải đến cách điểm giao dưới 100m mới được xác nhận đã giao! (Khoảng cách hiện tại: " + (int) distance + "m)", Toast.LENGTH_LONG).show();
-                    return;
-                }
-            } else if (currentLat == null || currentLng == null) {
-                Toast.makeText(this, "⚠️ Đang xác định vị trí GPS của bạn, vui lòng đợi trong giây lát...", Toast.LENGTH_SHORT).show();
-                return;
-            }
             updateOrderStatusOnServer("COMPLETED");
         }
     }
