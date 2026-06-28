@@ -295,8 +295,8 @@ public class ShopDetailActivity extends AppCompatActivity {
 
     private void bindOpeningStatus(boolean opening) {
         int statusColor = opening ? Color.parseColor("#00A843") : Color.parseColor("#777777");
-        tvShopStatus.setText(opening ? "Äang má»Ÿ cá»­a" : "Äang Ä‘Ã³ng cá»­a");
         tvShopStatus.setTextColor(statusColor);
+        tvShopStatus.setText(opening ? "Đang mở cửa" : "Đang đóng cửa");
         ivShopStatusIcon.setImageTintList(ColorStateList.valueOf(statusColor));
         layoutShopStatus.setBackgroundResource(opening
                 ? R.drawable.bg_shop_detail_status_open
@@ -310,8 +310,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         String normalized = displayStatus.trim().toUpperCase(Locale.ROOT);
         return normalized.contains("CLOSED")
                 || normalized.contains("DONG")
-                || normalized.contains("ĐÓNG")
-                || normalized.contains("ÄÃ“NG");
+                || normalized.contains("ĐÓNG");
     }
 
     private boolean isWithinOpeningHours(String openTime, String closeTime) {

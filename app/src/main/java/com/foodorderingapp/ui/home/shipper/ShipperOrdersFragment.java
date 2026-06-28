@@ -183,4 +183,33 @@ public class ShipperOrdersFragment extends Fragment implements ShipperOrderAdapt
                 order.getShopName() == null || order.getShopName().trim().isEmpty() ? "Cửa hàng" : order.getShopName());
         startActivity(intent);
     }
+
+    @Override
+    public void onDelete(OrderResponse order) {
+        if (order != null && order.getId() != null) {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận xóa lịch sử? ⚠️")
+                    .setMessage("Bạn có chắc muốn ẩn đơn hàng này khỏi lịch sử giao hàng của bạn?")
+                    .setPositiveButton("Xóa", (dialog, which) -> {
+                        com.foodorderingapp.data.remote.api.ApiClient.getApiService().hideOrderForShipper(order.getId()).enqueue(new retrofit2.Callback<OrderResponse>() {
+                            @Override
+                            public void onResponse(@NonNull retrofit2.Call<OrderResponse> call, @NonNull retrofit2.Response<OrderResponse> response) {
+                                if (response.isSuccessful()) {
+                                    loadData();
+                                    ToastUtils.success(getContext(), "Đã xóa đơn hàng khỏi lịch sử!");
+                                } else {
+                                    ToastUtils.error(getContext(), "Không thể xóa đơn hàng!");
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull retrofit2.Call<OrderResponse> call, @NonNull Throwable t) {
+                                ToastUtils.error(getContext(), "Lỗi kết nối: " + t.getMessage());
+                            }
+                        });
+                    })
+                    .setNegativeButton("Quay lại", null)
+                    .show();
+        }
+    }
 }

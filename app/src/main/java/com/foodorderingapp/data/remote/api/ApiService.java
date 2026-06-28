@@ -313,6 +313,12 @@ public interface ApiService {
             @Body UpdateStatusRequest request
     );
 
+    @PATCH("orders/{orderId}/shipper/hide")
+    Call<OrderResponse> hideOrderForShipper(@Path("orderId") String orderId);
+
+    @PATCH("orders/{orderId}/vendor/hide")
+    Call<OrderResponse> hideOrderForVendor(@Path("orderId") String orderId);
+
     @GET("orders/available-for-delivery")
     Call<List<OrderResponse>> getAvailableOrdersForDelivery();
 

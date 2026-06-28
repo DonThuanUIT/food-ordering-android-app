@@ -47,6 +47,12 @@ public class CheckoutActivity extends AppCompatActivity {
     private MaterialButton btnApplyVoucher;
     private MaterialButton btnConfirmOrder;
 
+    private TextView tvSummarySubtotal;
+    private TextView tvSummaryShipping;
+    private TextView tvSummaryTotal;
+    private Double shopLat = null;
+    private Double shopLng = null;
+
     private final List<BuildingResponse> buildingOptions = new ArrayList<>();
     private String shopId;
     private ShopCartResponse checkoutShop;
@@ -68,6 +74,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
         bindViews();
         setupInputs();
+        loadShopCoordinates();
 
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
         orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
@@ -91,6 +98,10 @@ public class CheckoutActivity extends AppCompatActivity {
         btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
         btnConfirmOrder = findViewById(R.id.btnConfirmOrder);
 
+        tvSummarySubtotal = findViewById(R.id.tvCheckoutSummarySubtotal);
+        tvSummaryShipping = findViewById(R.id.tvCheckoutSummaryShipping);
+        tvSummaryTotal = findViewById(R.id.tvCheckoutSummaryTotal);
+
         btnApplyVoucher.setOnClickListener(v -> handleVoucherButtonClick());
         btnConfirmOrder.setOnClickListener(v -> confirmCheckout());
     }
@@ -98,8 +109,10 @@ public class CheckoutActivity extends AppCompatActivity {
     private void setupInputs() {
         setupDropdown(acBuilding);
 
-        acBuilding.setOnItemClickListener((parent, view, position, id) ->
-                selectedBuilding = (BuildingResponse) parent.getItemAtPosition(position));
+        acBuilding.setOnItemClickListener((parent, view, position, id) -> {
+            selectedBuilding = (BuildingResponse) parent.getItemAtPosition(position);
+            updatePriceCalculation();
+        });
 
         acVoucher.setOnEditorActionListener((v, actionId, event) -> {
             boolean enterPressed = event != null
@@ -200,6 +213,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 ? "Quán ăn" : checkoutShop.getShopName());
         tvItemCount.setText(totalItems + " món");
         tvSubtotal.setText(formatPrice(calculateSubtotal()));
+        updatePriceCalculation();
     }
 
     private void confirmCheckout() {
@@ -353,5 +367,68 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private void updatePriceCalculation() {
+        double subtotal = calculateSubtotal();
+        double shipping = calculateShippingFee();
+        double total = subtotal + shipping;
+
+        if (tvSummarySubtotal != null) {
+            tvSummarySubtotal.setText(formatPrice(subtotal));
+        }
+        if (tvSummaryShipping != null) {
+            tvSummaryShipping.setText(formatPrice(shipping));
+        }
+        if (tvSummaryTotal != null) {
+            tvSummaryTotal.setText(formatPrice(total));
+        }
+    }
+
+    private double calculateShippingFee() {
+        if (selectedBuilding == null || selectedBuilding.getLatitude() == null || selectedBuilding.getLongitude() == null
+                || shopLat == null || shopLng == null || shopLat == 0.0 || shopLng == 0.0) {
+            return 5000.0; // Fallback to 5k
+        }
+        double distMeters = calculateDistance(shopLat, shopLng, selectedBuilding.getLatitude(), selectedBuilding.getLongitude());
+        double distKm = distMeters / 1000.0;
+        return distKm * 5000.0; // 5k per 1km
+    }
+
+    private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+        float[] results = new float[1];
+        try {
+            android.location.Location.distanceBetween(lat1, lng1, lat2, lng2, results);
+            return results[0];
+        } catch (Exception e) {
+            double earthRadius = 6371000; // meters
+            double dLat = Math.toRadians(lat2 - lat1);
+            double dLng = Math.toRadians(lng2 - lng1);
+            double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                       Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                       Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return earthRadius * c;
+        }
+    }
+
+    private void loadShopCoordinates() {
+        com.foodorderingapp.data.remote.api.ApiClient.getApiService().getShopDetail(shopId).enqueue(
+                new retrofit2.Callback<com.foodorderingapp.model.response.ShopDetailResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.foodorderingapp.model.response.ShopDetailResponse> call,
+                                   retrofit2.Response<com.foodorderingapp.model.response.ShopDetailResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    shopLat = response.body().getLatitude();
+                    shopLng = response.body().getLongitude();
+                    updatePriceCalculation();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<com.foodorderingapp.model.response.ShopDetailResponse> call, Throwable t) {
+                // Fail silently, fallback values will be used
+            }
+        });
     }
 }

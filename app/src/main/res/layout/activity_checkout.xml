@@ -273,11 +273,93 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
+                    <!-- Payment Summary Block -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="22dp"
+                        android:orientation="vertical"
+                        android:padding="4dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Chi tiết thanh toán"
+                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Tạm tính"
+                                android:textColor="@color/vendor_dark_text_secondary"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvCheckoutSummarySubtotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0đ"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Phí vận chuyển"
+                                android:textColor="@color/vendor_dark_text_secondary"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvCheckoutSummaryShipping"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="5,000đ"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Tổng thanh toán"
+                                android:textColor="@color/vendor_dark_text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/tvCheckoutSummaryTotal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0đ"
+                                android:textColor="#FF7118"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnConfirmOrder"
                         android:layout_width="match_parent"
                         android:layout_height="58dp"
-                        android:layout_marginTop="22dp"
+                        android:layout_marginTop="20dp"
                         android:enabled="false"
                         android:text="Xác nhận đặt hàng"
                         android:textAllCaps="false"
