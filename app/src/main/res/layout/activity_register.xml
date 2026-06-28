@@ -11,11 +11,22 @@
     <View
         android:id="@+id/topBackground"
         android:layout_width="0dp"
-        android:layout_height="220dp"
-        android:background="@drawable/home_bg_top_dark"
+        android:layout_height="250dp"
+        android:background="#FF7A21"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imgIllustration"
+        android:layout_width="140dp"
+        android:layout_height="100dp"
+        android:src="@drawable/img_login_illustration"
+        android:scaleType="fitCenter"
+        android:layout_marginTop="28dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ImageButton
         android:id="@+id/btnBack"
@@ -30,22 +41,21 @@
         android:src="@drawable/ic_arrow_back_rounded"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="#1D223D" />
+        app:tint="#FF7A21" />
 
     <TextView
         android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
-        android:text="Đăng Ký"
+        android:text="Đăng Ký Tài Khoản"
         android:textColor="#FFFFFF"
-        android:textSize="28sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/topBackground"
+        android:layout_marginTop="6dp"
+        app:layout_constraintTop_toBottomOf="@id/imgIllustration"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/topBackground"
-        android:layout_marginTop="-20dp" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/registerCard"

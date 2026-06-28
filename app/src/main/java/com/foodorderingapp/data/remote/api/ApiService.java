@@ -29,6 +29,7 @@ import com.foodorderingapp.model.response.RegisterResponse;
 import com.foodorderingapp.model.response.SpendingSummaryResponse;
 import com.foodorderingapp.model.response.ShopResponse;
 import com.foodorderingapp.model.response.StudentReviewResponse;
+import com.foodorderingapp.model.response.FollowerResponse;
 import com.foodorderingapp.model.response.ReviewResponse;
 import com.foodorderingapp.model.response.OrderResponse;
 import com.foodorderingapp.model.response.PageResponse;
@@ -98,6 +99,9 @@ public interface ApiService {
             @Path("shopId") UUID shopId,
             @Body Map<String, Boolean> body
     );
+
+    @GET("vendor/shops/{shopId}/followers")
+    Call<List<FollowerResponse>> getShopFollowers(@Path("shopId") UUID shopId);
 
     @POST("vendor/shops/{shopId}/close/otp-request")
     Call<Void> requestCloseShopOtp(
