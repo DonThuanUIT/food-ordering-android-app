@@ -11,10 +11,12 @@
     android:paddingVertical="14dp">
 
     <ImageView
+        android:id="@+id/ivAdminPendingShopLogo"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:background="@drawable/bg_admin_avatar"
         android:padding="12dp"
+        android:scaleType="centerInside"
         android:src="@drawable/ic_store"
         app:tint="#B24C08" />
 

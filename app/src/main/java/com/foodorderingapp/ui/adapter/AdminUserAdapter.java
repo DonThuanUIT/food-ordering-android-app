@@ -1,17 +1,21 @@
 package com.foodorderingapp.ui.adapter;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.foodorderingapp.R;
 import com.foodorderingapp.model.response.AdminUserResponse;
+import com.foodorderingapp.utils.ImageUrlUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +68,7 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
         holder.tvEmail.setText(firstNonBlank(user.getEmail(), user.getPhone(), "Chưa cập nhật"));
         holder.tvRole.setText(formatRole(user.getRole()));
         holder.tvRole.setBackgroundResource(roleBackground(user.getRole()));
+        bindAvatar(holder, user.getAvatarUrl());
 
         holder.swActive.setOnCheckedChangeListener(null);
         holder.swActive.setChecked(isActive);
@@ -79,6 +84,30 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
     @Override
     public int getItemCount() {
         return users.size();
+    }
+
+    private void bindAvatar(AdminUserViewHolder holder, String avatarUrl) {
+        String resolvedAvatarUrl = ImageUrlUtils.resolveImageUrl(avatarUrl);
+        if (resolvedAvatarUrl == null) {
+            Glide.with(holder.itemView).clear(holder.ivAvatar);
+            holder.ivAvatar.setPadding(dp(holder.itemView, 12), dp(holder.itemView, 12),
+                    dp(holder.itemView, 12), dp(holder.itemView, 12));
+            holder.ivAvatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            holder.ivAvatar.setImageTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(holder.itemView.getContext(), R.color.vendor_dark_text_secondary)));
+            holder.ivAvatar.setImageResource(R.drawable.ic_profile);
+            return;
+        }
+
+        holder.ivAvatar.setPadding(0, 0, 0, 0);
+        holder.ivAvatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        holder.ivAvatar.setImageTintList(null);
+        Glide.with(holder.itemView)
+                .load(resolvedAvatarUrl)
+                .placeholder(R.drawable.ic_profile)
+                .error(R.drawable.ic_profile)
+                .circleCrop()
+                .into(holder.ivAvatar);
     }
 
     private int roleBackground(String role) {
@@ -111,7 +140,12 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
         return value == null || value.trim().isEmpty() ? defaultValue : value;
     }
 
+    private int dp(View view, int value) {
+        return (int) (value * view.getResources().getDisplayMetrics().density + 0.5f);
+    }
+
     static class AdminUserViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivAvatar;
         TextView tvName;
         TextView tvEmail;
         TextView tvRole;
@@ -119,6 +153,7 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
 
         AdminUserViewHolder(@NonNull View itemView) {
             super(itemView);
+            ivAvatar = itemView.findViewById(R.id.ivAdminUserAvatar);
             tvName = itemView.findViewById(R.id.tvAdminUserName);
             tvEmail = itemView.findViewById(R.id.tvAdminUserEmail);
             tvRole = itemView.findViewById(R.id.tvAdminUserRole);
