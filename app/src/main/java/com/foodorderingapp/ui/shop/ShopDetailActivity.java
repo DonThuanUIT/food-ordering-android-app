@@ -49,6 +49,7 @@ public class ShopDetailActivity extends AppCompatActivity {
     private LinearLayout layoutShopStatus;
     private Button btnViewMenu;
     private Button btnChatShop;
+    private ImageButton btnFavorite;
     private TextView tvShopRating;
     private LinearLayout layoutShopRating;
 
@@ -56,6 +57,7 @@ public class ShopDetailActivity extends AppCompatActivity {
     private String shopId;
     private String currentOpenTime;
     private String currentCloseTime;
+    private boolean favoriteUpdating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         bindClickListeners();
         showInitialShopInfo();
         loadShopRating();
+        loadFavoriteState();
 
         shopViewModel = new ViewModelProvider(this).get(ShopViewModel.class);
         observeShopDetail();
@@ -90,24 +93,17 @@ public class ShopDetailActivity extends AppCompatActivity {
         layoutShopStatus = findViewById(R.id.layoutShopStatus);
         btnViewMenu = findViewById(R.id.btnViewMenu);
         btnChatShop = findViewById(R.id.btnChatShop);
+        btnFavorite = findViewById(R.id.btnFavorite);
         tvShopRating = findViewById(R.id.tvShopRating);
         layoutShopRating = findViewById(R.id.layoutShopRating);
     }
 
     private void bindClickListeners() {
         ImageButton btnBack = findViewById(R.id.btnBack);
-        ImageButton btnFavorite = findViewById(R.id.btnFavorite);
 
         btnBack.setOnClickListener(v -> finish());
 
-        btnFavorite.setOnClickListener(v -> {
-            v.setSelected(!v.isSelected());
-            if (v.isSelected()) {
-                ToastUtils.success(this, "Đã thêm vào yêu thích");
-            } else {
-                ToastUtils.info(this, "Đã bỏ yêu thích");
-            }
-        });
+        btnFavorite.setOnClickListener(v -> toggleFavorite());
 
         btnViewMenu.setOnClickListener(v -> {
             Intent intent = new Intent(this, ShopMenuActivity.class);
@@ -134,6 +130,59 @@ public class ShopDetailActivity extends AppCompatActivity {
         });
 
         layoutShopRating.setOnClickListener(v -> showReviewsDialog());
+    }
+
+    private void loadFavoriteState() {
+        if (shopId == null || shopId.isEmpty() || btnFavorite == null) {
+            return;
+        }
+        ApiClient.getApiService().isShopFavorite(shopId).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    btnFavorite.setSelected(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // Không chặn màn chi tiết nếu trạng thái yêu thích chưa tải được.
+            }
+        });
+    }
+
+    private void toggleFavorite() {
+        if (favoriteUpdating || shopId == null || shopId.isEmpty()) {
+            return;
+        }
+        favoriteUpdating = true;
+        btnFavorite.setEnabled(false);
+
+        ApiClient.getApiService().toggleShopFavorite(shopId).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                favoriteUpdating = false;
+                btnFavorite.setEnabled(true);
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean isFavorite = response.body();
+                    btnFavorite.setSelected(isFavorite);
+                    if (isFavorite) {
+                        ToastUtils.success(ShopDetailActivity.this, "Đã thêm vào yêu thích");
+                    } else {
+                        ToastUtils.info(ShopDetailActivity.this, "Đã bỏ yêu thích");
+                    }
+                    return;
+                }
+                ToastUtils.error(ShopDetailActivity.this, "Không thể cập nhật yêu thích");
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                favoriteUpdating = false;
+                btnFavorite.setEnabled(true);
+                ToastUtils.error(ShopDetailActivity.this, "Lỗi kết nối: " + t.getMessage());
+            }
+        });
     }
 
     private void showInitialShopInfo() {

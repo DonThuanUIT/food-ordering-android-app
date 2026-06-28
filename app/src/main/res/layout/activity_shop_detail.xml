@@ -226,8 +226,7 @@
         android:elevation="6dp"
         android:padding="13dp"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_shop_detail_heart"
-        app:tint="#FF7A21" />
+        android:src="@drawable/ic_shop_detail_heart_selector" />
 
     <LinearLayout
         android:layout_width="match_parent"
