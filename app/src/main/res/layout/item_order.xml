@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="14dp"
-    app:cardBackgroundColor="#FFFFFF"
+    app:cardBackgroundColor="@color/vendor_dark_card"
     app:cardCornerRadius="18dp"
     app:cardElevation="2dp"
     app:strokeWidth="0dp">
@@ -29,7 +29,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Tên quán"
-                android:textColor="#1A1D26"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="#7D8494"
+            android:textColor="@color/vendor_dark_text_secondary"
             android:textSize="13sp" />
 
         <TextView
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Tòa nhận"
-            android:textColor="#4A5160"
+            android:textColor="@color/vendor_dark_text_secondary"
             android:textSize="14sp" />
 
         <TextView
@@ -71,7 +71,7 @@
             android:layout_marginTop="12dp"
             android:lineSpacingExtra="3dp"
             android:text="Chi tiết món"
-            android:textColor="#1A1D26"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="14sp" />
 
         <TextView
@@ -97,7 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="14dp"
-            android:background="#EEF0F4" />
+            android:background="@color/vendor_dark_divider" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Tổng tiền"
-                android:textColor="#7D8494"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="14sp" />
 
             <TextView
@@ -119,7 +119,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0đ"
-                android:textColor="#1A1D26"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>
