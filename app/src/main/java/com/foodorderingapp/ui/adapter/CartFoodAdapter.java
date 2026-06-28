@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -16,11 +17,16 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH> {
 
     private final List<CartItemResponse> items = new ArrayList<>();
     private OnQuantityChangeListener quantityChangeListener;
     private OnDeleteClickListener deleteClickListener;
+
+    public CartFoodAdapter() {
+        setHasStableIds(true);
+    }
 
     public interface OnQuantityChangeListener {
         void onQuantityChange(CartItemResponse item, int newQuantity);
@@ -39,9 +45,47 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
     }
 
     public void submitList(List<CartItemResponse> newItems) {
+        List<CartItemResponse> oldItems = new ArrayList<>(items);
+        List<CartItemResponse> nextItems = new ArrayList<>();
+        if (newItems != null) {
+            nextItems.addAll(newItems);
+        }
+
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return oldItems.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return nextItems.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return Objects.equals(
+                        oldItems.get(oldItemPosition).getId(),
+                        nextItems.get(newItemPosition).getId()
+                );
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                CartItemResponse oldItem = oldItems.get(oldItemPosition);
+                CartItemResponse newItem = nextItems.get(newItemPosition);
+                return Objects.equals(oldItem.getFoodId(), newItem.getFoodId())
+                        && Objects.equals(oldItem.getFoodName(), newItem.getFoodName())
+                        && Objects.equals(oldItem.getFoodImageUrl(), newItem.getFoodImageUrl())
+                        && Double.compare(oldItem.getPrice(), newItem.getPrice()) == 0
+                        && oldItem.getQuantity() == newItem.getQuantity()
+                        && Objects.equals(oldItem.getNote(), newItem.getNote());
+            }
+        });
+
         items.clear();
-        if (newItems != null) items.addAll(newItems);
-        notifyDataSetChanged();
+        items.addAll(nextItems);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -62,18 +106,29 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
         holder.btnMinus.setEnabled(item.getQuantity() > 1);
         holder.btnMinus.setAlpha(item.getQuantity() > 1 ? 1f : 0.35f);
         holder.btnMinus.setOnClickListener(v -> {
-            if (quantityChangeListener != null && item.getQuantity() > 1) {
-                quantityChangeListener.onQuantityChange(item, item.getQuantity() - 1);
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition == RecyclerView.NO_POSITION || quantityChangeListener == null) {
+                return;
+            }
+
+            CartItemResponse currentItem = items.get(adapterPosition);
+            if (currentItem.getQuantity() > 1) {
+                quantityChangeListener.onQuantityChange(currentItem, currentItem.getQuantity() - 1);
             }
         });
         holder.btnPlus.setOnClickListener(v -> {
-            if (quantityChangeListener != null) {
-                quantityChangeListener.onQuantityChange(item, item.getQuantity() + 1);
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition == RecyclerView.NO_POSITION || quantityChangeListener == null) {
+                return;
             }
+
+            CartItemResponse currentItem = items.get(adapterPosition);
+            quantityChangeListener.onQuantityChange(currentItem, currentItem.getQuantity() + 1);
         });
         holder.btnDelete.setOnClickListener(v -> {
-            if (deleteClickListener != null) {
-                deleteClickListener.onDeleteClick(item);
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION && deleteClickListener != null) {
+                deleteClickListener.onDeleteClick(items.get(adapterPosition));
             }
         });
         Glide.with(holder.itemView.getContext())
@@ -86,6 +141,15 @@ public class CartFoodAdapter extends RecyclerView.Adapter<CartFoodAdapter.FoodVH
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        String id = items.get(position).getId();
+        if (id == null) {
+            id = items.get(position).getFoodId();
+        }
+        return id != null ? id.hashCode() : position;
     }
 
     private String formatPrice(double price) {

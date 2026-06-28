@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,9 +31,12 @@ public class StudentCartFragment extends Fragment {
 
     private CartViewModel cartViewModel;
     private CartShopAdapter cartShopAdapter;
+    private NestedScrollView cartScrollView;
     private RecyclerView rvCartShops;
     private TextView tvCartEmpty;
     private final List<ShopCartResponse> cartShops = new ArrayList<>();
+    private boolean shouldRestoreCartScroll;
+    private int pendingCartScrollY;
 
     public StudentCartFragment() {
     }
@@ -47,6 +51,7 @@ public class StudentCartFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        cartScrollView = view.findViewById(R.id.cartScrollView);
         rvCartShops = view.findViewById(R.id.rvCartShops);
         tvCartEmpty = view.findViewById(R.id.tvCartEmpty);
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
@@ -66,8 +71,10 @@ public class StudentCartFragment extends Fragment {
 
     private void setupCartList() {
         cartShopAdapter = new CartShopAdapter();
-        cartShopAdapter.setOnQuantityChangeListener((item, newQuantity) ->
-                cartViewModel.updateCartItemQuantity(item.getId(), newQuantity));
+        cartShopAdapter.setOnQuantityChangeListener((item, newQuantity) -> {
+            rememberCartScrollPosition();
+            cartViewModel.updateCartItemQuantity(item.getId(), newQuantity);
+        });
         cartShopAdapter.setOnDeleteClickListener(this::confirmDeleteCartItem);
         cartShopAdapter.setOnClearShopCartListener(this::confirmClearShopCart);
         cartShopAdapter.setOnCheckoutClickListener(this::openCheckoutDetails);
@@ -75,11 +82,13 @@ public class StudentCartFragment extends Fragment {
         rvCartShops.setLayoutManager(new LinearLayoutManager(getContext()));
         rvCartShops.setAdapter(cartShopAdapter);
         rvCartShops.setNestedScrollingEnabled(false);
+        rvCartShops.setItemAnimator(null);
     }
 
     private void observeCart() {
         cartViewModel.getCartData().observe(getViewLifecycleOwner(), cart -> {
             if (cart == null) {
+                clearPendingCartScrollRestore();
                 showEmpty("Không tải được giỏ hàng");
                 ToastUtils.error(getContext(), "Không tải được giỏ hàng");
                 return;
@@ -96,6 +105,7 @@ public class StudentCartFragment extends Fragment {
             } else {
                 showList();
             }
+            restoreCartScrollPositionIfNeeded();
         });
     }
 
@@ -104,6 +114,7 @@ public class StudentCartFragment extends Fragment {
             if (Boolean.TRUE.equals(success)) {
                 cartViewModel.loadCart();
             } else if (success != null) {
+                clearPendingCartScrollRestore();
                 ToastUtils.error(getContext(), "Không cập nhật được số lượng");
             }
         });
@@ -176,6 +187,29 @@ public class StudentCartFragment extends Fragment {
         rvCartShops.setVisibility(View.GONE);
         tvCartEmpty.setVisibility(View.VISIBLE);
         tvCartEmpty.setText(message);
+    }
+
+    private void rememberCartScrollPosition() {
+        if (cartScrollView == null) {
+            return;
+        }
+        pendingCartScrollY = cartScrollView.getScrollY();
+        shouldRestoreCartScroll = true;
+    }
+
+    private void restoreCartScrollPositionIfNeeded() {
+        if (!shouldRestoreCartScroll || cartScrollView == null) {
+            return;
+        }
+
+        int scrollY = pendingCartScrollY;
+        clearPendingCartScrollRestore();
+        cartScrollView.post(() -> cartScrollView.scrollTo(cartScrollView.getScrollX(), scrollY));
+    }
+
+    private void clearPendingCartScrollRestore() {
+        shouldRestoreCartScroll = false;
+        pendingCartScrollY = 0;
     }
 
     private boolean isBlank(String value) {
