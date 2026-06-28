@@ -795,68 +795,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Deactivate Store Container -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="3dp"
-                app:cardBackgroundColor="#2C1A1A"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-
-                    <!-- Alert Icon -->
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_alert"
-                        app:tint="#EF4444" />
-
-                    <!-- Text details -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginEnd="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Tạm ngưng hoạt động cửa hàng"
-                            android:textColor="#EF4444"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Ẩn tạm thời cửa hàng của bạn khỏi kết quả tìm kiếm."
-                            android:textColor="#EF4444"
-                            android:textSize="11sp"
-                            android:layout_marginTop="2dp" />
-                    </LinearLayout>
-
-                    <!-- Deactivate Button -->
-                    <Button
-                        android:id="@+id/btn_deactivate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="44dp"
-                        android:text="Tạm dừng"
-                        android:backgroundTint="#C53030"
-                        android:textColor="@color/white"
-                        app:cornerRadius="12dp"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
             <!-- Close Shop Permanently Card -->
             <androidx.cardview.widget.CardView

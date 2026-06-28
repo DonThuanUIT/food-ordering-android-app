@@ -161,6 +161,33 @@
                         android:visibility="invisible"
                         android:background="@drawable/home_bg_tab_indicator"/>
                 </LinearLayout>
+
+                <!-- Tab Yêu Thích -->
+                <LinearLayout
+                    android:id="@+id/tabFavorites"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/tvTabFavorites"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Yêu Thích"
+                        android:textSize="17sp"
+                        android:textColor="@color/vendor_dark_text_secondary"
+                        android:textStyle="bold"
+                        android:paddingBottom="10dp"/>
+                    <View
+                        android:id="@+id/indicatorFavorites"
+                        android:layout_width="60dp"
+                        android:layout_height="3dp"
+                        android:visibility="invisible"
+                        android:background="@drawable/home_bg_tab_indicator"/>
+                </LinearLayout>
             </LinearLayout>
 
             <View

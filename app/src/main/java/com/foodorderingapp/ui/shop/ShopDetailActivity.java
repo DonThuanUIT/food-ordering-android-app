@@ -75,7 +75,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         bindClickListeners();
         showInitialShopInfo();
         loadShopRating();
-        loadFavoriteState();
+        loadFavoriteStatus();
 
         shopViewModel = new ViewModelProvider(this).get(ShopViewModel.class);
         observeShopDetail();
@@ -96,6 +96,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         btnFavorite = findViewById(R.id.btnFavorite);
         tvShopRating = findViewById(R.id.tvShopRating);
         layoutShopRating = findViewById(R.id.layoutShopRating);
+        btnFavorite = findViewById(R.id.btnFavorite);
     }
 
     private void bindClickListeners() {
@@ -103,7 +104,39 @@ public class ShopDetailActivity extends AppCompatActivity {
 
         btnBack.setOnClickListener(v -> finish());
 
-        btnFavorite.setOnClickListener(v -> toggleFavorite());
+        btnFavorite.setOnClickListener(v -> {
+            boolean isStudent = "STUDENT".equalsIgnoreCase(TokenManager.getInstance().getRole());
+            if (!isStudent || favoriteUpdating || shopId == null || shopId.isEmpty()) {
+                return;
+            }
+            favoriteUpdating = true;
+            btnFavorite.setEnabled(false);
+            ApiClient.getApiService().toggleFavoriteShop(shopId).enqueue(new Callback<Boolean>() {
+                @Override
+                public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                    favoriteUpdating = false;
+                    btnFavorite.setEnabled(true);
+                    if (response.isSuccessful() && response.body() != null) {
+                        boolean isFav = response.body();
+                        btnFavorite.setSelected(isFav);
+                        if (isFav) {
+                            ToastUtils.success(ShopDetailActivity.this, "Đã thêm vào yêu thích");
+                        } else {
+                            ToastUtils.info(ShopDetailActivity.this, "Đã bỏ yêu thích");
+                        }
+                    } else {
+                        ToastUtils.error(ShopDetailActivity.this, "Không thể cập nhật yêu thích");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Boolean> call, Throwable t) {
+                    favoriteUpdating = false;
+                    btnFavorite.setEnabled(true);
+                    ToastUtils.error(ShopDetailActivity.this, "Lỗi mạng: " + t.getMessage());
+                }
+            });
+        });
 
         btnViewMenu.setOnClickListener(v -> {
             Intent intent = new Intent(this, ShopMenuActivity.class);
@@ -129,61 +162,14 @@ public class ShopDetailActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        layoutShopRating.setOnClickListener(v -> showReviewsDialog());
-    }
-
-    private void loadFavoriteState() {
-        if (shopId == null || shopId.isEmpty() || btnFavorite == null) {
-            return;
-        }
-        ApiClient.getApiService().isShopFavorite(shopId).enqueue(new Callback<Boolean>() {
-            @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    btnFavorite.setSelected(response.body());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
-                // Không chặn màn chi tiết nếu trạng thái yêu thích chưa tải được.
-            }
+        layoutShopRating.setOnClickListener(v -> {
+            Intent intent = new Intent(this, com.foodorderingapp.ui.review.VendorReviewsActivity.class);
+            intent.putExtra("SHOP_ID", shopId);
+            startActivity(intent);
         });
     }
 
-    private void toggleFavorite() {
-        if (favoriteUpdating || shopId == null || shopId.isEmpty()) {
-            return;
-        }
-        favoriteUpdating = true;
-        btnFavorite.setEnabled(false);
 
-        ApiClient.getApiService().toggleShopFavorite(shopId).enqueue(new Callback<Boolean>() {
-            @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                favoriteUpdating = false;
-                btnFavorite.setEnabled(true);
-                if (response.isSuccessful() && response.body() != null) {
-                    boolean isFavorite = response.body();
-                    btnFavorite.setSelected(isFavorite);
-                    if (isFavorite) {
-                        ToastUtils.success(ShopDetailActivity.this, "Đã thêm vào yêu thích");
-                    } else {
-                        ToastUtils.info(ShopDetailActivity.this, "Đã bỏ yêu thích");
-                    }
-                    return;
-                }
-                ToastUtils.error(ShopDetailActivity.this, "Không thể cập nhật yêu thích");
-            }
-
-            @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
-                favoriteUpdating = false;
-                btnFavorite.setEnabled(true);
-                ToastUtils.error(ShopDetailActivity.this, "Lỗi kết nối: " + t.getMessage());
-            }
-        });
-    }
 
     private void showInitialShopInfo() {
         String name = getIntent().getStringExtra("SHOP_NAME");
@@ -240,56 +226,29 @@ public class ShopDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void showReviewsDialog() {
-        if (shopId == null || shopId.isEmpty()) {
+    private void loadFavoriteStatus() {
+        boolean isStudent = "STUDENT".equalsIgnoreCase(TokenManager.getInstance().getRole());
+        if (!isStudent) {
+            btnFavorite.setVisibility(View.GONE);
             return;
         }
-
-        View content = LayoutInflater.from(this).inflate(R.layout.dialog_student_reviews, null);
-        TextView tvTitle = content.findViewById(R.id.tvReviewsTitle);
-        if (tvTitle != null) {
-            tvTitle.setText("Đánh giá của quán");
-        }
-
-        RecyclerView rvReviews = content.findViewById(R.id.rvStudentReviews);
-        TextView tvEmpty = content.findViewById(R.id.tvStudentReviewsEmpty);
-
-        rvReviews.setLayoutManager(new LinearLayoutManager(this));
-        ReviewAdapter reviewAdapter = new ReviewAdapter();
-        rvReviews.setAdapter(reviewAdapter);
-
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
-        dialog.setContentView(content);
-        dialog.show();
-
-        ApiClient.getApiService().getShopReviews(shopId).enqueue(new Callback<List<ReviewResponse>>() {
+        btnFavorite.setVisibility(View.VISIBLE);
+        ApiClient.getApiService().isFavoriteShop(shopId).enqueue(new Callback<Boolean>() {
             @Override
-            public void onResponse(Call<List<ReviewResponse>> call, Response<List<ReviewResponse>> response) {
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<ReviewResponse> list = response.body();
-                    reviewAdapter.submitList(list);
-                    boolean isEmpty = list.isEmpty();
-                    if (tvEmpty != null) {
-                        tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-                        if (isEmpty) {
-                            tvEmpty.setText("Chưa có đánh giá nào");
-                        }
-                    }
-                } else {
-                    if (tvEmpty != null) {
-                        tvEmpty.setText("Không tải được đánh giá");
-                    }
+                    btnFavorite.setSelected(response.body());
                 }
             }
 
             @Override
-            public void onFailure(Call<List<ReviewResponse>> call, Throwable t) {
-                if (tvEmpty != null) {
-                    tvEmpty.setText("Lỗi mạng: " + t.getMessage());
-                }
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // ignore
             }
         });
     }
+
+
 
     private void bindHeroImage(String coverUrl, String logoUrl) {
         String imageUrl = coverUrl != null && !coverUrl.trim().isEmpty() ? coverUrl : logoUrl;
