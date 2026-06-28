@@ -14,6 +14,7 @@ public class ShopDetailResponse {
     private String openTime;
     private String closeTime;
     private Boolean isOpen;
+    private Boolean currentlyOpen;
     private Double latitude;
     private Double longitude;
     private List<CategoryMenu> menu;
@@ -60,6 +61,10 @@ public class ShopDetailResponse {
 
     public Boolean getIsOpen() {
         return isOpen;
+    }
+
+    public Boolean getCurrentlyOpen() {
+        return currentlyOpen;
     }
 
     public List<CategoryMenu> getMenu() {
