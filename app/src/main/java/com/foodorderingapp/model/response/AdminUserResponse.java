@@ -5,6 +5,7 @@ public class AdminUserResponse {
     private String phone;
     private String fullName;
     private String email;
+    private String avatarUrl;
     private String role;
     private Boolean isLocked;
 
@@ -22,6 +23,10 @@ public class AdminUserResponse {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
 
     public String getRole() {

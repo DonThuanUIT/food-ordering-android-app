@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
@@ -8,12 +7,13 @@
     android:paddingVertical="16dp">
 
     <ImageView
+        android:id="@+id/ivAdminUserAvatar"
         android:layout_width="58dp"
         android:layout_height="58dp"
         android:background="@drawable/bg_admin_avatar"
         android:padding="12dp"
-        android:src="@drawable/ic_profile"
-        app:tint="@color/vendor_dark_text_secondary" />
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_profile" />
 
     <LinearLayout
         android:layout_width="0dp"
