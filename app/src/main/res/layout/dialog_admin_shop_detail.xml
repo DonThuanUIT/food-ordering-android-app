@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_admin_panel_top"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:fillViewport="false"
+    android:overScrollMode="ifContentScrolls">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -201,6 +203,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:textColor="#5B3728"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvDialogShopDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="3dp"
                 android:textColor="#5B3728"
                 android:textSize="14sp" />
 
