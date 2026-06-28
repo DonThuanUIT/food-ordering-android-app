@@ -63,7 +63,7 @@
             android:layout_height="50dp"
             android:background="@drawable/bg_edittext"
             android:paddingHorizontal="12dp"
-            android:popupBackground="@color/white" />
+            android:popupBackground="@color/vendor_dark_card" />
 
         <TextView
             style="@style/LabelStyle"
@@ -87,9 +87,9 @@
             android:layout_marginTop="12dp"
             android:text="Chọn ảnh từ thư viện"
             android:textAllCaps="false"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="15sp"
-            app:backgroundTint="@color/white"
+            app:backgroundTint="@color/vendor_dark_card"
             app:cornerRadius="16dp"
             app:strokeColor="@color/profile_divider"
             app:strokeWidth="1dp" />
@@ -114,9 +114,9 @@
             android:layout_marginTop="10dp"
             android:text="Hủy"
             android:textAllCaps="false"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/vendor_dark_text_primary"
             android:textSize="15sp"
-            app:backgroundTint="@color/white"
+            app:backgroundTint="@color/vendor_dark_card"
             app:cornerRadius="16dp"
             app:strokeColor="@color/profile_divider"
             app:strokeWidth="1dp" />

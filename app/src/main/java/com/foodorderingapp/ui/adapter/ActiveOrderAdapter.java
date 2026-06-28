@@ -129,6 +129,9 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
 
     private void bindTimeline(OrderViewHolder holder, String status) {
         int currentStep = getCurrentStep(status);
+        android.content.Context context = holder.itemView.getContext();
+        int colorOrange = androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_orange);
+        int colorMuted = androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_border);
 
         bindStep(holder.tvStepOneIcon, holder.tvStepOneTitle, holder.tvStepOneSubtitle,
                 "Chờ xác nhận", currentStep, 1, "Đơn đã được tạo");
@@ -136,30 +139,46 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
                 "Đã xác nhận", currentStep, 2, "Quán đã nhận đơn");
         bindStep(holder.tvStepThreeIcon, holder.tvStepThreeTitle, holder.tvStepThreeSubtitle,
                 "Đang giao", currentStep, 3, "Đơn đang trên đường giao");
+
+        if (currentStep > 1) {
+            holder.lineStepOne.setBackgroundColor(colorOrange);
+        } else {
+            holder.lineStepOne.setBackgroundColor(colorMuted);
+        }
+
+        if (currentStep > 2) {
+            holder.lineStepTwo.setBackgroundColor(colorOrange);
+        } else {
+            holder.lineStepTwo.setBackgroundColor(colorMuted);
+        }
     }
 
     private void bindStep(ImageView icon, TextView title, TextView subtitle,
                           String titleText, int currentStep, int step, String activeText) {
         title.setText(titleText);
+        android.content.Context context = title.getContext();
+        int colorDark = androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_primary);
+        int colorOrange = androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_orange);
+        int colorMuted = androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary);
+        int colorTextMuted = androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary);
 
         if (currentStep > step) {
             icon.setImageResource(R.drawable.ic_step_active);
-            icon.setColorFilter(COLOR_ORANGE, PorterDuff.Mode.SRC_IN);
-            title.setTextColor(COLOR_DARK);
-            subtitle.setTextColor(COLOR_TEXT_MUTED);
+            icon.setColorFilter(colorOrange, PorterDuff.Mode.SRC_IN);
+            title.setTextColor(colorDark);
+            subtitle.setTextColor(colorTextMuted);
             subtitle.setText("Đã hoàn tất bước này");
         } else if (currentStep == step) {
-            int color = step == 3 ? COLOR_BROWN : COLOR_ORANGE;
             icon.setImageResource(R.drawable.ic_step_active);
-            icon.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-            title.setTextColor(step == 3 ? COLOR_BROWN : COLOR_DARK);
-            subtitle.setTextColor(step == 3 ? COLOR_BROWN : COLOR_TEXT_MUTED);
+            icon.setColorFilter(colorOrange, PorterDuff.Mode.SRC_IN);
+            title.setTextColor(colorOrange);
+            subtitle.setTextColor(colorOrange);
             subtitle.setText(activeText);
         } else {
             icon.setImageResource(R.drawable.ic_step_inactive);
-            icon.setColorFilter(COLOR_MUTED, PorterDuff.Mode.SRC_IN);
-            title.setTextColor(COLOR_MUTED);
-            subtitle.setTextColor(COLOR_MUTED);
+            icon.setColorFilter(colorMuted, PorterDuff.Mode.SRC_IN);
+            title.setTextColor(colorMuted);
+            subtitle.setTextColor(colorMuted);
             subtitle.setText("Chờ cập nhật");
         }
     }
@@ -283,6 +302,8 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         View btnContactShop;
         View btnCancelOrder;
         View btnTrackDelivery;
+        View lineStepOne;
+        View lineStepTwo;
 
         OrderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -305,6 +326,8 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
             btnContactShop = itemView.findViewById(R.id.btnContactShop);
             btnCancelOrder = itemView.findViewById(R.id.btnCancelOrder);
             btnTrackDelivery = itemView.findViewById(R.id.btnTrackDelivery);
+            lineStepOne = itemView.findViewById(R.id.lineStepOne);
+            lineStepTwo = itemView.findViewById(R.id.lineStepTwo);
         }
     }
 }
