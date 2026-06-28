@@ -108,6 +108,7 @@ public class TokenManager {
                 .remove(KEY_FULL_NAME)
                 .remove(KEY_PASSWORD)
                 .apply();
+        VendorDataCache.clear();
     }
 
     public void savePassword(String password) {

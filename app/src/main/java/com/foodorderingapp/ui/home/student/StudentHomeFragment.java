@@ -44,6 +44,7 @@ public class StudentHomeFragment extends Fragment {
     private final List<FoodExploreResponse> exploreFoods = new ArrayList<>();
     private Runnable pendingSearchRunnable;
     private boolean showingRestaurants = true;
+    private boolean showingFavorites = false;
     private String searchKeyword = "";
     public StudentHomeFragment() {}
 
@@ -117,14 +118,14 @@ public class StudentHomeFragment extends Fragment {
                 exploreFoods.addAll(foods);
             }
 
-            if (!showingRestaurants) {
+            if (!showingRestaurants && !showingFavorites) {
                 filterExploreFoods();
             }
         });
         setupSearchListener();
         setupTabListeners();
         setupExplorePagination();
-        selectTab(true);
+        selectTab(0);
         loadShopsForCurrentSearch();
 
         binding.btnHomeAiAssistant.setOnClickListener(v -> {
@@ -147,14 +148,16 @@ public class StudentHomeFragment extends Fragment {
     private void setupTabListeners() {
         binding.tabRestaurants.setOnClickListener(v -> {
             showingRestaurants = true;
-            selectTab(true);
+            showingFavorites = false;
+            selectTab(0);
             binding.rvMainHomeList.setAdapter(shopAdapter);
             loadShopsForCurrentSearch();
         });
 
         binding.tabDishes.setOnClickListener(v -> {
             showingRestaurants = false;
-            selectTab(false);
+            showingFavorites = false;
+            selectTab(1);
             binding.rvMainHomeList.setAdapter(foodAdapter);
             if (exploreFoods.isEmpty()) {
                 showEmpty("Đang tải món ngon...");
@@ -163,12 +166,57 @@ public class StudentHomeFragment extends Fragment {
                 filterExploreFoods();
             }
         });
+
+        binding.tabFavorites.setOnClickListener(v -> {
+            showingRestaurants = false;
+            showingFavorites = true;
+            selectTab(2);
+            binding.rvMainHomeList.setAdapter(shopAdapter);
+            loadFavoriteShops();
+        });
+    }
+
+    private void loadFavoriteShops() {
+        showEmpty("Đang tải danh sách yêu thích...");
+        com.foodorderingapp.data.remote.api.ApiClient.getApiService().getFavoriteShops().enqueue(new retrofit2.Callback<List<ShopResponse>>() {
+            @Override
+            public void onResponse(@NonNull retrofit2.Call<List<ShopResponse>> call, @NonNull retrofit2.Response<List<ShopResponse>> response) {
+                if (binding == null || !showingFavorites) {
+                    return;
+                }
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ShopResponse> favorites = response.body();
+                    List<ShopResponse> filtered = new ArrayList<>();
+                    for (ShopResponse shop : favorites) {
+                        if (searchKeyword.isEmpty() || (shop.getName() != null && shop.getName().toLowerCase(Locale.ROOT).contains(searchKeyword.toLowerCase(Locale.ROOT)))) {
+                            filtered.add(shop);
+                        }
+                    }
+                    shopAdapter.submitList(filtered);
+                    if (filtered.isEmpty()) {
+                        showEmpty(searchKeyword.isEmpty() ? "Danh sách yêu thích trống" : "Không tìm thấy quán yêu thích phù hợp");
+                    } else {
+                        showList();
+                    }
+                } else {
+                    showEmpty("Lỗi tải danh sách yêu thích");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull retrofit2.Call<List<ShopResponse>> call, @NonNull Throwable t) {
+                if (binding == null || !showingFavorites) {
+                    return;
+                }
+                showEmpty("Lỗi mạng: " + t.getMessage());
+            }
+        });
     }
 
     private void setupExplorePagination() {
         NestedScrollView scrollView = (NestedScrollView) binding.getRoot();
         scrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            if (showingRestaurants || foodViewModel == null || !foodViewModel.canLoadMore()) {
+            if (showingRestaurants || showingFavorites || foodViewModel == null || !foodViewModel.canLoadMore()) {
                 return;
             }
 
@@ -213,6 +261,8 @@ public class StudentHomeFragment extends Fragment {
 
         if (showingRestaurants) {
             loadShopsForCurrentSearch();
+        } else if (showingFavorites) {
+            loadFavoriteShops();
         } else {
             filterExploreFoods();
         }
@@ -264,26 +314,19 @@ public class StudentHomeFragment extends Fragment {
         binding.tvHomeEmpty.setText(message);
     }
 
-    private void selectTab(boolean isRestaurants) {
-        if (isRestaurants) {
-            // Select Restaurants
-            binding.tvTabRestaurants.setTextColor(Color.parseColor("#FF7A21"));
-            binding.indicatorRestaurants.setVisibility(View.VISIBLE);
-
-            // Unselect Dishes
-            binding.tvTabDishes.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
-            binding.indicatorDishes.setVisibility(View.INVISIBLE);
-
-        } else {
-            // Select Dishes
-            binding.tvTabDishes.setTextColor(Color.parseColor("#FF7A21"));
-            binding.indicatorDishes.setVisibility(View.VISIBLE);
-
-            // Unselect Restaurants
-            binding.tvTabRestaurants.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
-            binding.indicatorRestaurants.setVisibility(View.INVISIBLE);
-
+    private void selectTab(int tabIndex) {
+        if (getContext() == null) {
+            return;
         }
+        
+        binding.tvTabRestaurants.setTextColor(tabIndex == 0 ? Color.parseColor("#FF7A21") : androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        binding.indicatorRestaurants.setVisibility(tabIndex == 0 ? View.VISIBLE : View.INVISIBLE);
+
+        binding.tvTabDishes.setTextColor(tabIndex == 1 ? Color.parseColor("#FF7A21") : androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        binding.indicatorDishes.setVisibility(tabIndex == 1 ? View.VISIBLE : View.INVISIBLE);
+
+        binding.tvTabFavorites.setTextColor(tabIndex == 2 ? Color.parseColor("#FF7A21") : androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+        binding.indicatorFavorites.setVisibility(tabIndex == 2 ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override

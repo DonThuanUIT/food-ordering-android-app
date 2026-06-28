@@ -51,6 +51,7 @@ public class ShopDetailActivity extends AppCompatActivity {
     private Button btnChatShop;
     private TextView tvShopRating;
     private LinearLayout layoutShopRating;
+    private ImageButton btnFavorite;
 
     private ShopViewModel shopViewModel;
     private String shopId;
@@ -73,6 +74,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         bindClickListeners();
         showInitialShopInfo();
         loadShopRating();
+        loadFavoriteStatus();
 
         shopViewModel = new ViewModelProvider(this).get(ShopViewModel.class);
         observeShopDetail();
@@ -92,21 +94,43 @@ public class ShopDetailActivity extends AppCompatActivity {
         btnChatShop = findViewById(R.id.btnChatShop);
         tvShopRating = findViewById(R.id.tvShopRating);
         layoutShopRating = findViewById(R.id.layoutShopRating);
+        btnFavorite = findViewById(R.id.btnFavorite);
     }
 
     private void bindClickListeners() {
         ImageButton btnBack = findViewById(R.id.btnBack);
-        ImageButton btnFavorite = findViewById(R.id.btnFavorite);
 
         btnBack.setOnClickListener(v -> finish());
 
         btnFavorite.setOnClickListener(v -> {
-            v.setSelected(!v.isSelected());
-            if (v.isSelected()) {
-                ToastUtils.success(this, "Đã thêm vào yêu thích");
-            } else {
-                ToastUtils.info(this, "Đã bỏ yêu thích");
+            boolean isStudent = "STUDENT".equalsIgnoreCase(TokenManager.getInstance().getRole());
+            if (!isStudent) {
+                return;
             }
+            btnFavorite.setEnabled(false);
+            ApiClient.getApiService().toggleFavoriteShop(shopId).enqueue(new Callback<Boolean>() {
+                @Override
+                public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                    btnFavorite.setEnabled(true);
+                    if (response.isSuccessful() && response.body() != null) {
+                        boolean isFav = response.body();
+                        btnFavorite.setSelected(isFav);
+                        if (isFav) {
+                            ToastUtils.success(ShopDetailActivity.this, "Đã thêm vào yêu thích");
+                        } else {
+                            ToastUtils.info(ShopDetailActivity.this, "Đã bỏ yêu thích");
+                        }
+                    } else {
+                        ToastUtils.error(ShopDetailActivity.this, "Lỗi thao tác yêu thích");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Boolean> call, Throwable t) {
+                    btnFavorite.setEnabled(true);
+                    ToastUtils.error(ShopDetailActivity.this, "Lỗi mạng: " + t.getMessage());
+                }
+            });
         });
 
         btnViewMenu.setOnClickListener(v -> {
@@ -186,6 +210,28 @@ public class ShopDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<Double> call, Throwable t) {
                 tvShopRating.setText("N/A");
+            }
+        });
+    }
+
+    private void loadFavoriteStatus() {
+        boolean isStudent = "STUDENT".equalsIgnoreCase(TokenManager.getInstance().getRole());
+        if (!isStudent) {
+            btnFavorite.setVisibility(View.GONE);
+            return;
+        }
+        btnFavorite.setVisibility(View.VISIBLE);
+        ApiClient.getApiService().isFavoriteShop(shopId).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    btnFavorite.setSelected(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                // ignore
             }
         });
     }

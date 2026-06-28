@@ -225,6 +225,15 @@ public interface ApiService {
     @GET("shops/{shopId}/detail-menu")
     Call<ShopDetailResponse> getShopDetail(@Path("shopId") String shopId);
 
+    @POST("shops/{shopId}/favorite")
+    Call<Boolean> toggleFavoriteShop(@Path("shopId") String shopId);
+
+    @GET("shops/{shopId}/is-favorite")
+    Call<Boolean> isFavoriteShop(@Path("shopId") String shopId);
+
+    @GET("shops/favorite")
+    Call<List<ShopResponse>> getFavoriteShops();
+
     @GET("shops/{shopId}/vouchers")
     Call<List<VoucherResponse>> getActiveVouchers(@Path("shopId") String shopId);
 

@@ -19,6 +19,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder> {
 
@@ -90,6 +91,15 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             holder.tvShopStatus.setTextColor(Color.parseColor("#777777"));
         }
 
+        Double rating = shop.getRating();
+        if (rating != null && rating > 0.0) {
+            holder.tvShopRating.setVisibility(View.VISIBLE);
+            holder.tvShopRating.setText(String.format(Locale.getDefault(), "⭐ %.1f", rating));
+        } else {
+            holder.tvShopRating.setVisibility(View.VISIBLE);
+            holder.tvShopRating.setText("⭐ N/A");
+        }
+
         holder.itemView.setOnClickListener(v -> {
             if (onShopClickListener != null) {
                 onShopClickListener.onShopClick(shop);
@@ -152,6 +162,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         TextView tvShopAddress;
         TextView tvShopTime;
         TextView tvShopStatus;
+        TextView tvShopRating;
         ImageView ivShopImage;
 
         public ShopViewHolder(@NonNull View itemView) {
@@ -161,6 +172,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             tvShopAddress = itemView.findViewById(R.id.tvShopAddress);
             tvShopTime = itemView.findViewById(R.id.tvShopTime);
             tvShopStatus = itemView.findViewById(R.id.tvShopStatus);
+            tvShopRating = itemView.findViewById(R.id.tvShopRating);
             ivShopImage = itemView.findViewById(R.id.ivShopImage);
         }
     }

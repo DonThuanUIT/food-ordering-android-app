@@ -96,7 +96,6 @@ public class VendorSettingsFragment extends Fragment {
 
     private CheckBox checkboxOrderAlerts;
     private CheckBox checkboxTurboMode;
-    private Button btnDeactivate;
     private Button btnClosePermanently;
 
     private View layoutPrefPromo;
@@ -129,6 +128,19 @@ public class VendorSettingsFragment extends Fragment {
                         || currentShopData.getLatitude() == null || currentShopData.getLatitude() == 0.0
                         || currentShopData.getLongitude() == null || currentShopData.getLongitude() == 0.0) {
                     Toast.makeText(getContext(), "Vui lòng thiết lập vị trí cửa hàng trước khi mở cửa!", Toast.LENGTH_LONG).show();
+                    revertSwitchUI(false);
+                    return;
+                }
+                if (!"APPROVED".equalsIgnoreCase(currentShopData.getStatus())) {
+                    String msg = "Cửa hàng chưa được duyệt hoặc đang bị khóa, không thể mở cửa!";
+                    if ("PENDING".equalsIgnoreCase(currentShopData.getStatus())) {
+                        msg = "Cửa hàng đang chờ Admin duyệt, không thể mở cửa!";
+                    } else if ("BANNED".equalsIgnoreCase(currentShopData.getStatus())) {
+                        msg = "Cửa hàng đã bị khóa (ban), vui lòng liên hệ Admin!";
+                    } else if ("REJECTED".equalsIgnoreCase(currentShopData.getStatus())) {
+                        msg = "Cửa hàng đã bị từ chối phê duyệt!";
+                    }
+                    Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
                     revertSwitchUI(false);
                     return;
                 }
@@ -224,7 +236,6 @@ public class VendorSettingsFragment extends Fragment {
         layoutPrefPromo = view.findViewById(R.id.layout_pref_promo);
         layoutPrefReviews = view.findViewById(R.id.layout_pref_reviews);
         checkboxTurboMode = view.findViewById(R.id.checkbox_turbo_mode);
-        btnDeactivate = view.findViewById(R.id.btn_deactivate);
         btnClosePermanently = view.findViewById(R.id.btn_close_permanently);
 
         btnEditCover = view.findViewById(R.id.btn_edit_cover);
@@ -354,22 +365,7 @@ public class VendorSettingsFragment extends Fragment {
                 androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
         });
 
-        // Deactivate button click with warning alert dialog
-        btnDeactivate.setOnClickListener(v -> {
-            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Vô hiệu hóa Cửa hàng?")
-                .setMessage("Bạn có chắc chắn muốn tạm thời vô hiệu hóa cửa hàng? Cửa hàng của bạn sẽ bị ẩn khỏi mọi kết quả tìm kiếm trên DormDash.")
-                .setPositiveButton("Vô hiệu hóa", (d, which) -> {
-                    toggleShopStatusOnServer(false);
-                })
-                .setNegativeButton("Hủy bỏ", (d, which) -> d.dismiss())
-                .create();
-            dialog.show();
-            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
-                android.graphics.Color.parseColor("#FF4D4D"));
-            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
-        });
+
 
         // Close permanently click listener
         if (btnClosePermanently != null) {
@@ -579,21 +575,46 @@ public class VendorSettingsFragment extends Fragment {
 
 
     private void updateOperationalStatusUI(boolean isOpen) {
-        if (isOpen) {
-            tvOperationalStatus.setText("Đang mở cửa");
-            int greenColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.status_success);
-            int greenBg = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_light_green_soft);
-            tvOperationalStatus.setTextColor(greenColor);
-            cardStatusIconBg.setCardBackgroundColor(greenBg);
-            ivStatusIcon.setImageTintList(ColorStateList.valueOf(greenColor));
+        if (getContext() == null || currentShopData == null) return;
+
+        String statusText;
+        int color;
+        int bgColor;
+
+        if (!"APPROVED".equalsIgnoreCase(currentShopData.getStatus())) {
+            if ("PENDING".equalsIgnoreCase(currentShopData.getStatus())) {
+                statusText = "Chờ Admin phê duyệt";
+            } else if ("BANNED".equalsIgnoreCase(currentShopData.getStatus())) {
+                statusText = "Cửa hàng đang bị khóa (Ban)";
+            } else {
+                statusText = "Bị từ chối phê duyệt";
+            }
+            color = Color.parseColor("#EF4444"); // Red text
+            bgColor = Color.parseColor("#FEE2E2"); // Soft red bg
         } else {
-            tvOperationalStatus.setText("Tạm đóng cửa");
-            int grayColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary);
-            int grayBg = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_divider);
-            tvOperationalStatus.setTextColor(grayColor);
-            cardStatusIconBg.setCardBackgroundColor(grayBg);
-            ivStatusIcon.setImageTintList(ColorStateList.valueOf(grayColor));
+            boolean hasLocation = currentShopData.getAddress() != null && !currentShopData.getAddress().trim().isEmpty()
+                    && currentShopData.getLatitude() != null && currentShopData.getLatitude() != 0.0
+                    && currentShopData.getLongitude() != null && currentShopData.getLongitude() != 0.0;
+
+            if (!hasLocation) {
+                statusText = "Chưa thiết lập vị trí cửa hàng";
+                color = Color.parseColor("#D97706"); // Dark yellow/orange text
+                bgColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_light_orange_soft); // Soft orange bg
+            } else if (isOpen) {
+                statusText = "Đang mở cửa";
+                color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.status_success);
+                bgColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_light_green_soft);
+            } else {
+                statusText = "Tạm đóng cửa";
+                color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary);
+                bgColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_divider);
+            }
         }
+
+        tvOperationalStatus.setText(statusText);
+        tvOperationalStatus.setTextColor(color);
+        cardStatusIconBg.setCardBackgroundColor(bgColor);
+        ivStatusIcon.setImageTintList(ColorStateList.valueOf(color));
     }
 
     private void fetchShopInfo() {
@@ -643,6 +664,11 @@ public class VendorSettingsFragment extends Fragment {
         switchOperational.setOnCheckedChangeListener(null);
         switchOperational.setChecked(isActive);
         switchOperational.setOnCheckedChangeListener(switchListener);
+        boolean isApproved = "APPROVED".equalsIgnoreCase(shop.getStatus());
+        boolean hasLocation = shop.getAddress() != null && !shop.getAddress().trim().isEmpty()
+                && shop.getLatitude() != null && shop.getLatitude() != 0.0
+                && shop.getLongitude() != null && shop.getLongitude() != 0.0;
+        switchOperational.setEnabled(isApproved && hasLocation);
         updateOperationalStatusUI(isActive);
 
         checkboxTurboMode.setOnCheckedChangeListener(null);
@@ -741,6 +767,13 @@ public class VendorSettingsFragment extends Fragment {
         switchOperational.setOnCheckedChangeListener(null);
         switchOperational.setChecked(targetState);
         switchOperational.setOnCheckedChangeListener(switchListener);
+        if (currentShopData != null) {
+            boolean isApproved = "APPROVED".equalsIgnoreCase(currentShopData.getStatus());
+            boolean hasLocation = currentShopData.getAddress() != null && !currentShopData.getAddress().trim().isEmpty()
+                    && currentShopData.getLatitude() != null && currentShopData.getLatitude() != 0.0
+                    && currentShopData.getLongitude() != null && currentShopData.getLongitude() != 0.0;
+            switchOperational.setEnabled(isApproved && hasLocation);
+        }
         updateOperationalStatusUI(targetState);
     }
 

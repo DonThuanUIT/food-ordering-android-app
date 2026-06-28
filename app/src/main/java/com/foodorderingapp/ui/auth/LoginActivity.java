@@ -423,7 +423,11 @@ public class LoginActivity extends AppCompatActivity {
 
         loginViewModel.getErrorMessage().observe(this, message -> {
             if (message != null) {
-                ToastUtils.error(this, message);
+                if (message.toLowerCase().contains("khóa") || message.toLowerCase().contains("khoá")) {
+                    showAccountLockedDialog(message);
+                } else {
+                    ToastUtils.error(this, message);
+                }
                 Log.e(TAG, "Login Error: " + message);
             }
         });
@@ -460,5 +464,14 @@ public class LoginActivity extends AppCompatActivity {
             edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         }
         edtPassword.setSelection(edtPassword.length());
+    }
+
+    private void showAccountLockedDialog(String message) {
+        new AlertDialog.Builder(this)
+                .setTitle("Tài khoản bị khóa ⚠️")
+                .setMessage(message)
+                .setPositiveButton("Xác nhận", (dialog, which) -> dialog.dismiss())
+                .setCancelable(false)
+                .show();
     }
 }

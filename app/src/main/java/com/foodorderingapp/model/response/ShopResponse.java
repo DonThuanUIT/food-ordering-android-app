@@ -273,4 +273,14 @@ public class ShopResponse {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
+
+    private Double rating;
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
 }
