@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +18,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH> {
 
@@ -25,6 +27,10 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
     private OnClearShopCartListener clearShopCartListener;
     private CartFoodAdapter.OnQuantityChangeListener quantityChangeListener;
     private CartFoodAdapter.OnDeleteClickListener deleteClickListener;
+
+    public CartShopAdapter() {
+        setHasStableIds(true);
+    }
 
     public interface OnCheckoutClickListener {
         void onCheckoutClick(ShopCartResponse shop);
@@ -51,11 +57,43 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
     }
 
     public void submitList(List<ShopCartResponse> newShops) {
-        shops.clear();
+        List<ShopCartResponse> oldShops = new ArrayList<>(shops);
+        List<ShopCartResponse> nextShops = new ArrayList<>();
         if (newShops != null) {
-            shops.addAll(newShops);
+            nextShops.addAll(newShops);
         }
-        notifyDataSetChanged();
+
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return oldShops.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return nextShops.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return Objects.equals(
+                        oldShops.get(oldItemPosition).getShopId(),
+                        nextShops.get(newItemPosition).getShopId()
+                );
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                return areShopContentsTheSame(
+                        oldShops.get(oldItemPosition),
+                        nextShops.get(newItemPosition)
+                );
+            }
+        });
+
+        shops.clear();
+        shops.addAll(nextShops);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -72,13 +110,9 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
 
         holder.tvShopName.setText(shop.getShopName());
 
-        CartFoodAdapter foodAdapter = new CartFoodAdapter();
-        foodAdapter.setOnQuantityChangeListener(quantityChangeListener);
-        foodAdapter.setOnDeleteClickListener(deleteClickListener);
-        holder.rvFoods.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
-        holder.rvFoods.setAdapter(foodAdapter);
-        holder.rvFoods.setNestedScrollingEnabled(false);
-        foodAdapter.submitList(shop.getItems());
+        holder.foodAdapter.setOnQuantityChangeListener(quantityChangeListener);
+        holder.foodAdapter.setOnDeleteClickListener(deleteClickListener);
+        holder.foodAdapter.submitList(shop.getItems());
 
         int totalItems = 0;
         double totalPrice = 0;
@@ -93,13 +127,15 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         holder.tvItemCount.setText("Tổng cộng (" + totalItems + " món):");
         holder.tvShopTotal.setText(formatPrice(totalPrice));
         holder.btnCheckoutShop.setOnClickListener(v -> {
-            if (checkoutClickListener != null) {
-                checkoutClickListener.onCheckoutClick(shop);
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION && checkoutClickListener != null) {
+                checkoutClickListener.onCheckoutClick(shops.get(adapterPosition));
             }
         });
         holder.btnDeleteShopCart.setOnClickListener(v -> {
-            if (clearShopCartListener != null) {
-                clearShopCartListener.onClearShopCart(shop);
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION && clearShopCartListener != null) {
+                clearShopCartListener.onClearShopCart(shops.get(adapterPosition));
             }
         });
     }
@@ -109,9 +145,48 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         return shops.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        String id = shops.get(position).getShopId();
+        if (id == null) {
+            id = shops.get(position).getShopName();
+        }
+        return id != null ? id.hashCode() : position;
+    }
+
     private String formatPrice(double price) {
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         return formatter.format(price) + "đ";
+    }
+
+    private boolean areShopContentsTheSame(ShopCartResponse oldShop, ShopCartResponse newShop) {
+        return Objects.equals(oldShop.getShopName(), newShop.getShopName())
+                && areCartItemsTheSame(oldShop.getItems(), newShop.getItems());
+    }
+
+    private boolean areCartItemsTheSame(List<CartItemResponse> oldItems,
+                                        List<CartItemResponse> newItems) {
+        if (oldItems == newItems) {
+            return true;
+        }
+        if (oldItems == null || newItems == null || oldItems.size() != newItems.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < oldItems.size(); i++) {
+            CartItemResponse oldItem = oldItems.get(i);
+            CartItemResponse newItem = newItems.get(i);
+            if (!Objects.equals(oldItem.getId(), newItem.getId())
+                    || !Objects.equals(oldItem.getFoodId(), newItem.getFoodId())
+                    || !Objects.equals(oldItem.getFoodName(), newItem.getFoodName())
+                    || !Objects.equals(oldItem.getFoodImageUrl(), newItem.getFoodImageUrl())
+                    || Double.compare(oldItem.getPrice(), newItem.getPrice()) != 0
+                    || oldItem.getQuantity() != newItem.getQuantity()
+                    || !Objects.equals(oldItem.getNote(), newItem.getNote())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     static class ShopVH extends RecyclerView.ViewHolder {
@@ -121,6 +196,7 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
         View btnCheckoutShop;
         View btnDeleteShopCart;
         RecyclerView rvFoods;
+        CartFoodAdapter foodAdapter;
 
         ShopVH(@NonNull View itemView) {
             super(itemView);
@@ -130,6 +206,11 @@ public class CartShopAdapter extends RecyclerView.Adapter<CartShopAdapter.ShopVH
             btnCheckoutShop = itemView.findViewById(R.id.btnCheckoutShop);
             btnDeleteShopCart = itemView.findViewById(R.id.btnDeleteShopCart);
             rvFoods = itemView.findViewById(R.id.rvCartFoods);
+            foodAdapter = new CartFoodAdapter();
+            rvFoods.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+            rvFoods.setAdapter(foodAdapter);
+            rvFoods.setNestedScrollingEnabled(false);
+            rvFoods.setItemAnimator(null);
         }
     }
 }
