@@ -87,9 +87,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
         holder.bubble.setLayoutParams(params);
         holder.bubble.setBackgroundResource(mine ? R.drawable.bg_chat_message_mine : R.drawable.bg_chat_message_other);
 
-        holder.tvSender.setTextColor(mine ? Color.parseColor("#FFF4ED") : Color.parseColor("#7D8494"));
-        holder.tvContent.setTextColor(mine ? Color.WHITE : Color.parseColor("#1A1D26"));
-        holder.tvTime.setTextColor(mine ? Color.parseColor("#FFE2D1") : Color.parseColor("#7D8494"));
+        holder.tvSender.setTextColor(mine ? Color.parseColor("#FFF4ED") : androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.text_secondary));
+        holder.tvContent.setTextColor(mine ? Color.WHITE : androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.text_primary));
+        holder.tvTime.setTextColor(mine ? Color.parseColor("#FFE2D1") : androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.text_muted));
     }
 
     @Override

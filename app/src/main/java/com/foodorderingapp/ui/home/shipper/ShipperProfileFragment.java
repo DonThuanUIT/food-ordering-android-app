@@ -363,7 +363,7 @@ public class ShipperProfileFragment extends Fragment {
 
         for (int i = 0; i < last7Days.size(); i++) {
             java.time.LocalDate d = last7Days.get(i);
-            float value = earningsMap.get(d).floatValue();
+            float value = (float) (Math.round(earningsMap.get(d) / 1000.0) * 1000.0);
             entries.add(new BarEntry(i, value));
             labels.add(d.format(labelFormatter));
         }
@@ -449,8 +449,9 @@ public class ShipperProfileFragment extends Fragment {
     }
 
     private String formatPrice(double price) {
+        double rounded = Math.round(price / 1000.0) * 1000.0;
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
-        return formatter.format(price) + "đ";
+        return formatter.format(rounded) + "đ";
     }
 
     private void openAvatarPicker() {
@@ -541,6 +542,10 @@ public class ShipperProfileFragment extends Fragment {
         // Try to hide building spinner labels if any
         if (content.findViewById(R.id.spinnerProfileBuilding) != null) {
             content.findViewById(R.id.spinnerProfileBuilding).setVisibility(View.GONE);
+        }
+        View labelBuildingText = content.findViewById(R.id.tvProfileBuildingLabel);
+        if (labelBuildingText != null) {
+            labelBuildingText.setVisibility(View.GONE);
         }
 
         etFullName.setText(currentProfile.getFullName());
