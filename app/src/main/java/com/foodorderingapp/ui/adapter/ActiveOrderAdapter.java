@@ -90,6 +90,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         holder.tvOrderLocation.setText(formatLocation(order.getBuilding()));
         holder.tvOrderSummaryItems.setText(formatSummaryItems(order.getDetails()));
         bindOrderImage(holder.ivOrderImage, order.getDetails());
+        bindShipping(holder.tvOrderShipping, order);
         bindDiscount(holder.tvOrderDiscount, order);
         holder.tvOrderTotal.setText(formatPrice(order.getTotalPrice()));
         holder.btnContactShop.setOnClickListener(v -> {
@@ -255,6 +256,33 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         return null;
     }
 
+    private void bindShipping(TextView view, OrderResponse order) {
+        if (view == null) return;
+        double shipping = calculateShippingFee(order);
+        view.setText("Phí vận chuyển: " + formatPrice(shipping));
+        view.setVisibility(View.VISIBLE);
+    }
+
+    private double calculateShippingFee(OrderResponse order) {
+        if (order.getBuildingLatitude() == null || order.getBuildingLongitude() == null
+                || order.getShopLatitude() == null || order.getShopLongitude() == null
+                || order.getShopLatitude() == 0.0 || order.getShopLongitude() == 0.0) {
+            return 5000.0; // Fallback to 5k
+        }
+        float[] results = new float[1];
+        try {
+            android.location.Location.distanceBetween(
+                    order.getShopLatitude(), order.getShopLongitude(),
+                    order.getBuildingLatitude(), order.getBuildingLongitude(),
+                    results
+            );
+            double distKm = results[0] / 1000.0;
+            return Math.round((distKm * 5000.0) / 1000.0) * 1000.0;
+        } catch (Exception e) {
+            return 5000.0;
+        }
+    }
+
     private String formatLocation(String building) {
         return "Tòa nhận: " + nullToDefault(building, "Chưa chọn");
     }
@@ -297,6 +325,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
         TextView tvOrderLocation;
         ImageView ivOrderImage;
         TextView tvOrderSummaryItems;
+        TextView tvOrderShipping;
         TextView tvOrderDiscount;
         TextView tvOrderTotal;
         View btnContactShop;
@@ -321,6 +350,7 @@ public class ActiveOrderAdapter extends RecyclerView.Adapter<ActiveOrderAdapter.
             tvOrderLocation = itemView.findViewById(R.id.tvOrderLocation);
             ivOrderImage = itemView.findViewById(R.id.ivActiveOrderImage);
             tvOrderSummaryItems = itemView.findViewById(R.id.tvOrderSummaryItems);
+            tvOrderShipping = itemView.findViewById(R.id.tvOrderShipping);
             tvOrderDiscount = itemView.findViewById(R.id.tvOrderDiscount);
             tvOrderTotal = itemView.findViewById(R.id.tvOrderTotal);
             btnContactShop = itemView.findViewById(R.id.btnContactShop);

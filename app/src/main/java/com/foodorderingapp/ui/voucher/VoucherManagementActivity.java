@@ -69,14 +69,18 @@ public class VoucherManagementActivity extends AppCompatActivity implements Vouc
         ApiClient.getApiService().getVendorShops().enqueue(new Callback<List<ShopResponse>>() {
             @Override
             public void onResponse(Call<List<ShopResponse>> call, Response<List<ShopResponse>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    String idStr = response.body().get(0).getId();
-                    if (idStr != null) {
-                        currentShopId = UUID.fromString(idStr);
-                        loadVouchers();
+                if (response.isSuccessful() && response.body() != null) {
+                    if (!response.body().isEmpty()) {
+                        String idStr = response.body().get(0).getId();
+                        if (idStr != null) {
+                            currentShopId = UUID.fromString(idStr);
+                            loadVouchers();
+                        }
+                    } else {
+                        Toast.makeText(VoucherManagementActivity.this, "Tài khoản của bạn chưa đăng ký cửa hàng nào", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(VoucherManagementActivity.this, "Không thể xác minh thông tin cửa hàng", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VoucherManagementActivity.this, "Lỗi " + response.code() + ": Không thể xác minh thông tin cửa hàng", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -103,7 +107,7 @@ public class VoucherManagementActivity extends AppCompatActivity implements Vouc
                         rvVouchers.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    Toast.makeText(VoucherManagementActivity.this, "Không thể tải danh sách voucher", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VoucherManagementActivity.this, "Lỗi " + response.code() + ": Không thể tải danh sách voucher", Toast.LENGTH_SHORT).show();
                 }
             }
 

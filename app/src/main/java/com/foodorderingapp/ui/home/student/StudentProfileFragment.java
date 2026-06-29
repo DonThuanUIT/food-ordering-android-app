@@ -268,7 +268,10 @@ public class StudentProfileFragment extends Fragment {
             loadSpendingForSelectedRange();
         });
         view.findViewById(R.id.rowEditProfile).setOnClickListener(v -> showEditProfileSheet());
-        view.findViewById(R.id.rowMyReviews).setOnClickListener(v -> showMyReviewsSheet());
+        view.findViewById(R.id.rowMyReviews).setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), com.foodorderingapp.ui.review.StudentReviewsActivity.class);
+            startActivity(intent);
+        });
         view.findViewById(R.id.rowSupport).setOnClickListener(v -> showSupportInfo());
         view.findViewById(R.id.btnEditAvatar).setOnClickListener(v -> showEditProfileSheet());
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> confirmLogout());
@@ -524,7 +527,7 @@ public class StudentProfileFragment extends Fragment {
 
         if (entries.isEmpty()) {
             chart.clear();
-            chart.setNoDataText("ChÆ°a cÃ³ chi tiÃªu trong khoáº£ng nÃ y");
+            chart.setNoDataText("Chưa có chi tiêu trong khoảng này");
             chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
             return;
         }
@@ -626,7 +629,7 @@ public class StudentProfileFragment extends Fragment {
 
         if (entries.isEmpty()) {
             chart.clear();
-            chart.setNoDataText("ChÆ°a cÃ³ chi tiÃªu trong khoáº£ng nÃ y");
+            chart.setNoDataText("Chưa có chi tiêu trong khoảng này");
             chart.setNoDataTextColor(Color.parseColor("#8A7D79"));
             return;
         }

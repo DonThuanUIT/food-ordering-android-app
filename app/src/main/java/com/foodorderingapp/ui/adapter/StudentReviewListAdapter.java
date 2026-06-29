@@ -29,20 +29,39 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewListAdapter.ViewHolder> {
+public class StudentReviewListAdapter extends RecyclerView.Adapter<StudentReviewListAdapter.ViewHolder> {
 
-    private final List<ReviewResponse> reviews = new ArrayList<>();
+    public static class StudentReviewWrapper {
+        private final ReviewResponse review;
+        private final String type; // "SHOP", "FOOD", "DELIVERY"
+        private final String targetName; // Shop name or Food name
+        private final String subTitle; // E.g., "Đơn hàng #1234"
+
+        public StudentReviewWrapper(ReviewResponse review, String type, String targetName, String subTitle) {
+            this.review = review;
+            this.type = type;
+            this.targetName = targetName;
+            this.subTitle = subTitle;
+        }
+
+        public ReviewResponse getReview() { return review; }
+        public String getType() { return type; }
+        public String getTargetName() { return targetName; }
+        public String getSubTitle() { return subTitle; }
+    }
+
+    private final List<StudentReviewWrapper> list = new ArrayList<>();
     private final DateTimeFormatter inputFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private final DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final Set<String> collapsedReviewIds = new HashSet<>();
-    
+
     // Cache loaded replies from backend
     private final Map<String, List<ReviewReplyResponse>> repliesCache = new HashMap<>();
 
-    public void submitList(List<ReviewResponse> newReviews) {
-        reviews.clear();
-        if (newReviews != null) {
-            reviews.addAll(newReviews);
+    public void submitList(List<StudentReviewWrapper> newList) {
+        list.clear();
+        if (newList != null) {
+            list.addAll(newList);
         }
         notifyDataSetChanged();
     }
@@ -56,18 +75,18 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ReviewResponse review = reviews.get(position);
+        StudentReviewWrapper wrapper = list.get(position);
+        ReviewResponse review = wrapper.getReview();
         String rId = review.getId();
 
-        String name = (review.getUser() != null && review.getUser().getFullName() != null)
-                ? review.getUser().getFullName()
-                : "Người dùng ẩn danh";
-        holder.tvName.setText(name);
+        // Display targeted title
+        holder.tvName.setText(wrapper.getTargetName());
         holder.tvRating.setText(buildStars(review.getRating()));
-        holder.tvComment.setText(review.getComment() != null ? review.getComment() : "Không có bình luận");
-        holder.tvDate.setText(formatDate(review.getCreatedAt()));
-
-        boolean isVendor = "VENDOR".equalsIgnoreCase(TokenManager.getInstance().getRole());
+        holder.tvComment.setText(review.getComment() != null && !review.getComment().trim().isEmpty() 
+                ? review.getComment() : "Không có bình luận");
+        
+        String subtitleText = wrapper.getSubTitle() + " • " + formatDate(review.getCreatedAt());
+        holder.tvDate.setText(subtitleText);
 
         // Fetch replies from backend if not cached
         if (!repliesCache.containsKey(rId)) {
@@ -107,11 +126,11 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
             }
         } else {
             holder.layoutShopReply.setVisibility(View.GONE);
-            holder.btnReplyReview.setVisibility(isVendor ? View.VISIBLE : View.GONE);
+            holder.btnReplyReview.setVisibility(View.VISIBLE);
         }
 
-        holder.btnReplyReview.setOnClickListener(v -> showAddReplyDialog(holder.itemView.getContext(), rId, position));
-        holder.btnReplyMore.setOnClickListener(v -> showAddReplyDialog(holder.itemView.getContext(), rId, position));
+        holder.btnReplyReview.setOnClickListener(v -> showAddReplyDialog(holder.itemView.getContext(), rId, wrapper.getType(), position));
+        holder.btnReplyMore.setOnClickListener(v -> showAddReplyDialog(holder.itemView.getContext(), rId, wrapper.getType(), position));
 
         holder.btnCollapseReply.setOnClickListener(v -> {
             boolean isCollapsed = collapsedReviewIds.contains(rId);
@@ -126,7 +145,7 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
 
     @Override
     public int getItemCount() {
-        return reviews.size();
+        return list.size();
     }
 
     private String buildStars(Integer rating) {
@@ -174,7 +193,12 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
 
         TextView tvIndex = new TextView(context);
         String senderRole = reply.getSenderRole();
-        if ("STUDENT".equalsIgnoreCase(senderRole) || "ROLE_STUDENT".equalsIgnoreCase(senderRole)) {
+        String currentUserName = TokenManager.getInstance().getFullName();
+        boolean isOwner = currentUserName != null && currentUserName.equalsIgnoreCase(reply.getSenderName());
+
+        if (isOwner) {
+            tvIndex.setText("#" + (index + 1) + " - Bạn (Khách hàng) 👤");
+        } else if ("STUDENT".equalsIgnoreCase(senderRole) || "ROLE_STUDENT".equalsIgnoreCase(senderRole)) {
             tvIndex.setText("#" + (index + 1) + " - Khách hàng (" + reply.getSenderName() + ") 👤");
         } else {
             tvIndex.setText("#" + (index + 1) + " - Cửa hàng 🏪");
@@ -189,9 +213,6 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
         headerLayout.addView(tvIndex);
 
         // Edit/Delete replies owned by the current logged-in user
-        String currentUserName = TokenManager.getInstance().getFullName();
-        boolean isOwner = currentUserName != null && currentUserName.equalsIgnoreCase(reply.getSenderName());
-
         if (isOwner) {
             TextView btnEdit = new TextView(context);
             btnEdit.setText("Sửa");
@@ -258,7 +279,7 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
         return itemLayout;
     }
 
-    private void showAddReplyDialog(android.content.Context context, String reviewId, int position) {
+    private void showAddReplyDialog(android.content.Context context, String reviewId, String reviewType, int position) {
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context);
         builder.setTitle("Viết phản hồi ✍️");
 
@@ -288,7 +309,7 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
         dialog.show();
 
         dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
-                androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_orange));
+                androidx.core.content.ContextCompat.getColor(context, R.color.brand_orange));
         dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
                 androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary));
 
@@ -299,8 +320,8 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
                 return;
             }
             dialog.dismiss();
-            
-            ReviewReplyRequest request = new ReviewReplyRequest(replyText);
+
+            ReviewReplyRequest request = new ReviewReplyRequest(replyText, reviewType);
             ApiClient.getApiService().createReviewReply(reviewId, request).enqueue(new Callback<ReviewReplyResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<ReviewReplyResponse> call, @NonNull Response<ReviewReplyResponse> response) {
@@ -353,7 +374,7 @@ public class VendorReviewListAdapter extends RecyclerView.Adapter<VendorReviewLi
         dialog.show();
 
         dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
-                androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_orange));
+                androidx.core.content.ContextCompat.getColor(context, R.color.brand_orange));
         dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
                 androidx.core.content.ContextCompat.getColor(context, R.color.vendor_dark_text_secondary));
 
