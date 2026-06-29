@@ -152,7 +152,7 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
             }
 
             // 7. Total Payment
-            tvOrderTotal.setText(formatCurrency(order.getTotalPrice()));
+            tvOrderTotal.setText(formatCurrency(getVendorTotalPrice(order)));
 
             // 8. Cancel Reason Display
             if ("CANCELLED".equalsIgnoreCase(status)) {
@@ -252,6 +252,41 @@ public class VendorOrderAdapter extends RecyclerView.Adapter<VendorOrderAdapter.
         private String formatCurrency(double value) {
             DecimalFormat formatter = new DecimalFormat("#,###");
             return formatter.format(value) + "đ";
+        }
+
+        private double getVendorTotalPrice(OrderResponse order) {
+            double subtotal = 0.0;
+            if (order.getDetails() != null) {
+                for (com.foodorderingapp.model.response.OrderDetailResponse detail : order.getDetails()) {
+                    subtotal += detail.getPrice() * detail.getQuantity();
+                }
+            }
+            double foodTotal = subtotal - order.getDiscountAmount();
+            double shippingFee = calculateShippingFee(order);
+            if (order.getTotalPrice() >= (foodTotal + shippingFee - 100)) {
+                return order.getTotalPrice();
+            }
+            return order.getTotalPrice() + shippingFee;
+        }
+
+        private double calculateShippingFee(OrderResponse order) {
+            if (order.getBuildingLatitude() == null || order.getBuildingLongitude() == null
+                    || order.getShopLatitude() == null || order.getShopLongitude() == null
+                    || order.getShopLatitude() == 0.0 || order.getShopLongitude() == 0.0) {
+                return 5000.0;
+            }
+            float[] results = new float[1];
+            try {
+                android.location.Location.distanceBetween(
+                        order.getShopLatitude(), order.getShopLongitude(),
+                        order.getBuildingLatitude(), order.getBuildingLongitude(),
+                        results
+                );
+                double distKm = results[0] / 1000.0;
+                return Math.round((distKm * 5000.0) / 1000.0) * 1000.0;
+            } catch (Exception e) {
+                return 5000.0;
+            }
         }
     }
 }

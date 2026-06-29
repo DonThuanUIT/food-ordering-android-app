@@ -25,6 +25,7 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
         void onDeliver(OrderResponse order);
         void onContactVendor(OrderResponse order);
         void onDelete(OrderResponse order);
+        void onOrderClicked(OrderResponse order);
     }
 
     private final List<OrderResponse> orders = new ArrayList<>();
@@ -61,7 +62,9 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
         holder.tvCustomer.setText("Khách: " + nullToDefault(order.getCustomerName(), "N/A") + " - " + nullToDefault(order.getCustomerPhone(), "N/A"));
         holder.tvLocation.setText("Tòa nhận: " + nullToDefault(order.getBuilding(), "Chưa chọn"));
         holder.tvSummaryItems.setText(formatSummaryItems(order.getDetails()));
-        holder.tvTotal.setText(formatPrice(order.getTotalPrice()));
+        double shipping = calculateShippingFee(order);
+        holder.tvShipping.setText(formatPrice(shipping));
+        holder.tvTotal.setText(formatPrice(getShipperTotalPrice(order)));
         
         String status = order.getStatus();
         holder.tvStatus.setText(formatStatusText(status));
@@ -112,6 +115,10 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
                 if (listener != null) listener.onDelete(order);
             });
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onOrderClicked(order);
+        });
     }
 
     @Override
@@ -155,12 +162,47 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
         return formatter.format(price) + "đ";
     }
 
+    private double getShipperTotalPrice(OrderResponse order) {
+        double subtotal = 0.0;
+        if (order.getDetails() != null) {
+            for (com.foodorderingapp.model.response.OrderDetailResponse detail : order.getDetails()) {
+                subtotal += detail.getPrice() * detail.getQuantity();
+            }
+        }
+        double foodTotal = subtotal - order.getDiscountAmount();
+        double shippingFee = calculateShippingFee(order);
+        if (order.getTotalPrice() >= (foodTotal + shippingFee - 100)) {
+            return order.getTotalPrice();
+        }
+        return order.getTotalPrice() + shippingFee;
+    }
+
+    private double calculateShippingFee(OrderResponse order) {
+        if (order.getBuildingLatitude() == null || order.getBuildingLongitude() == null
+                || order.getShopLatitude() == null || order.getShopLongitude() == null
+                || order.getShopLatitude() == 0.0 || order.getShopLongitude() == 0.0) {
+            return 5000.0; // Fallback to 5k
+        }
+        float[] results = new float[1];
+        try {
+            android.location.Location.distanceBetween(
+                    order.getShopLatitude(), order.getShopLongitude(),
+                    order.getBuildingLatitude(), order.getBuildingLongitude(),
+                    results
+            );
+            double distKm = results[0] / 1000.0;
+            return Math.round((distKm * 5000.0) / 1000.0) * 1000.0;
+        } catch (Exception e) {
+            return 5000.0;
+        }
+    }
+
     private String nullToDefault(String value, String defValue) {
         return (value == null || value.trim().isEmpty()) ? defValue : value;
     }
 
     static class ShipperViewHolder extends RecyclerView.ViewHolder {
-        TextView tvShopName, tvOrderStatus, tvOrderNumber, tvCustomer, tvLocation, tvSummaryItems, tvTotal, tvStatus;
+        TextView tvShopName, tvOrderStatus, tvOrderNumber, tvCustomer, tvLocation, tvSummaryItems, tvTotal, tvStatus, tvShipping;
         MaterialButton btnAction, btnContactVendor;
  
         ShipperViewHolder(@NonNull View itemView) {
@@ -173,6 +215,7 @@ public class ShipperOrderAdapter extends RecyclerView.Adapter<ShipperOrderAdapte
             tvSummaryItems = itemView.findViewById(R.id.tvOrderSummaryItems);
             tvTotal = itemView.findViewById(R.id.tvOrderTotal);
             tvStatus = itemView.findViewById(R.id.tvOrderStatus);
+            tvShipping = itemView.findViewById(R.id.tvOrderShipping);
             btnAction = itemView.findViewById(R.id.btnOrderAction);
             btnContactVendor = itemView.findViewById(R.id.btnContactVendor);
         }

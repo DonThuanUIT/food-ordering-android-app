@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -211,5 +213,215 @@ public class ShipperOrdersFragment extends Fragment implements ShipperOrderAdapt
                     .setNegativeButton("Quay lại", null)
                     .show();
         }
+    }
+
+    @Override
+    public void onOrderClicked(OrderResponse order) {
+        if (order != null) {
+            showOrderDetailDialog(order);
+        }
+    }
+
+    private void showOrderDetailDialog(OrderResponse order) {
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = 
+                new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        View view = getLayoutInflater().inflate(R.layout.dialog_shipper_order_detail, null);
+
+        TextView tvOrderId = view.findViewById(R.id.tv_detail_order_id);
+        TextView tvOrderStatus = view.findViewById(R.id.tv_detail_order_status);
+        TextView tvCustomerName = view.findViewById(R.id.tv_detail_customer_name);
+        TextView tvCustomerPhone = view.findViewById(R.id.tv_detail_customer_phone);
+        View btnChatCustomer = view.findViewById(R.id.btn_chat_customer);
+        TextView tvBuilding = view.findViewById(R.id.tv_detail_building);
+        TextView tvShopName = view.findViewById(R.id.tv_detail_shop_name);
+        TextView tvShopAddress = view.findViewById(R.id.tv_detail_shop_address);
+        View btnChatShop = view.findViewById(R.id.btn_chat_shop);
+        LinearLayout layoutItems = view.findViewById(R.id.layout_detail_order_items);
+        TextView tvSubtotal = view.findViewById(R.id.tv_detail_subtotal);
+        TextView tvShipping = view.findViewById(R.id.tv_detail_shipping);
+        View layoutDiscount = view.findViewById(R.id.layout_detail_discount);
+        TextView tvDiscountLabel = view.findViewById(R.id.tv_detail_discount_label);
+        TextView tvDiscountValue = view.findViewById(R.id.tv_detail_discount_value);
+        TextView tvTotal = view.findViewById(R.id.tv_detail_total);
+        View btnClose = view.findViewById(R.id.btn_close_detail);
+
+        // Bind basic info
+        String shortId = order.getId();
+        if (shortId != null && shortId.length() > 6) {
+            shortId = shortId.substring(0, 6);
+        }
+        if (tvOrderId != null) tvOrderId.setText("Đơn hàng #" + shortId);
+
+        String status = order.getStatus();
+        if (tvOrderStatus != null) {
+            tvOrderStatus.setText(formatStatusText(status));
+            int badgeColor = android.graphics.Color.parseColor("#718096"); // Default Grey
+            if ("PENDING".equalsIgnoreCase(status) || "CONFIRMED".equalsIgnoreCase(status)) {
+                badgeColor = android.graphics.Color.parseColor("#F46E26"); // Orange
+            } else if ("DELIVERING".equalsIgnoreCase(status)) {
+                badgeColor = android.graphics.Color.parseColor("#382C29"); // Dark Cacao Grey
+            } else if ("COMPLETED".equalsIgnoreCase(status)) {
+                badgeColor = android.graphics.Color.parseColor("#38A169"); // Green
+            }
+            tvOrderStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(badgeColor));
+        }
+
+        if (tvCustomerName != null) tvCustomerName.setText(order.getCustomerName() != null ? order.getCustomerName() : "Không tên");
+        if (tvCustomerPhone != null) {
+            String phone = order.getCustomerPhone() != null ? order.getCustomerPhone() : "Chưa có SĐT";
+            tvCustomerPhone.setText("📞 " + phone);
+            if (order.getCustomerPhone() != null && !order.getCustomerPhone().isEmpty()) {
+                tvCustomerPhone.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(android.net.Uri.parse("tel:" + order.getCustomerPhone()));
+                    startActivity(intent);
+                });
+            }
+        }
+
+        if (btnChatCustomer != null) {
+            btnChatCustomer.setOnClickListener(v -> {
+                dialog.dismiss();
+                if (order.getId() != null) {
+                    Intent intent = new Intent(requireContext(), com.foodorderingapp.ui.chat.ChatActivity.class);
+                    intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_ORDER_ID, order.getId());
+                    intent.putExtra(com.foodorderingapp.ui.chat.ChatActivity.EXTRA_PEER_NAME,
+                            order.getCustomerName() == null || order.getCustomerName().trim().isEmpty() ? "Sinh viên" : order.getCustomerName());
+                    startActivity(intent);
+                }
+            });
+        }
+
+        if (tvBuilding != null) tvBuilding.setText("Giao đến: " + (order.getBuilding() != null ? order.getBuilding() : "Chưa rõ tòa nhà"));
+
+        // Shop Info
+        if (tvShopName != null) tvShopName.setText(order.getShopName() != null ? order.getShopName() : "Cửa hàng");
+        if (tvShopAddress != null) tvShopAddress.setText(order.getShopAddress() != null ? order.getShopAddress() : "Địa chỉ lấy hàng");
+
+        if (btnChatShop != null) {
+            btnChatShop.setOnClickListener(v -> {
+                dialog.dismiss();
+                onContactVendor(order);
+            });
+        }
+
+        // Populate items
+        if (layoutItems != null) {
+            layoutItems.removeAllViews();
+            if (order.getDetails() != null) {
+                for (com.foodorderingapp.model.response.OrderDetailResponse detail : order.getDetails()) {
+                    RelativeLayout itemRow = new RelativeLayout(requireContext());
+                    itemRow.setLayoutParams(new RelativeLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    itemRow.setPadding(0, 6, 0, 6);
+
+                    TextView tvName = new TextView(requireContext());
+                    tvName.setText(detail.getQuantity() + "x " + detail.getFoodName());
+                    tvName.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_primary));
+                    tvName.setTextSize(13);
+                    RelativeLayout.LayoutParams lpLeft = new RelativeLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lpLeft.addRule(RelativeLayout.ALIGN_PARENT_START);
+                    tvName.setLayoutParams(lpLeft);
+
+                    TextView tvPrice = new TextView(requireContext());
+                    tvPrice.setText(formatPrice(detail.getPrice() * detail.getQuantity()));
+                    tvPrice.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.vendor_dark_text_secondary));
+                    tvPrice.setTextSize(13);
+                    RelativeLayout.LayoutParams lpRight = new RelativeLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    lpRight.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    tvPrice.setLayoutParams(lpRight);
+
+                    itemRow.addView(tvName);
+                    itemRow.addView(tvPrice);
+                    layoutItems.addView(itemRow);
+                }
+            }
+        }
+
+        // Pricing summary
+        double itemSubtotal = 0.0;
+        if (order.getDetails() != null) {
+            for (com.foodorderingapp.model.response.OrderDetailResponse detail : order.getDetails()) {
+                itemSubtotal += detail.getPrice() * detail.getQuantity();
+            }
+        }
+        if (tvSubtotal != null) tvSubtotal.setText(formatPrice(itemSubtotal));
+
+        double shippingFee = calculateShippingFee(order);
+        if (tvShipping != null) tvShipping.setText(formatPrice(shippingFee));
+
+        if (order.getDiscountAmount() > 0) {
+            if (layoutDiscount != null) layoutDiscount.setVisibility(View.VISIBLE);
+            if (tvDiscountLabel != null) {
+                String codeInfo = order.getVoucherCode() != null ? " (" + order.getVoucherCode() + ")" : "";
+                tvDiscountLabel.setText("Khuyến mãi" + codeInfo);
+            }
+            if (tvDiscountValue != null) tvDiscountValue.setText("-" + formatPrice(order.getDiscountAmount()));
+        } else {
+            if (layoutDiscount != null) layoutDiscount.setVisibility(View.GONE);
+        }
+
+        if (tvTotal != null) tvTotal.setText(formatPrice(getShipperTotalPrice(order)));
+
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private double calculateShippingFee(OrderResponse order) {
+        if (order.getBuildingLatitude() == null || order.getBuildingLongitude() == null
+                || order.getShopLatitude() == null || order.getShopLongitude() == null
+                || order.getShopLatitude() == 0.0 || order.getShopLongitude() == 0.0) {
+            return 5000.0; // Fallback to 5k
+        }
+        float[] results = new float[1];
+        try {
+            android.location.Location.distanceBetween(
+                    order.getShopLatitude(), order.getShopLongitude(),
+                    order.getBuildingLatitude(), order.getBuildingLongitude(),
+                    results
+            );
+            double distKm = results[0] / 1000.0;
+            return Math.round((distKm * 5000.0) / 1000.0) * 1000.0;
+        } catch (Exception e) {
+            return 5000.0;
+        }
+    }
+
+    private String formatStatusText(String status) {
+        if (status == null) return "Chờ xử lý";
+        switch (status.toUpperCase(java.util.Locale.ROOT)) {
+            case "PENDING": return "Chờ xác nhận";
+            case "CONFIRMED": return "Đã xác nhận";
+            case "DELIVERING": return "Đang giao";
+            case "COMPLETED": return "Đã hoàn thành";
+            case "CANCELLED": return "Đã hủy";
+            default: return status;
+        }
+    }
+
+    private String formatPrice(double price) {
+        java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+        return formatter.format(price) + "đ";
+    }
+
+    private double getShipperTotalPrice(OrderResponse order) {
+        double subtotal = 0.0;
+        if (order.getDetails() != null) {
+            for (com.foodorderingapp.model.response.OrderDetailResponse detail : order.getDetails()) {
+                subtotal += detail.getPrice() * detail.getQuantity();
+            }
+        }
+        double foodTotal = subtotal - order.getDiscountAmount();
+        double shippingFee = calculateShippingFee(order);
+        if (order.getTotalPrice() >= (foodTotal + shippingFee - 100)) {
+            return order.getTotalPrice();
+        }
+        return order.getTotalPrice() + shippingFee;
     }
 }
