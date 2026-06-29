@@ -1,201 +1,278 @@
-# 🍕 Food Ordering Android App
-[![Android Platform](https://img.shields.io/badge/Platform-Android-green.svg?style=flat-square)](https://developer.android.com)
-[![Java 17](https://img.shields.io/badge/Language-Java%2017-orange.svg?style=flat-square)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
-[![Gradle 8](https://img.shields.io/badge/Build-Gradle%208-blue.svg?style=flat-square)](https://gradle.org)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-**Food Ordering App** là ứng dụng di động đặt đồ ăn chuyên biệt dành cho môi trường ký túc xá và khuôn viên trường đại học. Ứng dụng giải quyết bài toán giao nhận thực phẩm nhanh chóng, tối ưu hóa tuyến đường vận chuyển nội khu, tích hợp trí tuệ nhân tạo (AI) để gợi ý thực đơn cá nhân hóa và cung cấp trải nghiệm theo dõi đơn hàng thời gian thực. Hệ thống hỗ trợ đồng thời ba vai trò chính là **Sinh viên** (Khách hàng), **Chủ quán** (Vendor), và **Tài xế** (Shipper) hoạt động đồng bộ trên một nền tảng thống nhất.
----
-## 📌 Mục lục (Table of Contents)
-1. [Tính năng nổi bật (Key Features)](#-tính-năng-nổi-bật-key-features)
-2. [Kiến trúc hệ thống (System Architecture)](#-kiến-trúc-hệ-thống-system-architecture)
-3. [Yêu cầu hệ thống (System Requirements)](#-yêu-cầu-hệ-thống-system-requirements)
-4. [Hướng dẫn cài đặt (Installation)](#-hướng-dẫn-cài-đặt-installation)
-5. [Cấu hình (Configuration)](#-cấu-hình-cấu-hình)
-6. [Hướng dẫn sử dụng (Usage)](#-hướng-dẫn-sử-dụng-usage)
-7. [Quy trình đóng góp (Contributing)](#-đóng-góp-contributing)
-8. [Tác giả & Liên hệ (Authors / Contact)](#-tác-giả--liên-hệ-authors--contact)
-9. [Giấy phép (License)](#-giấy-phép-license)
----
-## ✨ Tính năng nổi bật (Key Features)
-Ứng dụng được thiết kế tối ưu với các công nghệ hiện đại nhằm mang lại trải nghiệm mượt mà nhất:
-*   🔒 **Xác thực OTP & Sinh trắc học**: Xác minh đăng ký tài khoản qua mã OTP gửi tới Email sinh viên (lưu trữ tạm thời trên Redis Cache) và hỗ trợ đăng nhập nhanh bằng vân tay hoặc Face ID (`Biometric Authentication`).
-*   ⚡ **Cập nhật đơn hàng Real-time**: Sử dụng giao thức **WebSocket STOMP** giúp kết nối liên tục giữa Sinh viên và Chủ quán. Chủ quán nhận thông báo đơn mới ngay lập tức không cần tải lại trang.
-*   📍 **Định vị & Theo dõi Shipper**: Sinh viên có thể trực tiếp quan sát vị trí di chuyển của Shipper trên bản đồ thời gian thực (hỗ trợ cả **Google Maps SDK** và **OpenStreetMap** làm dự phòng).
-*   🤖 **Trợ lý đề xuất món ăn AI**: Tích hợp mô hình **Google Gemini AI** (`gemini-1.5-flash`) phân tích khẩu vị sinh viên và gợi ý món ăn phù hợp nhất. Tự động chuyển sang thuật toán tìm kiếm dự phòng bằng từ khóa (Fallback Matcher) nếu mất kết nối AI.
-*   🎫 **Áp dụng Voucher linh hoạt**: Hệ thống khuyến mãi thông minh hỗ trợ giảm giá theo số tiền cố định hoặc phần trăm, có ràng buộc giá trị đơn hàng tối thiểu và giới hạn món ăn áp dụng.
-*   📊 **Biểu đồ thống kê doanh thu**: Chủ quán có thể theo dõi trực quan hiệu quả kinh doanh thông qua biểu đồ trực quan phát triển bởi thư viện `MPAndroidChart`.
----
-## 🏗️ Kiến trúc hệ thống (System Architecture)
-Sơ đồ dưới đây thể hiện sự tương tác giữa ứng dụng Android (Client), máy chủ Spring Boot (Backend Server) và các dịch vụ lưu trữ dữ liệu đi kèm:
-```mermaid
-graph TD
-    subgraph Client [Android App Client]
-        A[Student UI]
-        B[Vendor UI]
-        C[Shipper UI]
-        D[STOMP WebSocket Client]
-        E[Retrofit HTTP Client]
-        F[Google Maps & OSM SDK]
-    end
-    subgraph Backend [Spring Boot Server]
-        G[Spring Security / JWT]
-        H[WebSocket Message Broker]
-        I[Gemini AI Client]
-        J[Order & Voucher Service]
-    end
-    subgraph Infrastructure [Data Storage & Services]
-        K[(PostgreSQL DB)]
-        L[(Redis Cache)]
-        M[SMTP Mail Server]
-        N[Gemini AI API]
-    end
-    E -->|REST API Request| G
-    D -->|STOMP TCP Connection| H
-    G -->|JPA / Hibernate| K
-    G -->|Verify / Store OTP| L
-    G -->|Send Mail Async| M
-    I -->|REST Client Call| N
-    J -->|Analyze Context| I
-    F -->|GPS Lat/Lng Updates| E
+# Food Ordering App (UniEats)
+Ứng dụng đặt món trong khuôn viên trường, gồm Android native client và Spring Boot backend theo kiến trúc REST API + WebSocket, dùng PostgreSQL và Flyway để quản lý dữ liệu.
+## Tổng quan
+* Dự án gồm 2 phần chính:
+* `food-ordering-android-app`: ứng dụng Android cho sinh viên, chủ quán, shipper và admin.
+* `food-ordering-backend`: backend Spring Boot cung cấp REST API, WebSocket chat, xác thực JWT và tích hợp dịch vụ ngoài.
+* Backend dùng Spring Boot 3.3.5, Java 21, Spring Security, Spring Data JPA, Flyway, WebSocket, Redis, Mail, Cloudinary, Firebase Admin và Gemini API.
+* Mobile dùng Android native Java/XML, ViewBinding, Retrofit, OkHttp, LiveData/ViewModel, Material Components, Glide, Firebase Messaging, STOMP/RxJava, osmdroid và MPAndroidChart.
+* Database dùng PostgreSQL.
+* Migration dùng Flyway trong `backend/src/main/resources/db/migration`.
+* Mục tiêu production:
+* tách secret khỏi source code;
+* dùng database, Redis, SMTP, Cloudinary, Firebase và Gemini riêng cho từng môi trường;
+* cấu hình domain/TLS và logging phù hợp;
+* tắt các cấu hình debug không cần thiết trước khi giao.
+## Vai trò sản phẩm
+Dự án hiện có 4 vai trò sản phẩm:
+* `STUDENT`: xem cửa hàng, xem món, giỏ hàng, đặt món, hủy đơn, theo dõi giao hàng, đánh giá, chat và gợi ý món ăn.
+* `VENDOR`: quản lý cửa hàng, danh mục, món ăn, voucher, đơn hàng, cấu hình cửa hàng, đánh giá và thống kê.
+* `SHIPPER`: xem đơn có thể giao, nhận đơn, cập nhật trạng thái giao hàng, cập nhật vị trí và xem lịch sử giao.
+* `ADMIN`: xem tổng quan, duyệt/quản lý cửa hàng, quản lý người dùng và khóa tài khoản.
+Lưu ý: permission/authority như `ROLE_ADMIN`, `ROLE_VENDOR`, `ROLE_STUDENT`, `ROLE_SHIPPER` là lớp kỹ thuật trong Spring Security. Chúng không phải vai trò sản phẩm mới.
+## Tech stack
+### Backend
+* Java 21
+* Spring Boot 3.3.5
+* Spring Web, Spring Security, Spring Data JPA, Validation
+* PostgreSQL JDBC driver
+* Flyway
+* JWT với `jjwt`
+* Redis cho các luồng OTP/cache liên quan
+* Spring Mail và Thymeleaf cho email
+* Spring WebSocket cho chat/thông báo thời gian thực
+* Cloudinary cho upload ảnh
+* Firebase Admin cho push notification
+* Gemini API cho gợi ý/phân tích món ăn
+### Android
+* Android native Java/XML
+* Min SDK 31, target SDK 36, compile SDK 36
+* Java 17
+* ViewBinding
+* Retrofit 2.11.0, Gson converter, OkHttp logging interceptor
+* AndroidX Lifecycle ViewModel/LiveData
+* Material Components, AppCompat, ConstraintLayout
+* Glide
+* Firebase Messaging
+* STOMP Protocol Android, RxJava/RxAndroid
+* osmdroid cho bản đồ
+* MPAndroidChart cho thống kê
+* AndroidX Biometric
+## Cấu trúc thư mục
+* `food-ordering-android-app/`: mã nguồn ứng dụng Android.
+* `food-ordering-android-app/app/src/main/java/com/foodorderingapp/data`: API client, repository và tầng truy cập dữ liệu.
+* `food-ordering-android-app/app/src/main/java/com/foodorderingapp/model`: request/response/model dùng trong app.
+* `food-ordering-android-app/app/src/main/java/com/foodorderingapp/ui`: activity, fragment, adapter và màn hình theo từng luồng.
+* `food-ordering-android-app/app/src/main/java/com/foodorderingapp/viewmodel`: ViewModel cho các màn hình.
+* `food-ordering-android-app/app/src/main/java/com/foodorderingapp/utils`: TokenManager, constant và tiện ích dùng chung.
+* `food-ordering-android-app/app/src/main/res`: layout, drawable, menu, values và resource Android.
+* `food-ordering-backend/backend`: Spring Boot project.
+* `food-ordering-backend/backend/src/main/java/com/foodorderingapp/backend/core`: config, security, exception, enum và util dùng chung.
+* `food-ordering-backend/backend/src/main/java/com/foodorderingapp/backend/modules`: các module nghiệp vụ như auth, shop, food, cart, order, chat, voucher, admin, upload, notification.
+* `food-ordering-backend/backend/src/main/resources/application.yml`: cấu hình chung.
+* `food-ordering-backend/backend/src/main/resources/application-local.yml`: cấu hình local có secret. Không đưa giá trị thật vào README public.
+* `food-ordering-backend/backend/src/main/resources/db/migration`: Flyway migration và seed data.
+* `.agents/AGENTS.md`: quy tắc làm việc cho Codex/AI assistant trong workspace.
+## API chính
+* `POST /api/auth/register/student`: đăng ký sinh viên.
+* `POST /api/auth/register/vendor`: đăng ký chủ quán.
+* `POST /api/auth/register/shipper`: đăng ký shipper.
+* `POST /api/auth/login`: đăng nhập bằng số điện thoại và mật khẩu.
+* `GET /api/shops`: danh sách cửa hàng public.
+* `GET /api/shops/{shopId}/detail-menu`: chi tiết cửa hàng và menu.
+* `GET /api/buildings`: danh sách tòa nhà.
+* `POST /api/cart/items`: thêm món vào giỏ hàng.
+* `POST /api/orders/checkout`: tạo đơn hàng.
+* `GET /api/orders/active`: đơn đang xử lý của student.
+* `GET /api/orders/available-for-delivery`: đơn có thể nhận giao.
+* `POST /api/orders/{orderId}/claim`: shipper nhận đơn.
+* `PUT /api/orders/{orderId}/status`: shipper cập nhật trạng thái đơn.
+* `GET /api/chat/rooms`: danh sách phòng chat.
+* `POST /api/chat/send`: gửi tin nhắn.
+* `POST /api/upload/image`: upload ảnh.
+* `POST /api/ai/recommend`: gợi ý món ăn.
+* `GET /api/admin/overview`: tổng quan admin.
+* `GET /api/admin/users`: quản lý người dùng.
+* `GET /api/admin/shops`: quản lý cửa hàng.
+## Chạy local
+### 1. Chuẩn bị backend environment
+Backend mặc định kích hoạt profile `local` trong `application.yml`.
+Tạo hoặc cập nhật file:
+```text
+food-ordering-backend/backend/src/main/resources/application-local.yml
 ```
----
-## 📋 Yêu cầu hệ thống (System Requirements)
-Để biên dịch và chạy dự án Android Client này một cách ổn định, máy tính của bạn cần đáp ứng các điều kiện sau:
-*   **Hệ điều hành**: Windows 10/11, macOS, hoặc Linux.
-*   **Java Development Kit (JDK)**: Phiên bản **Java 17** (đã cấu hình trong Gradle Toolchain).
-*   **Android Studio**: Phiên bản **Koala** (2024.1.1) hoặc mới hơn.
-*   **Android SDK**:
-    *   `minSdkVersion`: **31** (Android 12)
-    *   `targetSdkVersion`: **36** (Android 15 / 16 preview)
-*   **Kết nối mạng**: Cần kết nối Internet để tải các thư viện Maven và kết nối tới API Server.
-*   **Backend Server**: Cần chạy thành công dịch vụ backend Spring Boot kết nối PostgreSQL & Redis trước khi khởi động ứng dụng Android.
----
-## 🚀 Hướng dẫn cài đặt (Installation)
-Thực hiện lần lượt các bước sau để thiết lập mã nguồn dự án trên máy cục bộ của bạn:
-### Bước 1: Clone mã nguồn từ GitHub
-Mở terminal (hoặc Git Bash) và chạy lệnh sau:
-```bash
-git clone https://github.com/your-username/food-ordering-android-app.git
-cd food-ordering-android-app
+Không commit secret thật nếu repo dùng công khai. Các giá trị nhạy cảm cần dùng placeholder khi viết tài liệu:
+```yaml
+spring:
+datasource:
+url: jdbc:postgresql://<db-host>:<db-port>/<db-name>
+username: <db-username>
+password: <db-password>
+data:
+redis:
+url: redis://<redis-user>:<redis-password>@<redis-host>:<redis-port>
+mail:
+username: <smtp-email>
+password: <smtp-app-password>
+jwt:
+secret: <jwt-secret>
+cloudinary:
+cloud-name: <cloudinary-cloud-name>
+api-key: <cloudinary-api-key>
+api-secret: <cloudinary-api-secret>
+gemini:
+api-key: <gemini-api-key>
 ```
-### Bước 2: Khởi tạo tệp cấu hình bí mật
-Tạo một tệp tin có tên là `local.properties` tại thư mục gốc của dự án (nếu chưa có) và khai báo các khóa API cần thiết:
+### 2. Chuẩn bị PostgreSQL và Redis
+* PostgreSQL cần tồn tại trước khi chạy backend.
+* Flyway sẽ tự chạy migration khi backend start.
+* Migration `V11__Seed_Test_Data.sql` dùng extension `pgcrypto`, nên database user cần có quyền tạo extension hoặc extension phải được tạo sẵn.
+* Redis cần cấu hình đúng nếu dùng OTP, email verification và các luồng liên quan.
+* Repo hiện chưa có file `docker-compose.yml`, vì vậy không có lệnh Docker Compose chính thức trong repo.
+### 3. Chạy backend
+```powershell
+cd food-ordering-backend\backend
+.\mvnw.cmd spring-boot:run
+```
+Backend chạy tại:
+```text
+http://localhost:8080/api
+```
+### 4. Chuẩn bị Android environment
+File `local.properties` của Android Studio nằm trong:
+```text
+food-ordering-android-app/local.properties
+```
+Nếu cần dùng Gemini key ở Android build config:
 ```properties
-# Đường dẫn SDK Android trên máy của bạn (thường tự sinh bởi Android Studio)
-sdk.dir=C\:\\Users\\YourUsername\\AppData\\Local\\Android\\Sdk
-# Các khóa API phục vụ tính năng Bản đồ và Gợi ý AI
-gemini.api.key=YOUR_GEMINI_API_KEY_HERE
-GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY_HERE
+gemini.api.key=<gemini-api-key>
 ```
-> [!WARNING]
-> Không bao giờ được commit hoặc push tệp `local.properties` chứa các khóa API bảo mật lên các kho lưu trữ công cộng như GitHub. Tệp tin này đã được cấu hình trong `.gitignore` để tránh rò rỉ dữ liệu.
-### Bước 3: Đồng bộ hóa Dự án (Gradle Sync)
-1. Mở ứng dụng **Android Studio**.
-2. Chọn **File** -> **Open** -> Trỏ đến thư mục `food-ordering-android-app`.
-3. Chờ đợi Android Studio tự động tải các thư viện phụ thuộc (`Retrofit`, `StompProtocolAndroid`, `Glide`, `MPAndroidChart`, v.v.) và thực hiện đồng bộ hóa cấu hình Gradle (Gradle Sync).
----
-## ⚙️ Cấu hình (Configuration)
-### 1. Cấu hình Địa chỉ IP kết nối Backend Server
-Địa chỉ API kết nối tới máy chủ Spring Boot được quản lý tập trung trong lớp [AppConstants.java](file:///d:/food-ordering-android-app/app/src/main/java/com/foodorderingapp/utils/constants/AppConstants.java):
-```java
-public class AppConstants {
-    private static final String EMULATOR_BASE_URL = "http://10.0.2.2:8080/api/";
-    private static final String USB_REVERSE_BASE_URL = "http://127.0.0.1:8080/api/";
-    private static final String WIFI_BASE_URL = "http://192.168.1.105:8080/api/"; // Thay bằng IP WiFi của máy bạn
-    ...
-}
+Base URL của app nằm tại:
+```text
+food-ordering-android-app/app/src/main/java/com/foodorderingapp/utils/constants/AppConstants.java
 ```
-*   **Nếu chạy trên Emulator**: Ứng dụng tự động nhận diện và sử dụng địa chỉ `http://10.0.2.2:8080/api/` để trỏ về localhost của máy tính host.
-*   **Nếu chạy trên Thiết bị thật qua cáp USB**: Chạy lệnh adb reverse dưới đây và giữ kết nối cục bộ.
-*   **Nếu chạy trên Thiết bị thật qua Wi-Fi**: Thay đổi biến `REAL_DEVICE_BASE_URL` trỏ tới `WIFI_BASE_URL` với địa chỉ IP nội bộ chính xác của máy tính chạy server của bạn.
----
-## 📖 Hướng dẫn sử dụng (Usage)
-### 1. Chạy chuyển tiếp cổng (Port Forwarding) khi kiểm thử thiết bị thật
-Nếu bạn kết nối điện thoại Android vật lý vào máy tính qua cáp USB để kiểm thử, hãy mở Command Prompt / PowerShell và chạy lệnh sau để thiết bị di động có thể truy cập thẳng vào server cục bộ `localhost:8080`:
-```bash
+Mặc định:
+* Android Emulator gọi backend qua `http://10.0.2.2:8080/api/`.
+* Thiết bị thật đang dùng `REAL_DEVICE_BASE_URL`, hiện trỏ tới `USB_REVERSE_BASE_URL`.
+* Nếu dùng thiết bị thật qua Wi-Fi, cập nhật IP trong `WIFI_BASE_URL` hoặc `REAL_DEVICE_BASE_URL`.
+* Nếu dùng USB reverse, kiểm tra lại `USB_REVERSE_BASE_URL` cho khớp môi trường và chạy:
+```powershell
 adb reverse tcp:8080 tcp:8080
 ```
-### 2. Biên dịch và Khởi chạy ứng dụng
-*   **Sử dụng Android Studio**: Chọn thiết bị ảo (Emulator) hoặc điện thoại vật lý đã kết nối ở thanh công cụ phía trên, bấm nút **Run** (biểu tượng tam giác màu xanh lá) hoặc nhấn tổ hợp phím `Shift + F10` (Windows) / `Control + R` (macOS).
-*   **Sử dụng dòng lệnh (CLI)**: Để cài đặt trực tiếp ứng dụng lên thiết bị đang kết nối bằng lệnh Gradle:
-    ```bash
-    ./gradlew installDebug
-    ```
-### 3. Demo Luồng Đặt Hàng & Quản Lý Đơn Hàng
-|
- Vai trò người dùng 
-|
- Giao diện màn hình 
-|
- Mô tả luồng hoạt động chính 
-|
-|
-:---
-|
-:---
-|
-:---
-|
-|
-**
-Sinh Viên
-**
- (Customer) 
-|
-`MainActivity`
-, 
-`CheckoutActivity`
-|
- Đăng ký -> Nhận OTP qua email -> Nhập OTP xác thực -> Đăng nhập. Chọn món ăn vào giỏ hàng -> Áp dụng Voucher giảm giá -> Đặt hàng -> Theo dõi hành trình Shipper và chat trực tiếp. 
-|
-|
-**
-Chủ Quán
-**
- (Vendor) 
-|
-`VendorMainActivity`
-|
- Quản lý thông tin cửa hàng, giờ đóng/mở cửa, tạo mới thực đơn. Nhận thông tin đơn hàng thời gian thực qua WebSocket, tiến hành chuẩn bị món ăn (
-`PREPARING`
-) và báo hoàn thành (
-`PREPARED`
-). 
-|
-|
-**
-Tài Xế
-**
- (Shipper) 
-|
-`ShipperMainActivity`
-|
- Xem danh sách các đơn hàng đang chờ giao. Bấm nhận đơn -> Hệ thống tự động kích hoạt GPS Background Service để cập nhật tọa độ liên tục lên server -> Giao hàng thành công. 
-|
----
-## 🤝 Đóng góp (Contributing)
-Chúng tôi rất hoan nghênh và đánh giá cao mọi đóng góp giúp tối ưu hóa ứng dụng. Quy trình thực hiện đóng góp như sau:
-1. **Fork** dự án này về tài khoản cá nhân của bạn.
-2. Tạo một nhánh mới để phát triển tính năng (Feature Branch):
-   ```bash
-   git checkout -b feature/awesome-feature
-   ```
-3. Commit các thay đổi của bạn kèm theo thông điệp rõ ràng:
-   ```bash
-   git commit -m "feat: thêm tính năng gợi ý món ăn thông minh"
-   ```
-4. Push nhánh của bạn lên remote repository:
-   ```bash
-   git push origin feature/awesome-feature
-   ```
-5. Truy cập trang gốc dự án và mở một **Pull Request (PR)** để đội ngũ phát triển kiểm duyệt.
----
-## 👨‍💻 Tác giả & Liên hệ (Authors / Contact)
-*   **Đội ngũ phát triển dự án**: Nhóm phát triển Food Ordering App
-*   **Email hỗ trợ**: support@student.edu.vn
-*   **GitHub Repository**: [food-ordering-android-app](https://github.com/DonThuanUIT/food-ordering-android-app)
-Mọi thắc mắc hoặc báo lỗi liên quan đến ứng dụng, vui lòng mở một **Issue** trên trang GitHub của dự án hoặc liên hệ qua địa chỉ Email phía trên để được hỗ trợ kịp thời.
----
-## 📄 Giấy phép (License)
-Dự án này được cấp phép hoạt động dưới các điều khoản của **Giấy phép MIT** (MIT License). Bạn hoàn toàn có quyền sao chép, chỉnh sửa và phân phối lại mã nguồn này cho cả mục đích cá nhân lẫn thương mại. Xem chi tiết tại tệp [LICENSE](LICENSE) (nếu có).
-# food-ordering-android-app  
+### 5. Build và chạy Android
+Build debug APK:
+```powershell
+cd food-ordering-android-app
+.\gradlew.bat assembleDebug
+```
+Cài lên emulator/thiết bị đang kết nối:
+```powershell
+cd food-ordering-android-app
+.\gradlew.bat installDebug
+```
+Có thể chạy trực tiếp bằng Android Studio nếu cần debug UI.
+### 6. Kiểm tra nhanh dữ liệu test
+Kiểm tra endpoint public:
+```powershell
+curl.exe http://localhost:8080/api/buildings
+curl.exe http://localhost:8080/api/shops
+```
+Kiểm tra login bằng tài khoản seed:
+```powershell
+curl.exe -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{\"phone\":\"0111111111\",\"password\":\"[mật khẩu nội bộ]\"}"
+```
+## Tài khoản test nội bộ
+| Vai trò | Số điện thoại | Mật khẩu |
+| --- | --- | --- |
+| `SHIPPER` | `0935985407` | `Lehuutrung2006@` |
+| `VENDOR` | `0166666666` | `123456` |
+| `STUDENT` | `0144444444` | `123456` |
+| `ADMIN` | `0101111111` | `123456` |
+## Dữ liệu test local
+Seed data nằm trong các migration Flyway:
+* `V11__Seed_Test_Data.sql`:
+* 5 student;
+* 5 vendor;
+* 5 cửa hàng mẫu;
+* danh mục, món ăn, bank account;
+* giỏ hàng, voucher, đơn hàng và review mẫu.
+* `V15__Seed_Admin_Data.sql`:
+* 2 tài khoản admin.
+* `V18__Seed_Shop5_Real_Food_Data.sql`:
+* bổ sung dữ liệu món ăn cho shop.
+* `V24__Seed_full_buildings_data.sql`:
+* 16 tòa nhà có tọa độ.
+* `V25__Seed_Shipper_Test_Orders.sql`:
+* 3 đơn `CONFIRMED` cho shipper test nhận giao;
+* order id mẫu: `00000000-0000-0000-0000-000000000820`, `00000000-0000-0000-0000-000000000821`, `00000000-0000-0000-0000-000000000822`.
+Voucher mẫu:
+* `KOI10`
+* `KOIFREE`
+* `BANHMI20`
+* `CAY15`
+Shop mẫu:
+* Trà Sữa KOI
+* Bánh Mì Que
+* Cơm Gà Xối Mỡ
+* Phở Bò Hà Nội
+* Mì Cay Hàn Quốc
+## Production và triển khai
+Repo hiện chưa có các file triển khai production như:
+* `Dockerfile`
+* `docker-compose.yml`
+* GitHub Actions workflow
+* Bicep/Terraform
+* Coolify config
+* script provision server
+Trước khi triển khai production cần chuẩn bị riêng:
+* runtime cho backend Java 21;
+* PostgreSQL production;
+* Redis production;
+* SMTP account;
+* Cloudinary credential;
+* Firebase service account và `google-services.json` cho Android;
+* Gemini API key;
+* domain, TLS và reverse proxy;
+* chính sách backup database.
+### Secret production bắt buộc
+Không ghi giá trị thật vào README, issue tracker hoặc commit history.
+* `SPRING_DATASOURCE_URL`
+* `SPRING_DATASOURCE_USERNAME`
+* `SPRING_DATASOURCE_PASSWORD`
+* `SPRING_DATA_REDIS_URL`
+* `SPRING_MAIL_USERNAME`
+* `SPRING_MAIL_PASSWORD`
+* `JWT_SECRET`
+* `CLOUDINARY_CLOUD_NAME`
+* `CLOUDINARY_API_KEY`
+* `CLOUDINARY_API_SECRET`
+* `GEMINI_API_KEY`
+* Firebase service account cho backend
+* `google-services.json` cho Android app
+## Kiểm thử trước khi giao
+Backend:
+```powershell
+cd food-ordering-backend\backend
+.\mvnw.cmd test
+```
+Android unit test:
+```powershell
+cd food-ordering-android-app
+.\gradlew.bat testDebugUnitTest
+```
+Android instrumented test:
+```powershell
+cd food-ordering-android-app
+.\gradlew.bat connectedDebugAndroidTest
+```
+Build Android debug:
+```powershell
+cd food-ordering-android-app
+.\gradlew.bat assembleDebug
+```
+Smoke check backend:
+```powershell
+curl.exe http://localhost:8080/api/buildings
+curl.exe http://localhost:8080/api/shops
+```
+## Ghi chú vận hành
+* `application-local.yml` và `local.properties` có thể chứa secret local. Không đưa giá trị thật lên README public.
+* JWT token được gửi từ Android qua header `Authorization: Bearer <token>`.
+* WebSocket chat dùng URL suy ra từ `BASE_URL` và endpoint `ws-chat`.
+* Firebase Messaging chỉ được kích hoạt khi Android project có `google-services.json`.
+* Cloudinary cần dùng cho upload ảnh của món ăn, cửa hàng hoặc avatar.
+* Redis và email cần hoạt động đúng để các luồng OTP/xác thực email không bị lỗi.
+* Voucher có ngày bắt đầu/kết thúc và trạng thái active; cần kiểm tra lại khi test dữ liệu cũ.
+* Các trạng thái đơn hàng chính gồm `PENDING`, `CONFIRMED`, `DELIVERING`, `RECEIVED`, `FAILED`, `REJECTED`, `COMPLETED`, `CANCELLED`.
+* Admin không được phép khóa tài khoản admin khác theo logic backend hiện tại.
+
