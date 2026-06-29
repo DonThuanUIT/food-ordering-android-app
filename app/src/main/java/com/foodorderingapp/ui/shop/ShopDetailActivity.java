@@ -154,13 +154,7 @@ public class ShopDetailActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton btnShopAiAssistant = findViewById(R.id.btn_shop_ai_assistant);
-        btnShopAiAssistant.setVisibility(isStudent ? android.view.View.VISIBLE : android.view.View.GONE);
-        btnShopAiAssistant.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AiRecommendationActivity.class);
-            intent.putExtra(AiRecommendationActivity.EXTRA_SHOP_ID, shopId);
-            startActivity(intent);
-        });
+
 
         layoutShopRating.setOnClickListener(v -> {
             Intent intent = new Intent(this, com.foodorderingapp.ui.review.VendorReviewsActivity.class);

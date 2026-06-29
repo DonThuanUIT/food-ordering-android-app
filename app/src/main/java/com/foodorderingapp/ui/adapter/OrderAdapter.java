@@ -83,6 +83,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         holder.tvCreatedAt.setText(formatDateTime(displayDateTimeForHistory(order)));
         holder.tvAddress.setText(buildAddress(order));
         holder.tvDetails.setText(buildDetails(order.getDetails()));
+        bindShipping(holder.tvShipping, order);
         bindDiscount(holder.tvDiscount, order);
 
         String cancelReason = order.getCancelReason();
@@ -154,6 +155,33 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
             return "Chưa chọn tòa nhận";
         }
         return "Tòa nhận: " + building;
+    }
+
+    private void bindShipping(TextView view, OrderResponse order) {
+        if (view == null) return;
+        double shipping = calculateShippingFee(order);
+        view.setText("Phí vận chuyển: " + formatPrice(shipping));
+        view.setVisibility(View.VISIBLE);
+    }
+
+    private double calculateShippingFee(OrderResponse order) {
+        if (order.getBuildingLatitude() == null || order.getBuildingLongitude() == null
+                || order.getShopLatitude() == null || order.getShopLongitude() == null
+                || order.getShopLatitude() == 0.0 || order.getShopLongitude() == 0.0) {
+            return 5000.0; // Fallback to 5k
+        }
+        float[] results = new float[1];
+        try {
+            android.location.Location.distanceBetween(
+                    order.getShopLatitude(), order.getShopLongitude(),
+                    order.getBuildingLatitude(), order.getBuildingLongitude(),
+                    results
+            );
+            double distKm = results[0] / 1000.0;
+            return Math.round((distKm * 5000.0) / 1000.0) * 1000.0;
+        } catch (Exception e) {
+            return 5000.0;
+        }
     }
 
     private void bindDiscount(TextView view, OrderResponse order) {
@@ -251,6 +279,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
         TextView tvAddress;
         TextView tvDetails;
         TextView tvCancelReason;
+        TextView tvShipping;
         TextView tvDiscount;
         View layoutActions;
         MaterialButton btnReview;
@@ -265,6 +294,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderVH> {
             tvAddress = itemView.findViewById(R.id.tvOrderAddress);
             tvDetails = itemView.findViewById(R.id.tvOrderDetails);
             tvCancelReason = itemView.findViewById(R.id.tvOrderCancelReason);
+            tvShipping = itemView.findViewById(R.id.tvOrderShipping);
             tvDiscount = itemView.findViewById(R.id.tvOrderDiscount);
             layoutActions = itemView.findViewById(R.id.layoutOrderActions);
             btnReview = itemView.findViewById(R.id.btnReviewOrder);

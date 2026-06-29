@@ -471,7 +471,6 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         TextView tvOrderStatus = view.findViewById(R.id.tv_detail_order_status);
         TextView tvCustomerName = view.findViewById(R.id.tv_detail_customer_name);
         TextView tvCustomerPhone = view.findViewById(R.id.tv_detail_customer_phone);
-        View btnCall = view.findViewById(R.id.btn_call_customer);
         View btnChat = view.findViewById(R.id.btn_chat_customer);
         TextView tvBuilding = view.findViewById(R.id.tv_detail_building);
         LinearLayout layoutItems = view.findViewById(R.id.layout_detail_order_items);
@@ -507,13 +506,7 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         if (tvCustomerName != null) tvCustomerName.setText(order.getCustomerName() != null ? order.getCustomerName() : "Không tên");
         if (tvCustomerPhone != null) tvCustomerPhone.setText(order.getCustomerPhone() != null ? order.getCustomerPhone() : "Chưa có SĐT");
 
-        if (btnCall != null && order.getCustomerPhone() != null && !order.getCustomerPhone().isEmpty()) {
-            btnCall.setOnClickListener(v -> {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + order.getCustomerPhone()));
-                startActivity(intent);
-            });
-        }
+
 
         if (tvBuilding != null) tvBuilding.setText("Giao đến: " + (order.getBuilding() != null ? order.getBuilding() : "Chưa rõ tòa nhà"));
 
@@ -559,6 +552,18 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
             }
         }
 
+        // Subtotal (Tạm tính)
+        double itemSubtotal = 0.0;
+        if (order.getDetails() != null) {
+            for (OrderDetailResponse detail : order.getDetails()) {
+                itemSubtotal += detail.getPrice() * detail.getQuantity();
+            }
+        }
+        TextView tvSubtotal = view.findViewById(R.id.tv_detail_subtotal);
+        if (tvSubtotal != null) {
+            tvSubtotal.setText(formatCurrency(itemSubtotal));
+        }
+
         // Voucher discount
         if (order.getDiscountAmount() > 0) {
             if (layoutDiscount != null) layoutDiscount.setVisibility(View.VISIBLE);
@@ -571,7 +576,12 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
             if (layoutDiscount != null) layoutDiscount.setVisibility(View.GONE);
         }
 
-        if (tvTotal != null) tvTotal.setText(formatCurrency(order.getTotalPrice()));
+        double shippingFee = calculateShippingFee(order);
+        TextView tvShipping = view.findViewById(R.id.tv_detail_shipping);
+        if (tvShipping != null) {
+            tvShipping.setText(formatCurrency(shippingFee));
+        }
+        if (tvTotal != null) tvTotal.setText(formatCurrency(getVendorTotalPrice(order)));
 
         if (btnClose != null) {
             btnClose.setOnClickListener(v -> dialog.dismiss());
@@ -586,6 +596,39 @@ public class VendorOrdersFragment extends Fragment implements VendorOrderAdapter
         return formatter.format(value) + "đ";
     }
 
+    private double getVendorTotalPrice(OrderResponse order) {
+        double subtotal = 0.0;
+        if (order.getDetails() != null) {
+            for (com.foodorderingapp.model.response.OrderDetailResponse detail : order.getDetails()) {
+                subtotal += detail.getPrice() * detail.getQuantity();
+            }
+        }
+        double foodTotal = subtotal - order.getDiscountAmount();
+        double shippingFee = calculateShippingFee(order);
+        if (order.getTotalPrice() >= (foodTotal + shippingFee - 100)) {
+            return order.getTotalPrice();
+        }
+        return order.getTotalPrice() + shippingFee;
+    }
+    private double calculateShippingFee(OrderResponse order) {
+        if (order.getBuildingLatitude() == null || order.getBuildingLongitude() == null
+                || order.getShopLatitude() == null || order.getShopLongitude() == null
+                || order.getShopLatitude() == 0.0 || order.getShopLongitude() == 0.0) {
+            return 5000.0; // Fallback to 5k
+        }
+        float[] results = new float[1];
+        try {
+            android.location.Location.distanceBetween(
+                    order.getShopLatitude(), order.getShopLongitude(),
+                    order.getBuildingLatitude(), order.getBuildingLongitude(),
+                    results
+            );
+            double distKm = results[0] / 1000.0;
+            return Math.round((distKm * 5000.0) / 1000.0) * 1000.0;
+        } catch (Exception e) {
+            return 5000.0;
+        }
+    }
     private void showInAppOrderNotification(@Nullable OrderResponse order) {
         android.content.Context context = getContext();
         if (context == null) return;

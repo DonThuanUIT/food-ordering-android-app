@@ -37,7 +37,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Chờ xác nhận"
-                    android:textColor="#1A1D26"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="17sp"
                     android:textStyle="bold" />
 
@@ -47,16 +47,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Đơn đã được tạo"
-                    android:textColor="#55607A"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
         <View
+            android:id="@+id/lineStepOne"
             android:layout_width="2dp"
             android:layout_height="34dp"
             android:layout_marginStart="16dp"
-            android:background="#D9DEE8" />
+            android:background="@color/vendor_dark_divider" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -83,7 +84,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Đã xác nhận"
-                    android:textColor="#A7AFBD"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="17sp"
                     android:textStyle="bold" />
 
@@ -93,16 +94,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Đợi quán xác nhận"
-                    android:textColor="#A7AFBD"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
         <View
+            android:id="@+id/lineStepTwo"
             android:layout_width="2dp"
             android:layout_height="34dp"
             android:layout_marginStart="16dp"
-            android:background="#D9DEE8" />
+            android:background="@color/vendor_dark_divider" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -129,7 +131,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Đang giao"
-                    android:textColor="#A7AFBD"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="17sp"
                     android:textStyle="bold" />
 
@@ -139,7 +141,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Chờ cập nhật"
-                    android:textColor="#A7AFBD"
+                    android:textColor="@color/vendor_dark_text_secondary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
@@ -150,17 +152,17 @@
         android:layout_height="1dp"
         android:layout_marginHorizontal="18dp"
         android:layout_marginTop="22dp"
-        android:background="#D9DEE8" />
+        android:background="@color/vendor_dark_divider" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="18dp"
         android:layout_marginTop="20dp"
-        app:cardBackgroundColor="#F9FAFC"
+        app:cardBackgroundColor="@color/vendor_dark_card"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
-        app:strokeColor="#D9DEE8"
+        app:strokeColor="@color/vendor_dark_border"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -197,7 +199,7 @@
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text="Tên quán"
-                        android:textColor="#1A1D26"
+                        android:textColor="@color/vendor_dark_text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -207,7 +209,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Đơn hàng #000000"
-                        android:textColor="#55607A"
+                        android:textColor="@color/vendor_dark_text_secondary"
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -218,7 +220,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="Tòa nhận: Chưa chọn"
-                android:textColor="#55607A"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -246,7 +248,7 @@
                 android:textSize="17sp"
                 android:textStyle="bold"
                 android:visibility="gone"
-                app:backgroundTint="#FFFFFF"
+                app:backgroundTint="@color/vendor_dark_card"
                 app:cornerRadius="14dp"
                 app:elevation="0dp"
                 app:strokeColor="#C1272D"
@@ -274,10 +276,10 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="18dp"
         android:layout_marginTop="20dp"
-        app:cardBackgroundColor="#F9FAFC"
+        app:cardBackgroundColor="@color/vendor_dark_card"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
-        app:strokeColor="#D9DEE8"
+        app:strokeColor="@color/vendor_dark_border"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -290,7 +292,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/order_summary"
-                android:textColor="#1A1D26"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -301,8 +303,16 @@
                 android:layout_marginTop="16dp"
                 android:lineSpacingExtra="8dp"
                 android:text="1x Món"
-                android:textColor="#1A1D26"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvOrderShipping"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/vendor_dark_text_secondary"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tvOrderDiscount"
@@ -318,7 +328,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
-                android:background="#D9DEE8" />
+                android:background="@color/vendor_dark_divider" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -332,7 +342,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/order_total"
-                    android:textColor="#1A1D26"
+                    android:textColor="@color/vendor_dark_text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -341,7 +351,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0đ"
-                    android:textColor="#9D3900"
+                    android:textColor="@color/vendor_dark_orange"
                     android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>

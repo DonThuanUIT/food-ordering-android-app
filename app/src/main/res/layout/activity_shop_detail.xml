@@ -232,7 +232,7 @@
         android:layout_width="match_parent"
         android:layout_height="104dp"
         android:layout_gravity="bottom"
-        android:background="#FFFFFF"
+        android:background="@color/vendor_dark_card"
         android:elevation="10dp"
         android:gravity="center"
         android:paddingStart="28dp"
@@ -249,7 +249,7 @@
             android:textColor="#FF7A21"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="#FFF3EC"
+            app:backgroundTint="@color/vendor_light_orange_soft"
             app:cornerRadius="14dp"
             app:elevation="0dp"
             app:icon="@drawable/ic_contact"
@@ -277,21 +277,5 @@
             app:iconTint="#FFFFFF"
             app:rippleColor="#E86714" />
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btn_shop_ai_assistant"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="120dp"
-        android:text="✨ Hỏi AI"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:backgroundTint="#FF7A21"
-        app:icon="@drawable/ic_arrow_forward"
-        app:iconTint="#FFFFFF"
-        android:elevation="6dp" />
 
 </FrameLayout>

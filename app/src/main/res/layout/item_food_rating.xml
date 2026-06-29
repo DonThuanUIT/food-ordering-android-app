@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="16dp"
-    app:cardBackgroundColor="@color/vendor_dark_card"
-    app:cardElevation="0dp">
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="12dp"
                 android:text="Tên món ăn"
-                android:textColor="@color/vendor_dark_text_primary"
+                android:textColor="#0F172A"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="2"
@@ -60,7 +60,7 @@
             android:stepSize="1"
             android:rating="5"
             android:progressTint="@color/brand_orange"
-            android:progressBackgroundTint="#382C29"
+            android:progressBackgroundTint="#CBD5E1"
             android:layout_marginBottom="12dp"
             style="?android:attr/ratingBarStyle"
             android:isIndicator="false"/>
@@ -68,14 +68,14 @@
         <EditText
             android:id="@+id/et_comment_food"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@drawable/bg_vendor_input_dark"
+            android:layout_height="70dp"
+            android:background="@drawable/bg_edittext"
             android:hint="Nhận xét về món ăn (không bắt buộc)..."
-            android:textColor="@color/vendor_dark_text_primary"
-            android:textColorHint="#8A7D79"
+            android:textColor="#0F172A"
+            android:textColorHint="#94A3B8"
             android:textSize="13sp"
             android:gravity="top"
-            android:padding="10dp"
+            android:padding="12dp"
             android:inputType="textMultiLine"
             android:importantForAutofill="no"/>
 

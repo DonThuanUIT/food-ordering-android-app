@@ -35,6 +35,7 @@ public class ApiClient {
                                 return chain.proceed(builder.build());
                             })
                             .connectTimeout(60, TimeUnit.SECONDS)
+                            .readTimeout(60, TimeUnit.SECONDS)
                             .writeTimeout(60, TimeUnit.SECONDS)
                             .build();
 

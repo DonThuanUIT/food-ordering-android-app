@@ -442,4 +442,23 @@ public interface ApiService {
      */
     @DELETE("notifications/device-token")
     Call<Void> removeDeviceToken(@Query("fcmToken") String fcmToken);
+
+    // --- Review Replies ---
+    @GET("reviews/{reviewId}/replies")
+    Call<List<com.foodorderingapp.model.response.ReviewReplyResponse>> getReviewReplies(@Path("reviewId") String reviewId);
+
+    @POST("reviews/{reviewId}/replies")
+    Call<com.foodorderingapp.model.response.ReviewReplyResponse> createReviewReply(
+            @Path("reviewId") String reviewId,
+            @Body com.foodorderingapp.model.request.ReviewReplyRequest request
+    );
+
+    @PUT("reviews/replies/{replyId}")
+    Call<com.foodorderingapp.model.response.ReviewReplyResponse> updateReviewReply(
+            @Path("replyId") String replyId,
+            @Body com.foodorderingapp.model.request.ReviewReplyRequest request
+    );
+
+    @DELETE("reviews/replies/{replyId}")
+    Call<Void> deleteReviewReply(@Path("replyId") String replyId);
 }

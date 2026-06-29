@@ -4,24 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/vendor_dark_bg">
+    android:background="#F8FAFC">
 
-    <!-- Toolbar -->
+    <!-- Custom Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/vendor_dark_bg"
+        android:background="#FFFFFF"
         app:navigationIcon="@drawable/ic_back"
-        app:navigationIconTint="@color/vendor_dark_text_primary"
-        app:title="Đánh giá đơn hàng"
-        app:titleTextColor="@color/vendor_dark_text_primary" />
+        app:navigationIconTint="#0F172A"
+        app:title="Đánh giá đơn hàng 🌟"
+        app:titleTextColor="#0F172A"
+        app:elevation="2dp" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,21 +36,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="@color/vendor_dark_card"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Bạn muốn đánh giá phần nào?"
-                        android:textColor="@color/vendor_dark_text_primary"
-                        android:textSize="15sp"
+                        android:text="Bạn muốn đánh giá phần nào? 🤔"
+                        android:textColor="#0F172A"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="12dp"/>
 
@@ -63,8 +65,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Đơn hàng"
-                            android:textColor="@color/vendor_dark_text_primary"
+                            android:text="Vận chuyển"
+                            android:textColor="#1E293B"
                             android:buttonTint="@color/brand_orange"
                             android:checked="true"/>
 
@@ -74,7 +76,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Cửa hàng"
-                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textColor="#1E293B"
                             android:buttonTint="@color/brand_orange"
                             android:checked="true"/>
 
@@ -84,7 +86,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Món ăn"
-                            android:textColor="@color/vendor_dark_text_primary"
+                            android:textColor="#1E293B"
                             android:buttonTint="@color/brand_orange"
                             android:checked="true"/>
                     </LinearLayout>
@@ -99,31 +101,31 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="@color/vendor_dark_card"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1. Vận chuyển &amp; Giao nhận"
-                        android:textColor="@color/vendor_dark_text_primary"
-                        android:textSize="15sp"
+                        android:text="1. Vận chuyển &amp; Giao nhận 🛵"
+                        android:textColor="#0F172A"
+                        android:textSize="16sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="6dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Đánh giá chất lượng giao hàng, tốc độ và cách đóng gói đồ ăn"
-                        android:textColor="#8A7D79"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="12dp"/>
+                        android:textColor="#64748B"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="16dp"/>
 
                     <RatingBar
                         android:id="@+id/rating_bar_order"
@@ -134,21 +136,21 @@
                         android:stepSize="1"
                         android:rating="5"
                         android:progressTint="@color/brand_orange"
-                        android:progressBackgroundTint="#382C29"
-                        android:layout_marginBottom="12dp"
+                        android:progressBackgroundTint="#CBD5E1"
+                        android:layout_marginBottom="16dp"
                         style="?android:attr/ratingBarStyle"/>
 
                     <EditText
                         android:id="@+id/et_comment_order"
                         android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:background="@drawable/bg_vendor_input_dark"
+                        android:layout_height="100dp"
+                        android:background="@drawable/bg_edittext"
                         android:hint="Nhập nhận xét về vận chuyển (ví dụ: giao nhanh, shipper thân thiện...)"
-                        android:textColor="@color/vendor_dark_text_primary"
-                        android:textColorHint="#8A7D79"
-                        android:textSize="13sp"
+                        android:textColor="#0F172A"
+                        android:textColorHint="#94A3B8"
+                        android:textSize="14sp"
                         android:gravity="top"
-                        android:padding="12dp"
+                        android:padding="16dp"
                         android:inputType="textMultiLine"
                         android:importantForAutofill="no"/>
 
@@ -162,31 +164,32 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="@color/vendor_dark_card"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
+                        android:id="@+id/tv_rate_shop_header"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2. Dịch vụ Cửa hàng"
-                        android:textColor="@color/vendor_dark_text_primary"
-                        android:textSize="15sp"
+                        android:text="2. Dịch vụ Cửa hàng 🏪"
+                        android:textColor="#0F172A"
+                        android:textSize="16sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="6dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Đánh giá chất lượng phục vụ và thời gian chuẩn bị của quán ăn"
-                        android:textColor="#8A7D79"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="12dp"/>
+                        android:textColor="#64748B"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="16dp"/>
 
                     <RatingBar
                         android:id="@+id/rating_bar_shop"
@@ -197,21 +200,21 @@
                         android:stepSize="1"
                         android:rating="5"
                         android:progressTint="@color/brand_orange"
-                        android:progressBackgroundTint="#382C29"
-                        android:layout_marginBottom="12dp"
+                        android:progressBackgroundTint="#CBD5E1"
+                        android:layout_marginBottom="16dp"
                         style="?android:attr/ratingBarStyle"/>
 
                     <EditText
                         android:id="@+id/et_comment_shop"
                         android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:background="@drawable/bg_vendor_input_dark"
+                        android:layout_height="100dp"
+                        android:background="@drawable/bg_edittext"
                         android:hint="Nhập nhận xét về quán ăn (ví dụ: chuẩn bị nhanh, đồ ăn sạch sẽ...)"
-                        android:textColor="@color/vendor_dark_text_primary"
-                        android:textColorHint="#8A7D79"
-                        android:textSize="13sp"
+                        android:textColor="#0F172A"
+                        android:textColorHint="#94A3B8"
+                        android:textSize="14sp"
                         android:gravity="top"
-                        android:padding="12dp"
+                        android:padding="16dp"
                         android:inputType="textMultiLine"
                         android:importantForAutofill="no"/>
 
@@ -223,9 +226,9 @@
                 android:id="@+id/tv_rate_food_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3. Đánh giá Món ăn"
-                android:textColor="@color/vendor_dark_text_primary"
-                android:textSize="15sp"
+                android:text="3. Đánh giá Món ăn ngon miệng 🍔"
+                android:textColor="#0F172A"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="12dp"/>
@@ -246,7 +249,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="@color/vendor_dark_bg">
+        app:cardBackgroundColor="#FFFFFF">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -261,7 +264,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
-                android:backgroundTint="@color/vendor_dark_orange"
+                android:backgroundTint="@color/brand_orange"
                 app:cornerRadius="12dp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
