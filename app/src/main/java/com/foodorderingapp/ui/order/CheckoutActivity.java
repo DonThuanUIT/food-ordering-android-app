@@ -28,6 +28,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class CheckoutActivity extends AppCompatActivity {
 
@@ -50,10 +51,14 @@ public class CheckoutActivity extends AppCompatActivity {
     private TextView tvSummarySubtotal;
     private TextView tvSummaryShipping;
     private TextView tvSummaryTotal;
+    private View layoutSummaryShipping;
+    private View layoutSummaryDiscount;
+    private TextView tvSummaryDiscount;
     private Double shopLat = null;
     private Double shopLng = null;
 
     private final List<BuildingResponse> buildingOptions = new ArrayList<>();
+    private final List<com.foodorderingapp.model.response.VoucherResponse> shopVouchers = new ArrayList<>();
     private String shopId;
     private ShopCartResponse checkoutShop;
     private BuildingResponse selectedBuilding;
@@ -75,6 +80,7 @@ public class CheckoutActivity extends AppCompatActivity {
         bindViews();
         setupInputs();
         loadShopCoordinates();
+        loadShopVouchers();
 
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
         orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
@@ -82,6 +88,26 @@ public class CheckoutActivity extends AppCompatActivity {
 
         cartViewModel.loadCart();
         orderViewModel.loadBuildings();
+    }
+
+    private void loadShopVouchers() {
+        com.foodorderingapp.data.remote.api.ApiClient.getApiService().getActiveVouchers(shopId).enqueue(
+                new retrofit2.Callback<List<com.foodorderingapp.model.response.VoucherResponse>>() {
+            @Override
+            public void onResponse(retrofit2.Call<List<com.foodorderingapp.model.response.VoucherResponse>> call,
+                                   retrofit2.Response<List<com.foodorderingapp.model.response.VoucherResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    shopVouchers.clear();
+                    shopVouchers.addAll(response.body());
+                    refreshAppliedVoucher();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<List<com.foodorderingapp.model.response.VoucherResponse>> call, Throwable t) {
+                // Fail silently
+            }
+        });
     }
 
     private void bindViews() {
@@ -101,6 +127,9 @@ public class CheckoutActivity extends AppCompatActivity {
         tvSummarySubtotal = findViewById(R.id.tvCheckoutSummarySubtotal);
         tvSummaryShipping = findViewById(R.id.tvCheckoutSummaryShipping);
         tvSummaryTotal = findViewById(R.id.tvCheckoutSummaryTotal);
+        layoutSummaryShipping = findViewById(R.id.layoutCheckoutSummaryShipping);
+        layoutSummaryDiscount = findViewById(R.id.layoutCheckoutSummaryDiscount);
+        tvSummaryDiscount = findViewById(R.id.tvCheckoutSummaryDiscount);
 
         btnApplyVoucher.setOnClickListener(v -> handleVoucherButtonClick());
         btnConfirmOrder.setOnClickListener(v -> confirmCheckout());
@@ -271,13 +300,29 @@ public class CheckoutActivity extends AppCompatActivity {
             return true;
         }
 
+        com.foodorderingapp.model.response.VoucherResponse match = null;
+        for (com.foodorderingapp.model.response.VoucherResponse v : shopVouchers) {
+            if (sameText(v.getCode(), value)) {
+                match = v;
+                break;
+            }
+        }
+
+        if (match == null) {
+            if (showSuccessMessage) {
+                ToastUtils.error(this, "Mã giảm giá không hợp lệ hoặc đã hết hạn");
+            }
+            return false;
+        }
+
         appliedVoucherCode = value;
         acVoucher.setText(value, false);
         acVoucher.setSelection(acVoucher.getText().length());
-        bindVoucherPreview(value);
+        btnApplyVoucher.setText("Bỏ mã");
         if (showSuccessMessage) {
-            ToastUtils.success(this, "Đã nhập mã giảm giá");
+            ToastUtils.success(this, "Đã áp dụng mã giảm giá");
         }
+        updatePriceCalculation();
         return true;
     }
 
@@ -285,24 +330,16 @@ public class CheckoutActivity extends AppCompatActivity {
         if (isBlank(appliedVoucherCode)) {
             return;
         }
-        bindVoucherPreview(appliedVoucherCode);
-    }
-
-    private void bindVoucherPreview(String voucherCode) {
-        layoutVoucherPreview.setVisibility(View.VISIBLE);
-        tvVoucherApplied.setText("Mã giảm giá: " + voucherCode);
-        tvDiscount.setText("Mã sẽ được kiểm tra khi xác nhận đặt hàng");
-        tvTotal.setText("Tạm tính: " + formatPrice(calculateSubtotal()));
-        btnApplyVoucher.setText("Bỏ mã");
+        updatePriceCalculation();
     }
 
     private void clearAppliedVoucher(boolean clearInput) {
         appliedVoucherCode = null;
-        layoutVoucherPreview.setVisibility(View.GONE);
         btnApplyVoucher.setText("Áp dụng");
         if (clearInput) {
             acVoucher.setText("", false);
         }
+        updatePriceCalculation();
     }
 
     private double calculateSubtotal() {
@@ -369,10 +406,126 @@ public class CheckoutActivity extends AppCompatActivity {
         return value == null || value.trim().isEmpty();
     }
 
+    private double calculateVoucherDiscount(com.foodorderingapp.model.response.VoucherResponse voucher) {
+        if (voucher == null) {
+            return 0.0;
+        }
+
+        double subtotal = calculateSubtotal();
+        double applicableTotal = 0.0;
+
+        if ("ALL_MENU".equalsIgnoreCase(voucher.getApplyType())) {
+            applicableTotal = subtotal;
+        } else if ("SPECIFIC_FOODS".equalsIgnoreCase(voucher.getApplyType()) && voucher.getFoodIds() != null) {
+            java.util.Set<String> applicableFoodIds = new java.util.HashSet<>();
+            for (UUID uuid : voucher.getFoodIds()) {
+                applicableFoodIds.add(uuid.toString().toLowerCase());
+            }
+
+            for (com.foodorderingapp.model.response.CartItemResponse item : checkoutShop.getItems()) {
+                if (item != null && item.getFoodId() != null &&
+                    applicableFoodIds.contains(item.getFoodId().toLowerCase())) {
+                    applicableTotal += item.getPrice() * item.getQuantity();
+                }
+            }
+        }
+
+        double minVal = voucher.getMinOrderValue() != null ? voucher.getMinOrderValue().doubleValue() : 0.0;
+        if (applicableTotal < minVal) {
+            return 0.0;
+        }
+
+        double discount = 0.0;
+        if ("FIXED_AMOUNT".equalsIgnoreCase(voucher.getDiscountType())) {
+            discount = voucher.getDiscountValue() != null ? voucher.getDiscountValue().doubleValue() : 0.0;
+        } else if ("PERCENTAGE".equalsIgnoreCase(voucher.getDiscountType())) {
+            double rate = voucher.getDiscountValue() != null ? voucher.getDiscountValue().doubleValue() : 0.0;
+            discount = applicableTotal * (rate / 100.0);
+            if (voucher.getMaxDiscountValue() != null && voucher.getMaxDiscountValue().doubleValue() > 0.0) {
+                discount = Math.min(discount, voucher.getMaxDiscountValue().doubleValue());
+            }
+        }
+
+        if (discount > subtotal) {
+            discount = subtotal;
+        }
+
+        return discount;
+    }
+
     private void updatePriceCalculation() {
         double subtotal = calculateSubtotal();
         double shipping = calculateShippingFee();
-        double total = subtotal + shipping;
+        double discount = 0.0;
+
+        com.foodorderingapp.model.response.VoucherResponse appliedVoucher = null;
+        if (appliedVoucherCode != null && !appliedVoucherCode.trim().isEmpty()) {
+            for (com.foodorderingapp.model.response.VoucherResponse v : shopVouchers) {
+                if (sameText(v.getCode(), appliedVoucherCode)) {
+                    appliedVoucher = v;
+                    break;
+                }
+            }
+        }
+
+        if (appliedVoucher != null) {
+            double minVal = appliedVoucher.getMinOrderValue() != null ? appliedVoucher.getMinOrderValue().doubleValue() : 0.0;
+
+            double applicableTotal = 0.0;
+            if ("ALL_MENU".equalsIgnoreCase(appliedVoucher.getApplyType())) {
+                applicableTotal = subtotal;
+            } else if ("SPECIFIC_FOODS".equalsIgnoreCase(appliedVoucher.getApplyType()) && appliedVoucher.getFoodIds() != null) {
+                java.util.Set<String> applicableFoodIds = new java.util.HashSet<>();
+                for (UUID uuid : appliedVoucher.getFoodIds()) {
+                    applicableFoodIds.add(uuid.toString().toLowerCase());
+                }
+                for (com.foodorderingapp.model.response.CartItemResponse item : checkoutShop.getItems()) {
+                    if (item != null && item.getFoodId() != null &&
+                        applicableFoodIds.contains(item.getFoodId().toLowerCase())) {
+                        applicableTotal += item.getPrice() * item.getQuantity();
+                    }
+                }
+            }
+
+            if (applicableTotal < minVal) {
+                layoutVoucherPreview.setVisibility(View.VISIBLE);
+                tvVoucherApplied.setText("Mã giảm giá: " + appliedVoucher.getCode());
+                tvDiscount.setText("Chưa đạt giá trị đơn tối thiểu (" + formatPrice(minVal) + ")");
+                tvDiscount.setTextColor(0xFFEF4444); // Red
+                tvTotal.setText("Không đủ điều kiện áp dụng");
+            } else {
+                discount = calculateVoucherDiscount(appliedVoucher);
+                layoutVoucherPreview.setVisibility(View.VISIBLE);
+                tvVoucherApplied.setText("Mã giảm giá: " + appliedVoucher.getCode());
+                tvDiscount.setText("Giảm giá: -" + formatPrice(discount));
+                tvDiscount.setTextColor(0xFF00A843); // Green
+                
+                double afterDiscountTotal = subtotal - discount;
+                tvTotal.setText("Tạm tính sau giảm: " + formatPrice(afterDiscountTotal));
+            }
+
+            if (layoutSummaryDiscount != null) {
+                if (discount > 0.0) {
+                    layoutSummaryDiscount.setVisibility(View.VISIBLE);
+                    if (tvSummaryDiscount != null) {
+                        tvSummaryDiscount.setText("-" + formatPrice(discount));
+                    }
+                } else {
+                    layoutSummaryDiscount.setVisibility(View.GONE);
+                }
+            }
+        } else {
+            layoutVoucherPreview.setVisibility(View.GONE);
+            if (layoutSummaryDiscount != null) {
+                layoutSummaryDiscount.setVisibility(View.GONE);
+            }
+        }
+
+        if (layoutSummaryShipping != null) {
+            layoutSummaryShipping.setVisibility(View.VISIBLE);
+        }
+
+        double total = subtotal - discount + shipping;
 
         if (tvSummarySubtotal != null) {
             tvSummarySubtotal.setText(formatPrice(subtotal));
@@ -392,7 +545,7 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         double distMeters = calculateDistance(shopLat, shopLng, selectedBuilding.getLatitude(), selectedBuilding.getLongitude());
         double distKm = distMeters / 1000.0;
-        return distKm * 5000.0; // 5k per 1km
+        return (double) (Math.round((distKm * 5000.0) / 1000.0) * 1000); // Round to nearest 1000đ
     }
 
     private double calculateDistance(double lat1, double lng1, double lat2, double lng2) {

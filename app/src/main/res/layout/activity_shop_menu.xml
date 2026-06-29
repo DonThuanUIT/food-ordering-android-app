@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F6F8">
+    android:background="@color/vendor_dark_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +13,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:background="#081126"
+            android:background="@color/vendor_header_bg"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="12dp"
@@ -30,7 +30,7 @@
                 android:padding="8dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_back"
-                app:tint="#FFFFFF" />
+                app:tint="@color/vendor_header_text_icon" />
 
             <TextView
                 android:id="@+id/tvMenuShopName"
@@ -43,7 +43,7 @@
                 android:gravity="center_vertical"
                 android:maxLines="1"
                 android:text="Menu - Cơm Tấm Sài Gòn"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/vendor_header_text_icon"
                 android:textSize="21sp"
                 android:textStyle="bold"
                 app:autoSizeMaxTextSize="21sp"
@@ -63,8 +63,8 @@
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:singleLine="true"
-                android:textColor="#FFFFFF"
-                android:textColorHint="#B8C0CC"
+                android:textColor="@color/vendor_header_text_icon"
+                android:textColorHint="@color/vendor_dark_text_secondary"
                 android:textSize="16sp"
                 android:visibility="gone" />
 
@@ -76,13 +76,14 @@
                 android:contentDescription="Tìm kiếm"
                 android:padding="8dp"
                 android:scaleType="centerInside"
+                app:tint="@color/vendor_header_text_icon"
                 android:src="@drawable/ic_shop_menu_search" />
         </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="110dp"
-            android:background="#FFFFFF">
+            android:background="@color/vendor_dark_card">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvMenuTabs"
@@ -98,7 +99,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E8E8E8" />
+            android:background="@color/vendor_dark_divider" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -122,7 +123,7 @@
                 android:gravity="center"
                 android:padding="28dp"
                 android:text="Đang tải menu..."
-                android:textColor="#6D4C41"
+                android:textColor="@color/vendor_dark_text_secondary"
                 android:textSize="17sp" />
         </FrameLayout>
     </LinearLayout>

@@ -21,7 +21,7 @@
             android:contentDescription="Quay lại giỏ hàng"
             android:padding="10dp"
             android:src="@drawable/ic_back"
-            app:tint="#FFFFFF" />
+            app:tint="@color/vendor_dark_text_primary" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="BƯỚC 2/2"
-                android:textColor="#FFB27F"
+                android:textColor="@color/vendor_dark_orange"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Thông tin đặt hàng"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/vendor_dark_text_primary"
                 android:textSize="22sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -311,6 +311,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/layoutCheckoutSummaryShipping"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -328,6 +329,29 @@
                                 android:layout_height="wrap_content"
                                 android:text="5,000đ"
                                 android:textColor="@color/vendor_dark_text_primary"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutCheckoutSummaryDiscount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Giảm giá voucher"
+                                android:textColor="@color/vendor_dark_text_secondary"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvCheckoutSummaryDiscount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="-0đ"
+                                android:textColor="#00A843"
                                 android:textSize="14sp" />
                         </LinearLayout>
 

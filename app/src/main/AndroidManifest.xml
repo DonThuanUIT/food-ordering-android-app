@@ -95,6 +95,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.review.StudentReviewsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.home.shipper.ShipperDeliveryMapActivity"
             android:exported="false" />
 

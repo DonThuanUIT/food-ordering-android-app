@@ -3,28 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/vendor_dark_bg"
+    android:background="@color/bg_page"
     android:orientation="vertical">
 
     <!-- Custom Toolbar -->
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarVendorReviews"
+        android:id="@+id/toolbarStudentReviews"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/vendor_dark_card"
-        app:title="Phản hồi &amp; Đánh giá"
-        app:titleTextColor="@color/vendor_dark_text_primary"
+        android:background="@color/bg_card"
+        app:title="Đánh giá &amp; Phản hồi 💬"
+        app:titleTextColor="@color/text_primary"
         app:navigationIcon="@drawable/ic_back"
-        app:navigationIconTint="@color/vendor_dark_text_primary" />
+        app:navigationIconTint="@color/text_primary"
+        app:elevation="2dp" />
 
     <!-- Overall Stats Area -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardBackgroundColor="@color/vendor_dark_card"
-        app:cardCornerRadius="14dp"
-        app:cardElevation="0dp">
+        app:cardBackgroundColor="@color/bg_card"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,9 +37,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Điểm Đánh Giá Cửa Hàng ⭐"
-                android:textColor="@color/vendor_dark_text_primary"
-                android:textSize="15sp"
+                android:text="Điểm đánh giá trung bình đã gửi ⭐"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -49,11 +50,11 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tvVendorShopRatingValue"
+                    android:id="@+id/tvStudentOverallRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0.0"
-                    android:textColor="@color/vendor_dark_text_primary"
+                    android:text="5.0"
+                    android:textColor="@color/text_primary"
                     android:textSize="40sp"
                     android:textStyle="bold" />
 
@@ -62,51 +63,61 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:text="/5"
-                    android:textColor="@color/vendor_dark_text_secondary"
+                    android:textColor="@color/text_secondary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <RatingBar
-                android:id="@+id/ratingBarVendorShop"
+                android:id="@+id/ratingBarStudent"
                 style="?android:attr/ratingBarStyleIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:isIndicator="true"
                 android:numStars="5"
-                android:progressTint="@color/vendor_dark_orange"
-                android:progressBackgroundTint="@color/vendor_dark_text_secondary"
-                android:rating="0.0"
+                android:progressTint="@color/brand_orange"
+                android:progressBackgroundTint="@color/divider"
+                android:rating="5.0"
                 android:scaleX="0.8"
                 android:scaleY="0.8" />
+
+            <TextView
+                android:id="@+id/tvStudentTotalReviews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Tổng số: 0 đánh giá"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <!-- Tabs -->
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayoutVendorReviews"
+        android:id="@+id/tabLayoutStudentReviews"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/vendor_dark_card"
-        app:tabIndicatorColor="@color/vendor_dark_orange"
-        app:tabSelectedTextColor="@color/vendor_dark_text_primary"
-        app:tabTextColor="@color/vendor_dark_text_secondary">
+        android:background="@color/bg_card"
+        app:tabIndicatorColor="@color/brand_orange"
+        app:tabSelectedTextColor="@color/brand_orange"
+        app:tabTextColor="@color/text_secondary"
+        app:elevation="2dp">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cửa hàng" />
+            android:text="Cửa hàng 🏪" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Món ăn" />
+            android:text="Món ăn 🍔" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Vận chuyển" />
+            android:text="Vận chuyển 🛵" />
     </com.google.android.material.tabs.TabLayout>
 
     <!-- Reviews Container -->
@@ -117,25 +128,27 @@
         android:padding="16dp">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvVendorReviewsList"
+            android:id="@+id/rvStudentReviewsList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp" />
 
         <ProgressBar
-            android:id="@+id/pbVendorReviews"
+            android:id="@+id/pbStudentReviews"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminateTint="@color/vendor_dark_orange"
+            android:indeterminateTint="@color/brand_orange"
             android:visibility="gone" />
 
         <TextView
-            android:id="@+id/tvVendorReviewsEmpty"
+            android:id="@+id/tvStudentReviewsEmpty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Không có đánh giá nào"
-            android:textColor="@color/vendor_dark_text_secondary"
+            android:text="Chưa có đánh giá nào trong mục này"
+            android:textColor="@color/text_secondary"
             android:textSize="15sp"
             android:visibility="gone" />
     </FrameLayout>
